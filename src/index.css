@@ -1768,3 +1768,7 @@ small, .eyebrow, .side-section-label, .terminal-title small, .terminal-title str
 @keyframes client-face-breathe { 0%,100% { margin-top:0; } 50% { margin-top:1px; } }
 @keyframes client-shirt-breathe { 0%,100% { transform:translateX(-50%) scaleY(1); } 50% { transform:translateX(-50%) scaleY(1.012); } }
 @media (prefers-reduced-motion: reduce) { .client-sim-face,.client-sim-eye,.client-sim-shirt { animation:none; } }
+
+
+.client-portrait-3d { position:absolute; inset:0; z-index:1; overflow:hidden; }
+.client-portrait-3d canvas { display:block; width:100%; height:100%; }
