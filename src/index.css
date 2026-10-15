@@ -1690,3 +1690,30 @@ small, .eyebrow, .side-section-label, .terminal-title small, .terminal-title str
 .hud-balance-stat span strong { font-size:clamp(19px,1.6vw,25px); line-height:1.1; color:#e4fff0; font-weight:800; font-variant-numeric:tabular-nums; }
 @media (max-width:1050px) { .hud-city-button { min-height:38px; padding:0 10px; font-size:12px; } .hud-balance-stat { padding:6px 8px; } .hud-balance-stat span strong { font-size:18px; } }
 @media (max-width:760px) { .hud-city-button span { display:none; } .hud-city-button { width:38px; min-width:38px; padding:0; } }
+
+
+/* First playable 3D neighborhood: world canvas, readable interaction prompts and compact HUD. */
+.city-3d-overlay { padding:0; overflow:hidden; }
+.city-3d-overlay .os-topbar { position:relative; z-index:5; flex:none; }
+.city-3d-stage { position:relative; flex:1; min-height:0; overflow:hidden; background:#101c2a; }
+.city-3d-root { position:absolute; inset:0; }
+.city-3d-root canvas { display:block; width:100%; height:100%; touch-action:none; cursor:crosshair; }
+.city-3d-crosshair { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); color:rgba(244,248,241,.85); font:22px/1 monospace; text-shadow:0 1px 5px #142026; pointer-events:none; }
+.city-3d-hud { position:absolute; left:18px; right:18px; top:16px; display:flex; align-items:center; justify-content:space-between; gap:12px; pointer-events:none; }
+.city-3d-time,.city-3d-controls { display:flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid rgba(225,239,231,.18); border-radius:9px; background:rgba(11,20,25,.78); color:#e0ece5; backdrop-filter:blur(8px); font-size:12px; }
+.city-3d-time { color:#b8f0d0; font-variant-numeric:tabular-nums; }
+.city-3d-controls b { color:#fff0c7; font-size:11px; }
+.city-3d-interaction { position:absolute; left:50%; bottom:28px; transform:translateX(-50%); display:flex; align-items:center; gap:12px; width:min(650px,calc(100% - 28px)); padding:13px 15px; border:1px solid rgba(144,216,180,.32); border-radius:12px; background:rgba(10,21,25,.92); box-shadow:0 16px 50px rgba(0,0,0,.35); color:#dfece4; backdrop-filter:blur(10px); }
+.city-3d-interaction-key { display:grid; place-items:center; flex:none; width:38px; height:38px; border-radius:8px; background:#b9efce; color:#10251a; font-size:18px; font-weight:900; }
+.city-3d-interaction > div { display:grid; gap:4px; flex:1; min-width:0; }
+.city-3d-interaction strong { font-size:12px; letter-spacing:.04em; }
+.city-3d-interaction small { color:#9fb5a8; font-size:11px; line-height:1.4; }
+.city-3d-interaction button { flex:none; padding:10px 12px; border:1px solid rgba(131,222,168,.35); border-radius:8px; background:rgba(75,164,112,.18); color:#c5f2d6; font-size:12px; cursor:pointer; }
+.city-3d-interaction button:hover { background:rgba(75,164,112,.32); }
+@media(max-width:700px) {
+ .city-3d-hud { left:9px; right:9px; top:9px; align-items:flex-start; flex-direction:column; }
+ .city-3d-controls { flex-wrap:wrap; font-size:11px; }
+ .city-3d-interaction { bottom:12px; gap:8px; flex-wrap:wrap; }
+ .city-3d-interaction > div { min-width:calc(100% - 58px); }
+ .city-3d-interaction button { width:100%; }
+}
