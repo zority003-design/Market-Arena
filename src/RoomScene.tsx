@@ -344,6 +344,26 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
         <Box key={x} position={[x, 0.17, -1.08]} size={[0.045, 0.25, 0.045]} color="#353e45" metalness={0.7} />
       ))}
 
+      {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
+      <group position={[3.3, 0.86, 0.5]}>
+        <Box position={[0, 0.09, 0]} size={[0.3, 0.18, 0.12]} color="#252d31" roughness={0.42} />
+        <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#8b493f" roughness={0.28} />
+        <Box position={[-0.055, 0.105, 0.072]} size={[0.025, 0.052, 0.004]} color="#f0a47b" roughness={0.35} />
+        <Box position={[0.005, 0.105, 0.072]} size={[0.025, 0.052, 0.004]} color="#f0a47b" roughness={0.35} />
+        <Box position={[0.065, 0.105, 0.072]} size={[0.025, 0.052, 0.004]} color="#f0a47b" roughness={0.35} />
+        <Cylinder position={[-0.105, 0.2, 0]} radius={0.055} height={0.025} color="#454c4c" metalness={0.3} />
+        <Cylinder position={[0.105, 0.2, 0]} radius={0.055} height={0.025} color="#454c4c" metalness={0.3} />
+      </group>
+      <group position={[3.45, 0.32, 2.92]}>
+        <Box position={[0, 0.23, 0]} size={[0.48, 0.46, 0.48]} color="#51575a" roughness={0.9} />
+        <Box position={[0, 0.47, 0]} size={[0.5, 0.035, 0.5]} color="#687174" roughness={0.85} />
+        {[-0.12, 0, 0.12].map((x) => <Box key={x} position={[x, 0.23, 0.245]} size={[0.018, 0.32, 0.008]} color="#343d40" />)}
+        <Box position={[-0.08, 0.49, -0.02]} size={[0.18, 0.025, 0.16]} color="#536d76" rotation={[0, 0.2, -0.08]} />
+        <Box position={[0.08, 0.5, 0.05]} size={[0.2, 0.03, 0.16]} color="#7c5d55" rotation={[0, -0.15, 0.04]} />
+      </group>
+      <Box position={[1.42, 0.09, 2.82]} size={[0.32, 0.08, 0.46]} color="#394a50" rotation={[0, -0.15, 0]} roughness={0.95} />
+      <Box position={[1.73, 0.09, 2.9]} size={[0.31, 0.08, 0.44]} color="#4e4642" rotation={[0, 0.12, 0]} roughness={0.95} />
+
       {/* Bed and rumpled bedding */}
       <Box position={[2.52, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
       <Box position={[2.52, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#d0c8b8" roughness={0.98} />
