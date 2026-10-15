@@ -28,14 +28,13 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
   const introFinished = useRef(false)
 
   useEffect(() => {
-    camera.position.set(introActive ? 2.52 : 0, introActive ? 0.76 : 1.66, introActive ? 0.85 : 3.55)
+    camera.position.set(0, 1.66, 3.55)
     camera.rotation.order = 'YXZ'
-    yaw.current = introActive ? 0.1 : 0
-    pitch.current = introActive ? 0.12 : -0.04
+    yaw.current = 0
+    pitch.current = -0.04
     camera.rotation.set(pitch.current, yaw.current, 0)
-    introProgress.current = 0
-    introFinished.current = false
-    if (!introActive) { onCanInteractChange(false); interactable.current = false }
+    onCanInteractChange(false)
+    interactable.current = false
 
     const down = (event: KeyboardEvent) => {
       if (!active) return
@@ -76,7 +75,16 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
-  }, [camera, gl, active, introActive, onInteract, onCanInteractChange])
+  }, [camera, gl, active, onInteract, onCanInteractChange])
+
+  useEffect(() => {
+    if (!introActive) return
+    camera.position.set(2.52, 0.76, 0.85)
+    yaw.current = 0.1
+    pitch.current = 0.12
+    introProgress.current = 0
+    introFinished.current = false
+  }, [camera, introActive])
 
   useFrame((_, delta) => {
     if (!active) return
@@ -395,7 +403,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
       {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} />
+      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={(value) => { interactable.current = value; onCanInteractChange(value) }} introActive={introActive} onIntroComplete={onIntroComplete} />
     </>
   )
 }
