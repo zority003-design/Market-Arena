@@ -380,7 +380,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       {[0, 72, 144, 216, 288].map((angle) => <group key={angle} rotation={[0, angle * Math.PI / 180, 0]} position={[0.1, 0.14, -1.08]}>
         <Box position={[0.2, 0, 0]} size={[0.42, 0.045, 0.055]} color="#3a454a" metalness={0.68} />
         <Cylinder position={[0.39, -0.045, 0]} rotation={[Math.PI / 2, 0, 0]} radius={0.045} height={0.06} color="#1d2529" metalness={0.4} />
-      </group>
+      </group>)}
 
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
       <group position={[3.3, 0.82, -0.92]}>
