@@ -118,7 +118,8 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
         (x > -1.38 && x < 1.62 && z > -2.98 && z < -1.72) ||
         (x > -0.43 && x < 0.63 && z > -1.38 && z < -0.58) ||
         (x > 1.48 && x < 3.62 && z > -0.78 && z < 2.78) ||
-        (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22)
+        (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22) ||
+        (x > 3.16 && x < 3.72 && z > 2.64 && z < 3.24)
       const nextX = THREE.MathUtils.clamp(camera.position.x + stepX, -3.52, 3.52)
       if (!blocked(nextX, camera.position.z)) camera.position.x = nextX
       const nextZ = THREE.MathUtils.clamp(camera.position.z + stepZ, -3.52, 3.52)
