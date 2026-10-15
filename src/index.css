@@ -1248,3 +1248,15 @@ button:focus-visible, textarea:focus-visible {
 .in-game-self-view.outfit-premium .player-body { background:linear-gradient(90deg,#101922,#2e4651 48%,#101922); }
 .in-game-self-view.outfit-classic .player-body::before,.in-game-self-view.outfit-premium .player-body::before { content:""; position:absolute; left:44%; top:0; width:12%; height:85%; background:#d8ded8; clip-path:polygon(0 0,100% 0,70% 100%,30% 100%); }
 @media (max-width:760px) { .outfit-grid { grid-template-columns:1fr; }.outfit-selector-heading { align-items:flex-start; flex-direction:column; }.outfit-card { display:grid; grid-template-columns:70px minmax(0,1fr); }.outfit-card > button { grid-column:1 / -1; } }
+
+
+/* Interactive 3D wardrobe viewport */
+.wardrobe-3d-canvas { position:absolute !important; inset:0; width:100% !important; height:100% !important; min-height:300px; cursor:grab; }
+.wardrobe-3d-canvas:active { cursor:grabbing; }
+.client-sim-person { transform-origin:50% 85%; animation:clientBreath 4.2s ease-in-out infinite; }
+.client-sim-eye { transform-origin:center; animation:clientBlink 5.4s infinite; }
+.client-sim-eye.right { animation-delay:.08s; }
+.client-sim-mouth { animation:clientSpeak 1.8s ease-in-out infinite; }
+@keyframes clientBreath { 0%,100% { transform:translate(-50%,-44%) translateY(0); } 50% { transform:translate(-50%,-44%) translateY(-2px); } }
+@keyframes clientBlink { 0%,46%,49%,100% { transform:scaleY(1); } 47.5% { transform:scaleY(.12); } }
+@keyframes clientSpeak { 0%,100% { transform:scaleY(.8); } 50% { transform:scaleY(1.25); } }
