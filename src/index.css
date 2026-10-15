@@ -966,3 +966,24 @@ button:focus-visible, textarea:focus-visible {
 .immersive-call-workspace .player-preview-tile small { position: absolute; z-index: 2; right: 5px; bottom: 4px; font-size: 6px; text-shadow: 0 1px 3px #000; }
 .immersive-call-workspace .client-video-feed::before { width: 190px; height: 180px; bottom: -72px; background: linear-gradient(140deg,#4b625c,#233d3a); }
 .immersive-call-workspace .client-video-feed::after { width: 190px; height: 180px; bottom: -72px; background: linear-gradient(140deg,#455a5a,#223239); }
+
+
+/* While negotiating, hide navigation chrome and give the call the whole monitor. */
+.immersive-call-body { grid-template-columns: minmax(0,1fr) !important; }
+.immersive-call-body .terminal-sidebar,
+.immersive-call-body .terminal-right-rail { display: none !important; }
+.immersive-call-body .terminal-content { grid-column: 1; min-width: 0; }
+.immersive-call-body .calls-page { width: 100%; max-width: none; padding: clamp(12px, 2vw, 26px); }
+.immersive-call-body .page-heading { margin-bottom: 12px; }
+.immersive-call-body .page-heading h2 { font-size: 21px; }
+.immersive-call-body .page-heading p { margin-bottom: 0; }
+.immersive-call-body .call-workspace { min-height: calc(100vh - 205px); }
+.immersive-call-body .client-panel { display: flex; flex-direction: column; }
+.immersive-call-body .client-video-stage { flex: 1; min-height: 0; }
+.immersive-call-body .client-video-feed { min-height: 300px; }
+.immersive-call-body .answer-panel { max-height: calc(100vh - 215px); overflow-y: auto; }
+@media (max-width: 850px) {
+  .immersive-call-body .call-workspace { min-height: 0; }
+  .immersive-call-body .answer-panel { max-height: none; }
+  .immersive-call-body .client-video-stage { min-height: 250px; }
+}
