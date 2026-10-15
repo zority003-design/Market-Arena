@@ -1677,3 +1677,16 @@ small, .eyebrow, .side-section-label, .terminal-title small, .terminal-title str
   .world-exit-button small { display: none; }
   .city-world-screen .city-map-shell { grid-template-columns: 1fr; }
 }
+
+
+/* Persistent city entry and more readable personal balance. */
+.hud-city-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:0 15px; border:1px solid rgba(126,181,244,.42); border-radius:10px; background:linear-gradient(135deg,rgba(55,107,130,.32),rgba(17,34,45,.9)); color:#d9efff; font-size:14px; font-weight:800; letter-spacing:.07em; white-space:nowrap; }
+.hud-city-button svg { color:#8fcaff; }
+.hud-city-button:hover { background:rgba(67,132,157,.42); border-color:#8fcaff; }
+.hud-balance-stat { padding:8px 13px; border:1px solid rgba(101,208,161,.32); border-radius:10px; background:rgba(42,118,84,.13); }
+.hud-balance-stat > svg { width:22px; height:22px; color:#7be0b1; }
+.hud-balance-stat span { gap:4px; }
+.hud-balance-stat span small { font-size:12px; letter-spacing:.055em; }
+.hud-balance-stat span strong { font-size:clamp(19px,1.6vw,25px); line-height:1.1; color:#e4fff0; font-weight:800; font-variant-numeric:tabular-nums; }
+@media (max-width:1050px) { .hud-city-button { min-height:38px; padding:0 10px; font-size:12px; } .hud-balance-stat { padding:6px 8px; } .hud-balance-stat span strong { font-size:18px; } }
+@media (max-width:760px) { .hud-city-button span { display:none; } .hud-city-button { width:38px; min-width:38px; padding:0; } }
