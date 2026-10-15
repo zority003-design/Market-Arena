@@ -105,6 +105,16 @@ function District({ gameMinutes }: { gameMinutes: number }) {
   </>
 }
 
+export function CityWindowView({ night }: { night: boolean }) {
+  return <group position={[-5.72, 0.38, -1.15]} rotation={[0, Math.PI / 2, 0]} scale={0.46}>
+    <Building x={-1.65} z={-0.6} width={3.4} depth={2.6} height={5.3} color={night ? '#344b5d' : '#7d9296'} label="КАФЕ" shop night={night} />
+    <Building x={1.15} z={0.45} width={2.8} depth={2.2} height={4.1} color={night ? '#263b4c' : '#718892'} label="ЖИЛОЙ ДОМ" night={night} />
+    <Building x={0.0} z={-3.7} width={3.8} depth={2.8} height={7.2} color={night ? '#2b4053' : '#8aa2aa'} label="БИЗНЕС-ЦЕНТР" night={night} />
+    <Block position={[0, 0.04, 2.5]} size={[12, 0.08, 0.8]} color="#343e43" />
+    {[-3.2, -1.6, 0, 1.6, 3.2].map((x) => <Tree key={x} position={[x, 0.05, 2.0]} />)}
+  </group>
+}
+
 function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySceneProps & { onNearbyChange: (nearby: LocationId | 'home' | null) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
