@@ -201,7 +201,7 @@ export default function App() {
   }, [startNewCareerOnLoad])
 
   useEffect(() => {
-    configureAudio({ enabled: soundEnabled, ambience: ambienceEnabled, voice: voiceEnabled, curtainsOpen, inRoom: mainMenu || panel === 'room', inCall: callStatus === 'active', paused: pauseOpen || menuSettings })
+    configureAudio({ enabled: soundEnabled, ambience: ambienceEnabled, voice: voiceEnabled, curtainsOpen, inRoom: mainMenu || panel === 'room' || panel === 'computer', inCall: callStatus === 'active', paused: pauseOpen || menuSettings })
     try {
       localStorage.setItem('na-vse-kotirovki-sound', String(soundEnabled))
       localStorage.setItem('na-vse-kotirovki-ambience', String(ambienceEnabled))
@@ -403,25 +403,6 @@ export default function App() {
     setControlsVisible(true)
     setCanInteractWithComputer(false)
     setIntroActive(true)
-    try {
-      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-      if (AudioContextClass) {
-        const audio = new AudioContextClass()
-        const start = audio.currentTime
-        ;[0, 0.32, 0.64].forEach((offset, index) => {
-          const oscillator = audio.createOscillator()
-          const gain = audio.createGain()
-          oscillator.type = 'sine'
-          oscillator.frequency.setValueAtTime(index === 1 ? 740 : 620, start + offset)
-          gain.gain.setValueAtTime(0.0001, start + offset)
-          gain.gain.exponentialRampToValueAtTime(0.07, start + offset + 0.025)
-          gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.18)
-          oscillator.connect(gain); gain.connect(audio.destination)
-          oscillator.start(start + offset); oscillator.stop(start + offset + 0.19)
-        })
-        window.setTimeout(() => { void audio.close() }, 1400)
-      }
-    } catch { /* Audio is optional if the browser blocks it. */ }
   }
 
   const openComputer = useCallback(() => {
