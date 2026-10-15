@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Activity, ArrowLeft, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
@@ -142,6 +142,7 @@ export default function App() {
   const [introActive, setIntroActive] = useState(false)
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
+  const finishIntro = useCallback(() => setIntroActive(false), [])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [menuSettings, setMenuSettings] = useState(false)
@@ -303,10 +304,10 @@ export default function App() {
     window.location.reload()
   }
 
-  function openComputer() {
+  const openComputer = useCallback(() => {
     setPanel('computer')
     setTab('overview')
-  }
+  }, [])
 
   function startCall() {
     const dailyCallLimit = reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2
@@ -447,7 +448,7 @@ export default function App() {
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
       {!mainMenu && introActive && <div className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={() => setIntroActive(false)} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
+        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
       </div>
 
       {mainMenu && (
