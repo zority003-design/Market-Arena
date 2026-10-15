@@ -201,7 +201,11 @@ function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySc
         (x > -1.0 && x < 2.0 && z > -11.5 && z < -9.0) ||
         (x > 5.5 && x < 11.1 && z > -3.8 && z < 1.0) ||
         (x > -13 && x < -7.5 && z > -10.5 && z < -5.0) ||
-        (x > 8.4 && x < 13 && z > -15 && z < -10)
+        (x > 8.4 && x < 13 && z > -15 && z < -10) ||
+        // House walls: leave only a narrow doorway lane, and prevent walking through the interior.
+        (x > -3.15 && x < -0.72 && z > 2.8 && z < 7.5) ||
+        (x > 0.72 && x < 3.15 && z > 2.8 && z < 7.5) ||
+        (x > -0.72 && x < 0.72 && z > 3.65 && z < 7.5)
       if (!blocked(nx, camera.position.z)) camera.position.x = nx
       if (!blocked(camera.position.x, nz)) camera.position.z = nz
     }
