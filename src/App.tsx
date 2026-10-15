@@ -274,54 +274,43 @@ function RoomItemIllustration({ id }: { id: string }) {
 }
 
 function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
-  const jacket = outfit === 'premium' ? '#172a35' : outfit === 'classic' ? '#34485d' : '#496b60'
-  const shirt = outfit === 'intern' ? '#668278' : '#e7e3d8'
-  const trousers = outfit === 'premium' ? '#17232b' : outfit === 'classic' ? '#29313b' : '#303b42'
+  const jacket = outfit === 'premium' ? '#1b2d38' : outfit === 'classic' ? '#34485d' : '#496b60'
+  const shirt = outfit === 'intern' ? '#6c897e' : '#e8e2d6'
+  const trousers = outfit === 'premium' ? '#202b33' : outfit === 'classic' ? '#303943' : '#303b42'
   const skin = '#c58d6a'
   const hair = outfit === 'premium' ? '#211e1c' : '#35271f'
+  const skinMaterial = <meshStandardMaterial color={skin} roughness={0.86} metalness={0} />
   return <group position={[0, 0.02, 0]}>
     <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[0.72, 48]} /><meshStandardMaterial color="#1a2829" roughness={0.96} /></mesh>
-    {/* One continuous-looking silhouette: hidden overlaps, tapered limbs and fewer decorative pieces. */}
-    <mesh position={[0, 0.79, 0]} scale={[0.43, 0.78, 0.9]} castShadow><sphereGeometry args={[0.24, 32, 24]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
-    {[-0.19, 0.19].map((x) => <group key={x} position={[x, 0.08, 0]}>
-      <mesh position={[0, 0.47, 0]} castShadow><capsuleGeometry args={[0.108, 0.64, 8, 20]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
-      <mesh position={[0, 0.13, 0.09]} rotation={[Math.PI / 2, 0, 0]} castShadow><capsuleGeometry args={[0.09, 0.12, 6, 16]} /><meshStandardMaterial color="#20262a" roughness={0.78} /></mesh>
+    <mesh position={[0, 0.78, 0]} scale={[0.34, 0.24, 0.205]} castShadow><sphereGeometry args={[1, 40, 32]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
+    {[-0.145, 0.145].map((x) => <group key={x} position={[x, 0.08, 0]}>
+      <mesh position={[0, 0.43, 0]} scale={[0.94, 1, 0.94]} castShadow><capsuleGeometry args={[0.092, 0.55, 12, 24]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
+      <mesh position={[0, 0.075, 0.075]} rotation={[Math.PI / 2, 0, 0]} scale={[1.2, 0.8, 1]} castShadow><capsuleGeometry args={[0.072, 0.14, 8, 18]} /><meshStandardMaterial color="#20262a" roughness={0.82} /></mesh>
     </group>)}
-    {/* The jacket is a single tailored volume rather than a stack of torso blocks. */}
-    <mesh position={[0, 1.18, 0]} scale={[1, 1.05, 0.94]} castShadow><capsuleGeometry args={[0.285, 0.46, 12, 32]} /><meshStandardMaterial color={jacket} roughness={0.94} /></mesh>
-    <mesh position={[0, 1.0, 0.245]} scale={[0.12, 0.36, 0.06]} castShadow><capsuleGeometry args={[0.12, 0.28, 8, 20]} /><meshStandardMaterial color={shirt} roughness={0.92} /></mesh>
-    {[-1, 1].map((side) => <group key={side} position={[side * 0.29, 1.43, 0]}>
-      {/* Sleeves are single tapered capsules and disappear into the shoulder line. */}
-      <mesh position={[side * 0.075, -0.26, 0]} rotation={[0, 0, side * -0.32]} castShadow><capsuleGeometry args={[0.09, 0.51, 12, 28]} /><meshStandardMaterial color={jacket} roughness={0.92} /></mesh>
-      <mesh position={[side * 0.13, -0.57, 0.045]} rotation={[0, 0, side * -0.12]} castShadow><capsuleGeometry args={[0.058, 0.13, 10, 20]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
+    <mesh position={[0, 1.17, 0]} scale={[1, 1.03, 0.92]} castShadow><capsuleGeometry args={[0.255, 0.43, 16, 32]} /><meshStandardMaterial color={jacket} roughness={0.86} /></mesh>
+    <mesh position={[0, 0.99, 0.224]} scale={[0.105, 0.3, 0.045]} castShadow><capsuleGeometry args={[0.1, 0.22, 12, 24]} /><meshStandardMaterial color={shirt} roughness={0.88} /></mesh>
+    {[-1, 1].map((side) => <group key={side} position={[side * 0.245, 1.4, 0]}>
+      <mesh position={[side * 0.105, -0.24, 0]} rotation={[0, 0, side * -0.19]} castShadow><capsuleGeometry args={[0.078, 0.43, 14, 28]} /><meshStandardMaterial color={jacket} roughness={0.9} /></mesh>
+      <mesh position={[side * 0.16, -0.51, 0.01]} rotation={[0, 0, side * -0.13]} castShadow><capsuleGeometry args={[0.054, 0.13, 12, 22]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
     </group>)}
-    {/* Neck tucks into the collar; the head sits low enough to avoid a floating-head gap. */}
-    <mesh position={[0, 1.62, 0]} castShadow><capsuleGeometry args={[0.075, 0.18, 8, 20]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
+    <mesh position={[0, 1.59, 0]} castShadow><cylinderGeometry args={[0.065, 0.078, 0.19, 24]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
+    <mesh position={[0, 1.94, 0.005]} scale={[0.188, 0.245, 0.18]} castShadow><sphereGeometry args={[1, 48, 40]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
+    <mesh position={[0, 2.105, -0.008]} scale={[0.19, 0.092, 0.184]} castShadow><sphereGeometry args={[1, 40, 28]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
+    <mesh position={[0, 2.08, 0.095]} scale={[0.17, 0.065, 0.105]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
+    {[-1, 1].map((side) => <mesh key={side} position={[side * 0.184, 1.95, 0.002]} scale={[0.027, 0.045, 0.026]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>)}
+    {[-0.067, 0.067].map((x) => <group key={x}>
+      <mesh position={[x, 1.974, 0.174]} scale={[0.026, 0.015, 0.009]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#e8d6c5" roughness={0.55} /></mesh>
+      <mesh position={[x, 1.974, 0.182]}><sphereGeometry args={[0.009, 20, 16]} /><meshStandardMaterial color="#4b625b" roughness={0.52} /></mesh>
+      <mesh position={[x, 2.004, 0.17]} rotation={[0, 0, x > 0 ? -0.12 : 0.12]}><capsuleGeometry args={[0.008, 0.035, 6, 12]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
+    </group>)}
+    <mesh position={[0, 1.928, 0.184]} scale={[0.012, 0.03, 0.015]}><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
+    <mesh position={[0, 1.874, 0.174]} scale={[0.026, 0.006, 0.006]}><sphereGeometry args={[1, 20, 12]} /><meshStandardMaterial color="#8b5146" roughness={0.92} /></mesh>
     {outfit !== 'intern' && <>
-      <mesh position={[-0.065, 1.48, 0.245]} rotation={[0, 0, -0.24]}><boxGeometry args={[0.085, 0.19, 0.025]} /><meshStandardMaterial color="#f2eee2" roughness={0.88} /></mesh>
-      <mesh position={[0.065, 1.48, 0.245]} rotation={[0, 0, 0.24]}><boxGeometry args={[0.085, 0.19, 0.025]} /><meshStandardMaterial color="#f2eee2" roughness={0.88} /></mesh>
-      <mesh position={[0, 1.29, 0.291]}><coneGeometry args={[0.035, 0.18, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b69a62' : '#243d52'} roughness={0.7} /></mesh>
-      <mesh position={[-0.105, 1.28, 0.246]} rotation={[0, 0, -0.2]}><boxGeometry args={[0.07, 0.25, 0.018]} /><meshStandardMaterial color={outfit === 'premium' ? '#263d47' : '#455a6d'} roughness={0.92} /></mesh>
-      <mesh position={[0.105, 1.28, 0.246]} rotation={[0, 0, 0.2]}><boxGeometry args={[0.07, 0.25, 0.018]} /><meshStandardMaterial color={outfit === 'premium' ? '#263d47' : '#455a6d'} roughness={0.92} /></mesh>
+      <mesh position={[-0.045, 1.46, 0.221]} rotation={[0, 0, -0.2]}><boxGeometry args={[0.07, 0.15, 0.018]} /><meshStandardMaterial color="#f0eadf" roughness={0.9} /></mesh>
+      <mesh position={[0.045, 1.46, 0.221]} rotation={[0, 0, 0.2]}><boxGeometry args={[0.07, 0.15, 0.018]} /><meshStandardMaterial color="#f0eadf" roughness={0.9} /></mesh>
+      <mesh position={[0, 1.29, 0.265]}><coneGeometry args={[0.027, 0.14, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b69a62' : '#243d52'} roughness={0.75} /></mesh>
     </>}
-    <mesh position={[0, 1.98, 0.012]} scale={[0.225, 0.285, 0.215]} castShadow><sphereGeometry args={[1, 48, 40]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
-    {/* Hair is a fitted cap, not a stack of floating spheres. */}
-    <mesh position={[0, 2.17, -0.005]} scale={[0.226, 0.105, 0.218]} castShadow><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={hair} roughness={0.98} /></mesh>
-    <mesh position={[0, 2.205, 0.075]} scale={[0.2, 0.055, 0.15]} castShadow><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color={hair} roughness={0.98} /></mesh>
-    {[-0.22, 0.22].map((x) => <mesh key={x} position={[x, 1.98, 0.005]} scale={[0.045, 0.07, 0.045]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.92} /></mesh>)}
-    {[-0.095, 0.095].map((x) => <group key={x}>
-      <mesh position={[x, 2.015, 0.204]} scale={[0.038, 0.028, 0.018]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#fff8eb" roughness={0.42} /></mesh>
-      <mesh position={[x, 2.015, 0.22]}><sphereGeometry args={[0.015, 20, 16]} /><meshStandardMaterial color="#4b766b" roughness={0.5} /></mesh>
-      <mesh position={[x, 2.015, 0.232]}><sphereGeometry args={[0.007, 16, 12]} /><meshStandardMaterial color="#171b20" roughness={0.5} /></mesh>
-    </group>)}
-    <mesh position={[-0.222, 1.985, 0.005]} scale={[0.045, 0.07, 0.035]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.92} /></mesh>
-    <mesh position={[0.222, 1.985, 0.005]} scale={[0.045, 0.07, 0.035]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.92} /></mesh>
-    <mesh position={[-0.095, 2.065, 0.205]} rotation={[0, 0, 0.12]}><capsuleGeometry args={[0.012, 0.055, 4, 8]} /><meshStandardMaterial color={hair} roughness={0.95} /></mesh>
-    <mesh position={[0.095, 2.065, 0.205]} rotation={[0, 0, -0.12]}><capsuleGeometry args={[0.012, 0.055, 4, 8]} /><meshStandardMaterial color={hair} roughness={0.95} /></mesh>
-    <mesh position={[0, 1.955, 0.235]} scale={[0.028, 0.045, 0.025]}><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color="#b77c5b" roughness={0.94} /></mesh>
-    <mesh position={[0, 1.89, 0.225]} scale={[1.8, 0.7, 1]}><capsuleGeometry args={[0.008, 0.04, 4, 10]} /><meshStandardMaterial color="#79453a" roughness={0.95} /></mesh>
-    <mesh position={[0, 1.89, 0.207]}><capsuleGeometry args={[0.007, 0.035, 4, 10]} /><meshStandardMaterial color="#79453a" roughness={0.95} /></mesh>
-    {outfit === 'premium' && <mesh position={[0.2, 1.3, 0.247]}><sphereGeometry args={[0.022, 16, 12]} /><meshStandardMaterial color="#d7b879" metalness={0.45} roughness={0.65} /></mesh>}
+    {outfit === 'premium' && <mesh position={[0.18, 1.3, 0.22]}><sphereGeometry args={[0.016, 16, 12]} /><meshStandardMaterial color="#d7b879" metalness={0.3} roughness={0.7} /></mesh>}
   </group>
 }
 
@@ -927,7 +916,8 @@ export default function App() {
           <span className="market-open"><span className="live-dot" /> РЫНОК ОТКРЫТ</span>
         </div>
         <div className="hud-right">
-          <div className="hud-stat"><Wallet size={15} /><span><small>ЛИЧНЫЕ СРЕДСТВА</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></span></div>
+          <button className="hud-city-button" onClick={() => { setPanel('city'); setWindowMinimized(false); playSound('ui') }}><MapPin size={17} /><span>ГОРОД</span></button>
+          <div className="hud-stat hud-balance-stat"><Wallet size={19} /><span><small>ЛИЧНЫЕ СРЕДСТВА</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></span></div>
           <div className="hud-stat workday-stat"><CalendarDays size={15} /><span><small>ЗВОНКИ СЕГОДНЯ</small><strong>{callsToday}/{reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2}</strong></span></div><div className="hud-stat reputation-stat"><ShieldAlert size={15} /><span><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></span></div>
           {debt > 0 && <div className="hud-stat debt-stat"><ShieldAlert size={15} /><span><small>ДОЛГ</small><strong>{debt.toLocaleString('ru-RU')} ₽</strong></span></div>}<button className="hud-pause-button" onClick={() => setPauseOpen(true)} aria-label="Открыть паузу"><span>Ⅱ</span> Пауза</button>
         </div>
