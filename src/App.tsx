@@ -119,11 +119,6 @@ const professionalQuestions = [
   },
 ]
 
-function getQuestionsForTier(tier: number) {
-  if (tier >= 3) return professionalQuestions
-  if (tier >= 2) return entrepreneurQuestions
-  return questions
-}
 
 const companies = [
   { ticker: 'KOTL', name: 'Котолёт', sector: 'Робототехника', price: '₽ 148,60', change: '+3,42%', positive: true, cap: '₽ 8,4 млрд', revenue: '120 ИУ', profit: '−18 ИУ', risk: 'Высокий', description: 'Разрабатывает автономных роботов-доставщиков для магазинов и логистических центров. Выручка растёт, но компания пока вкладывает почти всё в масштабирование.', advantages: 'Рост заказов; крупный контракт на тестирование; потенциально масштабируемая технология.', risks: 'Чистый убыток; зависимость от крупных контрактов; расходы на разработку и сервис.' },
