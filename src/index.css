@@ -683,3 +683,5 @@ button:focus-visible, textarea:focus-visible {
 .no-leads-card > svg { color: var(--gold); }
 .no-leads-card h3 { margin: 0; color: #e0eae5; font-size: 14px; }
 .no-leads-card p { max-width: 420px; margin: 0 0 5px; color: #899c9e; font-size: 10px; line-height: 1.7; }
+.workday-stat { color: #8bbda9; }
+.workday-stat strong { font-variant-numeric: tabular-nums; }
