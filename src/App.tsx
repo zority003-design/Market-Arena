@@ -235,7 +235,7 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
   const jacket = outfit === 'premium' ? '#1b2d38' : outfit === 'classic' ? '#34485d' : '#496b60'
   const shirt = outfit === 'intern' ? '#6c897e' : '#e8e2d6'
   const trousers = outfit === 'premium' ? '#202b33' : outfit === 'classic' ? '#303943' : '#303b42'
-  const skin = '#c58d6a'
+  const skin = '#bda18a'
   const hair = outfit === 'premium' ? '#211e1c' : '#35271f'
   const skinTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
@@ -244,14 +244,14 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return null
     const base = ctx.createLinearGradient(0, 0, 512, 512)
-    base.addColorStop(0, '#d5a181')
-    base.addColorStop(0.45, '#c58d6a')
-    base.addColorStop(1, '#b77c5d')
+    base.addColorStop(0, '#c9b09a')
+    base.addColorStop(0.45, '#bda18a')
+    base.addColorStop(1, '#a78b76')
     ctx.fillStyle = base
     ctx.fillRect(0, 0, 512, 512)
     const cheek = ctx.createRadialGradient(180, 245, 12, 180, 245, 170)
-    cheek.addColorStop(0, 'rgba(220,151,126,0.20)')
-    cheek.addColorStop(1, 'rgba(220,151,126,0)')
+    cheek.addColorStop(0, 'rgba(166,105,91,0.12)')
+    cheek.addColorStop(1, 'rgba(166,105,91,0)')
     ctx.fillStyle = cheek
     ctx.fillRect(0, 0, 512, 512)
     let seed = 82471
