@@ -1790,3 +1790,47 @@ small, .eyebrow, .side-section-label, .terminal-title small, .terminal-title str
 .client-portrait-3d canvas {
   transform: translateY(2%);
 }
+
+
+/* Final layout pass: keep text and controls inside their cards at every viewport. */
+.os-window, .os-window * { min-width: 0; }
+.os-window-titlebar > strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.os-window:not(.os-window-maximized) { max-width: calc(100% - 24px); }
+.terminal-body { grid-template-columns: minmax(150px, 216px) minmax(0, 1fr) minmax(180px, 228px); }
+.terminal-sidebar, .terminal-content, .terminal-rail, .overview-page, .market-page, .news-page, .calls-page { min-width: 0; }
+.metric-card, .news-card, .rail-widget, .company-row, .mission-row, .call-client-option, .call-stock-option, .outfit-card, .shop-item-card, .housing-card { min-width: 0; }
+.company-name, .company-name strong, .company-name small, .mission-copy, .mission-row > div, .outfit-card > div, .shop-item-card > div { min-width: 0; overflow-wrap: anywhere; }
+button, .side-link, .answer-option, .primary-action, .secondary-action { max-width: 100%; }
+.answer-option { align-items: flex-start; }
+.answer-option > span:nth-child(2) { min-width: 0; overflow-wrap: anywhere; }
+.answer-option > svg { flex: 0 0 auto; margin-top: 3px; }
+.answer-panel > h3, .question-hint, .log-line p, .client-panel p { overflow-wrap: anywhere; }
+.answer-heading { gap: 10px; flex-wrap: wrap; }
+.answer-heading .eyebrow { min-width: 0; line-height: 1.45; }
+.client-video-stage { min-width: 0; }
+.client-video-feed { isolation: isolate; }
+.client-portrait-3d { pointer-events: none; }
+.client-portrait-3d canvas { transform: none; }
+.city-3d-root, .city-3d-stage { contain: layout paint; }
+.city-3d-interaction strong, .city-3d-interaction small { overflow-wrap: anywhere; }
+@media (max-width: 1050px) {
+  .terminal-body { grid-template-columns: 156px minmax(0,1fr); }
+  .terminal-rail { display: none; }
+}
+@media (max-width: 760px) {
+  .terminal-body { display: flex; flex-direction: column; overflow: auto; }
+  .terminal-sidebar { flex: 0 0 auto; }
+  .terminal-sidebar .side-nav { display: flex; flex-direction: row; overflow-x: auto; max-width: 100%; }
+  .terminal-sidebar .side-link { flex: 0 0 auto; max-width: 170px; }
+  .terminal-content { flex: 1 1 auto; overflow: auto; }
+  .os-window-titlebar { gap: 6px; padding-inline: 8px; }
+  .os-window-titlebar > strong { font-size: 11px; }
+  .os-window-controls button { width: 30px; }
+}
+@media (max-height: 760px) and (min-width: 761px) {
+  .immersive-call-body .client-video-feed { min-height: 220px; }
+  .immersive-call-body .answer-panel { max-height: calc(100dvh - 170px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-3d-stage { animation: none; }
+}
