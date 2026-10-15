@@ -6,7 +6,7 @@ function PortraitHead({ tier }: { tier: number }) {
   const head = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
   const mouth = useRef<THREE.Mesh>(null)
-  const skin = tier >= 4 ? '#9b674e' : tier === 3 ? '#c58d6b' : tier === 2 ? '#d4a17e' : '#b77b5c'
+  const skin = tier >= 4 ? '#8f7767' : tier === 3 ? '#b99a83' : tier === 2 ? '#c8ad95' : '#bda18a'
   const hair = tier >= 4 ? '#38231f' : tier === 3 ? '#222426' : tier === 2 ? '#60412e' : '#33241f'
   const shirt = tier >= 4 ? '#493b35' : tier === 3 ? '#293b49' : tier === 2 ? '#425e5c' : '#354d46'
 
@@ -35,7 +35,7 @@ function PortraitHead({ tier }: { tier: number }) {
       <mesh position={[0.48, 0.57, 0.06]} scale={[0.16, 0.24, 0.13]} castShadow><sphereGeometry args={[1, 24, 20]} /><meshStandardMaterial color={hair} roughness={0.94} /></mesh>
       {[-1, 1].map(side => <group key={side} position={[side * 0.65, 0.46, 0]}>
         <mesh castShadow><sphereGeometry args={[0.14, 24, 20]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
-        <mesh position={[0, 0, 0.105]}><sphereGeometry args={[0.065, 20, 16]} /><meshStandardMaterial color="#98634c" roughness={0.95} /></mesh>
+        <mesh position={[0, 0, 0.105]}><sphereGeometry args={[0.065, 20, 16]} /><meshStandardMaterial color="#947967" roughness={0.95} /></mesh>
       </group>)}
       <group ref={eyes} position={[0, 0.56, 0.52]}>
         {[-1, 1].map(side => <group key={side} position={[side * 0.255, 0, 0]}>
@@ -46,7 +46,7 @@ function PortraitHead({ tier }: { tier: number }) {
         </group>)}
       </group>
       <mesh position={[0, 0.29, 0.58]} scale={[0.105, 0.2, 0.12]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} roughness={0.76} /></mesh>
-      <mesh position={[0, 0.19, 0.66]} scale={[0.14, 0.052, 0.045]} castShadow><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#a76557" roughness={0.75} /></mesh>
+      <mesh position={[0, 0.19, 0.66]} scale={[0.14, 0.052, 0.045]} castShadow><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#9c7067" roughness={0.75} /></mesh>
       <mesh ref={mouth} position={[0, 0.125, 0.653]} scale={[0.115, 0.018, 0.025]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#713d37" roughness={0.85} /></mesh>
       {tier >= 3 && <mesh position={[0, 0.01, 0.47]} scale={[0.43, 0.28, 0.18]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={hair} roughness={0.98} /></mesh>}
       {tier >= 2 && <mesh position={[0, 0.79, 0.34]} scale={[0.25, 0.07, 0.22]}><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color={hair} roughness={0.92} /></mesh>}
@@ -58,7 +58,7 @@ function PortraitHead({ tier }: { tier: number }) {
 
 export default function ClientPortrait3D({ tier }: { tier: number }) {
   return <div className="client-portrait-3d" aria-label="Анимированный 3D-портрет клиента">
-    <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.12, 4.1], fov: 44, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
+    <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.25, 4.1], fov: 38, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 0.98; gl.outputColorSpace = THREE.SRGBColorSpace; gl.camera?.lookAt?.(0, 0.8, 0) }}>
       <ambientLight intensity={1.15} />
       <hemisphereLight args={['#d9e6f1', '#4b4039', 0.72]} />
       <directionalLight position={[-2.5, 4, 3]} intensity={2.1} color="#ffe1c4" castShadow />
