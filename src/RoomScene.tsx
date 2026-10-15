@@ -79,6 +79,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
     const element = gl.domElement
     const pointerDown = (event: PointerEvent) => {
       if (event.button !== 0) return
+      element.focus({ preventScroll: true })
       dragging.current = true
       last.current = { x: event.clientX, y: event.clientY }
     }
@@ -539,6 +540,7 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
 export default function RoomScene({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   return (
     <Canvas
+      tabIndex={0}
       shadows
       dpr={[1, 1.6]}
       camera={{ position: [0, 1.66, 3.55], fov: 64, near: 0.1, far: 40 }}
