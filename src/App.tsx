@@ -178,7 +178,6 @@ export default function App() {
   const [lastResult, setLastResult] = useState('')
   const [toast, setToast] = useState('')
   const [selectedCompany, setSelectedCompany] = useState('KOTL')
-  const [showGuide, setShowGuide] = useState(false)
   const [marketReviewed, setMarketReviewed] = useState(false)
   const [newsReviewed, setNewsReviewed] = useState(false)
 
