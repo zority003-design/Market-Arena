@@ -128,9 +128,9 @@ const companies = [
 ]
 
 const news = [
-  { tag: 'КОТОЛЁТ', time: '09:14', title: '«Котолёт» ведёт переговоры о контракте на 800 роботов', body: 'Сеть доставки подтвердила тестирование, но требует гарантий бесперебойной работы.', tone: 'green' },
-  { tag: 'РЫНОК', time: '08:52', title: 'Инвесторы стали внимательнее к компаниям без прибыли', body: 'После серии слабых отчётов рынок требует доказательств пути к положительному денежному потоку.', tone: 'gold' },
-  { tag: 'ТАПОКТЕХ', time: '08:30', title: 'Возвраты умных тапочек превысили прогноз', body: 'Компания обещает обновить посадку устройства. Акции теряют часть вчерашнего роста.', tone: 'red' },
+  { tag: 'КОТОЛЁТ', time: '09:14', title: '«Котолёт» ведёт переговоры о контракте на 800 роботов', body: 'Сеть доставки подтвердила тестирование, но требует гарантий бесперебойной работы.', meaning: 'Тестирование ещё не означает, что контракт подписан. Если сделка состоится, выручка может вырасти; если нет — расходы на разработку останутся.', impact: 'Сигнал для KOTL: осторожно позитивный, подтверждения заказа пока нет.', tone: 'green' },
+  { tag: 'РЫНОК', time: '08:52', title: 'Инвесторы стали внимательнее к компаниям без прибыли', body: 'После серии слабых отчётов рынок требует доказательств пути к положительному денежному потоку.', meaning: 'Даже быстро растущая выручка не гарантирует рост акции. Смотри, сокращается ли убыток, хватает ли денег и когда бизнес сможет финансировать себя.', impact: 'Рыночный риск: компании с убытками могут дешеветь даже при росте продаж.', tone: 'gold' },
+  { tag: 'ТАПОКТЕХ', time: '08:30', title: 'Возвраты умных тапочек превысили прогноз', body: 'Компания обещает обновить посадку устройства. Акции теряют часть вчерашнего роста.', meaning: 'Возвраты означают потерянную выручку и дополнительные расходы. Обещание исправить товар — не доказательство, что проблема решена.', impact: 'Сигнал для TAPK: негативный; следи за возвратами и расходами на гарантию.', tone: 'red' },
 ]
 
 function readSave() {
@@ -800,7 +800,7 @@ export default function App() {
               )}
 
               {!windowMinimized && tab === 'news' && (
-                <div className="news-page"><div className="page-heading"><div><div className="eyebrow">ИНФОРМАЦИОННОЕ АГЕНТСТВО «СЛУХИ И ФАКТЫ»</div><h2>Лента новостей</h2><p>Новости могут изменить отношение клиента к компании прямо во время звонка.</p></div><div className="market-status"><span className="live-dot" /> LIVE FEED</div></div><div className="news-list">{news.map((item) => <article className="news-card" key={item.title}><div className="news-card-top"><span className={'news-tag ' + item.tone}>{item.tag}</span><time>{item.time}</time></div><h3>{item.title}</h3><p>{item.body}</p><button onClick={() => { setSelectedCompany(item.tag === 'ТАПОКТЕХ' ? 'TAPK' : 'KOTL'); setTab('market') }}>Открыть компанию <ArrowUpRight size={14} /></button></article>)}</div><div className="bottom-note"><Newspaper size={16} /><span>Проверяй источник и отделяй подтверждённые факты от слухов. В этом мире заголовок может быть громче отчётности.</span></div></div>
+                <div className="news-page"><div className="page-heading"><div><div className="eyebrow">ИНФОРМАЦИОННОЕ АГЕНТСТВО «СЛУХИ И ФАКТЫ»</div><h2>Лента новостей</h2><p>Новости могут изменить отношение клиента к компании прямо во время звонка.</p></div><div className="market-status"><span className="live-dot" /> LIVE FEED</div></div><div className="news-list">{news.map((item) => <article className="news-card" key={item.title}><div className="news-card-top"><span className={'news-tag ' + item.tone}>{item.tag}</span><time>{item.time}</time></div><h3>{item.title}</h3><p>{item.body}</p><div className="news-meaning"><strong>Как это читать</strong><p>{item.meaning}</p><span>{item.impact}</span></div><button onClick={() => { setSelectedCompany(item.tag === 'ТАПОКТЕХ' ? 'TAPK' : item.tag === 'КОТОЛЁТ' ? 'KOTL' : 'DUST'); setTab('market') }}>Разобрать в терминале <ArrowUpRight size={14} /></button></article>)}</div><div className="bottom-note"><Newspaper size={16} /><span>Проверяй источник и отделяй подтверждённые факты от слухов. В этом мире заголовок может быть громче отчётности.</span></div></div>
               )}
 
               {!windowMinimized && tab === 'clients' && (
