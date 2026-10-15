@@ -1069,3 +1069,41 @@ button:focus-visible, textarea:focus-visible {
 .timer-pill { min-width: 82px; justify-content: center; padding: 8px 12px !important; font-size: 15px !important; }
 .timer-warning { font-size: 11px !important; line-height: 1.5 !important; }
 @media (max-width: 720px) { .answer-option { min-height: 64px; } .answer-option > span:nth-child(2) { font-size: 13px !important; } }
+
+
+/* Pre-call planning: choose a real lead and the exact stock proposal before dialing. */
+.call-planning-section { padding: 18px; margin: 14px 0; border: 1px solid rgba(147,202,178,.16); border-radius: 13px; background: rgba(13,26,25,.7); }
+.call-planning-heading { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.call-planning-heading > strong { color: #e0eee6; font-size: 15px; }
+.call-planning-heading > small { color: #8da69a; font-size: 11px; line-height: 1.5; }
+.call-client-picker { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
+.call-client-option { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 11px; border: 1px solid rgba(155,194,175,.14); border-radius: 10px; background: rgba(255,255,255,.025); color: #d7e7de; text-align: left; cursor: pointer; transition: border-color .15s,background .15s; }
+.call-client-option.selected { border-color: rgba(100,225,168,.62); background: rgba(74,164,120,.12); box-shadow: inset 0 0 0 1px rgba(100,225,168,.08); }
+.call-client-option.locked { opacity: .48; cursor: not-allowed; }
+.call-client-avatar { display: grid; place-items: center; flex: 0 0 38px; height: 38px; border: 1px solid rgba(229,205,158,.22); border-radius: 50%; background: radial-gradient(circle at 35% 25%,#b68c6d,#5b4941 58%,#283333); color: #f6e4ca; font-size: 12px; font-weight: 700; box-shadow: inset 0 0 12px rgba(0,0,0,.24); }
+.call-client-option-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.call-client-option-copy strong { overflow: hidden; color: #e2eee7; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.call-client-option-copy small, .call-client-option-copy em { overflow: hidden; color: #8ca69a; font-size: 9px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.stock-planning-heading { margin-top: 20px; }
+.call-stock-picker { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.call-stock-option { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 10px; border: 1px solid rgba(155,194,175,.14); border-radius: 9px; background: rgba(255,255,255,.025); color: #d7e7de; text-align: left; cursor: pointer; }
+.call-stock-option.selected { border-color: rgba(100,225,168,.62); background: rgba(74,164,120,.12); }
+.call-stock-option > span:nth-child(2) { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.call-stock-option strong { overflow: hidden; color: #e2eee7; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.call-stock-option small { color: #8ca69a; font-size: 9px; }
+.call-stock-option em { font-size: 10px; font-style: normal; white-space: nowrap; }
+.company-description { max-width: 800px; color: #a7bbb0; font-size: 12px; line-height: 1.65; }
+.company-pros-cons { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 16px; }
+.company-pros-cons > div { padding: 13px; border: 1px solid rgba(157,199,179,.13); border-radius: 9px; background: rgba(255,255,255,.025); }
+.company-pros-cons strong { color: #9fdfbd; font-size: 11px; }
+.company-pros-cons > div:last-child strong { color: #e5b7a4; }
+.company-pros-cons p { margin: 7px 0 0; color: #a5b8ae; font-size: 11px; line-height: 1.6; }
+.call-stock-offer { padding: 13px; margin: 12px 0; border: 1px solid rgba(103,220,166,.23); border-radius: 10px; background: linear-gradient(135deg,rgba(39,101,73,.17),rgba(14,28,28,.5)); }
+.call-stock-offer > span { display: block; margin-bottom: 7px; color: #75d9a9; font-size: 9px; letter-spacing: .12em; }
+.call-stock-offer > strong { display: block; color: #e4f2e9; font-size: 15px; }
+.call-stock-offer > small { display: block; margin-top: 4px; color: #9db7aa; font-size: 10px; }
+.call-stock-offer > p { margin: 8px 0; color: #a9beb3; font-size: 11px; line-height: 1.55; }
+.call-stock-offer-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.call-stock-offer-columns span { color: #9db2a7; font-size: 10px; line-height: 1.5; }
+.call-stock-offer-columns b { color: #d7e7de; }
+@media (max-width: 760px) { .call-client-picker, .call-stock-picker, .company-pros-cons { grid-template-columns: 1fr; } .call-client-option { padding: 9px; } .call-planning-section { padding: 12px; } }
