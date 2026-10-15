@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei'
 import {
   Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
@@ -145,6 +147,42 @@ function SelfCameraPreview({ enabled, background, outfit }: { enabled: boolean; 
     {enabled ? <div className="player-silhouette"><span className="player-hair" /><span className="player-head"><i /><i /><b /></span><span className="player-neck" /><span className="player-body"><i /><i /></span><span className="player-arm left" /><span className="player-arm right" /></div> : <div className="video-off-overlay"><Video size={16} /><span>ВИДЕО ВЫКЛЮЧЕНО</span></div>}
     <small>{enabled ? 'ТВОЙ ПЕРСОНАЖ' : 'ТОЛЬКО АУДИО'}</small>
   </div>
+}
+
+function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
+  const jacket = outfit === 'premium' ? '#172b37' : outfit === 'classic' ? '#34485d' : '#496b60'
+  const shirt = outfit === 'intern' ? '#668278' : '#e3e2d7'
+  const trousers = outfit === 'premium' ? '#17232b' : outfit === 'classic' ? '#29313b' : '#303b42'
+  const skin = '#c58d6a'
+  return <group position={[0, 0.02, 0]}>
+    <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[0.78, 48]} /><meshStandardMaterial color="#1a2829" roughness={0.92} /></mesh>
+    {/* Shoes, legs and a tailored torso */}
+    {[-0.19, 0.19].map((x) => <group key={x} position={[x, 0, 0]}>
+      <mesh position={[0, 0.14, 0.055]} castShadow><boxGeometry args={[0.2, 0.12, 0.36]} /><meshStandardMaterial color={outfit === 'premium' ? '#171c22' : '#292e32'} roughness={0.65} /></mesh>
+      <mesh position={[0, 0.49, 0]} castShadow><capsuleGeometry args={[0.105, 0.58, 5, 12]} /><meshStandardMaterial color={trousers} roughness={0.88} /></mesh>
+    </group>)}
+    <mesh position={[0, 1.04, 0]} castShadow><capsuleGeometry args={[0.31, 0.38, 6, 18]} /><meshStandardMaterial color={shirt} roughness={0.85} /></mesh>
+    <mesh position={[0, 1.32, 0]} scale={[0.53, 0.27, 0.28]} castShadow><sphereGeometry args={[1, 24, 18]} /><meshStandardMaterial color={jacket} roughness={0.86} /></mesh>
+    {[-1, 1].map((side) => <group key={side} position={[side * 0.43, 1.15, 0]}>
+      <mesh rotation={[0, 0, side * -0.16]} position={[side * 0.04, -0.14, 0]} castShadow><capsuleGeometry args={[0.105, 0.47, 5, 12]} /><meshStandardMaterial color={jacket} roughness={0.82} /></mesh>
+      <mesh position={[side * 0.065, -0.44, 0.01]} castShadow><sphereGeometry args={[0.095, 16, 12]} /><meshStandardMaterial color={skin} roughness={0.85} /></mesh>
+    </group>)}
+    {/* Neck, ears and head */}
+    <mesh position={[0, 1.66, 0]} castShadow><cylinderGeometry args={[0.09, 0.105, 0.23, 18]} /><meshStandardMaterial color={skin} roughness={0.88} /></mesh>
+    <mesh position={[0, 1.98, 0.015]} scale={[0.265, 0.34, 0.235]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} roughness={0.72} /></mesh>
+    {[-0.26, 0.26].map((x) => <mesh key={x} position={[x, 1.98, 0.005]} scale={[0.055, 0.085, 0.055]}><sphereGeometry args={[1, 16, 12]} /><meshStandardMaterial color={skin} roughness={0.85} /></mesh>)}
+    <mesh position={[0, 2.245, 0.015]} scale={[0.275, 0.14, 0.24]} castShadow><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color={outfit === 'premium' ? '#211e1c' : '#35271f'} roughness={0.9} /></mesh>
+    <mesh position={[0, 2.12, 0.215]} scale={[0.034, 0.04, 0.025]}><sphereGeometry args={[1, 12, 10]} /><meshStandardMaterial color="#30221d" /></mesh>
+    {[-0.105, 0.105].map((x) => <group key={x}>
+      <mesh position={[x, 2.07, 0.211]}><sphereGeometry args={[0.035, 16, 12]} /><meshStandardMaterial color="#f0dfc9" roughness={0.55} /></mesh>
+      <mesh position={[x, 2.07, 0.241]}><sphereGeometry args={[0.018, 12, 10]} /><meshStandardMaterial color="#2b211d" roughness={0.4} /></mesh>
+      <mesh position={[x, 2.125, 0.219]} rotation={[0, 0, x > 0 ? -0.1 : 0.1]}><boxGeometry args={[0.09, 0.018, 0.025]} /><meshStandardMaterial color="#493127" roughness={0.9} /></mesh>
+    </group>)}
+    <mesh position={[0, 1.99, 0.248]}><sphereGeometry args={[0.04, 12, 10]} /><meshStandardMaterial color="#b27a5a" roughness={0.85} /></mesh>
+    <mesh position={[0, 1.91, 0.228]} rotation={[0, 0, 0]}><boxGeometry args={[0.09, 0.012, 0.015]} /><meshStandardMaterial color="#79453a" roughness={0.8} /></mesh>
+    {outfit !== 'intern' && <mesh position={[0, 1.25, 0.255]}><coneGeometry args={[0.09, 0.27, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b69a62' : '#283b52'} roughness={0.6} /></mesh>}
+    {outfit === 'premium' && <mesh position={[0.18, 1.32, 0.251]}><sphereGeometry args={[0.027, 12, 10]} /><meshStandardMaterial color="#d7b879" metalness={0.7} roughness={0.32} /></mesh>}
+  </group>
 }
 
 export default function App() {
@@ -772,7 +810,7 @@ export default function App() {
                 <div className="shop-page">
                   <div className="page-heading"><div><div className="eyebrow">ИНВЕНТАРЬ · ОБОРУДОВАНИЕ</div><h2>Улучши рабочее место</h2><p>Техника улучшает качество звонков и первое впечатление. Она не заменяет знания и честные ответы.</p></div><div className="market-status"><ShoppingBag size={14} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
                   <div className="economy-summary"><div><small>ЛИЧНЫЕ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>УСТАНОВЛЕНО ПРЕДМЕТОВ</small><strong>{ownedItems.length}</strong></div><div><small>КАЧЕСТВО ВИДЕО</small><strong>{getVideoQuality(ownedItems)}/8</strong></div></div>
-                  <div className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><div className={'wardrobe-character outfit-' + selectedOutfit}><span className="wardrobe-hair" /><span className="wardrobe-head"><i /><i /><b /></span><span className="wardrobe-neck" /><span className={'wardrobe-shirt outfit-' + selectedOutfit}><i /><i /></span><span className="wardrobe-arm left" /><span className="wardrobe-arm right" /><span className="wardrobe-pants"><i /><i /></span><span className="wardrobe-shoe left" /><span className="wardrobe-shoe right" /></div><span className="wardrobe-stage-label">ПРЕДПРОСМОТР ПЕРСОНАЖА</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ГАРДЕРОБ · ПЕРСОНАЖ</span><h3>Твой брокерский образ</h3><p>Выбирай образ для переговоров: одежда меняется и в гардеробе, и в маленьком видеокадре во время звонка.</p><div className="wardrobe-look-tags"><span>{selectedOutfit === 'premium' ? 'Премиальный костюм' : selectedOutfit === 'classic' ? 'Деловой пиджак' : 'Базовая футболка'}</span><span>{selectedOutfit === 'intern' ? 'Тёмные брюки' : 'Деловой силуэт'}</span><span>{selectedOutfit === 'premium' ? 'Золотые детали' : selectedOutfit === 'classic' ? 'Строгий стиль' : 'Повседневный стиль'}</span></div></div></div>
+                  <div className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><Canvas className="wardrobe-3d-canvas" camera={{ position: [0, 1.35, 4.5], fov: 32 }} dpr={[1, 1.5]} shadows><color attach="background" args={['#142224']} /><ambientLight intensity={1.05} /><directionalLight position={[-2.5, 4, 3]} intensity={2.1} castShadow /><pointLight position={[2, 2.5, -1]} intensity={0.8} color="#75d8ae" /><WardrobeAvatar3D outfit={selectedOutfit} /><OrbitControls enablePan={false} minDistance={3.8} maxDistance={5.5} minPolarAngle={1.05} maxPolarAngle={1.75} target={[0, 1.15, 0]} /></Canvas><span className="wardrobe-stage-label">ПЕРСОНАЖ · ПОТЯНИ, ЧТОБЫ ПОВЕРНУТЬ</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ГАРДЕРОБ · ПЕРСОНАЖ</span><h3>Твой брокерский образ</h3><p>Выбирай образ для переговоров: одежда меняется и в гардеробе, и в маленьком видеокадре во время звонка.</p><div className="wardrobe-look-tags"><span>{selectedOutfit === 'premium' ? 'Премиальный костюм' : selectedOutfit === 'classic' ? 'Деловой пиджак' : 'Базовая футболка'}</span><span>{selectedOutfit === 'intern' ? 'Тёмные брюки' : 'Деловой силуэт'}</span><span>{selectedOutfit === 'premium' ? 'Золотые детали' : selectedOutfit === 'classic' ? 'Строгий стиль' : 'Повседневный стиль'}</span></div></div></div>
                   <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ГАРДЕРОБ</span><h3>Одежда персонажа</h3></div><span>На тебе: {OUTFITS.find((outfit) => outfit.id === selectedOutfit)?.name}</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '')} key={outfit.id}><div className="outfit-swatch"><span className="outfit-swatch-head" /><span className="outfit-swatch-body" /><span className="outfit-swatch-legs" /></div><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><button disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); playSound('ui'); return } setCash((value) => value - outfit.price); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); playSound('deal'); setToast('Новый образ добавлен в гардероб') }}>{wearing ? 'На тебе' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></article> })}</div></section>
                   <div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; return <article className={owned ? 'shop-item owned' : 'shop-item'} key={item.id}><div className={'shop-item-icon ' + item.category}>{item.category === 'video' ? <Camera size={21} /> : item.category === 'background' ? <Video size={21} /> : item.category === 'work' ? <Monitor size={21} /> : <PackageCheck size={21} />}</div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p></div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div>
                   <div className="bottom-note"><Sparkles size={16} /><span>Установленные предметы сохраняются. Бонус от внешнего вида ограничен: подготовка к звонку и качество ответов важнее дорогого оборудования.</span></div>
