@@ -736,7 +736,7 @@ export default function App() {
     if (!availableClients.some((client) => client.id === activeClient.id)) { setToast('Этот лид сейчас недоступен. Выбери клиента из списка актуальных предложений.'); return }
     setCallsToday((count) => count + 1)
     setQuestionIndex(0)
-    setChoiceOrders(getQuestionsForTier(activeClient.tier).map((question) => question.choices.map((_, index) => index).sort(() => Math.random() - 0.5)))
+    setChoiceOrders(activeQuestions.map((question) => question.choices.map((_, index) => index).sort(() => Math.random() - 0.5)))
     lastTimerBeep.current = 0
     setVideoSwitchEffectUsed(false)
     setCallClientId(activeClient.id)
