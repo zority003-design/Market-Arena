@@ -137,6 +137,11 @@ export default function App() {
   const [mainMenu, setMainMenu] = useState(!startNewCareerOnLoad)
   const [offlineMenu, setOfflineMenu] = useState(false)
   const [onlineInfo, setOnlineInfo] = useState(false)
+  const [changelogOpen, setChangelogOpen] = useState(false)
+  const [confirmNewCareer, setConfirmNewCareer] = useState(false)
+  const [introActive, setIntroActive] = useState(false)
+  const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
+  const [controlsVisible, setControlsVisible] = useState(true)
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [menuSettings, setMenuSettings] = useState(false)
@@ -172,7 +177,7 @@ export default function App() {
   const [lastResult, setLastResult] = useState('')
   const [toast, setToast] = useState('')
   const [selectedCompany, setSelectedCompany] = useState('KOTL')
-  const [showGuide, setShowGuide] = useState(true)
+  const [showGuide, setShowGuide] = useState(false)
   const [marketReviewed, setMarketReviewed] = useState(false)
   const [newsReviewed, setNewsReviewed] = useState(false)
 
@@ -186,20 +191,17 @@ export default function App() {
   }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds])
 
   useEffect(() => {
+    if (!controlsVisible) return
+    const timer = window.setTimeout(() => setControlsVisible(false), 5000)
+    return () => window.clearTimeout(timer)
+  }, [controlsVisible])
+
+  useEffect(() => {
     if (tab === 'market') setMarketReviewed(true)
     if (tab === 'news') setNewsReviewed(true)
   }, [tab])
 
-  useEffect(() => {
-    if (panel !== 'room') return
-    const handleInteractionKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null
-      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
-      if (event.key.toLowerCase() === 'e') openComputer()
-    }
-    window.addEventListener('keydown', handleInteractionKey)
-    return () => window.removeEventListener('keydown', handleInteractionKey)
-  }, [panel])
+
 
   useEffect(() => {
     if (callStatus !== 'active') return
@@ -267,9 +269,9 @@ export default function App() {
     })
   }
 
-  function startNewGame() {
-    const confirmed = window.confirm('Начать новую карьеру с нуля? Старое локальное сохранение будет заменено.')
-    if (!confirmed) return
+  function startNewGame() { setConfirmNewCareer(true) }
+
+  function confirmStartNewGame() {
     try {
       localStorage.removeItem('na-vse-kotirovki-save-v1')
       localStorage.setItem('na-vse-kotirovki-start-new-career', 'true')
@@ -420,7 +422,7 @@ export default function App() {
   return (
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
+        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={() => setIntroActive(false)} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
       </div>
 
       {mainMenu && (
@@ -439,6 +441,7 @@ export default function App() {
                 <div className="menu-actions menu-main-actions">
                   <button className="menu-play-button" onClick={openOfflineMenu}><Play size={18} fill="currentColor" /> Играть офлайн <ArrowRight size={17} /></button>
                   <button className="menu-secondary-button menu-online-button" onClick={() => setOnlineInfo(true)}><Users size={17} /> Играть онлайн <span>СКОРО</span></button>
+                  <button className="menu-secondary-button" onClick={() => setChangelogOpen(true)}><Clock3 size={17} /> История обновлений</button>
                   <button className="menu-secondary-button" onClick={() => setMenuSettings(true)}><Settings size={17} /> Настройки</button>
                 </div>
                 <div className="menu-footnote">ОФЛАЙН-КАРЬЕРА · СОХРАНЕНИЕ В БРАУЗЕРЕ НА ЭТОМ УСТРОЙСТВЕ</div>
