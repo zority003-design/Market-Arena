@@ -711,7 +711,6 @@ export default function App() {
         setDailySalesShares((value) => value + soldShares)
       }
       setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '.')
-      const targetCompany = companies[(day - 1) % companies.length]
       const quotaNote = activeCompany.ticker === targetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + targetCompany.ticker + '.' : ' Внимание: дневной план по ' + targetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' + quotaNote }])
     } else {
