@@ -527,7 +527,7 @@ export default function App() {
     const debtNote = shortfall > 0
       ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
       : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
-    setToast('День завершён: оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, жильё и быт −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
+    setToast('День завершён: дневной оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽ (это не выплата за звонок), жильё и быт −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
     window.setTimeout(() => setToast(''), 5200)
     setPanel('room')
     setCallStatus('idle')
@@ -599,7 +599,7 @@ export default function App() {
           <span className="brand-text"><strong>НА ВСЕ КОТИРОВКИ</strong><small>БРОКЕРСКАЯ СИМУЛЯЦИЯ</small></span>
         </button>
         <div className="hud-center">
-          <span className="day-pill"><CalendarDays size={13} /> ДЕНЬ {String(day).padStart(2, '0')}</span>
+          <span className="day-pill"><CalendarDays size={13} /> ДЕНЬ {String(day).padStart(2, '0')}</span><span className="day-pill game-time-pill"><Clock3 size={13} /> {String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</span><span className="day-pill game-weather-pill">☂ ДОЖДЬ</span>
           <span className="market-open"><span className="live-dot" /> РЫНОК ОТКРЫТ</span>
         </div>
         <div className="hud-right">
