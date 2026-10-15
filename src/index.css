@@ -889,3 +889,69 @@ button:focus-visible, textarea:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .intro-curtain, .intro-eyelid-top, .intro-eyelid-bottom, .intro-wake-caption, .proximity-interact { animation-duration: .01ms !important; animation-delay: 0ms !important; }
 }
+
+
+/* Desktop-style computer home: apps first, financial details second. */
+.desktop-home-body .terminal-sidebar { display: none !important; }
+.desktop-home-body .terminal-main { width: 100%; min-width: 0; flex: 1; }
+.desktop-home-body .terminal-content { padding: 0; }
+.desktop-home-body .terminal-main-content { padding: 0; }
+.desktop-page { position: relative; display: flex; min-height: calc(100vh - 138px); flex-direction: column; overflow: hidden; padding: clamp(20px, 4vw, 44px) clamp(18px, 4vw, 46px) 54px; background: radial-gradient(ellipse at 12% 10%,rgba(44,142,112,.19),transparent 40%),radial-gradient(ellipse at 88% 78%,rgba(45,84,112,.18),transparent 40%),linear-gradient(135deg,#0c171b,#0b1219 60%,#101a20); }
+.desktop-wallpaper-glow { position: absolute; top: 8%; right: 12%; width: 340px; height: 340px; border-radius: 50%; background: rgba(45,205,147,.05); filter: blur(55px); pointer-events: none; }
+.desktop-greeting { position: relative; z-index: 1; margin-bottom: 28px; }
+.desktop-system-label { display: inline-flex; align-items: center; gap: 8px; color: #7d9a90; font: 9px 'DM Mono', monospace; letter-spacing: .13em; }
+.desktop-greeting h2 { margin: 12px 0 5px; color: #e9f3ed; font-size: clamp(25px, 3.4vw, 38px); letter-spacing: -.04em; }
+.desktop-greeting p { margin: 0; color: #8da29a; font-size: 12px; line-height: 1.6; }
+.desktop-app-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(6,minmax(78px,100px)); gap: 20px 14px; width: fit-content; max-width: 100%; margin-bottom: 32px; }
+.desktop-app-icon { position: relative; display: flex; align-items: center; flex-direction: column; gap: 8px; min-width: 0; padding: 8px 5px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #d8e6df; transition: background .16s ease,border-color .16s ease,transform .16s ease; }
+.desktop-app-icon:hover { border-color: rgba(125,222,182,.18); background: rgba(125,222,182,.07); transform: translateY(-2px); }
+.desktop-icon-tile { display: grid; place-items: center; width: 54px; height: 54px; border: 1px solid rgba(192,223,210,.16); border-radius: 14px; box-shadow: 0 10px 26px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.06); }
+.desktop-icon-tile svg { filter: drop-shadow(0 2px 8px rgba(0,0,0,.2)); }
+.desktop-icon-tile.market-app { color: #7de7b9; background: linear-gradient(145deg,#214b3d,#132c2a); }
+.desktop-icon-tile.news-app { color: #a9d9f1; background: linear-gradient(145deg,#284858,#152b36); }
+.desktop-icon-tile.calls-app { color: #f0d19a; background: linear-gradient(145deg,#5b4630,#32291f); }
+.desktop-icon-tile.clients-app { color: #d3b5f4; background: linear-gradient(145deg,#4a355e,#261f37); }
+.desktop-icon-tile.shop-app { color: #f3b7b0; background: linear-gradient(145deg,#653c40,#352329); }
+.desktop-icon-tile.housing-app { color: #b4d4c1; background: linear-gradient(145deg,#365244,#1d302a); }
+.desktop-app-icon strong { max-width: 100%; color: #dbe9e2; font-size: 10px; font-weight: 600; text-align: center; overflow-wrap: anywhere; }
+.desktop-app-icon small { color: #81968d; font-size: 9px; text-align: center; }
+.desktop-app-icon > i { position: absolute; top: 0; right: 0; padding: 3px 5px; border-radius: 4px; background: #bb514a; color: white; font: 8px 'DM Mono',monospace; font-style: normal; }
+.desktop-bottom-widgets { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0,1.25fr) minmax(250px,.75fr); gap: 14px; margin-top: auto; }
+.desktop-widget { padding: 18px; border: 1px solid rgba(172,212,197,.13); border-radius: 12px; background: linear-gradient(145deg,rgba(23,42,44,.82),rgba(12,22,28,.82)); box-shadow: 0 14px 35px rgba(0,0,0,.16); }
+.desktop-widget-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; color: #7f9d91; font: 9px 'DM Mono',monospace; letter-spacing: .09em; }
+.desktop-widget-heading > span:first-child { display: flex; align-items: center; gap: 7px; }
+.desktop-widget-heading svg { color: #83edc3; }
+.desktop-widget-heading > span:last-child { color: #8fa79d; font-size: 8px; }
+.daily-task-widget h3 { margin: 0 0 8px; color: #e1eee7; font-size: 15px; }
+.daily-task-widget p { max-width: 560px; margin: 0; color: #91a79d; font-size: 11px; line-height: 1.7; }
+.desktop-task-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 17px; }
+.desktop-task-actions button,.desktop-end-day { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 0 12px; border: 1px solid rgba(118,218,178,.19); border-radius: 6px; background: rgba(50,166,119,.1); color: #bce8d4; font-size: 10px; }
+.desktop-task-actions button:first-child { background: #38d6a0; color: #06251a; border-color: transparent; font-weight: 700; }
+.desktop-task-actions button:disabled { opacity: .35; cursor: not-allowed; }
+.desktop-finances > strong { display: block; margin: 0 0 3px; color: #f0f7f2; font-size: 25px; letter-spacing: -.03em; }
+.desktop-finances > small { color: #81988e; font-size: 10px; }
+.desktop-finance-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 15px; color: #8ea49a; font-size: 10px; }
+.desktop-finance-row b { color: #d3e3da; font-size: 10px; }
+.desktop-finance-track { height: 4px; margin-top: 7px; overflow: hidden; border-radius: 4px; background: rgba(255,255,255,.08); }
+.desktop-finance-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#32c98f,#91e6b8); }
+.desktop-end-day { width: 100%; margin-top: 17px; background: rgba(255,255,255,.025); border-color: rgba(255,255,255,.11); }
+.desktop-account-status { color: #83edc3 !important; }
+.desktop-taskbar { position: absolute; right: 0; bottom: 0; left: 0; display: flex; align-items: center; gap: 22px; min-height: 38px; padding: 0 18px; border-top: 1px solid rgba(183,208,214,.1); background: rgba(7,13,17,.76); color: #82978d; font: 9px 'DM Mono',monospace; backdrop-filter: blur(14px); }
+.desktop-taskbar > span:nth-child(2) { display: flex; align-items: center; gap: 7px; margin-left: auto; }
+.taskbar-start { display: flex; align-items: center; gap: 8px; color: #c5e4d5; }
+.taskbar-start svg { color: #55dba5; }
+@media (max-width: 950px) {
+  .desktop-app-grid { grid-template-columns: repeat(3,minmax(75px,90px)); }
+  .desktop-bottom-widgets { grid-template-columns: 1fr; }
+  .desktop-page { min-height: calc(100vh - 115px); }
+}
+@media (max-width: 520px) {
+  .desktop-page { padding: 20px 13px 48px; }
+  .desktop-app-grid { grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; gap: 10px 5px; }
+  .desktop-icon-tile { width: 48px; height: 48px; }
+  .desktop-widget { padding: 14px; }
+  .desktop-taskbar { padding: 0 10px; gap: 12px; }
+  .desktop-taskbar > span:nth-child(2) { display: none; }
+  .confirm-career-actions { flex-direction: column-reverse; }
+  .confirm-career-actions button { width: 100%; }
+}
