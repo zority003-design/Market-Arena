@@ -24,6 +24,8 @@ function FirstPersonRig() {
     camera.rotation.set(pitch.current, yaw.current, 0)
 
     const down = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       keys.current[event.key.toLowerCase()] = true
       if (['w', 'a', 's', 'd', ' '].includes(event.key.toLowerCase())) event.preventDefault()
     }
