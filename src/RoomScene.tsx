@@ -6,6 +6,7 @@ import { playSound } from './audio'
 
 type RoomSceneProps = {
   onInteract: () => void
+  onExitCity: () => void
   onCanInteractChange: (value: boolean) => void
   onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void
   onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void
@@ -38,7 +39,7 @@ function CityTraffic({ night }: { night: boolean }) {
   </group>
 }
 
-function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
+function FirstPersonRig({ active, onInteract, onExitCity, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onExitCity: () => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
   const dragging = useRef(false)
@@ -50,6 +51,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
   const right = useRef(new THREE.Vector3())
   const interactable = useRef(false)
   const sleepable = useRef(false)
+  const exitable = useRef(false)
   const nearbyObject = useRef<'lamp' | 'light' | 'curtains' | 'wardrobe' | null>(null)
   const introActiveRef = useRef(introActive)
   introActiveRef.current = introActive
@@ -65,14 +67,14 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
   }, [camera])
 
   useEffect(() => {
-    if (!active) { onCanInteractChange(false); onCanSleepChange(false); onNearbyObjectChange(null); nearbyObject.current = null; interactable.current = false; sleepable.current = false; keys.current = {}; return }
+    if (!active) { onCanInteractChange(false); onCanSleepChange(false); onNearbyObjectChange(null); nearbyObject.current = null; interactable.current = false; sleepable.current = false; exitable.current = false; keys.current = {}; return }
     const down = (event: KeyboardEvent) => {
       if (!active) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
       const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
+      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (exitable.current) { onExitCity(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
       if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
         keys.current[codeKey || key] = true
         event.preventDefault()
@@ -114,7 +116,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
-  }, [gl, active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, onSleepInteract, onCanSleepChange])
+  }, [gl, active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, onSleepInteract, onCanSleepChange, onExitCity])
 
   useEffect(() => {
     if (!introActive) return
@@ -157,7 +159,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
         (x > -0.43 && x < 0.63 && z > -1.38 && z < -0.58) ||
         (x > 1.48 && x < 3.62 && z > -0.78 && z < 2.78) ||
         (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22) ||
-        (x > 3.16 && x < 3.72 && z > 2.64 && z < 3.24)
+        false
       const nextX = THREE.MathUtils.clamp(camera.position.x + stepX, -3.52, 3.52)
       if (!blocked(nextX, camera.position.z)) camera.position.x = nextX
       const nextZ = THREE.MathUtils.clamp(camera.position.z + stepZ, -3.52, 3.52)
@@ -165,6 +167,9 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
     }
     camera.position.y = 1.66
     camera.rotation.set(pitch.current, yaw.current, 0)
+    const exitDistance = Math.hypot(camera.position.x - 3.15, camera.position.z - 2.45)
+    const canExit = exitDistance < 1.05
+    if (canExit !== exitable.current) exitable.current = canExit
     const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 0.9)
     const canUse = distance < 1.25 && camera.position.z > -1.83
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
@@ -241,7 +246,7 @@ function FloorBoards() {
 }
 
 
-function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+function Room({ onInteract, onExitCity, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
@@ -270,7 +275,7 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
       <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
       <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
-      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
+      <Box position={[3.98, 1.62, -1.15]} size={[0.18, 3.4, 5.7]} color="#454d56" />\n      <Box position={[3.98, 1.62, 3.65]} size={[0.18, 3.4, 0.7]} color="#454d56" />\n      {/* Front door to the same neighborhood shown in the window. */}\n      <Box position={[3.84, 2.42, 2.5]} size={[0.32, 0.18, 1.68]} color="#3c3028" />\n      <Box position={[3.86, 1.16, 2.5]} size={[0.12, 2.32, 1.52]} color="#76543d" roughness={0.92} />\n      <Box position={[3.78, 1.16, 1.74]} size={[0.08, 2.38, 0.08]} color="#c6aa7a" />\n      <Box position={[3.78, 1.16, 3.26]} size={[0.08, 2.38, 0.08]} color="#c6aa7a" />\n      <Box position={[3.78, 2.34, 2.5]} size={[0.08, 0.08, 1.6]} color="#c6aa7a" />\n      <Cylinder position={[3.68, 1.12, 2.98]} radius={0.055} height={0.055} color="#d3b778" metalness={0.65} rotation={[0, 0, Math.PI / 2]} />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} />
       <FloorBoards />
 
@@ -555,12 +560,12 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
       {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={handleCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
+      <FirstPersonRig active={active} onInteract={onInteract} onExitCity={onExitCity} onCanInteractChange={handleCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
     </>
   )
 }
 
-export default function RoomScene({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onExitCity, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   return (
     <Canvas
       tabIndex={0}
@@ -574,7 +579,7 @@ export default function RoomScene({ onInteract, onCanInteractChange, onInteractO
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+      <Room onInteract={onInteract} onExitCity={onExitCity} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
     </Canvas>
   )
 }
