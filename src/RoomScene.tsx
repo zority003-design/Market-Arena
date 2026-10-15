@@ -523,8 +523,7 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
         <Box position={[0, 1.87, 0.37]} size={[0.96, 0.07, 0.06]} color="#a17a57" />{[-0.07, 0.07].map((x) => <Cylinder key={x} position={[x, 0.92, 0.405]} radius={0.025} height={0.12} color="#c3a46f" metalness={0.6} rotation={[Math.PI / 2, 0, 0]} />)}
         <Box position={[0, 0.19, 0.36]} size={[0.9, 0.08, 0.04]} color="#382b25" />
       </group>
-      {/* Taller floor plant and small pots on the shelf. */}
-      <group position={[3.25, 0.1, 2.95]}><Cylinder position={[0, 0.25, 0]} radius={0.24} height={0.5} color="#795846" />{Array.from({ length: 13 }, (_, i) => { const angle = i * 2.399; const height = 0.62 + (i % 5) * 0.13; return <mesh key={i} position={[Math.cos(angle) * (0.12 + (i % 3) * 0.04), height, Math.sin(angle) * (0.12 + (i % 3) * 0.04)]} rotation={[0.4 + (i % 3) * 0.18, angle, 0.45]}><sphereGeometry args={[0.13 + (i % 4) * 0.015, 12, 10]} /><meshStandardMaterial color={i % 3 === 0 ? '#315c43' : i % 2 ? '#477b51' : '#5d8e5d'} roughness={0.94} /></mesh> })}</group>
+      {/* Keep the original small floor plant as the room's only shrub to avoid duplicate-looking bushes. */}
 
       {/* Worn rug */}
       <Box position={[0.1, 0.078, 0.5]} size={[3.1, 0.035, 2.1]} color="#3b4d50" roughness={1} />
