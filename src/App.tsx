@@ -211,6 +211,12 @@ export default function App() {
   }, [soundEnabled, ambienceEnabled, voiceEnabled, curtainsOpen, mainMenu, panel, callStatus, pauseOpen, menuSettings])
 
   useEffect(() => {
+    if (!soundEnabled || !ambienceEnabled || panel !== 'room' || pauseOpen || mainMenu) return
+    const ticker = window.setInterval(() => playSound('tick'), 1000)
+    return () => window.clearInterval(ticker)
+  }, [soundEnabled, ambienceEnabled, panel, pauseOpen, mainMenu])
+
+  useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null
       if (target?.closest('button, [role="button"], .desktop-app-icon, .side-link')) playSound('ui')
