@@ -1260,3 +1260,7 @@ button:focus-visible, textarea:focus-visible {
 @keyframes clientBreath { 0%,100% { transform:translate(-50%,-44%) translateY(0); } 50% { transform:translate(-50%,-44%) translateY(-2px); } }
 @keyframes clientBlink { 0%,46%,49%,100% { transform:scaleY(1); } 47.5% { transform:scaleY(.12); } }
 @keyframes clientSpeak { 0%,100% { transform:scaleY(.8); } 50% { transform:scaleY(1.25); } }
+
+.self-avatar-canvas { position:absolute !important; z-index:2; inset:0; width:100% !important; height:100% !important; }
+.in-game-self-view .self-view-room { z-index:0; }
+.in-game-self-view > small { z-index:8; }
