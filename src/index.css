@@ -789,3 +789,39 @@ button:focus-visible, textarea:focus-visible {
   .menu-footnote { margin-top: 14px; }
 }
 
+
+
+/* Main-menu flow: distinct offline save selection and a clearly unavailable online mode. */
+.menu-main-actions { align-items: stretch; flex-direction: column; width: min(100%, 330px); }
+.menu-main-actions .menu-play-button,
+.menu-main-actions .menu-secondary-button { width: 100%; justify-content: flex-start; min-height: 52px; padding: 0 17px; }
+.menu-main-actions .menu-play-button svg:last-child { margin-left: auto; }
+.menu-main-actions .menu-secondary-button { justify-content: flex-start; }
+.menu-online-button > span { margin-left: auto; color: #c9ae78; font: 8px 'DM Mono', monospace; letter-spacing: .08em; }
+.menu-back-button { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 25px; padding: 0; border: 0; background: transparent; color: #9bb0a8; font: 9px 'DM Mono', monospace; letter-spacing: .1em; }
+.menu-back-button:hover { color: #83edc3; }
+.offline-select-screen h1 { margin-top: 18px; }
+.offline-save-card { display: flex; align-items: center; gap: 13px; width: min(100%, 500px); margin-top: 25px; padding: 16px; border: 1px solid rgba(190,214,205,.16); border-radius: 9px; background: linear-gradient(120deg,rgba(18,35,37,.86),rgba(7,16,20,.72)); }
+.offline-save-icon { display: grid; flex: 0 0 44px; place-items: center; height: 44px; border: 1px solid rgba(126,224,183,.2); border-radius: 8px; background: rgba(56,214,160,.08); color: #83edc3; }
+.offline-save-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 6px; }
+.offline-save-copy strong { color: #e3eee8; font-size: 12px; }
+.offline-save-copy small { color: #8fa29a; font-size: 10px; line-height: 1.5; }
+.offline-save-status { padding: 5px 7px; border: 1px solid rgba(190,214,205,.13); border-radius: 4px; color: #87968f; font: 8px 'DM Mono', monospace; white-space: nowrap; }
+.offline-save-status.saved { border-color: rgba(80,214,161,.24); color: #83edc3; background: rgba(56,214,160,.07); }
+.offline-menu-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+.offline-menu-actions .menu-play-button:disabled { cursor: not-allowed; opacity: .38; filter: grayscale(.35); box-shadow: none; transform: none; }
+.offline-menu-actions .menu-secondary-button { min-height: 48px; }
+.offline-save-note { margin: 13px 0 0; color: #81948c; font-size: 10px; line-height: 1.6; }
+.online-info-copy { margin: -8px 0 18px; color: #a1b3ac; font-size: 12px; line-height: 1.8; }
+.online-roadmap { display: grid; gap: 11px; padding: 16px; border: 1px solid rgba(190,214,205,.11); border-radius: 7px; background: rgba(255,255,255,.02); }
+.online-roadmap span { display: flex; align-items: center; gap: 9px; color: #b7c7bf; font-size: 11px; }
+.online-roadmap span:first-child svg { color: #79dfb3; }
+.online-roadmap span:not(:first-child) svg { color: #c9ae78; }
+@media (max-width: 760px) {
+  .menu-main-actions { width: 100%; }
+  .offline-menu-actions { flex-direction: column; }
+  .offline-menu-actions > button { width: 100%; }
+  .offline-save-card { align-items: flex-start; padding: 12px; gap: 10px; }
+  .offline-save-icon { flex-basis: 36px; height: 36px; }
+  .offline-save-status { font-size: 7px; }
+}
