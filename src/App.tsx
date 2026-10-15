@@ -134,29 +134,10 @@ function readSave() {
 }
 
 function SelfCameraPreview({ enabled, background }: { enabled: boolean; background: VideoBackground }) {
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [cameraError, setCameraError] = useState(false)
-  useEffect(() => {
-    let stream: MediaStream | null = null
-    let cancelled = false
-    setCameraError(false)
-    if (!enabled || !navigator.mediaDevices?.getUserMedia) return
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
-      .then((result) => {
-        if (cancelled) { result.getTracks().forEach((track) => track.stop()); return }
-        stream = result
-        if (videoRef.current) videoRef.current.srcObject = result
-      })
-      .catch(() => { if (!cancelled) setCameraError(true) })
-    return () => {
-      cancelled = true
-      stream?.getTracks().forEach((track) => track.stop())
-      if (videoRef.current) videoRef.current.srcObject = null
-    }
-  }, [enabled])
-  return <div className={'player-preview-tile ' + background + (cameraError ? ' camera-unavailable' : '')}>
-    {enabled && !cameraError ? <video ref={videoRef} autoPlay muted playsInline aria-label="Предпросмотр камеры игрока" /> : <div className="player-silhouette"><span className="player-head" /><span className="player-body" /></div>}
-    <small>{cameraError ? 'КАМЕРА НЕДОСТУПНА' : enabled ? 'ТВОЯ КАМЕРА' : 'КАМЕРА ВЫКЛЮЧЕНА'}</small>
+  return <div className={'player-preview-tile in-game-self-view ' + background + (enabled ? '' : ' video-disabled')} aria-label="Игровой видеокадр персонажа">
+    <div className="self-view-room"><span className="self-view-window" /><span className="self-view-lamp" /><span className="self-view-shelf" /></div>
+    {enabled ? <div className="player-silhouette"><span className="player-hair" /><span className="player-head"><i /><i /><b /></span><span className="player-neck" /><span className="player-body"><i /><i /></span><span className="player-arm left" /><span className="player-arm right" /></div> : <div className="video-off-overlay"><Video size={16} /><span>ВИДЕО ВЫКЛЮЧЕНО</span></div>}
+    <small>{enabled ? 'ТВОЙ ПЕРСОНАЖ' : 'ТОЛЬКО АУДИО'}</small>
   </div>
 }
 
@@ -316,7 +297,7 @@ export default function App() {
   }, [callStatus, questionIndex])
 
   useEffect(() => {
-    if (callStatus !== 'active' || timeLeft > 50 || timeLeft <= 0) return
+    if (callStatus !== 'active' || timeLeft > 20 || timeLeft <= 0) return
     const second = Math.floor(timeLeft)
     if (second >= lastPenaltySecond) return
     setLastPenaltySecond(second)
@@ -623,7 +604,7 @@ export default function App() {
 
   return (
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
-      {!mainMenu && introActive && <div className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
+      {!mainMenu && introActive && <div key={day + '-wake-' + String(introActive)} className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
         <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </div>
