@@ -1180,3 +1180,5 @@ button:focus-visible, textarea:focus-visible {
 .wardrobe-studio-copy h3 { margin:8px 0; color:#e4f0e9; font-size:22px; }.wardrobe-studio-copy p { max-width:560px; color:#a0b6aa; font-size:12px; line-height:1.7; }
 .wardrobe-look-tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }.wardrobe-look-tags span { padding:6px 9px; border:1px solid rgba(140,197,166,.18); border-radius:20px; color:#b7d6c4; background:rgba(75,130,99,.1); font-size:10px; }
 @media (max-width:650px) { .wardrobe-studio { grid-template-columns:1fr; }.wardrobe-character-stage { min-height:270px; } }
+
+.reduced-motion .intro-curtain { animation: wake-scene-fade 3.3s ease-out forwards !important; }
