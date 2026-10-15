@@ -165,10 +165,10 @@ function Room({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : "#a09b8e"} />
+      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} />
       <Box position={[-3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#5c646d" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
-      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : "#4b3c32"} roughness={0.98} />
+      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} />
       <FloorBoards />
 
       {/* Back wall details and skirting */}
@@ -291,8 +291,8 @@ function Room({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
       </group>}
 
       {/* Chair */}
-      <Box position={[0.1, 0.52, -0.98]} size={[0.72, 0.16, 0.68]} color="#2a3a3d" roughness={0.72} />
-      <Box position={[0.1, 0.93, -1.27]} size={[0.7, 0.72, 0.13]} color="#263538" roughness={0.7} />
+      <Box position={[0.1, 0.52, -0.98]} size={[0.72, 0.16, 0.68]} color={ownedItems.includes("used-chair") ? "#344e4c" : "#2a3a3d"} roughness={0.72} />
+      <Box position={[0.1, 0.93, -1.27]} size={[0.7, 0.72, 0.13]} color={ownedItems.includes("used-chair") ? "#35504c" : "#263538"} roughness={0.7} />
       <Cylinder position={[0.1, 0.28, -0.98]} radius={0.07} height={0.42} color="#363e44" metalness={0.7} />
       {[-0.22, 0.42].map((x) => (
         <Box key={x} position={[x, 0.17, -0.98]} size={[0.045, 0.25, 0.045]} color="#353e45" metalness={0.7} />
