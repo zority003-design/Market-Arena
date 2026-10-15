@@ -705,13 +705,13 @@ export default function App() {
       setClientInvested((invested) => ({ ...invested, [activeClient.id]: (invested[activeClient.id] ?? 0) + payout.ticket }))
       const soldPrice = Number(activeCompany.price.replace(/[^0-9,.-]/g, '').replace(',', '.')) * (1 + (newsImpacts[activeCompany.ticker] ?? 0) / 100)
       const soldShares = Math.floor(payout.ticket / Math.max(0.01, soldPrice))
-      const targetCompany = companies[(day - 1) % companies.length]
-      if (activeCompany.ticker === targetCompany.ticker) {
+      const quotaTargetCompany = companies[(day - 1) % companies.length]
+      if (activeCompany.ticker === quotaTargetCompany.ticker) {
         setDailySalesAmount((value) => value + payout.ticket)
         setDailySalesShares((value) => value + soldShares)
       }
       setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '.')
-      const quotaNote = activeCompany.ticker === targetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + targetCompany.ticker + '.' : ' Внимание: дневной план по ' + targetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
+      const quotaNote = activeCompany.ticker === quotaTargetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + quotaTargetCompany.ticker + '.' : ' Внимание: дневной план по ' + quotaTargetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' + quotaNote }])
     } else {
       playSound('decline')
@@ -804,7 +804,7 @@ export default function App() {
 
   function endDay() {
     if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
-    const targetCompany = companies[(day - 1) % companies.length]
+    const shiftTargetCompany = companies[(day - 1) % companies.length]
     const targetShares = 25 + day * 10
     const targetAmount = 8000 + day * 4000
     const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
@@ -812,7 +812,7 @@ export default function App() {
     const penalty = success ? 0 : 750
     if (success) { setCash((value) => value + reward); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
     else { setReputation((value) => Math.max(0, value - 3)); setFirmCapital((value) => Math.max(0, value - penalty)); setToast('План не выполнен: репутация −3, фирма потеряла ' + penalty.toLocaleString('ru-RU') + ' ₽.') }
-    setShiftReport({ success, ticker: targetCompany.ticker, company: targetCompany.name, shares: dailySalesShares, targetShares, amount: dailySalesAmount, targetAmount, reward, penalty })
+    setShiftReport({ success, ticker: shiftTargetCompany.ticker, company: shiftTargetCompany.name, shares: dailySalesShares, targetShares, amount: dailySalesAmount, targetAmount, reward, penalty })
     playSound('notification')
     setDayEnded(true)
     setCanInteractWithComputer(false)
