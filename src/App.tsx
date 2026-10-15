@@ -311,6 +311,9 @@ export default function App() {
   const [newsImpacts, setNewsImpacts] = useState<Record<string, number>>({})
   const [marketReviewed, setMarketReviewed] = useState(false)
   const [newsReviewed, setNewsReviewed] = useState(false)
+  const [dailySalesAmount, setDailySalesAmount] = useState(0)
+  const [dailySalesShares, setDailySalesShares] = useState(0)
+  const [shiftReport, setShiftReport] = useState<{success:boolean; ticker:string; company:string; shares:number; targetShares:number; amount:number; targetAmount:number; reward:number; penalty:number} | null>(null)
 
   useEffect(() => {
     if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Ignore unavailable storage. */ } }
@@ -343,8 +346,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded })) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
 
   useEffect(() => {
     if (!controlsVisible) return
@@ -451,10 +454,10 @@ export default function App() {
     : CLIENTS.find((client) => client.id === callClientId) ?? selectedAvailableClient
   const activeCompany = companies.find((company) => company.ticker === selectedCompany) ?? companies[0]
   const getDisplayedPrice = (company: typeof companies[number]) => { const base = Number(company.price.replace(/[^0-9,.-]/g, '').replace(',', '.')); const moved = base * (1 + (newsImpacts[company.ticker] ?? 0) / 100); return '₽ ' + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
-  const getDisplayedChange = (company: typeof companies[number]) => { const base = Number(company.change.replace('%', '').replace(',', '.')); const moved = base + (newsImpacts[company.ticker] ?? 0); return (moved > 0 ? '+' : '') + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' }
+  const getDisplayedChange = (company: typeof companies[number]) => { const base = Number(company.change.replace('%', '').replace(/[−–]/g, '-').replace(',', '.')); const moved = base + (newsImpacts[company.ticker] ?? 0); return (moved > 0 ? '+' : '') + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' }
   const marketIndexImpact = Object.values(newsImpacts).reduce((total, impact) => total + impact, 0) / 4
   const currentHousing = HOUSING.find((home) => home.id === housingId) ?? HOUSING[0]
-  const activeQuestions = getQuestionsForTier(activeClient.tier)
+  const activeQuestions = getStockQuestions(activeCompany)
   const activeQuestion = activeQuestions[questionIndex]
   const displayedChoices = activeQuestion ? (choiceOrders[questionIndex]?.map((index) => activeQuestion.choices[index]).filter(Boolean) ?? activeQuestion.choices) : []
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
@@ -614,8 +617,17 @@ export default function App() {
       setDeals((value) => value + 1)
       setClientDealCounts((counts) => ({ ...counts, [activeClient.id]: (counts[activeClient.id] ?? 0) + 1 }))
       setClientInvested((invested) => ({ ...invested, [activeClient.id]: (invested[activeClient.id] ?? 0) + payout.ticket }))
+      const soldPrice = Number(activeCompany.price.replace(/[^0-9,.-]/g, '').replace(',', '.')) * (1 + (newsImpacts[activeCompany.ticker] ?? 0) / 100)
+      const soldShares = Math.floor(payout.ticket / Math.max(0.01, soldPrice))
+      const targetCompany = companies[(day - 1) % companies.length]
+      if (activeCompany.ticker === targetCompany.ticker) {
+        setDailySalesAmount((value) => value + payout.ticket)
+        setDailySalesShares((value) => value + soldShares)
+      }
       setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '.')
-      setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' }])
+      const targetCompany = companies[(day - 1) % companies.length]
+      const quotaNote = activeCompany.ticker === targetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + targetCompany.ticker + '.' : ' Внимание: дневной план по ' + targetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
+      setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' + quotaNote }])
     } else {
       playSound('decline')
       setReputation((value) => Math.max(0, value - 2))
@@ -691,6 +703,15 @@ export default function App() {
 
   function endDay() {
     if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
+    const targetCompany = companies[(day - 1) % companies.length]
+    const targetShares = 100 + day * 25
+    const targetAmount = 20000 + day * 10000
+    const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
+    const reward = success ? 1000 + day * 250 : 0
+    const penalty = success ? 0 : 750
+    if (success) { setCash((value) => value + reward); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
+    else { setReputation((value) => Math.max(0, value - 3)); setFirmCapital((value) => Math.max(0, value - penalty)); setToast('План не выполнен: репутация −3, фирма потеряла ' + penalty.toLocaleString('ru-RU') + ' ₽.') }
+    setShiftReport({ success, ticker: targetCompany.ticker, company: targetCompany.name, shares: dailySalesShares, targetShares, amount: dailySalesAmount, targetAmount, reward, penalty })
     playSound('notification')
     setDayEnded(true)
     setCanInteractWithComputer(false)
@@ -707,6 +728,9 @@ export default function App() {
     const nextDay = day + 1
     setDay(nextDay)
     setCallsToday(0)
+    setDailySalesAmount(0)
+    setDailySalesShares(0)
+    setShiftReport(null)
     setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
     const dailyCosts = currentHousing.dailyCost
     const available = cash + DAILY_SALARY
@@ -730,6 +754,7 @@ export default function App() {
 
   return (
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
+      {shiftReport && <div className="shift-report-backdrop"><section className="shift-report-modal"><span className="eyebrow">ДЕНЬ {day} · ОТЧЁТ ПО СМЕНЕ</span><div className={'shift-report-icon ' + (shiftReport.success ? 'success' : 'failure')}>{shiftReport.success ? <Check size={26} /> : <X size={26} />}</div><h2>{shiftReport.success ? 'План выполнен' : 'План не выполнен'}</h2><p className="shift-report-lead">{shiftReport.company} ({shiftReport.ticker}) — обязательная бумага дня. Сделки по другим акциям не заменяют этот план.</p><div className="shift-report-stats"><div><small>ПРОДАНО АКЦИЙ</small><strong>{shiftReport.shares} / {shiftReport.targetShares}</strong></div><div><small>ОБОРОТ ПО ЦЕЛЕВОЙ БУМАГЕ</small><strong>{shiftReport.amount.toLocaleString('ru-RU')} / {shiftReport.targetAmount.toLocaleString('ru-RU')} ₽</strong></div></div><div className={'shift-report-consequence ' + (shiftReport.success ? 'good' : 'bad')}>{shiftReport.success ? 'Премия +' + shiftReport.reward.toLocaleString('ru-RU') + ' ₽ и +4 к репутации.' : 'Штраф фирме −' + shiftReport.penalty.toLocaleString('ru-RU') + ' ₽ и −3 к репутации. Завтра план станет сложнее.'}</div><button className="primary-action" onClick={() => setShiftReport(null)}>Продолжить <ArrowRight size={15} /></button></section></div>}
       {!mainMenu && introActive && <div key={day + '-wake-' + String(introActive)} className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
         <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
@@ -869,6 +894,7 @@ export default function App() {
                     </div>
                   </section>
                   <div className="market-summary"><div><small>ИНДЕКС БИРЖИ «КОТИРОВКА» · КБ-100</small><strong>{(1842.76 * (1 + marketIndexImpact / 100)).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <em>{(1.28 + marketIndexImpact) > 0 ? '+' : ''}{(1.28 + marketIndexImpact).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</em></strong></div><div className="sparkline"><svg viewBox="0 0 250 55" preserveAspectRatio="none"><path d="M0 42 L18 37 L31 43 L47 28 L60 33 L77 22 L91 30 L108 16 L126 23 L142 10 L158 18 L176 13 L191 22 L210 8 L226 14 L250 3" fill="none" stroke="#35d6a0" strokeWidth="2.2" /><path d="M0 42 L18 37 L31 43 L47 28 L60 33 L77 22 L91 30 L108 16 L126 23 L142 10 L158 18 L176 13 L191 22 L210 8 L226 14 L250 3 L250 55 L0 55Z" fill="url(#sparkFill)" opacity=".18" /><defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#35d6a0" /><stop offset="1" stopColor="#35d6a0" stopOpacity="0" /></linearGradient></defs></svg></div></div>
+                  <section className="daily-stock-contract"><div><span className="eyebrow">ОБЯЗАТЕЛЬСТВО СМЕНЫ · ДЕНЬ {day}</span><h3>План по акции {companies[(day - 1) % companies.length].ticker}</h3><p>Продай не менее <strong>{100 + day * 25} акций</strong> и набери оборот <strong>{(20000 + day * 10000).toLocaleString('ru-RU')} ₽</strong>. Сделки с другими бумагами в эту квоту не засчитываются.</p></div><div className="daily-stock-progress"><div><span>Акции</span><strong>{dailySalesShares} / {100 + day * 25}</strong></div><div className="daily-stock-track"><i style={{width:Math.min(100,dailySalesShares/(100+day*25)*100)+'%'}} /></div><div><span>Оборот</span><strong>{dailySalesAmount.toLocaleString('ru-RU')} / {(20000 + day * 10000).toLocaleString('ru-RU')} ₽</strong></div><div className="daily-stock-track"><i style={{width:Math.min(100,dailySalesAmount/(20000+day*10000)*100)+'%'}} /></div></div></section>
                   <div className="company-table"><div className="table-header"><span>КОМПАНИЯ</span><span>ЦЕНА</span><span>ИЗМЕНЕНИЕ</span><span>ДЕЙСТВИЕ</span></div>{companies.map((company) => <div className={selectedCompany === company.ticker ? 'company-row selected' : 'company-row'} key={company.ticker} onClick={() => setSelectedCompany(company.ticker)}><div className="company-name"><span className={'company-logo ' + company.ticker.toLowerCase()}>{company.ticker.slice(0, 2)}</span><span><strong>{company.name}</strong><small>{company.sector} · {company.ticker}</small></span></div><strong className="price">{getDisplayedPrice(company)}</strong><span className={getDisplayedChange(company).startsWith('-') ? 'change negative' : 'change positive'}>{getDisplayedChange(company)}</span><button className="row-action" onClick={(event) => { event.stopPropagation(); setSelectedCompany(company.ticker) }}>{selectedCompany === company.ticker ? 'Выбрана' : 'Изучить'}</button></div>)}</div>
                   <div className="company-detail"><div className="detail-top"><div><span className="eyebrow">КАРТОЧКА ЭМИТЕНТА · {companies.find((c) => c.ticker === selectedCompany)?.ticker}</span><h3>{activeCompany.name}</h3><p>{activeCompany.sector}</p><p className="company-description">{activeCompany.description}</p></div><div className="detail-price"><strong>{getDisplayedPrice(activeCompany)}</strong><span className={getDisplayedChange(activeCompany).startsWith('-') ? 'negative' : 'positive'}>{getDisplayedChange(activeCompany)}</span></div></div><div className="detail-stats"><div><small>КАПИТАЛИЗАЦИЯ</small><strong>{companies.find((c) => c.ticker === selectedCompany)?.cap}</strong></div><div><small>ВЫРУЧКА</small><strong>{companies.find((c) => c.ticker === selectedCompany)?.revenue}</strong></div><div><small>ЧИСТАЯ ПРИБЫЛЬ</small><strong>{companies.find((c) => c.ticker === selectedCompany)?.profit}</strong></div><div><small>УРОВЕНЬ РИСКА</small><strong>{companies.find((c) => c.ticker === selectedCompany)?.risk}</strong></div></div><div className="company-pros-cons"><div><strong>Преимущества</strong><p>{activeCompany.advantages}</p></div><div><strong>Риски и недостатки</strong><p>{activeCompany.risks}</p></div></div><div className="detail-disclaimer"><ShieldAlert size={15} /> Рост цены не гарантирует прибыль. Сверяй выручку, прибыль, долг и новости.</div><div className="market-order-dock"><div><span className="eyebrow">СЛЕДУЮЩИЙ ШАГ</span><strong>Подготовь предложение для клиента</strong><p>Перенеси выбранную компанию в переговоры и объясни потенциальную выгоду вместе с рисками.</p></div><button onClick={() => setTab('calls')}>К выбору клиента <ArrowRight size={15} /></button></div></div>
                 </div>
