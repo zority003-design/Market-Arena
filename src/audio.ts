@@ -1,4 +1,4 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'lamp' | 'curtain' | 'sleep'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'lamp' | 'curtain' | 'sleep'
 
 type AudioSettings = {
   enabled: boolean
@@ -155,6 +155,9 @@ export function playSound(kind: SoundKind) {
       break
     case 'notification':
       tone(740, 0.1, 'sine', 0.06, 880)
+      break
+    case 'tick':
+      tone(1420, 0.018, 'sine', 0.014, 1250)
       break
     case 'lamp':
       tone(130, 0.045, 'square', 0.035, 85)
