@@ -42,6 +42,73 @@ const questions = [
   },
 ]
 
+
+const entrepreneurQuestions = [
+  {
+    title: 'У бизнеса сезонная выручка. Как мне не остаться без денег, если понадобится пополнить оборотный капитал?',
+    hint: 'Предприниматель оценивает ликвидность и не хочет заморозить деньги, нужные компании.',
+    choices: [
+      { label: 'Сначала определим резерв на несколько месяцев расходов и не будем инвестировать деньги, которые могут срочно понадобиться бизнесу.', delta: 9, kind: 'good' },
+      { label: 'Вложите всё свободное: если понадобится, быстро продадим акции по хорошей цене.', delta: -13, kind: 'bad' },
+      { label: 'Разделим капитал по срокам: резерв оставим ликвидным, а инвестировать будем только деньги с подходящим горизонтом.', delta: 8, kind: 'good' },
+    ],
+  },
+  {
+    title: 'Почему мне не оставить весь резерв на счёте? Что именно оправдывает дополнительный риск?',
+    hint: 'Нужно сопоставить потенциальную доходность, ликвидность и возможный убыток.',
+    choices: [
+      { label: 'Сравним сценарии с учётом риска, комиссий и срока. Если ожидаемая выгода не компенсирует риск, сделка не нужна.', delta: 9, kind: 'good' },
+      { label: 'Деньги на счёте просто обесцениваются. Любая акция лучше наличных.', delta: -12, kind: 'bad' },
+      { label: 'Покажу базовый и негативный сценарии, а размер позиции ограничим суммой, которую бизнес может не трогать.', delta: 7, kind: 'good' },
+    ],
+  },
+  {
+    title: 'Мне может понадобиться часть капитала через месяц. Вы сможете гарантировать, что я выйду без потерь?',
+    hint: 'Клиент проверяет, не скрываешь ли ты риск падения цены и нехватки ликвидности.',
+    choices: [
+      { label: 'Нет, гарантировать цену выхода нельзя. Для денег с таким сроком акция может не подойти.', delta: 10, kind: 'good' },
+      { label: 'Конечно, ликвидные акции всегда можно продать без убытка.', delta: -16, kind: 'bad' },
+      { label: 'Давайте сначала отделим краткосрочный резерв от капитала, который действительно можно инвестировать надолго.', delta: 8, kind: 'good' },
+    ],
+  },
+]
+
+const professionalQuestions = [
+  {
+    title: 'Назовите ключевые допущения инвестиционной идеи и факты, которые опровергнут вашу рекомендацию.',
+    hint: 'Опытный инвестор ждёт проверяемого тезиса, а не презентации.',
+    choices: [
+      { label: 'Зафиксируем базовый тезис, три главных риска и показатели, при ухудшении которых пересмотрим позицию.', delta: 10, kind: 'good' },
+      { label: 'Рынок уже всё оценил, поэтому детали допущений не так важны.', delta: -15, kind: 'bad' },
+      { label: 'Покажу чувствительность оценки к выручке, марже и долгу, а также укажу, что пока неизвестно.', delta: 9, kind: 'good' },
+    ],
+  },
+  {
+    title: 'Что произойдёт с позицией в негативном сценарии и какой у нас план выхода?',
+    hint: 'Клиент оценивает дисциплину управления риском.',
+    choices: [
+      { label: 'Определим допустимый убыток, ликвидность и условия пересмотра до покупки; стоп-план не гарантирует цену исполнения.', delta: 10, kind: 'good' },
+      { label: 'Если цена упадёт, просто подождём восстановления. Хорошие компании всегда возвращаются.', delta: -15, kind: 'bad' },
+      { label: 'Сравним стресс-сценарий с размером позиции и не будем инвестировать сумму, потеря которой нарушит ваши планы.', delta: 8, kind: 'good' },
+    ],
+  },
+  {
+    title: 'Каким образом вы отделяете собственную комиссию от интересов клиента?',
+    hint: 'Профессионал проверяет конфликт интересов и готовность брокера рекомендовать отказ.',
+    choices: [
+      { label: 'Покажу комиссии и альтернативы. Если продукт не подходит вашему мандату, правильное решение — отказаться от сделки.', delta: 10, kind: 'good' },
+      { label: 'Моя работа — закрыть сделку. Доходность уже зависит от вас.', delta: -16, kind: 'bad' },
+      { label: 'Сначала зафиксируем критерии выбора и ограничения, а затем сравним подходящие варианты, включая отсутствие сделки.', delta: 9, kind: 'good' },
+    ],
+  },
+]
+
+function getQuestionsForTier(tier: number) {
+  if (tier >= 3) return professionalQuestions
+  if (tier >= 2) return entrepreneurQuestions
+  return questions
+}
+
 const companies = [
   { ticker: 'KOTL', name: 'Котолёт', sector: 'Робототехника', price: '₽ 148,60', change: '+3,42%', positive: true, cap: '₽ 8,4 млрд', revenue: '120 ИУ', profit: '−18 ИУ', risk: 'Высокий' },
   { ticker: 'OGUR', name: 'Огурец Капитал', sector: 'Напитки', price: '₽ 92,15', change: '+0,84%', positive: true, cap: '₽ 5,1 млрд', revenue: '210 ИУ', profit: '+16 ИУ', risk: 'Средний' },
@@ -157,7 +224,8 @@ export default function App() {
     ? selectedAvailableClient
     : CLIENTS.find((client) => client.id === callClientId) ?? selectedAvailableClient
   const currentHousing = HOUSING.find((home) => home.id === housingId) ?? HOUSING[0]
-  const activeQuestion = questions[questionIndex]
+  const activeQuestions = getQuestionsForTier(activeClient.tier)
+  const activeQuestion = activeQuestions[questionIndex]
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
 
   function openComputer() {
@@ -231,9 +299,9 @@ export default function App() {
     const nextPatience = Math.max(0, patience - 4)
     setTrust(nextTrust)
     setPatience(nextPatience)
-    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), ...(questionIndex < questions.length - 1 ? [{ from: 'client' as const, text: questions[questionIndex + 1].title }] : [])])
+    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: questions[questionIndex + 1].title }] : [])])
     setFreeAnswer('')
-    if (questionIndex >= questions.length - 1) {
+    if (questionIndex >= activeQuestions.length - 1) {
       resolveCall(nextTrust, nextPatience)
     } else {
       setQuestionIndex((value) => value + 1)
