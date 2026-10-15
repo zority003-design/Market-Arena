@@ -135,6 +135,12 @@ export default function App() {
   const startNewCareerOnLoad = useMemo(() => { try { return localStorage.getItem('na-vse-kotirovki-start-new-career') === 'true' } catch { return false } }, [])
   const saved = useMemo(() => readSave(), [])
   const [mainMenu, setMainMenu] = useState(!startNewCareerOnLoad)
+  const [pauseOpen, setPauseOpen] = useState(false)
+  const [gameMinutes, setGameMinutes] = useState(7 * 60)
+  const [windowMaximized, setWindowMaximized] = useState(false)
+  const [windowMinimized, setWindowMinimized] = useState(false)
+  const [windowOffset, setWindowOffset] = useState({ x: 0, y: 0 })
+  const dragWindowRef = useRef<{ x: number; y: number; originX: number; originY: number } | null>(null)
   const [offlineMenu, setOfflineMenu] = useState(false)
   const [onlineInfo, setOnlineInfo] = useState(false)
   const [changelogOpen, setChangelogOpen] = useState(false)
@@ -171,8 +177,8 @@ export default function App() {
   const [questionIndex, setQuestionIndex] = useState(0)
   const [trust, setTrust] = useState(48)
   const [patience, setPatience] = useState(74)
-  const [timeLeft, setTimeLeft] = useState(12)
-  const [lastPenaltySecond, setLastPenaltySecond] = useState(12)
+  const [timeLeft, setTimeLeft] = useState(25)
+  const [lastPenaltySecond, setLastPenaltySecond] = useState(25)
   const [freeAnswer, setFreeAnswer] = useState('')
   const [conversation, setConversation] = useState<{ from: 'client' | 'you' | 'system'; text: string }[]>([])
   const [lastResult, setLastResult] = useState('')
@@ -201,6 +207,38 @@ export default function App() {
     if (tab === 'news') setNewsReviewed(true)
   }, [tab])
 
+  // In-game clock: ten minutes pass in the world every real minute; pausing freezes it.
+  useEffect(() => {
+    if (mainMenu || pauseOpen) return
+    const clock = window.setInterval(() => setGameMinutes((value) => (value + 10) % (24 * 60)), 60000)
+    return () => window.clearInterval(clock)
+  }, [mainMenu, pauseOpen])
+
+  useEffect(() => {
+    if (mainMenu) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setPauseOpen((value) => !value)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [mainMenu])
+
+  useEffect(() => {
+    if (pauseOpen || windowMinimized || windowMaximized) return
+    const move = (event: PointerEvent) => {
+      const drag = dragWindowRef.current
+      if (!drag) return
+      setWindowOffset({ x: drag.originX + event.clientX - drag.x, y: drag.originY + event.clientY - drag.y })
+    }
+    const stop = () => { dragWindowRef.current = null }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', stop)
+    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', stop) }
+  }, [pauseOpen, windowMinimized, windowMaximized])
+
 
 
   useEffect(() => {
@@ -210,7 +248,7 @@ export default function App() {
   }, [callStatus, questionIndex])
 
   useEffect(() => {
-    if (callStatus !== 'active' || timeLeft > 9 || timeLeft <= 0) return
+    if (callStatus !== 'active' || timeLeft > 20 || timeLeft <= 0) return
     const second = Math.floor(timeLeft)
     if (second >= lastPenaltySecond) return
     setLastPenaltySecond(second)
@@ -296,12 +334,18 @@ export default function App() {
     setVideoSwitchEffectUsed(false)
     setSelectedCompany('KOTL')
     setToast('')
-    setLastPenaltySecond(12)
+    setLastPenaltySecond(25)
     setCallStatus('idle')
     setQuestionIndex(0)
     setTrust(48)
     setPatience(74)
-    setTimeLeft(12)
+    setTimeLeft(25)
+    setLastPenaltySecond(25)
+    setGameMinutes(7 * 60)
+    setPauseOpen(false)
+    setWindowOffset({ x: 0, y: 0 })
+    setWindowMaximized(false)
+    setWindowMinimized(false)
     setFreeAnswer('')
     setConversation([])
     setLastResult('')
@@ -367,6 +411,10 @@ export default function App() {
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCallStatus('active')
+    setTimeLeft(25)
+    setLastPenaltySecond(25)
+    setWindowMinimized(false)
+    setWindowMaximized(true)
     setTab('calls')
   }
 
@@ -562,13 +610,13 @@ export default function App() {
       )}
 
       {panel === 'computer' && (
-        <div className="computer-overlay">
-          <div className="computer-topbar">
-            <button className="back-button" onClick={() => { setPanel('room'); setCallStatus('idle') }}><ArrowLeft size={16} /> В комнату</button>
-            <div className="terminal-title"><span className="terminal-logo"><Activity size={17} /></span><span><strong>КОТИРОВКИ / TERMINAL</strong><small>KOTIROVKI OS · v0.5</small></span></div>
-            <div className="secure-label"><LockKeyhole size={13} /> ЛОКАЛЬНАЯ СЕССИЯ</div>
+        <div className="computer-overlay os-shell">
+          <div className="computer-topbar os-topbar">
+            <button className="back-button" onClick={() => { setPanel('room'); setCallStatus('idle'); setPauseOpen(false) }}><ArrowLeft size={16} /> В комнату</button>
+            <div className="os-topbar-center"><span className="os-status-dot" /> Рабочая станция · {String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</div>
+            <button className="os-pause-button" onClick={() => setPauseOpen(true)}><span>Ⅱ</span> Пауза</button>
           </div>
-          <div className={'terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '') + (tab === 'calls' && callStatus === 'active' ? ' immersive-call-body' : '')}>
+          <div className={'terminal-body os-terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '') + (tab === 'calls' && callStatus === 'active' ? ' immersive-call-body' : '')}>
             <aside className="terminal-sidebar">
               <div className="profile-card">
                 <div className="avatar">БР</div><div><strong>Младший брокер</strong><small>Стажёр · 1-й день</small></div><span className="online-indicator" />
@@ -586,11 +634,13 @@ export default function App() {
               <button className="end-day-button" onClick={endDay}><Power size={15} /> Завершить день</button>
             </aside>
 
-            <section className="terminal-content">
-              {tab === 'overview' && (
+            <section className={'terminal-content os-window ' + (tab === 'overview' ? 'os-window-desktop' : '') + (windowMaximized ? ' os-window-maximized' : '') + (windowMinimized ? ' os-window-minimized' : '')} style={tab === 'overview' || windowMaximized ? undefined : { transform: `translate(${windowOffset.x}px, ${windowOffset.y}px)` }}>
+              {tab !== 'overview' && <div className="os-window-titlebar" onPointerDown={(event) => { if (windowMaximized || (event.target as HTMLElement).closest('button')) return; dragWindowRef.current = { x: event.clientX, y: event.clientY, originX: windowOffset.x, originY: windowOffset.y } }}><span className={'os-window-app-icon ' + tab}>{tab === 'market' ? <TrendingUp size={15} /> : tab === 'news' ? <Newspaper size={15} /> : tab === 'calls' ? <Video size={15} /> : tab === 'clients' ? <Users size={15} /> : tab === 'shop' ? <ShoppingBag size={15} /> : <House size={15} />}</span><strong>{tab === 'market' ? 'Биржа' : tab === 'news' ? 'Новости' : tab === 'calls' ? 'Видеозвонки и клиенты' : tab === 'clients' ? 'База клиентов' : tab === 'shop' ? 'Магазин и гардероб' : 'Недвижимость'}</strong><div className="os-window-controls"><button aria-label="Свернуть окно" onClick={() => setWindowMinimized(true)}>—</button><button aria-label={windowMaximized ? 'Восстановить окно' : 'На весь экран'} onClick={() => setWindowMaximized((value) => !value)}>□</button><button aria-label="Закрыть окно" onClick={() => { setTab('overview'); setWindowMinimized(false); setWindowMaximized(false); setWindowOffset({ x: 0, y: 0 }) }}>×</button></div></div>}
+              {windowMinimized && tab !== 'overview' ? <div className="os-minimized-placeholder"><Laptop size={24} /><strong>Окно свёрнуто</strong><button onClick={() => setWindowMinimized(false)}>Восстановить окно</button></div> : null}
+              {!windowMinimized && tab === 'overview' && (
                 <div className="desktop-page">
                   <div className="desktop-wallpaper-glow" />
-                  <div className="desktop-greeting"><span className="desktop-system-label"><span className="live-dot" /> KOTIROVKI OS · ЛИЧНЫЙ КОМПЬЮТЕР</span><h2>Доброе утро.</h2><p>День {String(day).padStart(2, '0')} · {currentHousing.name} · Терминал брокера готов к работе.</p></div>
+                  <div className="desktop-greeting"><span className="desktop-system-label"><span className="live-dot" /> ЛИЧНЫЙ КОМПЬЮТЕР</span><h2>{gameMinutes < 12 * 60 ? 'Доброе утро.' : gameMinutes < 18 * 60 ? 'Хорошего дня.' : 'Добрый вечер.'}</h2><p>День {String(day).padStart(2, '0')} · {currentHousing.name} · {String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</p></div>
                   <div className="desktop-app-grid">
                     <button className="desktop-app-icon" onClick={() => setTab('market')}><span className="desktop-icon-tile market-app"><TrendingUp size={23} /></span><strong>Биржа</strong></button>
                     <button className="desktop-app-icon" onClick={() => setTab('news')}><span className="desktop-icon-tile news-app"><Newspaper size={23} /></span><strong>Новости</strong><small>Сводка рынка</small></button>
@@ -603,11 +653,11 @@ export default function App() {
                     <div className="desktop-widget daily-task-widget"><div className="desktop-widget-heading"><span><Sparkles size={15} /> СЕГОДНЯ</span><span>ДЕНЬ {day}</span></div><h3>Сначала разберись в рынке</h3><p>Посмотри компанию и новости, затем позвони клиенту. Не обещай доходность, которую не можешь гарантировать.</p><div className="desktop-task-actions"><button onClick={() => setTab('market')}>Изучить рынок <ArrowRight size={14} /></button><button disabled={availableClients.length === 0 || callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2)} onClick={startCall}>Позвонить клиенту <Phone size={14} /></button></div></div>
                     <div className="desktop-widget desktop-finances"><div className="desktop-widget-heading"><span><Wallet size={15} /> МОИ ФИНАНСЫ</span><span className="desktop-account-status">ЛОКАЛЬНО</span></div><strong>{cash.toLocaleString('ru-RU')} ₽</strong><small>Личные деньги</small><div className="desktop-finance-row"><span>Репутация</span><b>{reputation}/100</b></div><div className="desktop-finance-track"><span style={{ width: reputation + '%' }} /></div><div className="desktop-finance-row"><span>Капитал фирмы</span><b>{firmCapital.toLocaleString('ru-RU')} ₽</b></div><button className="desktop-end-day" onClick={endDay}>Завершить рабочий день <ArrowRight size={14} /></button></div>
                   </div>
-                  <div className="desktop-taskbar"><span className="taskbar-start"><TrendingUp size={15} /> КОТИРОВКИ</span><span><span className="live-dot" /> Рынок открыт</span><span>{new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span></div>
+                  <div className="desktop-preview-widgets"><div className="desktop-preview-chart"><div><span className="preview-window-label">КОТИРОВКИ · KOTL</span><strong>Котолёт <em>+3,4%</em></strong></div><svg viewBox="0 0 260 64" preserveAspectRatio="none" aria-label="Предварительный график акций"><path d="M0 49 L18 42 L35 46 L53 31 L70 36 L88 20 L105 27 L123 16 L140 31 L158 23 L175 29 L194 12 L211 20 L230 8 L260 14" fill="none" stroke="#63e6ae" strokeWidth="2.5"/><path d="M0 49 L18 42 L35 46 L53 31 L70 36 L88 20 L105 27 L123 16 L140 31 L158 23 L175 29 L194 12 L211 20 L230 8 L260 14 L260 64 L0 64Z" fill="#63e6ae" opacity=".1"/></svg><small>Демо-данные · график реагирует на события рынка в игре</small></div><div className="desktop-preview-call"><div className="preview-call-avatar">К</div><div><span className="preview-window-label">ВИДЕОЗВОНКИ</span><strong>{callStatus === 'active' ? 'Идёт переговоры' : 'Клиент ждёт звонка'}</strong><small>{callStatus === 'active' ? activeClient.name : availableClients[0]?.name ?? 'Нет доступных клиентов'}</small></div><button onClick={() => setTab('calls')}><Video size={15} /> Открыть</button></div></div><div className="desktop-taskbar"><button className="taskbar-start" onClick={() => setToast('Меню приложений открыто: выбери программу на рабочем столе.')}><TrendingUp size={15} /> ПУСК</button><span><span className="live-dot" /> Рынок открыт</span><span>{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</span></div>
                 </div>
               )}
 
-              {tab === 'market' && (
+              {!windowMinimized && tab === 'market' && (
                 <div className="market-page">
                   <div className="page-heading"><div><div className="eyebrow">РЫНОК · ИГРОВОЙ МИР</div><h2>Биржевой терминал</h2><p>Все компании и показатели вымышлены. Анализируй бизнес, а не только цвет графика.</p></div><div className="market-status"><span className="live-dot" /> ОТКРЫТО</div></div>
                   <div className="market-summary"><div><small>ИНДЕКС УСЛОВНОГО РЫНКА</small><strong>1 842,76 <em>+1,28%</em></strong></div><div className="sparkline"><svg viewBox="0 0 250 55" preserveAspectRatio="none"><path d="M0 42 L18 37 L31 43 L47 28 L60 33 L77 22 L91 30 L108 16 L126 23 L142 10 L158 18 L176 13 L191 22 L210 8 L226 14 L250 3" fill="none" stroke="#35d6a0" strokeWidth="2.2" /><path d="M0 42 L18 37 L31 43 L47 28 L60 33 L77 22 L91 30 L108 16 L126 23 L142 10 L158 18 L176 13 L191 22 L210 8 L226 14 L250 3 L250 55 L0 55Z" fill="url(#sparkFill)" opacity=".18" /><defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#35d6a0" /><stop offset="1" stopColor="#35d6a0" stopOpacity="0" /></linearGradient></defs></svg></div></div>
@@ -616,11 +666,11 @@ export default function App() {
                 </div>
               )}
 
-              {tab === 'news' && (
+              {!windowMinimized && tab === 'news' && (
                 <div className="news-page"><div className="page-heading"><div><div className="eyebrow">ИНФОРМАЦИОННОЕ АГЕНТСТВО «СЛУХИ И ФАКТЫ»</div><h2>Лента новостей</h2><p>Новости могут изменить отношение клиента к компании прямо во время звонка.</p></div><div className="market-status"><span className="live-dot" /> LIVE FEED</div></div><div className="news-list">{news.map((item) => <article className="news-card" key={item.title}><div className="news-card-top"><span className={'news-tag ' + item.tone}>{item.tag}</span><time>{item.time}</time></div><h3>{item.title}</h3><p>{item.body}</p><button onClick={() => { setSelectedCompany(item.tag === 'ТАПОКТЕХ' ? 'TAPK' : 'KOTL'); setTab('market') }}>Открыть компанию <ArrowUpRight size={14} /></button></article>)}</div><div className="bottom-note"><Newspaper size={16} /><span>Проверяй источник и отделяй подтверждённые факты от слухов. В этом мире заголовок может быть громче отчётности.</span></div></div>
               )}
 
-              {tab === 'clients' && (
+              {!windowMinimized && tab === 'clients' && (
                 <div className="clients-page">
                   <div className="page-heading"><div><div className="eyebrow">ОТДЕЛ ПРОДАЖ · CRM</div><h2>Клиенты и возможности</h2><p>Список растёт по мере карьеры. Больший капитал означает более высокие требования, а не гарантированную сделку.</p></div><div className="market-status"><Users size={14} /> {availableClients.length} ДОСТУПНО</div></div>
                   <div className="economy-summary"><div><small>ТВОИ СРЕДСТВА</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></div><div><small>ЗАКРЫТО СДЕЛОК</small><strong>{deals}</strong></div></div>
@@ -629,7 +679,7 @@ export default function App() {
                 </div>
               )}
 
-              {tab === 'shop' && (
+              {!windowMinimized && tab === 'shop' && (
                 <div className="shop-page">
                   <div className="page-heading"><div><div className="eyebrow">ИНВЕНТАРЬ · ОБОРУДОВАНИЕ</div><h2>Улучши рабочее место</h2><p>Техника улучшает качество звонков и первое впечатление. Она не заменяет знания и честные ответы.</p></div><div className="market-status"><ShoppingBag size={14} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
                   <div className="economy-summary"><div><small>ЛИЧНЫЕ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>УСТАНОВЛЕНО ПРЕДМЕТОВ</small><strong>{ownedItems.length}</strong></div><div><small>КАЧЕСТВО ВИДЕО</small><strong>{getVideoQuality(ownedItems)}/8</strong></div></div>
@@ -638,7 +688,7 @@ export default function App() {
                 </div>
               )}
 
-              {tab === 'housing' && (
+              {!windowMinimized && tab === 'housing' && (
                 <div className="housing-page">
                   <div className="page-heading"><div><div className="eyebrow">ОБРАЗ ЖИЗНИ · ЖИЛЬЁ</div><h2>Следующий адрес — твой выбор</h2><p>Больше приватности и статуса, но и постоянные расходы. Не переезжай, если после депозита не останется резерва.</p></div><div className="market-status"><House size={14} /> {currentHousing.name.toUpperCase()}</div></div>
                   <div className="current-home-banner"><div className="home-symbol"><House size={28} /></div><div><span className="eyebrow">ТЕКУЩЕЕ ЖИЛЬЁ</span><h3>{currentHousing.name}</h3><p>{currentHousing.description}</p></div><div className="home-cost"><small>РАСХОДЫ / ДЕНЬ</small><strong>{currentHousing.dailyCost.toLocaleString('ru-RU')} ₽</strong></div></div>
@@ -647,7 +697,7 @@ export default function App() {
                 </div>
               )}
 
-              {tab === 'calls' && (
+              {!windowMinimized && tab === 'calls' && (
                 <div className="calls-page">
                   <div className="page-heading"><div><div className="eyebrow">ОТДЕЛ ПРОДАЖ · ЛИНИЯ 01</div><h2>Клиенты и звонки</h2><p>Доверие нельзя купить. Но можно потерять за одну фразу.</p></div><div className={callStatus === 'active' ? 'call-live-badge active' : 'call-live-badge'}><span className="live-dot" /> {callStatus === 'active' ? 'ЗВОНОК ИДЁТ' : 'ЛИНИЯ СВОБОДНА'}</div></div>
                   {callStatus === 'idle' && <div className="precall-briefing">
@@ -675,8 +725,11 @@ export default function App() {
               <div className="rail-footer"><span><span className="live-dot" /> Все системы работают</span><small>BUILD 0.4.0 · DEMO</small></div>
             </aside>
           </div>
+          <div className="os-taskbar"><button onClick={() => { setTab('overview'); setWindowMinimized(false); setWindowMaximized(false) }}><TrendingUp size={16} /> <strong>Пуск</strong></button><span className="os-taskbar-separator" />{tab !== 'overview' && <button className="os-taskbar-app" onClick={() => setWindowMinimized((value) => !value)}>{tab === 'market' ? 'Биржа' : tab === 'news' ? 'Новости' : tab === 'calls' ? 'Видеозвонки' : tab === 'clients' ? 'Клиенты' : tab === 'shop' ? 'Магазин' : 'Недвижимость'}</button>}<span className="os-taskbar-spacer" /><span className="os-taskbar-weather">☁ <span>Переменная облачность</span></span><span className="os-taskbar-clock">{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}<small>ДЕНЬ {day}</small></span></div>
         </div>
       )}
+
+      {pauseOpen && !mainMenu && <div className="pause-backdrop"><section className="pause-menu" role="dialog" aria-modal="true" aria-label="Пауза"><span className="pause-kicker">ИГРА ПРИОСТАНОВЛЕНА</span><h2>Передохнём?</h2><p>Время остановлено. Карьера сохраняется автоматически.</p><button className="pause-primary" onClick={() => setPauseOpen(false)}><Play size={17} fill="currentColor" /> Вернуться в игру</button><button onClick={() => { setPauseOpen(false); setConfirmNewCareer(true) }}><RotateCcw size={16} /> Начать заново</button><button onClick={() => { setPauseOpen(false); setMenuSettings(true) }}><Settings size={16} /> Настройки</button><button className="pause-exit" onClick={() => { setPauseOpen(false); setPanel('room'); setCallStatus('idle'); setMainMenu(true); setOfflineMenu(false) }}><ArrowLeft size={16} /> В главное меню</button><small>ESC — продолжить игру</small></section></div>}
 
       {toast && <div className="toast"><Check size={16} /> {toast}</div>}
       <div className="version-watermark">PROTOTYPE 0.4 <span>·</span> НЕФИНАНСОВЫЙ СОВЕТ</div>
