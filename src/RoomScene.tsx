@@ -324,7 +324,7 @@ function Room({ onInteract, active }: RoomSceneProps) {
       <Box position={[0.1, 0.078, 0.5]} size={[3.1, 0.035, 2.1]} color="#3b4d50" roughness={1} />
       <Box position={[0.1, 0.098, 0.5]} size={[2.92, 0.008, 1.92]} color="#5c6966" roughness={1} />
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
-      {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)
+      {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
       <FirstPersonRig active={active} />
     </>
