@@ -213,18 +213,6 @@ function FloorBoards() {
 }
 
 
-function WindowRain() {
-  const rainRef = useRef<THREE.Group>(null)
-  useFrame((_, delta) => {
-    if (!rainRef.current) return
-    rainRef.current.children.forEach((drop, index) => {
-      drop.position.y -= delta * (1.35 + (index % 4) * 0.22)
-      if (drop.position.y < 1.28) drop.position.y = 2.78 + (index % 3) * 0.04
-    })
-  })
-  return <group ref={rainRef}>{Array.from({ length: 26 }, (_, i) => <Box key={i} position={[-3.69, 1.34 + (i % 9) * 0.16, -2.0 + Math.floor(i / 9) * 0.58 + (i % 3) * 0.08]} size={[0.006, 0.105, 0.006]} color="#b8dce7" transparent opacity={0.52} rotation={[0, 0, -0.13]} />)}</group>
-}
-
 function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
