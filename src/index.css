@@ -1221,3 +1221,30 @@ button:focus-visible, textarea:focus-visible {
 .in-game-self-view .player-arm { position:absolute; z-index:3; top:50%; width:13%; height:40%; border-radius:20px; background:linear-gradient(90deg,#a36f52,#d29a78); }.in-game-self-view .player-arm.left { left:20%; transform:rotate(5deg); }.in-game-self-view .player-arm.right { right:20%; transform:rotate(-5deg); }
 .in-game-self-view > small { position:absolute; z-index:8; left:6px; right:6px; bottom:5px; padding:3px; border-radius:4px; background:rgba(3,9,11,.76); color:#e1eee7; font-size:7px; letter-spacing:.07em; text-align:center; }
 .in-game-self-view.video-disabled .player-silhouette { opacity:.12; }.in-game-self-view .video-off-overlay { position:absolute; z-index:5; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; color:#b9c9c2; font-size:7px; }
+
+
+/* Outfit selection and consistent player appearance across wardrobe and video calls */
+.outfit-selector { margin:20px 0 24px; padding:17px; border:1px solid rgba(145,200,174,.16); border-radius:13px; background:rgba(11,20,23,.72); }
+.outfit-selector-heading { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:13px; }
+.outfit-selector-heading h3 { margin:5px 0 0; font-size:17px; color:#e4f0e9; }
+.outfit-selector-heading > span { color:#92b3a2; font-size:10px; }
+.outfit-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.outfit-card { display:flex; min-width:0; flex-direction:column; gap:10px; padding:12px; border:1px solid rgba(145,200,174,.13); border-radius:10px; background:linear-gradient(145deg,rgba(32,47,47,.7),rgba(12,20,24,.92)); }
+.outfit-card.wearing { border-color:rgba(93,218,162,.55); box-shadow:inset 0 0 0 1px rgba(93,218,162,.08); }
+.outfit-swatch { position:relative; height:75px; overflow:hidden; border-radius:7px; background:radial-gradient(ellipse at 50% 0,rgba(110,166,146,.18),transparent 70%),#10191d; }
+.outfit-swatch-head { position:absolute; top:8px; left:calc(50% - 10px); width:20px; height:23px; border-radius:45%; background:linear-gradient(90deg,#9d6b50,#d5a07a,#986448); }
+.outfit-swatch-body { position:absolute; top:29px; left:calc(50% - 23px); width:46px; height:40px; border-radius:10px 10px 0 0; background:linear-gradient(90deg,#1e3031,#668076,#1d3030); clip-path:polygon(20% 0,40% 8%,60% 8%,80% 0,100% 24%,88% 100%,12% 100%,0 24%); }
+.outfit-swatch-legs { position:absolute; bottom:-2px; left:calc(50% - 15px); width:30px; height:23px; background:linear-gradient(90deg,#1d252d,#47515a,#1c252c); clip-path:polygon(0 0,100% 0,88% 100%,54% 100%,50% 20%,44% 100%,10% 100%); }
+.outfit-card.outfit-classic .outfit-swatch-body { background:linear-gradient(90deg,#202d3a,#657487,#202d3a); }
+.outfit-card.outfit-premium .outfit-swatch-body { background:linear-gradient(90deg,#111a22,#263f4b,#111a22); }
+.outfit-card-copy strong { color:#e3eee8; font-size:12px; }.outfit-card-copy p { min-height:42px; margin:5px 0 8px; color:#91a69d; font-size:10px; line-height:1.5; }.outfit-card-copy small { color:#a9d5bd; font-size:10px; }
+.outfit-card > button { margin-top:auto; padding:8px 9px; border:1px solid rgba(112,208,160,.23); border-radius:7px; color:#d8f2e3; background:rgba(54,129,91,.2); font-size:10px; cursor:pointer; }.outfit-card > button:disabled { opacity:.5; cursor:default; }
+.wardrobe-character.outfit-classic .wardrobe-shirt, .wardrobe-shirt.outfit-classic { background:linear-gradient(90deg,#263748,#6b8195 48%,#233546) !important; }
+.wardrobe-character.outfit-classic .wardrobe-shirt::before { content:""; position:absolute; left:44%; top:2px; width:13%; height:70px; background:#d7ded9; clip-path:polygon(0 0,100% 0,70% 100%,30% 100%); }
+.wardrobe-character.outfit-premium .wardrobe-shirt, .wardrobe-shirt.outfit-premium { background:linear-gradient(90deg,#101922,#293d48 48%,#101922) !important; }
+.wardrobe-character.outfit-premium .wardrobe-shirt::before { content:""; position:absolute; left:44%; top:2px; width:13%; height:70px; background:#e3dfd0; clip-path:polygon(0 0,100% 0,70% 100%,30% 100%); }
+.wardrobe-character.outfit-premium .wardrobe-shirt::after { content:""; position:absolute; right:15px; top:20px; width:4px; height:4px; border-radius:50%; background:#c7a36b; box-shadow:0 13px 0 #c7a36b,0 26px 0 #c7a36b; }
+.in-game-self-view.outfit-classic .player-body { background:linear-gradient(90deg,#202d3a,#637b90 48%,#202d3a); }
+.in-game-self-view.outfit-premium .player-body { background:linear-gradient(90deg,#101922,#2e4651 48%,#101922); }
+.in-game-self-view.outfit-classic .player-body::before,.in-game-self-view.outfit-premium .player-body::before { content:""; position:absolute; left:44%; top:0; width:12%; height:85%; background:#d8ded8; clip-path:polygon(0 0,100% 0,70% 100%,30% 100%); }
+@media (max-width:760px) { .outfit-grid { grid-template-columns:1fr; }.outfit-selector-heading { align-items:flex-start; flex-direction:column; }.outfit-card { display:grid; grid-template-columns:70px minmax(0,1fr); }.outfit-card > button { grid-column:1 / -1; } }
