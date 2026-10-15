@@ -171,12 +171,27 @@ function Room({ onInteract, active }: RoomSceneProps) {
 
       {/* Back wall details and skirting */}
       <Box position={[0, 0.14, -3.86]} size={[7.7, 0.16, 0.07]} color="#b4a18b" />
+      <Box position={[-3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#9b8a78" />
+      <Box position={[3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#8b7a6b" />
       <Box position={[-1.9, 2.6, -3.86]} size={[1.8, 0.06, 0.04]} color="#424951" />
       <Box position={[-1.9, 1.25, -3.86]} size={[1.8, 0.06, 0.04]} color="#424951" />
 
       {/* Window on left wall */}
       <Box position={[-3.86, 2.05, -1.15]} size={[0.09, 1.62, 2.05]} color="#2a3946" roughness={0.35} />
       <Box position={[-3.79, 2.05, -1.15]} size={[0.035, 1.43, 1.86]} color="#9ecbe0" roughness={0.22} metalness={0.08} />
+      {/* Layered skyline beyond the glass: simple silhouettes, softened by distance. */}
+      {[
+        { z: -1.82, y: 1.65, h: 0.58, w: 0.28 }, { z: -1.48, y: 1.79, h: 0.86, w: 0.24 },
+        { z: -1.16, y: 1.57, h: 0.42, w: 0.29 }, { z: -0.82, y: 1.72, h: 0.72, w: 0.26 },
+        { z: -0.5, y: 1.52, h: 0.32, w: 0.25 }, { z: -1.98, y: 1.48, h: 0.24, w: 0.16 },
+      ].map((building, i) => (
+        <group key={i}>
+          <Box position={[-3.77, building.y, building.z]} size={[0.018, building.h, building.w]} color={i % 2 ? '#527183' : '#405b6b'} roughness={0.95} />
+          {Array.from({ length: Math.max(1, Math.floor(building.h / 0.15)) }, (_, row) => (
+            <Box key={row} position={[-3.758, building.y - building.h / 2 + 0.09 + row * 0.15, building.z]} size={[0.006, 0.022, building.w * 0.46]} color="#a9c2c6" roughness={0.6} />
+          ))}
+        </group>
+      ))}
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
