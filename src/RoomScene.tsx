@@ -7,6 +7,8 @@ import { playSound } from './audio'
 type RoomSceneProps = {
   onInteract: () => void
   onCanInteractChange: (value: boolean) => void
+  onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void
+  onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void
   introActive: boolean
   onIntroComplete: () => void
   active: boolean
@@ -20,7 +22,7 @@ type RoomSceneProps = {
   curtainsOpen: boolean
 }
 
-function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
+function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
   const dragging = useRef(false)
@@ -32,6 +34,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
   const right = useRef(new THREE.Vector3())
   const interactable = useRef(false)
   const sleepable = useRef(false)
+  const nearbyObject = useRef<'lamp' | 'light' | 'curtains' | 'wardrobe' | null>(null)
   const introActiveRef = useRef(introActive)
   introActiveRef.current = introActive
   const introProgress = useRef(0)
@@ -51,7 +54,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
       if (!active) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
-      if (event.key.toLowerCase() === 'e' && active && !introActiveRef.current) { if (sleepable.current) { event.preventDefault(); onSleepInteract(); return } if (interactable.current) { event.preventDefault(); onInteract(); return } }
+      if (event.key.toLowerCase() === 'e' && active && !introActiveRef.current) { if (sleepable.current) { event.preventDefault(); onSleepInteract(); return } if (nearbyObject.current) { event.preventDefault(); onInteractObject(nearbyObject.current); return } if (interactable.current) { event.preventDefault(); onInteract(); return } }
       keys.current[event.key.toLowerCase()] = true
       if (['w', 'a', 's', 'd', ' '].includes(event.key.toLowerCase())) event.preventDefault()
     }
@@ -86,7 +89,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
-  }, [gl, active, onInteract, onCanInteractChange, onSleepInteract, onCanSleepChange])
+  }, [gl, active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, onSleepInteract, onCanSleepChange])
 
   useEffect(() => {
     if (!introActive) return
@@ -139,6 +142,12 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
     const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 0.9)
     const canUse = distance < 1.25 && camera.position.z > -1.83
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
+    const objectDistances: Array<{ id: 'lamp' | 'light' | 'curtains' | 'wardrobe'; x: number; z: number; radius: number }> = [
+      { id: 'lamp', x: -1.03, z: -2.67, radius: 1.12 }, { id: 'light', x: -3.38, z: -3.12, radius: 0.9 },
+      { id: 'curtains', x: -3.48, z: -1.12, radius: 1.02 }, { id: 'wardrobe', x: -3.03, z: -2.72, radius: 1.15 },
+    ]
+    const foundObject = objectDistances.find((item) => Math.hypot(camera.position.x - item.x, camera.position.z - item.z) < item.radius)?.id ?? null
+    if (foundObject !== nearbyObject.current) { nearbyObject.current = foundObject; onNearbyObjectChange(foundObject) }
     const bedDistance = Math.hypot(camera.position.x - 1.2, camera.position.z - 0.8)
     const canSleep = bedDistance < 1.05 && camera.position.x > 0.55
     if (canSleep !== sleepable.current) { sleepable.current = canSleep; onCanSleepChange(canSleep) }
@@ -216,7 +225,7 @@ function WindowRain() {
   return <group ref={rainRef}>{Array.from({ length: 26 }, (_, i) => <Box key={i} position={[-3.69, 1.34 + (i % 9) * 0.16, -2.0 + Math.floor(i / 9) * 0.58 + (i % 3) * 0.08]} size={[0.006, 0.105, 0.006]} color="#b8dce7" transparent opacity={0.52} rotation={[0, 0, -0.13]} />)}</group>
 }
 
-function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
@@ -267,7 +276,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       {/* Window on left wall */}
       <Box position={[-3.86, 2.05, -1.15]} size={[0.09, 1.62, 2.05]} color="#2a3946" roughness={0.35} />
       <Box position={[-3.79, 2.05, -1.15]} size={[0.035, 1.43, 1.86]} color="#9ecbe0" roughness={0.22} metalness={0.08} transparent opacity={0.14} />
-      <WindowRain />
+      {/* Clear window by default: rain is not a permanent weather state. */}
       {/* A real 3D city sits beyond the open window cut-out, not on the glass as a flat picture. */}
       {[
         { z: -1.92, y: 1.72, h: 1.18, w: 0.46, d: 0.55 },
@@ -484,13 +493,24 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
         </mesh>
       ))}
 
+      {/* A full-height second-hand wardrobe with doors and brass handles. */}
+      <group position={[-3.05, 0.98, -2.92]}>
+        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} />
+        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} />
+        <Box position={[0, 1.87, 0.37]} size={[0.96, 0.07, 0.06]} color="#a17a57" />{[-0.07, 0.07].map((x) => <Cylinder key={x} position={[x, 0.92, 0.405]} radius={0.025} height={0.12} color="#c3a46f" metalness={0.6} rotation={[Math.PI / 2, 0, 0]} />)}
+        <Box position={[0, 0.19, 0.36]} size={[0.9, 0.08, 0.04]} color="#382b25" />
+      </group>
+      {/* Taller floor plant and small pots on the shelf. */}
+      <group position={[-2.8, 0.1, 2.6]}><Cylinder position={[0, 0.25, 0]} radius={0.24} height={0.5} color="#795846" />{Array.from({ length: 13 }, (_, i) => { const angle = i * 2.399; const height = 0.62 + (i % 5) * 0.13; return <mesh key={i} position={[Math.cos(angle) * (0.12 + (i % 3) * 0.04), height, Math.sin(angle) * (0.12 + (i % 3) * 0.04)]} rotation={[0.4 + (i % 3) * 0.18, angle, 0.45]}><sphereGeometry args={[0.13 + (i % 4) * 0.015, 12, 10]} /><meshStandardMaterial color={i % 3 === 0 ? '#315c43' : i % 2 ? '#477b51' : '#5d8e5d'} roughness={0.94} /></mesh> })}</group>
+      {[2.82, 3.15, 3.48].map((x, i) => <group key={'shelf-pot-' + i} position={[x, 2.48, -3.55]}><Cylinder position={[0, 0.07, 0]} radius={0.09} height={0.14} color={i % 2 ? '#a86f53' : '#d1b58b'} /><mesh position={[0, 0.22, 0]}><sphereGeometry args={[0.14, 12, 10]} /><meshStandardMaterial color={i % 2 ? '#548b5b' : '#47764f'} roughness={0.9} /></mesh></group>)}
+
       {/* Worn rug */}
       <Box position={[0.1, 0.078, 0.5]} size={[3.1, 0.035, 2.1]} color="#3b4d50" roughness={1} />
       <Box position={[0.1, 0.098, 0.5]} size={[2.92, 0.008, 1.92]} color="#5c6966" roughness={1} />
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
       {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={handleCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
+      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={handleCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
     </>
   )
 }
@@ -508,7 +528,7 @@ export default function RoomScene({ onInteract, onCanInteractChange, introActive
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
     </Canvas>
   )
 }
