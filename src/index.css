@@ -1343,3 +1343,58 @@ button:focus-visible, textarea:focus-visible {
 .menu-eyebrow { font-size: 11px; }
 .menu-main-actions .menu-play-button, .menu-main-actions .menu-secondary-button { min-height: 58px; font-size: 14px; }
 .offline-menu-actions .menu-play-button, .offline-menu-actions .menu-secondary-button { min-height: 58px; font-size: 14px; }
+
+
+/* Clear, readable trading terminal and video-call layout. */
+.client-panel, .answer-panel { padding: 22px; }
+.client-panel-top { gap: 14px; padding-bottom: 18px; }
+.client-avatar.large { width: 60px; height: 60px; font-size: 22px; }
+.client-panel-top .eyebrow { font-size: 11px; letter-spacing: .08em; }
+.client-panel-top h3 { font-size: 20px; line-height: 1.25; }
+.client-panel-top p { font-size: 14px; line-height: 1.5; }
+.hangup { width: 42px; height: 42px; }
+.client-video-stage { grid-template-columns: minmax(0, 1fr); gap: 14px; margin: 18px 0; }
+.client-video-feed { min-height: 340px; border-radius: 12px; }
+.client-video-feed .client-sim-person { transform: translate(-50%,-43%) scale(1.6) !important; }
+.client-video-feed .video-nameplate { left: 16px; bottom: 14px; font-size: 14px !important; }
+.client-video-feed .video-live-indicator { top: 14px; left: 14px; font-size: 11px !important; }
+.self-video-column { min-height: 250px; }
+.self-video-column .player-preview-tile { min-height: 250px !important; border-radius: 12px !important; }
+.self-video-column .player-preview-tile > small { font-size: 12px !important; }
+.video-side-info { gap: 12px; padding: 14px 16px; }
+.video-side-info > strong { font-size: 16px; }
+.video-side-info > small { font-size: 13px !important; }
+.video-toggle { font-size: 13px; padding: 10px 0 0; }
+.client-meters { padding: 18px 0; }
+.meter-label { font-size: 14px; margin-bottom: 9px; }
+.meter-label strong { font-size: 15px; }
+.meter-label strong small { font-size: 12px; }
+.trust-track, .patience-track { height: 9px; }
+.call-stock-offer { padding: 18px; }
+.call-stock-offer > span { font-size: 11px; }
+.call-stock-offer > strong { font-size: 22px; }
+.call-stock-offer > small, .call-stock-offer p, .call-stock-offer-columns { font-size: 14px; line-height: 1.65; }
+.client-goal { padding: 16px; }
+.client-goal small { font-size: 11px; }
+.client-goal strong { font-size: 17px; line-height: 1.45; }
+.client-goal p { font-size: 14px; line-height: 1.6; }
+.conversation-log { gap: 12px; }
+.log-line > span { font-size: 11px; }
+.log-line p { font-size: 14px; line-height: 1.65; }
+.answer-heading .eyebrow { font-size: 12px !important; }
+.answer-panel > h3 { font-size: clamp(21px, 2.1vw, 28px) !important; line-height: 1.45 !important; }
+.question-hint { font-size: 15px !important; line-height: 1.65 !important; }
+.answer-option { min-height: 68px; padding: 15px 16px; gap: 13px; }
+.answer-option > span:nth-child(2) { font-size: 15px; line-height: 1.6; }
+.option-letter { width: 32px; height: 32px; font-size: 13px; }
+.free-answer label, .free-answer-footer span { font-size: 12px; }
+.free-answer textarea { min-height: 100px; font-size: 15px; line-height: 1.6; padding: 14px; }
+.free-answer-footer button { min-height: 44px; padding: 0 18px; font-size: 14px; }
+.timer-pill { font-size: 14px; padding: 8px 12px; }
+.timer-warning { font-size: 12px; line-height: 1.6; }
+@media (max-width: 760px) {
+  .client-video-feed { min-height: 270px; }
+  .self-video-column, .self-video-column .player-preview-tile { min-height: 220px !important; }
+  .client-panel, .answer-panel { padding: 15px; }
+  .answer-option > span:nth-child(2) { font-size: 14px; }
+}
