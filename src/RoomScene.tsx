@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Text } from '@react-three/drei'
 import * as THREE from 'three'
 import { playSound } from './audio'
+import { CityWindowView } from './CityScene'
 
 type RoomSceneProps = {
   onInteract: () => void
@@ -315,35 +316,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-6.25, 2.05, -1.15]} size={[0.08, 3.8, 4.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182b40" : "#a9d4e4"} roughness={1} />
       <Box position={[-3.79, 2.05, -1.15]} size={[0.018, 1.43, 1.86]} color="#9ecbe0" roughness={0.12} metalness={0.08} transparent opacity={0.055} />
       {/* Clear window by default: rain is not a permanent weather state. */}
-      {/* A real 3D city sits beyond the open window cut-out, not on the glass as a flat picture. */}
-      {[
-        { z: -2.04, y: 2.05, h: 2.45, w: 0.48, d: 0.36, depth: 0.0 },
-        { z: -1.68, y: 2.0, h: 3.05, w: 0.42, d: 0.42, depth: 0.45 },
-        { z: -1.34, y: 1.95, h: 2.2, w: 0.38, d: 0.32, depth: 0.18 },
-        { z: -1.03, y: 2.04, h: 2.7, w: 0.45, d: 0.44, depth: 0.58 },
-        { z: -0.7, y: 1.9, h: 2.0, w: 0.35, d: 0.34, depth: 0.22 },
-        { z: -0.38, y: 2.0, h: 2.8, w: 0.42, d: 0.36, depth: 0.5 },
-        { z: -0.13, y: 1.86, h: 1.75, w: 0.34, d: 0.3, depth: 0.08 },
-      ].map((building, i) => (
-        <group key={i}>
-          <Box position={[-4.42 - building.depth, building.y, building.z]} size={[building.d, building.h, building.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#263b4c' : '#344b5d') : (i % 2 ? '#5c7887' : '#4c6879')} roughness={0.94} />
-          {Array.from({ length: Math.max(3, Math.floor(building.h / 0.18)) }, (_, row) => (
-            <Box key={row} position={[-4.42 - building.depth + building.d / 2 + 0.009, building.y - building.h / 2 + 0.13 + row * 0.18, building.z]} size={[0.012, 0.052, building.w * 0.58]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 3 === 0 ? '#f0d18a' : '#90b5bd') : '#a9c9cf'} roughness={0.55} />
-          ))}
-        </group>
-      ))}
-      {/* Layered distant skyline and street-level depth: a city view, not a row of floating blocks. */}
-      <Box position={[-5.65, 2.05, -1.15]} size={[0.04, 3.5, 4.1]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#263b52' : '#8fb9c9'} roughness={1} />
-      {[
-        { z: -2.03, h: 1.15, w: 0.34 }, { z: -1.76, h: 1.65, w: 0.26 },
-        { z: -1.48, h: 1.32, w: 0.3 }, { z: -1.2, h: 1.8, w: 0.25 },
-        { z: -0.91, h: 1.12, w: 0.32 }, { z: -0.61, h: 1.52, w: 0.29 },
-        { z: -0.33, h: 1.08, w: 0.3 }, { z: -0.08, h: 1.42, w: 0.24 },
-      ].map((b, i) => <group key={'distant-skyline-' + i}>
-        <Box position={[-5.38, 1.48 + b.h / 2, b.z]} size={[0.18, b.h, b.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#30475d' : '#22364a') : (i % 2 ? '#9ab9c5' : '#7da5b5')} roughness={0.98} />
-        {Array.from({ length: Math.max(2, Math.floor(b.h / 0.24)) }, (_, row) => <Box key={row} position={[-5.275, 1.56 + row * 0.22, b.z]} size={[0.008, 0.045, b.w * 0.48]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#e7c98b' : '#c8e1e5'} emissive={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#d9ad62' : '#000000'} emissiveIntensity={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? 0.45 : 0} roughness={0.65} />)}
-      </group>)}
-      <CityTraffic night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} />
+      {/* The same procedural building models used by the walkable district are visible through the window. */}
+      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
