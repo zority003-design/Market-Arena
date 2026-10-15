@@ -144,7 +144,7 @@ function readSave() {
 function SelfCameraPreview({ enabled, background, outfit }: { enabled: boolean; background: VideoBackground; outfit: OutfitId }) {
   return <div className={'player-preview-tile in-game-self-view ' + background + ' outfit-' + outfit + (enabled ? '' : ' video-disabled')} aria-label="Игровой видеокадр персонажа">
     <div className="self-view-room"><span className="self-view-window" /><span className="self-view-lamp" /><span className="self-view-shelf" /></div>
-    {enabled ? <div className="player-silhouette"><span className="player-hair" /><span className="player-head"><i /><i /><b /></span><span className="player-neck" /><span className="player-body"><i /><i /></span><span className="player-arm left" /><span className="player-arm right" /></div> : <div className="video-off-overlay"><Video size={16} /><span>ВИДЕО ВЫКЛЮЧЕНО</span></div>}
+    {enabled ? <Canvas className="self-avatar-canvas" camera={{ position: [0, 1.35, 4.5], fov: 42 }} dpr={[1, 1.5]}><ambientLight intensity={1.25} /><directionalLight position={[-2, 3, 3]} intensity={1.8} /><WardrobeAvatar3D outfit={outfit} /></Canvas> : <div className="video-off-overlay"><Video size={16} /><span>ВИДЕО ВЫКЛЮЧЕНО</span></div>}
     <small>{enabled ? 'ТВОЙ ПЕРСОНАЖ' : 'ТОЛЬКО АУДИО'}</small>
   </div>
 }
