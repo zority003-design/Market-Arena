@@ -126,7 +126,7 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number; dailyLeadIds?: string[] }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -136,7 +136,7 @@ export default function App() {
   const saved = useMemo(() => readSave(), [])
   const [mainMenu, setMainMenu] = useState(!startNewCareerOnLoad)
   const [pauseOpen, setPauseOpen] = useState(false)
-  const [gameMinutes, setGameMinutes] = useState(7 * 60)
+  const [gameMinutes, setGameMinutes] = useState(saved.gameMinutes ?? 7 * 60)
   const [windowMaximized, setWindowMaximized] = useState(false)
   const [windowMinimized, setWindowMinimized] = useState(false)
   const [windowOffset, setWindowOffset] = useState({ x: 0, y: 0 })
@@ -148,7 +148,7 @@ export default function App() {
   const [introActive, setIntroActive] = useState(false)
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
   const [canSleep, setCanSleep] = useState(false)
-  const [dayEnded, setDayEnded] = useState(false)
+  const [dayEnded, setDayEnded] = useState(saved.dayEnded ?? false)
   const [deskLampOn, setDeskLampOn] = useState(false)
   const [roomLightOn, setRoomLightOn] = useState(true)
   const [curtainsOpen, setCurtainsOpen] = useState(true)
@@ -198,8 +198,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds })) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded })) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded])
 
   useEffect(() => {
     if (!controlsVisible) return
@@ -219,7 +219,7 @@ export default function App() {
 
   // In-game clock: ten minutes pass in the world every real minute; pausing freezes it.
   useEffect(() => {
-    if (mainMenu || pauseOpen) return
+    if (pauseOpen) return
     const clock = window.setInterval(() => setGameMinutes((value) => (value + 10) % (24 * 60)), 60000)
     return () => window.clearInterval(clock)
   }, [mainMenu, pauseOpen])
