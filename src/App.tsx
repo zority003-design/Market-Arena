@@ -485,7 +485,7 @@ export default function App() {
           <div className="menu-atmosphere" />
           <div className="menu-topline">
             <div className="menu-brand"><span className="brand-mark"><TrendingUp size={20} strokeWidth={2.5} /></span><span><strong>НА ВСЕ КОТИРОВКИ</strong><small>КАРЬЕРА БРОКЕРА · САТИРИЧЕСКИЙ СИМУЛЯТОР</small></span></div>
-            <div className="menu-build"><span className="live-dot" /> ОФЛАЙН-ДЕМО <i>v0.4</i></div>
+            <div className="menu-build"><span className="live-dot" /> ОФЛАЙН-ДЕМО <i>v0.5</i></div>
           </div>
           <section className="menu-content">
             {!offlineMenu ? (
@@ -560,7 +560,7 @@ export default function App() {
         <div className="computer-overlay">
           <div className="computer-topbar">
             <button className="back-button" onClick={() => { setPanel('room'); setCallStatus('idle') }}><ArrowLeft size={16} /> В комнату</button>
-            <div className="terminal-title"><span className="terminal-logo"><Activity size={17} /></span><span><strong>КОТИРОВКИ / TERMINAL</strong><small>PERSONAL BROKER WORKSTATION · v0.1</small></span></div>
+            <div className="terminal-title"><span className="terminal-logo"><Activity size={17} /></span><span><strong>КОТИРОВКИ / TERMINAL</strong><small>KOTIROVKI OS · v0.5</small></span></div>
             <div className="secure-label"><LockKeyhole size={13} /> ЛОКАЛЬНАЯ СЕССИЯ</div>
           </div>
           <div className={'terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '')}>
