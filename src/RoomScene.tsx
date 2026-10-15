@@ -24,6 +24,8 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
   const forward = useRef(new THREE.Vector3())
   const right = useRef(new THREE.Vector3())
   const interactable = useRef(false)
+  const introActiveRef = useRef(introActive)
+  introActiveRef.current = introActive
   const introProgress = useRef(0)
   const introFinished = useRef(false)
 
@@ -40,7 +42,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
       if (!active) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
-      if (event.key.toLowerCase() === 'e' && active && !introActive && interactable.current) { event.preventDefault(); onInteract(); return }
+      if (event.key.toLowerCase() === 'e' && active && !introActiveRef.current && interactable.current) { event.preventDefault(); onInteract(); return }
       keys.current[event.key.toLowerCase()] = true
       if (['w', 'a', 's', 'd', ' '].includes(event.key.toLowerCase())) event.preventDefault()
     }
