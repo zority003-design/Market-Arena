@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import {
-  Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays,
+  Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays, MapPin,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
   Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video,
@@ -13,7 +13,7 @@ import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer'
-type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing'
+type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
 type CallStatus = 'idle' | 'active' | 'won' | 'lost'
 type RoomObject = 'lamp' | 'light' | 'curtains' | 'wardrobe'
 type OutfitId = 'intern' | 'classic' | 'premium'
@@ -396,6 +396,9 @@ export default function App() {
   const [dailySalesAmount, setDailySalesAmount] = useState(0)
   const [dailySalesShares, setDailySalesShares] = useState(0)
   const [shiftReport, setShiftReport] = useState<{success:boolean; ticker:string; company:string; shares:number; targetShares:number; amount:number; targetAmount:number; reward:number; penalty:number} | null>(null)
+  const [cityLocation, setCityLocation] = useState('office')
+  const [cityVisitedToday, setCityVisitedToday] = useState<string[]>([])
+  const [cityBonus, setCityBonus] = useState(0)
 
   useEffect(() => {
     if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Ignore unavailable storage. */ } }
@@ -661,7 +664,7 @@ export default function App() {
     setVideoSwitchEffectUsed(false)
     setCallClientId(activeClient.id)
     setClientLastContactDay((items) => ({ ...items, [activeClient.id]: day }))
-    const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0)
+    const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0) + cityBonus
     const roomBonus = getFirstImpression(housingId, ownedItems, activeClient)
     const relationshipBonus = Math.min(15, (clientDealCounts[activeClient.id] ?? 0) * 6)
     const videoBonus = videoEnabled ? 2 + Math.min(3, getVideoQuality(ownedItems)) : 0
@@ -677,6 +680,7 @@ export default function App() {
     setConversation([{ from: 'system', text: 'Твоё предложение: акция «' + activeCompany.name + '» (' + activeCompany.sector + ', риск: ' + activeCompany.risk.toLowerCase() + ').' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
+    setCityBonus(0)
     setCallStatus('active')
     playSound('computer')
     setTimeLeft(30)
@@ -783,6 +787,22 @@ export default function App() {
     setToast('Переезд завершён: ' + home.name + '. Ежедневные расходы теперь ' + home.dailyCost.toLocaleString('ru-RU') + ' ₽.')
   }
 
+  function travelToCity(location: string) {
+    if (dayEnded) { setToast('Смена закончена. Исследовать город можно завтра.'); return }
+    const firstVisit = !cityVisitedToday.includes(location)
+    setCityLocation(location)
+    setCityVisitedToday((items) => items.includes(location) ? items : [...items, location])
+    setGameMinutes((minutes) => (minutes + 15) % (24 * 60))
+    if (firstVisit) {
+      const bonus = location === 'exchange' ? 3 : location === 'cafe' ? 2 : location === 'newsstand' ? 2 : 1
+      setCityBonus((value) => Math.min(6, value + bonus))
+      if (location === 'newsstand') setNewsReviewed(true)
+      const label = location === 'exchange' ? 'Биржевая площадь: +3 к доверию за подготовку' : location === 'cafe' ? 'Кафе инвесторов: +2 к доверию за знакомство' : location === 'newsstand' ? 'Киоск новостей: новости изучены, +2 к доверию' : 'Офисный квартал: +1 к доверию за знакомство'
+      setToast(label)
+    } else setToast('Ты уже изучил это место сегодня. Прогулка продвинула игровое время на 15 минут.')
+    window.setTimeout(() => setToast(''), 4000)
+  }
+
   function endDay() {
     if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
     const targetCompany = companies[(day - 1) % companies.length]
@@ -813,6 +833,9 @@ export default function App() {
     setDailySalesAmount(0)
     setDailySalesShares(0)
     setShiftReport(null)
+    setCityVisitedToday([])
+    setCityBonus(0)
+    setCityLocation('office')
     setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
     const dailyCosts = currentHousing.dailyCost
     const available = cash + DAILY_SALARY
@@ -935,13 +958,14 @@ export default function App() {
               <button className={tab === 'clients' ? 'side-link active' : 'side-link'} onClick={() => setTab('clients')}><Users size={17} /> База клиентов <span className="nav-count">{availableClients.length}</span></button>
               <button className={tab === 'shop' ? 'side-link active' : 'side-link'} onClick={() => setTab('shop')}><ShoppingBag size={17} /> Магазин комнаты</button>
               <button className={tab === 'housing' ? 'side-link active' : 'side-link'} onClick={() => setTab('housing')}><House size={17} /> Жильё</button>
+              <button className={tab === 'city' ? 'side-link active' : 'side-link'} onClick={() => setTab('city')}><MapPin size={17} /> Город</button>
               <div className="sidebar-spacer" />
               <div className="side-account"><div className="account-row"><span>Деньги</span><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div className="mini-meter"><span style={{ width: Math.min(100, cash / 300) + '%' }} /></div><div className="account-row"><span>Репутация</span><strong>{reputation}%</strong></div><div className="mini-meter reputation-meter"><span style={{ width: reputation + '%' }} /></div><div className="account-row"><span>Капитал фирмы</span><strong>{firmCapital.toLocaleString('ru-RU')} ₽</strong></div><div className="account-row"><span>Долг / просрочка</span><strong className={debt > 0 ? 'debt-value' : ''}>{debt.toLocaleString('ru-RU')} ₽</strong></div></div>
               <button className="end-day-button" onClick={endDay}><Power size={15} /> Завершить день</button>
             </aside>
 
             <section className={'terminal-content os-window ' + (tab === 'overview' ? 'os-window-desktop' : '') + (windowMaximized && tab !== 'overview' ? ' os-window-maximized' : '') + (windowMinimized ? ' os-window-minimized' : '')} style={tab === 'overview' || windowMaximized ? undefined : { transform: `translate(${windowOffset.x}px, ${windowOffset.y}px)` }}>
-              {tab !== 'overview' && <div className="os-window-titlebar" onPointerDown={(event) => { if (windowMaximized || (event.target as HTMLElement).closest('button')) return; dragWindowRef.current = { x: event.clientX, y: event.clientY, originX: windowOffset.x, originY: windowOffset.y } }}><span className={'os-window-app-icon ' + tab}>{tab === 'market' ? <TrendingUp size={15} /> : tab === 'news' ? <Newspaper size={15} /> : tab === 'calls' ? <Video size={15} /> : tab === 'clients' ? <Users size={15} /> : tab === 'shop' ? <ShoppingBag size={15} /> : <House size={15} />}</span><strong>{tab === 'market' ? 'Биржа' : tab === 'news' ? 'Новости' : tab === 'calls' ? 'Видеозвонки и клиенты' : tab === 'clients' ? 'База клиентов' : tab === 'shop' ? 'Магазин и гардероб' : 'Недвижимость'}</strong><div className="os-window-controls"><button aria-label="Свернуть окно" onClick={() => setWindowMinimized(true)}>—</button><button aria-label={windowMaximized ? 'Восстановить окно' : 'На весь экран'} onClick={() => setWindowMaximized((value) => !value)}>□</button><button aria-label="Закрыть окно" onClick={() => { setTab('overview'); setWindowMinimized(false); setWindowMaximized(false); setWindowOffset({ x: 0, y: 0 }) }}>×</button></div></div>}
+              {tab !== 'overview' && <div className="os-window-titlebar" onPointerDown={(event) => { if (windowMaximized || (event.target as HTMLElement).closest('button')) return; dragWindowRef.current = { x: event.clientX, y: event.clientY, originX: windowOffset.x, originY: windowOffset.y } }}><span className={'os-window-app-icon ' + tab}>{tab === 'market' ? <TrendingUp size={15} /> : tab === 'news' ? <Newspaper size={15} /> : tab === 'calls' ? <Video size={15} /> : tab === 'clients' ? <Users size={15} /> : tab === 'shop' ? <ShoppingBag size={15} /> : tab === 'housing' ? <House size={15} /> : <MapPin size={15} />}</span><strong>{tab === 'market' ? 'Биржа' : tab === 'news' ? 'Новости' : tab === 'calls' ? 'Видеозвонки и клиенты' : tab === 'clients' ? 'База клиентов' : tab === 'shop' ? 'Магазин и гардероб' : tab === 'housing' ? 'Недвижимость' : 'Карта города'}</strong><div className="os-window-controls"><button aria-label="Свернуть окно" onClick={() => setWindowMinimized(true)}>—</button><button aria-label={windowMaximized ? 'Восстановить окно' : 'На весь экран'} onClick={() => setWindowMaximized((value) => !value)}>□</button><button aria-label="Закрыть окно" onClick={() => { setTab('overview'); setWindowMinimized(false); setWindowMaximized(false); setWindowOffset({ x: 0, y: 0 }) }}>×</button></div></div>}
               {windowMinimized && tab !== 'overview' ? <div className="os-minimized-placeholder"><Laptop size={24} /><strong>Окно свёрнуто</strong><button onClick={() => setWindowMinimized(false)}>Восстановить окно</button></div> : null}
               {!windowMinimized && tab === 'overview' && (
                 <div className="desktop-page">
@@ -955,6 +979,7 @@ export default function App() {
                     <button className="desktop-app-icon" onClick={() => setTab('clients')}><span className="desktop-icon-tile clients-app"><Users size={23} /></span><strong>Клиенты</strong><small>{availableClients.length} лидов</small></button>
                     <button className="desktop-app-icon" onClick={() => setTab('shop')}><span className="desktop-icon-tile shop-app"><ShoppingBag size={23} /></span><strong>Магазин</strong><small>Рабочее место</small></button>
                     <button className="desktop-app-icon" onClick={() => setTab('housing')}><span className="desktop-icon-tile housing-app"><House size={23} /></span><strong>Недвижимость</strong></button>
+                    <button className="desktop-app-icon" onClick={() => setTab('city')}><span className="desktop-icon-tile city-app"><MapPin size={23} /></span><strong>Город</strong><small>Места и контакты</small></button>
                   </div>
                   <div className="desktop-bottom-widgets">
                     <div className="desktop-widget daily-task-widget"><div className="desktop-widget-heading"><span><Sparkles size={15} /> ГЛАВНОЕ ЗАДАНИЕ</span><span>ДЕНЬ {day}</span></div><h3>Подготовь первую инвестиционную идею</h3><p>Твоя цель — не угадать движение цены, а объяснить клиенту потенциальную выгоду, ключевой риск и то, что пока неизвестно.</p><div className="desktop-mission-steps"><span className={marketReviewed ? 'is-done' : ''}><b>{marketReviewed ? '✓' : '1'}</b>Разобрать компанию</span><span className={newsReviewed ? 'is-done' : ''}><b>{newsReviewed ? '✓' : '2'}</b>Проверить новости</span><span className={callsToday > 0 ? 'is-done' : ''}><b>{callsToday > 0 ? '✓' : '3'}</b>Поговорить с клиентом</span></div><div className="desktop-task-actions"><button onClick={() => setTab('market')}>Изучить рынок <ArrowRight size={14} /></button><button disabled={availableClients.length === 0 || callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2)} onClick={startCall}>Позвонить клиенту <Phone size={14} /></button></div></div>
@@ -1012,6 +1037,26 @@ export default function App() {
                   <div className="current-home-banner"><div className="home-symbol"><House size={28} /></div><div><span className="eyebrow">ТЕКУЩЕЕ ЖИЛЬЁ</span><h3>{currentHousing.name}</h3><p>{currentHousing.description}</p></div><div className="home-cost"><small>РАСХОДЫ / ДЕНЬ</small><strong>{currentHousing.dailyCost.toLocaleString('ru-RU')} ₽</strong></div></div>
                   <div className="housing-list">{HOUSING.map((home, index) => { const current = home.id === housingId; const locked = day < home.minDay || reputation < home.minReputation; return <article className={current ? 'housing-option current' : 'housing-option'} key={home.id}><div className="housing-rank">0{index + 1}</div><div className="housing-option-main"><span className="eyebrow">УРОВЕНЬ ЖИЛЬЯ {index}</span><h3>{home.name}</h3><p>{home.description}</p><div className="housing-effects"><span>Первое впечатление {home.firstImpression > 0 ? '+' : ''}{home.firstImpression}</span><span>Комфорт +{home.comfort}</span></div></div><div className="housing-option-buy"><strong>{home.price === 0 ? 'Стартовое' : home.price.toLocaleString('ru-RU') + ' ₽'}</strong><small>{home.dailyCost.toLocaleString('ru-RU')} ₽ / день</small><button disabled={current || locked || cash < home.price} className={current ? 'secondary-action' : 'primary-action'} onClick={() => moveToHousing(home.id)}>{current ? 'Текущее жильё' : locked ? 'Пока закрыто' : cash < home.price ? 'Нужно накопить' : 'Переехать'}</button></div></article> })}</div>
                   <div className="bottom-note"><Wallet size={16} /><span>Оклад за рабочий день — {DAILY_SALARY.toLocaleString('ru-RU')} ₽. Перед переездом сравни его с ежедневными расходами: дорогой адрес может съесть весь доход.</span></div>
+                </div>
+              )}
+
+              {!windowMinimized && tab === 'city' && (
+                <div className="city-page">
+                  <div className="page-heading"><div><div className="eyebrow">ГОРОДСКОЙ РАЙОН · ПЕРВАЯ ВЕРСИЯ</div><h2>Город за пределами комнаты</h2><p>Исследуй район между звонками: знакомства и информация помогают подготовить переговоры. Каждая поездка продвигает время смены на 15 минут.</p></div><div className="market-status"><MapPin size={14} /> {cityVisitedToday.length} / 4 МЕСТ</div></div>
+                  <div className="city-map-shell">
+                    <div className="city-map-art" aria-label="Схематичная карта финансового района">
+                      <div className="city-map-road road-horizontal" /><div className="city-map-road road-vertical" /><div className="city-map-park"><span>СКВЕР</span><i /><i /><i /></div><div className="city-map-water" />
+                      {[
+                        {id:'office',name:'Офисный квартал',x:18,y:24,icon:'⌂'},
+                        {id:'exchange',name:'Биржевая площадь',x:67,y:19,icon:'↗'},
+                        {id:'cafe',name:'Кафе инвесторов',x:31,y:72,icon:'☕'},
+                        {id:'newsstand',name:'Киоск новостей',x:75,y:70,icon:'▤'},
+                      ].map((place) => <button key={place.id} className={'city-map-pin '+(cityLocation===place.id?'current ':'')+(cityVisitedToday.includes(place.id)?'visited':'')} style={{left:place.x+'%',top:place.y+'%'}} onClick={() => travelToCity(place.id)}><b>{place.icon}</b><span>{place.name}</span></button>)}
+                      <span className="city-map-label map-label-north">ФИНАНСОВЫЙ РАЙОН</span><span className="city-map-label map-label-south">НАБЕРЕЖНАЯ</span>
+                    </div>
+                    <div className="city-location-panel"><span className="eyebrow">ТЕКУЩАЯ ЛОКАЦИЯ</span><h3>{({office:'Офисный квартал',exchange:'Биржевая площадь',cafe:'Кафе инвесторов',newsstand:'Киоск новостей'} as Record<string,string>)[cityLocation]}</h3><p>{({office:'Здесь можно встретить коллег, обсудить смену и подготовить следующую встречу.',exchange:'Уличные экраны показывают котировки и настроение рынка. Первый визит добавляет +3 к начальному доверию на следующем звонке.',cafe:'Место для неформальных знакомств с предпринимателями. Первый визит добавляет +2 к доверию.',newsstand:'Сводка слухов и свежих заголовков. Первый визит отмечает новости как изученные и даёт +2 к доверию.'} as Record<string,string>)[cityLocation]}</p><div className="city-benefit"><span>Бонус подготовки</span><strong>+{cityBonus} доверия</strong></div><div className="city-location-list">{[{id:'office',name:'Офисный квартал',desc:'Коллеги и контакты'},{id:'exchange',name:'Биржевая площадь',desc:'Настроение рынка'},{id:'cafe',name:'Кафе инвесторов',desc:'Нетворкинг'},{id:'newsstand',name:'Киоск новостей',desc:'Слухи и заголовки'}].map((place) => <button key={place.id} className={cityLocation===place.id?'selected':''} onClick={() => travelToCity(place.id)}><span><strong>{place.name}</strong><small>{place.desc}</small></span><em>{cityVisitedToday.includes(place.id)?'Посещено':'+15 мин'}</em></button>)}</div></div>
+                  </div>
+                  <div className="bottom-note"><MapPin size={16} /><span>Это первый игровой городской узел, а не финальный открытый мир. Следующий этап — соединить эти точки с физическим перемещением персонажа и событиями NPC.</span></div>
                 </div>
               )}
 
