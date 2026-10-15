@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
-  Laptop, LockKeyhole, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
+  Laptop, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
   Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor,
   Settings, Volume2, Gamepad2, Play, RotateCcw, ArrowRight
 } from 'lucide-react'
