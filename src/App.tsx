@@ -530,7 +530,7 @@ export default function App() {
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
       {!mainMenu && introActive && <div className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
+        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} />
       </div>
 
       {mainMenu && (
