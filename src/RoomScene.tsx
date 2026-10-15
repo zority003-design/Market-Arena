@@ -270,7 +270,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
             <Box key={row} position={[-4.55 - (i % 2) * 0.22 + building.d / 2 + 0.008, building.y - building.h / 2 + 0.12 + row * 0.19, building.z]} size={[0.012, 0.045, building.w * 0.58]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#f3d48d' : '#9ec4c9'} roughness={0.6} />
           ))}
         </group>
-      ))
+      ))}
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
