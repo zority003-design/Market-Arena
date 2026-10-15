@@ -244,6 +244,7 @@ export default function App() {
   const [patience, setPatience] = useState(74)
   const [timeLeft, setTimeLeft] = useState(60)
   const lastTimerBeep = useRef(0)
+  const lastCallTickSecond = useRef(-1)
   const [choiceOrders, setChoiceOrders] = useState<number[][]>([])
   const [lastPenaltySecond, setLastPenaltySecond] = useState(25)
   const [freeAnswer, setFreeAnswer] = useState('')
@@ -343,6 +344,15 @@ export default function App() {
     const timer = window.setInterval(() => setTimeLeft((value) => Math.max(0, Math.round((value - 0.1) * 10) / 10)), 100)
     return () => window.clearInterval(timer)
   }, [callStatus, questionIndex])
+
+  useEffect(() => {
+    if (callStatus !== 'active') { lastCallTickSecond.current = -1; return }
+    const second = Math.floor(timeLeft)
+    if (second !== lastCallTickSecond.current) {
+      lastCallTickSecond.current = second
+      if (timeLeft > 4) playSound('tick')
+    }
+  }, [timeLeft, callStatus])
 
   useEffect(() => {
     if (callStatus !== 'active') { lastTimerBeep.current = 0; return }
