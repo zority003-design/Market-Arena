@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  Activity, ArrowLeft, ArrowUpRight, Bell, BriefcaseBusiness, Building2, CalendarDays,
-  Check, ChevronRight, CircleDollarSign, Clock3, Coffee, FileText, Headphones,
+  Activity, ArrowLeft, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays,
+  Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, LockKeyhole, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
   Sparkles, TrendingUp, Wallet, X, Zap
 } from 'lucide-react'
