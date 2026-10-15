@@ -282,7 +282,7 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
   return <group position={[0, 0.02, 0]}>
     <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[0.72, 48]} /><meshStandardMaterial color="#1a2829" roughness={0.96} /></mesh>
     {/* One continuous-looking silhouette: hidden overlaps, tapered limbs and fewer decorative pieces. */}
-    <mesh position={[0, 0.105, 0.045]} castShadow><capsuleGeometry args={[0.115, 0.15, 6, 18]} /><meshStandardMaterial color="#171c22" roughness={0.72} /></mesh>
+    <mesh position={[0, 0.79, 0]} scale={[0.43, 0.78, 0.9]} castShadow><sphereGeometry args={[0.24, 32, 24]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
     {[-0.19, 0.19].map((x) => <group key={x} position={[x, 0.08, 0]}>
       <mesh position={[0, 0.47, 0]} castShadow><capsuleGeometry args={[0.108, 0.64, 8, 20]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
       <mesh position={[0, 0.13, 0.09]} rotation={[Math.PI / 2, 0, 0]} castShadow><capsuleGeometry args={[0.09, 0.12, 6, 16]} /><meshStandardMaterial color="#20262a" roughness={0.78} /></mesh>
@@ -290,10 +290,10 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     {/* The jacket is a single tailored volume rather than a stack of torso blocks. */}
     <mesh position={[0, 1.18, 0]} scale={[1, 1.05, 0.94]} castShadow><capsuleGeometry args={[0.285, 0.46, 12, 32]} /><meshStandardMaterial color={jacket} roughness={0.94} /></mesh>
     <mesh position={[0, 1.0, 0.245]} scale={[0.12, 0.36, 0.06]} castShadow><capsuleGeometry args={[0.12, 0.28, 8, 20]} /><meshStandardMaterial color={shirt} roughness={0.92} /></mesh>
-    {[-1, 1].map((side) => <group key={side} position={[side * 0.22, 1.43, 0]}>
+    {[-1, 1].map((side) => <group key={side} position={[side * 0.29, 1.43, 0]}>
       {/* Sleeves are single tapered capsules and disappear into the shoulder line. */}
-      <mesh position={[side * 0.055, -0.28, 0]} rotation={[0, 0, side * -0.23]} castShadow><capsuleGeometry args={[0.09, 0.51, 12, 28]} /><meshStandardMaterial color={jacket} roughness={0.92} /></mesh>
-      <mesh position={[side * 0.105, -0.59, 0.035]} rotation={[0, 0, side * -0.1]} castShadow><capsuleGeometry args={[0.058, 0.13, 10, 20]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
+      <mesh position={[side * 0.075, -0.26, 0]} rotation={[0, 0, side * -0.32]} castShadow><capsuleGeometry args={[0.09, 0.51, 12, 28]} /><meshStandardMaterial color={jacket} roughness={0.92} /></mesh>
+      <mesh position={[side * 0.13, -0.57, 0.045]} rotation={[0, 0, side * -0.12]} castShadow><capsuleGeometry args={[0.058, 0.13, 10, 20]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
     </group>)}
     {/* Neck tucks into the collar; the head sits low enough to avoid a floating-head gap. */}
     <mesh position={[0, 1.62, 0]} castShadow><capsuleGeometry args={[0.075, 0.18, 8, 20]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
@@ -314,7 +314,12 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
       <mesh position={[x, 2.015, 0.22]}><sphereGeometry args={[0.015, 20, 16]} /><meshStandardMaterial color="#4b766b" roughness={0.5} /></mesh>
       <mesh position={[x, 2.015, 0.232]}><sphereGeometry args={[0.007, 16, 12]} /><meshStandardMaterial color="#171b20" roughness={0.5} /></mesh>
     </group>)}
-    <mesh position={[0, 1.955, 0.215]} scale={[0.026, 0.04, 0.02]}><sphereGeometry args={[1, 16, 12]} /><meshStandardMaterial color="#a76e50" roughness={0.94} /></mesh>
+    <mesh position={[-0.222, 1.985, 0.005]} scale={[0.045, 0.07, 0.035]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.92} /></mesh>
+    <mesh position={[0.222, 1.985, 0.005]} scale={[0.045, 0.07, 0.035]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.92} /></mesh>
+    <mesh position={[-0.095, 2.065, 0.205]} rotation={[0, 0, 0.12]}><capsuleGeometry args={[0.012, 0.055, 4, 8]} /><meshStandardMaterial color={hair} roughness={0.95} /></mesh>
+    <mesh position={[0.095, 2.065, 0.205]} rotation={[0, 0, -0.12]}><capsuleGeometry args={[0.012, 0.055, 4, 8]} /><meshStandardMaterial color={hair} roughness={0.95} /></mesh>
+    <mesh position={[0, 1.955, 0.235]} scale={[0.028, 0.045, 0.025]}><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color="#b77c5b" roughness={0.94} /></mesh>
+    <mesh position={[0, 1.89, 0.225]} scale={[1.8, 0.7, 1]}><capsuleGeometry args={[0.008, 0.04, 4, 10]} /><meshStandardMaterial color="#79453a" roughness={0.95} /></mesh>
     <mesh position={[0, 1.89, 0.207]}><capsuleGeometry args={[0.007, 0.035, 4, 10]} /><meshStandardMaterial color="#79453a" roughness={0.95} /></mesh>
     {outfit === 'premium' && <mesh position={[0.2, 1.3, 0.247]}><sphereGeometry args={[0.022, 16, 12]} /><meshStandardMaterial color="#d7b879" metalness={0.45} roughness={0.65} /></mesh>}
   </group>
