@@ -172,7 +172,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
   return null
 }
 
-function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, transparent = false, opacity = 1 }: {
+function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, transparent = false, opacity = 1, emissive, emissiveIntensity = 0 }: {
   position: [number, number, number]
   size: [number, number, number]
   color: string
@@ -181,11 +181,13 @@ function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, 
   rotation?: [number, number, number]
   transparent?: boolean
   opacity?: number
+  emissive?: string
+  emissiveIntensity?: number
 }) {
   return (
     <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
+      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} emissive={emissive} emissiveIntensity={emissiveIntensity} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
     </mesh>
   )
 }
