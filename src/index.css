@@ -1398,3 +1398,14 @@ button:focus-visible, textarea:focus-visible {
   .client-panel, .answer-panel { padding: 15px; }
   .answer-option > span:nth-child(2) { font-size: 14px; }
 }
+
+
+/* Wake-up sequence: sleepy focus, a hesitant blink, then clear vision. */
+.intro-curtain { animation: wake-scene-fade 4.8s ease-out forwards; }
+.intro-eyelid-top { animation: eyelid-open-top 2.15s cubic-bezier(.5,0,.25,1) .35s forwards, wake-blink-top .55s ease-in-out 2.85s; }
+.intro-eyelid-bottom { animation: eyelid-open-bottom 2.15s cubic-bezier(.5,0,.25,1) .35s forwards, wake-blink-bottom .55s ease-in-out 2.85s; }
+.intro-curtain::before { content:""; position:absolute; inset:0; z-index:1; background:rgba(9,18,24,.35); backdrop-filter:blur(13px); animation:wake-focus 4.4s ease-out forwards; }
+.intro-wake-caption { z-index:4; }
+@keyframes wake-blink-top { 0%,100% { transform:translateY(-100%); } 45%,65% { transform:translateY(0); } }
+@keyframes wake-blink-bottom { 0%,100% { transform:translateY(100%); } 45%,65% { transform:translateY(0); } }
+@keyframes wake-focus { 0%,20% { opacity:1; backdrop-filter:blur(16px); } 48% { opacity:.75; backdrop-filter:blur(10px); } 72% { opacity:.22; backdrop-filter:blur(3px); } 100% { opacity:0; backdrop-filter:blur(0); } }
