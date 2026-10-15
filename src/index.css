@@ -1124,3 +1124,8 @@ button:focus-visible, textarea:focus-visible {
 .room-control.active i { color: #83e6b4; border-color: rgba(112,223,169,.25); background: rgba(67,179,124,.15); }
 .sleep-interact { border-color: rgba(130,221,166,.5) !important; background: rgba(15,42,31,.92) !important; }
 @media (max-width: 720px) { .room-control-dock { left: 8px; bottom: 12px; gap: 3px; padding: 5px; } .room-control { min-width: 49px; padding: 5px 4px; } .room-control-dock > span { display: none; } }
+
+.hud-pause-button { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid rgba(169,205,188,.2); border-radius: 8px; color: #c9ded3; background: rgba(12,23,23,.55); cursor: pointer; font-size: 10px; white-space: nowrap; }
+.hud-pause-button:hover { border-color: rgba(111,222,169,.45); background: rgba(54,122,88,.2); }
+.hud-pause-button span { font-size: 13px; }
+@media (max-width: 760px) { .hud-pause-button { padding: 7px; font-size: 0; } .hud-pause-button span { font-size: 14px; } }
