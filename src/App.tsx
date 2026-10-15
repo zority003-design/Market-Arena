@@ -256,28 +256,7 @@ export default function App() {
     setCallStatus('idle')
     setControlsVisible(true)
     setCanInteractWithComputer(false)
-    if (startNewCareerOnLoad) {
-      setIntroActive(true)
-      try {
-        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-        if (AudioContextClass) {
-          const audio = new AudioContextClass()
-          const start = audio.currentTime
-          ;[0, 0.32, 0.64].forEach((offset, index) => {
-            const oscillator = audio.createOscillator()
-            const gain = audio.createGain()
-            oscillator.type = 'sine'
-            oscillator.frequency.setValueAtTime(index === 1 ? 740 : 620, start + offset)
-            gain.gain.setValueAtTime(0.0001, start + offset)
-            gain.gain.exponentialRampToValueAtTime(0.07, start + offset + 0.025)
-            gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.18)
-            oscillator.connect(gain); gain.connect(audio.destination)
-            oscillator.start(start + offset); oscillator.stop(start + offset + 0.19)
-          })
-          window.setTimeout(() => { void audio.close() }, 1400)
-        }
-      } catch { /* Audio is optional if the browser blocks it. */ }
-    }
+    if (startNewCareerOnLoad) setIntroActive(true)
   }
 
   function openOfflineMenu() {
@@ -297,11 +276,62 @@ export default function App() {
   function startNewGame() { setConfirmNewCareer(true) }
 
   function confirmStartNewGame() {
+    try { localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
+    setCash(STARTING_CASH)
+    setFirmCapital(STARTING_FIRM_CAPITAL)
+    setDebt(0)
+    setReputation(42)
+    setDay(1)
+    setDeals(0)
+    setCallsToday(0)
+    setHousingId(STARTING_HOUSING_ID)
+    setOwnedItems([])
+    setSelectedClientId('alex-vorontsov')
+    setClientLastContactDay({})
+    setClientDealCounts({})
+    setClientInvested({})
+    setDailyLeadIds(getDailyLeadIds(1, 42, {}, {}, {}))
+    setCallClientId('alex-vorontsov')
+    setVideoBackground('real')
+    setCallStatus('idle')
+    setQuestionIndex(0)
+    setTrust(48)
+    setPatience(74)
+    setTimeLeft(12)
+    setFreeAnswer('')
+    setConversation([])
+    setLastResult('')
+    setMarketReviewed(false)
+    setNewsReviewed(false)
+    setPanel('room')
+    setTab('overview')
+    setCareerStarted(true)
+    setHasSavedGame(true)
+    setMainMenu(false)
+    setOfflineMenu(false)
+    setConfirmNewCareer(false)
+    setControlsVisible(true)
+    setCanInteractWithComputer(false)
+    setIntroActive(true)
     try {
-      localStorage.removeItem('na-vse-kotirovki-save-v1')
-      localStorage.setItem('na-vse-kotirovki-start-new-career', 'true')
-    } catch { /* The game can still start for this session if storage is unavailable. */ }
-    window.location.reload()
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+      if (AudioContextClass) {
+        const audio = new AudioContextClass()
+        const start = audio.currentTime
+        ;[0, 0.32, 0.64].forEach((offset, index) => {
+          const oscillator = audio.createOscillator()
+          const gain = audio.createGain()
+          oscillator.type = 'sine'
+          oscillator.frequency.setValueAtTime(index === 1 ? 740 : 620, start + offset)
+          gain.gain.setValueAtTime(0.0001, start + offset)
+          gain.gain.exponentialRampToValueAtTime(0.07, start + offset + 0.025)
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.18)
+          oscillator.connect(gain); gain.connect(audio.destination)
+          oscillator.start(start + offset); oscillator.stop(start + offset + 0.19)
+        })
+        window.setTimeout(() => { void audio.close() }, 1400)
+      }
+    } catch { /* Audio is optional if the browser blocks it. */ }
   }
 
   const openComputer = useCallback(() => {
