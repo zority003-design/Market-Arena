@@ -149,6 +149,9 @@ export default function App() {
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
   const [canSleep, setCanSleep] = useState(false)
   const [dayEnded, setDayEnded] = useState(false)
+  const [deskLampOn, setDeskLampOn] = useState(false)
+  const [roomLightOn, setRoomLightOn] = useState(true)
+  const [curtainsOpen, setCurtainsOpen] = useState(true)
   const [controlsVisible, setControlsVisible] = useState(true)
   const finishIntro = useCallback(() => setIntroActive(false), [])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
@@ -353,6 +356,9 @@ export default function App() {
     setPauseOpen(false)
     setDayEnded(false)
     setCanSleep(false)
+    setDeskLampOn(false)
+    setRoomLightOn(true)
+    setCurtainsOpen(true)
     setWindowOffset({ x: 0, y: 0 })
     setWindowMaximized(false)
     setWindowMinimized(false)
@@ -557,7 +563,7 @@ export default function App() {
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
       {!mainMenu && introActive && <div className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} />
+        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </div>
 
       {mainMenu && (
@@ -628,6 +634,8 @@ export default function App() {
           {debt > 0 && <div className="hud-stat debt-stat"><ShieldAlert size={15} /><span><small>ДОЛГ</small><strong>{debt.toLocaleString('ru-RU')} ₽</strong></span></div>}
         </div>
       </header>
+
+      {panel === 'room' && <div className="room-control-dock" aria-label="Управление комнатой"><span>КОМНАТА</span><button className={deskLampOn ? 'room-control active' : 'room-control'} onClick={() => setDeskLampOn((value) => !value)}><i>Л</i><span>Лампа</span><small>{deskLampOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={roomLightOn ? 'room-control active' : 'room-control'} onClick={() => setRoomLightOn((value) => !value)}><i>С</i><span>Свет</span><small>{roomLightOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={curtainsOpen ? 'room-control active' : 'room-control'} onClick={() => setCurtainsOpen((value) => !value)}><i>Ш</i><span>Шторы</span><small>{curtainsOpen ? 'Открыты' : 'Закрыты'}</small></button></div>}
 
       {panel === 'room' && (
         <>
