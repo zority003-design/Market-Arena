@@ -307,12 +307,22 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
         <planeGeometry args={[1.29, 0.75]} />
         <meshBasicMaterial color="#0b201d" />
       </mesh>
-      {/* Screen terminal details */}
-      <Box position={[-0.26, 1.57, -2.573]} size={[0.46, 0.018, 0.008]} color="#32d7a1" />
-      <Box position={[-0.26, 1.49, -2.573]} size={[0.58, 0.012, 0.008]} color="#548c7d" />
-      <Box position={[-0.26, 1.43, -2.573]} size={[0.42, 0.012, 0.008]} color="#548c7d" />
+      {/* Monitor shows a tiny market chart that evolves with the in-game clock. */}
+      <Box position={[-0.28, 1.66, -2.573]} size={[0.44, 0.018, 0.008]} color="#32d7a1" />
+      <Box position={[-0.28, 1.59, -2.573]} size={[0.56, 0.009, 0.008]} color="#548c7d" />
+      <Box position={[-0.28, 1.54, -2.573]} size={[0.38, 0.009, 0.008]} color="#548c7d" />
       <Box position={[0.43, 1.52, -2.573]} size={[0.34, 0.31, 0.008]} color="#143b32" />
-      <Box position={[0.43, 1.57, -2.565]} size={[0.2, 0.018, 0.008]} color="#55e7b4" />
+      {[0, 1, 2, 3].map((row) => <Box key={'grid-y-' + row} position={[0.43, 1.42 + row * 0.065, -2.565]} size={[0.3, 0.006, 0.004]} color="#285447" />)}
+      {Array.from({ length: 7 }, (_, i) => {
+        const x = 0.30 + i * 0.043
+        const y = 1.42 + ((i * 5 + Math.floor(gameMinutes / 10) * 3) % 6) * 0.035
+        const rising = (i + Math.floor(gameMinutes / 10)) % 3 !== 0
+        const candleColor = rising ? '#55e7b4' : '#d77c70'
+        return <group key={'candle-' + i}>
+          <Box position={[x, y, -2.558]} size={[0.006, 0.095, 0.004]} color={candleColor} />
+          <Box position={[x, y + (rising ? 0.012 : -0.012), -2.555]} size={[0.025, 0.035 + (i % 3) * 0.012, 0.004]} color={candleColor} />
+        </group>
+      })}
       <Cylinder position={[0.1, 0.95, -2.61]} radius={0.09} height={0.12} color="#343c43" metalness={0.65} />
       <Box position={[0.1, 0.91, -2.61]} size={[0.44, 0.035, 0.23]} color="#313940" metalness={0.55} />
       <Box position={[0.1, 0.885, -2.61]} size={[0.27, 0.012, 0.16]} color="#11171c" roughness={0.35} />
