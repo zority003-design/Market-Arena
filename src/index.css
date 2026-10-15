@@ -1492,3 +1492,41 @@ button:focus-visible, textarea:focus-visible {
 .shop-item-detail-panel p { margin:6px 0 8px; color:#a3b8ad; font-size:10px; line-height:1.6; }
 .shop-item-detail-panel span { color:#8fe0b5; font-size:9px; line-height:1.5; }
 @media (min-width:900px) { .shop-item-icon-wrap { grid-row:span 2; } }
+
+
+/* Product illustrations are individual vector thumbnails, not one generic icon for every store item. */
+.shop-item-icon-wrap { overflow:hidden; position:relative; min-height:116px; padding:5px 8px 9px; }
+.shop-item-icon-wrap::before { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 50% 35%,rgba(105,204,159,.14),transparent 62%); }
+.room-item-illustration { position:relative; z-index:1; display:block; width:100%; max-width:150px; height:98px; margin:0 auto; filter:drop-shadow(0 8px 8px rgba(0,0,0,.24)); }
+.shop-item-icon-wrap > span { position:relative; z-index:1; }
+.shop-item-icon-wrap .illustration-ring-light { filter:drop-shadow(0 0 9px rgba(234,213,160,.13)); }
+.shop-item-icon-wrap .illustration-hd-camera { filter:drop-shadow(0 0 9px rgba(96,214,169,.15)); }
+.shop-item-icon-wrap .illustration-second-monitor { max-width:160px; }
+.shop-item-icon-wrap .illustration-used-chair { max-width:130px; }
+.shop-item-icon-wrap .illustration-pro-mic { max-width:125px; }
+
+/* A shift strip makes the first desktop session feel like a guided trading workstation. */
+.desktop-shift-strip { position:relative; z-index:1; display:grid; grid-template-columns:minmax(175px,1.25fr) repeat(3,minmax(112px,1fr)) auto; align-items:center; gap:9px; margin:0 0 19px; padding:12px; border:1px solid rgba(139,205,171,.19); border-radius:12px; background:linear-gradient(100deg,rgba(21,50,43,.84),rgba(12,23,28,.88)); box-shadow:0 12px 30px rgba(0,0,0,.12); }
+.shift-strip-title { display:flex; align-items:center; gap:9px; min-width:0; }
+.shift-strip-title .live-dot { flex:none; }
+.shift-strip-title strong { display:block; color:#d9eee2; font-size:10px; letter-spacing:.06em; }
+.shift-strip-title small { display:block; margin-top:4px; color:#8ea99c; font-size:9px; line-height:1.4; }
+.shift-strip-step { min-width:0; display:grid; grid-template-columns:25px minmax(0,1fr); align-items:center; column-gap:7px; padding:7px 8px; border:1px solid rgba(164,196,179,.11); border-radius:8px; background:rgba(255,255,255,.025); }
+.shift-strip-step b { grid-row:span 2; display:grid; place-items:center; width:24px; height:24px; border-radius:7px; background:rgba(255,255,255,.055); color:#9fb5a9; font-size:9px; }
+.shift-strip-step span { overflow:hidden; color:#b9cfc3; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.shift-strip-step small { margin-top:3px; color:#81988d; font-size:9px; }
+.shift-strip-step.is-done { border-color:rgba(111,224,169,.24); background:rgba(61,151,109,.09); }
+.shift-strip-step.is-done b { background:rgba(92,213,151,.17); color:#91e9b8; }
+.shift-strip-step.is-done small { color:#8dd9ad; }
+.desktop-shift-strip > button { display:flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:8px 10px; border:1px solid rgba(118,221,174,.26); border-radius:7px; background:rgba(91,191,140,.12); color:#b9f0d0; font-size:10px; white-space:nowrap; cursor:pointer; }
+.desktop-shift-strip > button:hover { background:rgba(91,191,140,.2); }
+@media (max-width:1180px) {
+ .desktop-shift-strip { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .shift-strip-title { grid-column:1/-1; }
+ .desktop-shift-strip > button { grid-column:1/-1; }
+}
+@media (max-width:640px) {
+ .desktop-shift-strip { grid-template-columns:1fr; }
+ .shift-strip-title, .desktop-shift-strip > button { grid-column:auto; }
+ .shift-strip-step { grid-template-columns:25px 1fr; }
+}
