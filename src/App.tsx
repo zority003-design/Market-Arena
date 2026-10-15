@@ -58,7 +58,7 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -69,6 +69,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('overview')
   const [cash, setCash] = useState(saved.cash ?? STARTING_CASH)
   const [firmCapital, setFirmCapital] = useState(saved.firmCapital ?? STARTING_FIRM_CAPITAL)
+  const [debt, setDebt] = useState(saved.debt ?? 0)
   const [reputation, setReputation] = useState(saved.reputation ?? 42)
   const [day, setDay] = useState(saved.day ?? 1)
   const [deals, setDeals] = useState(saved.deals ?? 0)
@@ -97,8 +98,8 @@ export default function App() {
   const [newsReviewed, setNewsReviewed] = useState(false)
 
   useEffect(() => {
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId })) } catch { /* Ignore unavailable storage. */ }
-  }, [cash, firmCapital, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId })) } catch { /* Ignore unavailable storage. */ }
+  }, [cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId])
 
   useEffect(() => {
     if (tab === 'market') setMarketReviewed(true)
@@ -258,9 +259,18 @@ export default function App() {
   function endDay() {
     setDay((value) => value + 1)
     const dailyCosts = currentHousing.dailyCost
-    setCash((value) => Math.max(0, value + DAILY_SALARY - dailyCosts))
-    setToast('День завершён: оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, жильё и быт −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.')
-    window.setTimeout(() => setToast(''), 3600)
+    const available = cash + DAILY_SALARY
+    const paidCosts = Math.min(available, dailyCosts)
+    const shortfall = dailyCosts - paidCosts
+    const remainder = available - paidCosts
+    const debtPayment = Math.min(debt, remainder)
+    setCash(remainder - debtPayment)
+    setDebt(Math.max(0, debt - debtPayment) + shortfall)
+    const debtNote = shortfall > 0
+      ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
+      : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
+    setToast('День завершён: оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, жильё и быт −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
+    window.setTimeout(() => setToast(''), 5200)
     setPanel('room')
     setCallStatus('idle')
   }
@@ -283,6 +293,7 @@ export default function App() {
         <div className="hud-right">
           <div className="hud-stat"><Wallet size={15} /><span><small>ЛИЧНЫЕ СРЕДСТВА</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></span></div>
           <div className="hud-stat reputation-stat"><ShieldAlert size={15} /><span><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></span></div>
+          {debt > 0 && <div className="hud-stat debt-stat"><ShieldAlert size={15} /><span><small>ДОЛГ</small><strong>{debt.toLocaleString('ru-RU')} ₽</strong></span></div>}
         </div>
       </header>
 
@@ -332,7 +343,7 @@ export default function App() {
               <button className={tab === 'shop' ? 'side-link active' : 'side-link'} onClick={() => setTab('shop')}><ShoppingBag size={17} /> Магазин комнаты</button>
               <button className={tab === 'housing' ? 'side-link active' : 'side-link'} onClick={() => setTab('housing')}><House size={17} /> Жильё</button>
               <div className="sidebar-spacer" />
-              <div className="side-account"><div className="account-row"><span>Деньги</span><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div className="mini-meter"><span style={{ width: Math.min(100, cash / 300) + '%' }} /></div><div className="account-row"><span>Репутация</span><strong>{reputation}%</strong></div><div className="mini-meter reputation-meter"><span style={{ width: reputation + '%' }} /></div><div className="account-row"><span>Капитал фирмы</span><strong>{firmCapital.toLocaleString('ru-RU')} ₽</strong></div></div>
+              <div className="side-account"><div className="account-row"><span>Деньги</span><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div className="mini-meter"><span style={{ width: Math.min(100, cash / 300) + '%' }} /></div><div className="account-row"><span>Репутация</span><strong>{reputation}%</strong></div><div className="mini-meter reputation-meter"><span style={{ width: reputation + '%' }} /></div><div className="account-row"><span>Капитал фирмы</span><strong>{firmCapital.toLocaleString('ru-RU')} ₽</strong></div><div className="account-row"><span>Долг / просрочка</span><strong className={debt > 0 ? 'debt-value' : ''}>{debt.toLocaleString('ru-RU')} ₽</strong></div></div>
               <button className="end-day-button" onClick={endDay}><Power size={15} /> Завершить день</button>
             </aside>
 
