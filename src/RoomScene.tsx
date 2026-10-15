@@ -123,8 +123,8 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
     }
     camera.position.y = 1.66
     camera.rotation.set(pitch.current, yaw.current, 0)
-    const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 1.52)
-    const canUse = distance < 1.35 && camera.position.z > -1.83
+    const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 0.9)
+    const canUse = distance < 1.25 && camera.position.z > -1.83
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
   })
 
