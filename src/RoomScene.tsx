@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ContactShadows } from '@react-three/drei'
+import { ContactShadows, Text } from '@react-three/drei'
 import * as THREE from 'three'
 import { playSound } from './audio'
 
@@ -143,7 +143,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
     const canUse = distance < 1.25 && camera.position.z > -1.83
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
     const objectDistances: Array<{ id: 'lamp' | 'light' | 'curtains' | 'wardrobe'; x: number; z: number; radius: number }> = [
-      { id: 'lamp', x: -1.03, z: -2.67, radius: 1.12 }, { id: 'light', x: -3.38, z: -3.12, radius: 0.9 },
+      { id: 'lamp', x: -1.03, z: -2.67, radius: 1.12 }, { id: 'light', x: -3.35, z: 2.05, radius: 0.72 },
       { id: 'curtains', x: -3.48, z: -1.12, radius: 1.02 }, { id: 'wardrobe', x: -3.03, z: -2.72, radius: 1.15 },
     ]
     const foundObject = objectDistances.find((item) => Math.hypot(camera.position.x - item.x, camera.position.z - item.z) < item.radius)?.id ?? null
@@ -253,6 +253,8 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       {/* A framed market chart instead of unexplained wall stripes. */}
       <Box position={[-1.9, 1.96, -3.84]} size={[1.82, 1.22, 0.055]} color="#222b30" roughness={0.55} />
       <Box position={[-1.9, 1.96, -3.805]} size={[1.68, 1.08, 0.012]} color="#10201f" roughness={0.8} />
+      <Text position={[-2.64, 2.42, -3.78]} fontSize={0.075} color="#a7c4b5" anchorX="left" anchorY="middle">KOTL · 1D</Text>
+      <Text position={[-1.23, 2.42, -3.78]} fontSize={0.075} color="#dc8178" anchorX="right" anchorY="middle">−4,2%</Text>
       {[1.62, 1.88, 2.14, 2.4].map((y) => <Box key={y} position={[-1.9, y, -3.794]} size={[1.58, 0.008, 0.006]} color="#2a4540" />)}
       {[-2.55, -2.15, -1.75, -1.35].map((x) => <Box key={x} position={[x, 1.96, -3.793]} size={[0.008, 0.98, 0.006]} color="#2a4540" />)}
 
@@ -302,6 +304,10 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       {[-2.05, -1.75, -1.45, -1.15, -0.85, -0.55, -0.25].map((z) => (
         <Box key={z} position={[-3.69, 2.67, z]} size={[0.14, 0.07, 0.22]} color="#b7a58d" />
       ))}
+
+      {/* A real wall light switch, close enough to interact with using E. */}
+      <Box position={[-3.84, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
+      <Box position={[-3.81, 1.55, 2.05]} size={[0.025, 0.075, 0.055]} color="#f1ead9" roughness={0.35} />
 
       {/* Desk and metal frame */}
       <Box position={[0.15, 0.88, -2.36]} size={[2.7, 0.13, 1.05]} color="#674a37" roughness={0.5} />
