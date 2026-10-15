@@ -8,6 +8,7 @@ type AudioSettings = {
   inRoom: boolean
   inCall: boolean
   paused: boolean
+  volume: number
 }
 
 let context: AudioContext | null = null
@@ -18,7 +19,7 @@ let rainGain: GainNode | null = null
 let noiseSource: AudioBufferSourceNode | null = null
 let rainSource: AudioBufferSourceNode | null = null
 let settings: AudioSettings = {
-  enabled: true, ambience: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false,
+  enabled: true, ambience: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
@@ -30,7 +31,7 @@ function ensureAudio() {
     if (!AudioContextCtor) return null
     context = new AudioContextCtor()
     master = context.createGain()
-    master.gain.value = settings.enabled ? 0.68 : 0
+    master.gain.value = settings.enabled ? 0.68 * settings.volume : 0
     master.connect(context.destination)
 
     ambienceGain = context.createGain()
@@ -96,7 +97,7 @@ function updateAmbience() {
   const nightFactor = 1
   ambienceGain.gain.setTargetAtTime(audible ? curtainFactor * 0.12 * nightFactor : 0, ctx.currentTime, 0.8)
   rainGain.gain.setTargetAtTime(0, ctx.currentTime, 0.8)
-  master.gain.setTargetAtTime(settings.enabled ? 0.68 : 0, ctx.currentTime, 0.05)
+  master.gain.setTargetAtTime(settings.enabled ? 0.68 * Math.max(0, Math.min(1, settings.volume)) : 0, ctx.currentTime, 0.05)
 }
 
 export function configureAudio(next: Partial<AudioSettings>) {
