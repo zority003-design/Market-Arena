@@ -10,6 +10,7 @@ import {
   Settings, Play, RotateCcw, ArrowRight
 } from 'lucide-react'
 import RoomScene from './RoomScene'
+import CityScene from './CityScene'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -310,7 +311,6 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     texture.needsUpdate = true
     return texture
   }, [])
-  const skinMaterial = <meshStandardMaterial color={skin} roughness={0.88} metalness={0} map={skinTexture ?? undefined} />
   return <group position={[0, 0.02, 0]}>
     <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[0.72, 48]} /><meshStandardMaterial color="#1a2829" roughness={0.96} /></mesh>
     <mesh position={[0, 0.78, 0]} scale={[0.34, 0.24, 0.205]} castShadow><sphereGeometry args={[1, 40, 32]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
@@ -325,7 +325,7 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
       <mesh position={[side * 0.16, -0.51, 0.01]} rotation={[0, 0, side * -0.13]} castShadow><capsuleGeometry args={[0.054, 0.13, 12, 22]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
     </group>)}
     <mesh position={[0, 1.59, 0]} castShadow><cylinderGeometry args={[0.065, 0.078, 0.19, 24]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
-    <mesh position={[0, 1.94, 0.005]} scale={[0.188, 0.245, 0.18]} castShadow><sphereGeometry args={[1, 64, 48]} />{skinMaterial}</mesh>
+    <mesh position={[0, 1.94, 0.005]} scale={[0.188, 0.245, 0.18]} castShadow><sphereGeometry args={[1, 64, 48]} /><meshStandardMaterial color={skin} roughness={0.88} metalness={0} map={skinTexture ?? undefined} /></mesh>
     <mesh position={[0, 2.105, -0.008]} scale={[0.19, 0.092, 0.184]} castShadow><sphereGeometry args={[1, 40, 28]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
     <mesh position={[0, 2.08, 0.095]} scale={[0.17, 0.065, 0.105]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
     {[-1, 1].map((side) => <mesh key={side} position={[side * 0.184, 1.95, 0.002]} scale={[0.027, 0.045, 0.026]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>)}
@@ -966,24 +966,32 @@ export default function App() {
       {panel === 'room' && <button className="world-exit-button" onClick={() => { setPanel('city'); playSound('ui') }}><MapPin size={18} /><span><strong>Выйти в город</strong><small>Кафе · биржа · недвижимость</small></span><ChevronRight size={18} /></button>}
 
       {panel === 'city' && (
-        <div className="computer-overlay city-world-overlay">
+        <div className="computer-overlay city-world-overlay city-3d-overlay">
           <div className="computer-topbar os-topbar">
-            <button className="back-button" onClick={() => setPanel('room')}><ArrowLeft size={16} /> Вернуться в комнату</button>
-            <div className="os-topbar-center"><span className="os-status-dot" /> Финансовый район · свободное исследование</div>
+            <button className="back-button" onClick={() => setPanel('room')}><ArrowLeft size={16} /> Войти домой</button>
+            <div className="os-topbar-center"><span className="os-status-dot" /> Жилой район · свободное передвижение</div>
             <button className="os-pause-button" onClick={() => { setPanel('computer'); setTab('housing') }}><House size={15} /> Недвижимость</button>
           </div>
-          <main className="city-world-screen">
-            <div className="page-heading"><div><div className="eyebrow">ЗА ПРЕДЕЛАМИ ДОМА</div><h2>Финансовый район</h2><p>Выбирай место на карте, знакомься с районом и готовь встречи. Переход между точками продвигает время на 15 минут. Это первый интерактивный район; полноценное свободное 3D-передвижение ещё предстоит сделать.</p></div><div className="market-status"><Clock3 size={14} /> {String(Math.floor(gameMinutes / 60)).padStart(2,'0')}:{String(gameMinutes % 60).padStart(2,'0')}</div></div>
-            <div className="city-map-shell">
-              <div className="city-map-art" aria-label="Интерактивная карта финансового района">
-                <div className="city-map-road road-horizontal" /><div className="city-map-road road-vertical" /><div className="city-map-park"><span>СКВЕР</span><i /><i /><i /></div><div className="city-map-water" />
-                {[{id:'office',name:'Офисный квартал',x:18,y:24,icon:'⌂'},{id:'exchange',name:'Биржевая площадь',x:67,y:19,icon:'↗'},{id:'cafe',name:'Кафе инвесторов',x:31,y:72,icon:'☕'},{id:'newsstand',name:'Киоск новостей',x:75,y:70,icon:'▤'}].map((place) => <button key={place.id} className={'city-map-pin '+(cityLocation===place.id?'current ':'')+(cityVisitedToday.includes(place.id)?'visited':'')} style={{left:place.x+'%',top:place.y+'%'}} onClick={() => travelToCity(place.id)}><b>{place.icon}</b><span>{place.name}</span></button>)}
-                <span className="city-map-label map-label-north">ФИНАНСОВЫЙ РАЙОН</span><span className="city-map-label map-label-south">НАБЕРЕЖНАЯ</span>
-              </div>
-              <div className="city-location-panel"><span className="eyebrow">ТЫ СЕЙЧАС ЗДЕСЬ</span><h3>{({office:'Офисный квартал',exchange:'Биржевая площадь',cafe:'Кафе инвесторов',newsstand:'Киоск новостей'} as Record<string,string>)[cityLocation]}</h3><p>{({office:'Здесь находятся деловые здания и офисные помещения. По мере роста репутации можно перейти от домашней работы к собственной недвижимости.',exchange:'Смотри на настроение рынка и обсуждай котировки перед крупной сделкой.',cafe:'Неформальная площадка для знакомства с предпринимателями. Здесь планируется открывать личные встречи и сделки лицом к лицу.',newsstand:'Изучи слухи и новости перед тем, как убеждать клиента. Непроверенные слухи не считай гарантией.'} as Record<string,string>)[cityLocation]}</p><div className="city-benefit"><span>Бонус подготовки</span><strong>+{cityBonus} доверия</strong></div><div className="city-location-list">{[{id:'office',name:'Офисный квартал',desc:'Офисы и деловые контакты'},{id:'exchange',name:'Биржевая площадь',desc:'Котировки и настроение рынка'},{id:'cafe',name:'Кафе инвесторов',desc:'Будущие личные встречи'},{id:'newsstand',name:'Киоск новостей',desc:'Новости и слухи'}].map((place) => <button key={place.id} className={cityLocation===place.id?'selected':''} onClick={() => travelToCity(place.id)}><span><strong>{place.name}</strong><small>{place.desc}</small></span><em>{cityVisitedToday.includes(place.id)?'Посещено':'+15 мин'}</em></button>)}</div><button className="primary-action city-world-work-button" onClick={() => { setPanel('computer'); setTab(cityLocation==='office'?'housing':cityLocation==='exchange'?'market':cityLocation==='newsstand'?'news':'calls'); setCallStatus('idle') }}><ArrowUpRight size={16} /> {cityLocation==='office'?'Смотреть недвижимость':cityLocation==='exchange'?'Открыть биржу':cityLocation==='newsstand'?'Читать новости':'Перейти к клиентам'}</button></div>
+          <div className="city-3d-stage">
+            <CityScene
+              gameMinutes={gameMinutes}
+              onEnterHome={() => { setPanel('room'); playSound('ui') }}
+              onOpenLocation={(location) => {
+                setCityLocation(location)
+                setCityVisitedToday((previous) => previous.includes(location) ? previous : [...previous, location])
+                setCityBonus((previous) => previous + (cityVisitedToday.includes(location) ? 0 : 2))
+                setGameMinutes((previous) => (previous + 15) % (24 * 60))
+                setPanel('computer')
+                setTab(location === 'office' ? 'housing' : location === 'exchange' ? 'market' : location === 'newsstand' ? 'news' : 'calls')
+                setCallStatus('idle')
+                playSound('ui')
+              }}
+            />
+            <div className="city-3d-hud">
+              <span className="city-3d-time"><Clock3 size={14} /> {String(Math.floor(gameMinutes / 60)).padStart(2,'0')}:{String(gameMinutes % 60).padStart(2,'0')}</span>
+              <span className="city-3d-controls"><b>WASD</b> идти <b>мышь</b> осмотреть <b>E</b> взаимодействовать</span>
             </div>
-            <div className="city-world-note"><MapPin size={17} /><span>Цель карьеры: зарабатывать на сделках, повышать репутацию и открывать доступ к состоятельным клиентам, личным встречам и собственному офису. Покупка недвижимости доступна в разделе «Недвижимость».</span></div>
-          </main>
+          </div>
         </div>
       )}
 
