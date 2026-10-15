@@ -488,12 +488,12 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
       {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={handleCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} />
+      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={handleCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
     </>
   )
 }
 
-export default function RoomScene({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   return (
     <Canvas
       shadows
