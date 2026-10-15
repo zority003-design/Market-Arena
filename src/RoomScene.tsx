@@ -6,6 +6,8 @@ import * as THREE from 'three'
 type RoomSceneProps = {
   onInteract: () => void
   active: boolean
+  ownedItems: string[]
+  housingId: string
 }
 
 function FirstPersonRig({ active }: { active: boolean }) {
@@ -141,7 +143,7 @@ function FloorBoards() {
   return <group>{boards.map((board) => <Box key={board.key} position={board.position} size={board.size} color={board.color} roughness={0.76} />)}</group>
 }
 
-function Room({ onInteract, active }: RoomSceneProps) {
+function Room({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
 
@@ -163,10 +165,10 @@ function Room({ onInteract, active }: RoomSceneProps) {
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color="#68717a" />
+      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : "#a09b8e"} />
       <Box position={[-3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#5c646d" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
-      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color="#30251f" roughness={0.98} />
+      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : "#4b3c32"} roughness={0.98} />
       <FloorBoards />
 
       {/* Back wall details and skirting */}
@@ -252,8 +254,41 @@ function Room({ onInteract, active }: RoomSceneProps) {
       <Cylinder position={[1.1, 1.01, -2.03]} radius={0.095} height={0.15} color="#d7d0c2" />
       <Cylinder position={[1.1, 1.09, -2.03]} radius={0.075} height={0.012} color="#31251f" />
       <Cylinder position={[-1.03, 1.05, -2.67]} radius={0.04} height={0.22} color="#343b41" metalness={0.5} />
-      <Box position={[-1.03, 1.17, -2.67]} size={[0.28, 0.07, 0.17]} color="#bba16f" rotation={[0, 0, -0.25]} />
-      <pointLight position={[-1.03, 1.12, -2.56]} intensity={0.65} distance={2.4} color="#ffd69a" />
+      <Box position={[-1.03, 1.17, -2.67]} size={[0.28, 0.07, 0.17]} color={ownedItems.includes("desk-lamp") ? "#f2ce83" : "#bba16f"} rotation={[0, 0, -0.25]} />
+      <pointLight position={[-1.03, 1.12, -2.56]} intensity={ownedItems.includes("desk-lamp") ? 1.05 : 0.65} distance={2.4} color="#ffd69a" />
+
+      {/* Purchasable equipment changes the physical scene, not only a menu statistic. */}
+      {ownedItems.includes("ring-light") && <group position={[1.12, 1.68, -2.1]}>
+        <mesh><torusGeometry args={[0.22, 0.025, 8, 32]} /><meshStandardMaterial color="#c7d2d1" metalness={0.72} roughness={0.25} /></mesh>
+        <Box position={[0, -0.32, 0]} size={[0.035, 0.28, 0.035]} color="#69777b" metalness={0.55} />
+        <pointLight position={[0, 0, 0.08]} intensity={0.45} distance={1.5} color="#e1f4ed" />
+      </group>}
+      {ownedItems.includes("hd-camera") && <group>
+        <Box position={[0.1, 1.86, -2.64]} size={[0.22, 0.075, 0.09]} color="#222c31" roughness={0.28} metalness={0.35} />
+        <Cylinder position={[0.1, 1.86, -2.585]} radius={0.026} height={0.014} color="#43d9a4" metalness={0.3} />
+      </group>}
+      {ownedItems.includes("second-monitor") && <group>
+        <Box position={[1.27, 1.34, -2.64]} size={[0.68, 0.49, 0.07]} color="#171f25" roughness={0.28} metalness={0.3} />
+        <Box position={[1.27, 1.34, -2.595]} size={[0.59, 0.4, 0.008]} color="#102b29" roughness={0.3} />
+        <Box position={[1.13, 1.43, -2.586]} size={[0.22, 0.014, 0.006]} color="#3fd6a2" />
+        <Box position={[1.34, 1.37, -2.586]} size={[0.28, 0.012, 0.006]} color="#739c94" />
+        <Box position={[1.34, 1.31, -2.586]} size={[0.25, 0.012, 0.006]} color="#739c94" />
+        <Cylinder position={[1.27, 1.05, -2.62]} radius={0.035} height={0.12} color="#505b62" metalness={0.55} />
+      </group>}
+      {ownedItems.includes("headset") && <mesh position={[-0.45, 1.015, -1.78]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.09, 0.025, 8, 24]} />
+        <meshStandardMaterial color="#202a30" roughness={0.5} metalness={0.15} />
+      </mesh>}
+      {ownedItems.includes("pro-mic") && <group position={[0.94, 1.02, -1.86]}>
+        <Cylinder position={[0, 0.09, 0]} radius={0.025} height={0.18} color="#353f46" metalness={0.55} />
+        <mesh position={[0, 0.2, 0]}><sphereGeometry args={[0.055, 12, 10]} /><meshStandardMaterial color="#171f24" metalness={0.4} roughness={0.35} /></mesh>
+      </group>}
+      {ownedItems.includes("neutral-backdrop") && !ownedItems.includes("chromakey-kit") && <Box position={[0.1, 2.0, -3.12]} size={[2.55, 1.85, 0.035]} color="#737b78" roughness={0.98} />}
+      {ownedItems.includes("chromakey-kit") && <group>
+        <Box position={[0.1, 2.0, -3.12]} size={[2.65, 1.95, 0.04]} color="#1d8d65" roughness={0.96} />
+        <Box position={[-1.22, 2.0, -3.09]} size={[0.045, 2.0, 0.05]} color="#4d5c5d" metalness={0.35} />
+        <Box position={[1.42, 2.0, -3.09]} size={[0.045, 2.0, 0.05]} color="#4d5c5d" metalness={0.35} />
+      </group>}
 
       {/* Chair */}
       <Box position={[0.1, 0.52, -0.98]} size={[0.72, 0.16, 0.68]} color="#2a3a3d" roughness={0.72} />
@@ -331,7 +366,7 @@ function Room({ onInteract, active }: RoomSceneProps) {
   )
 }
 
-export default function RoomScene({ onInteract, active }: RoomSceneProps) {
+export default function RoomScene({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
   return (
     <Canvas
       shadows
@@ -344,7 +379,7 @@ export default function RoomScene({ onInteract, active }: RoomSceneProps) {
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} active={active} />
+      <Room onInteract={onInteract} active={active} ownedItems={ownedItems} housingId={housingId} />
     </Canvas>
   )
 }
