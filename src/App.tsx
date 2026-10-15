@@ -449,7 +449,6 @@ export default function App() {
   }, [])
 
   const interactWithRoomObject = useCallback((object: RoomObject) => {
-    setNearbyRoomObject(null)
     if (object === 'lamp') { playSound('lamp'); setDeskLampOn((value) => !value); return }
     if (object === 'light') { playSound('lamp'); setRoomLightOn((value) => !value); return }
     if (object === 'curtains') { playSound('curtain'); setCurtainsOpen((value) => !value); return }
