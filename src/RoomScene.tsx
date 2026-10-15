@@ -154,13 +154,14 @@ function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, 
   )
 }
 
-function Cylinder({ position, radius, height, color, metalness = 0, roughness = 0.55 }: {
+function Cylinder({ position, radius, height, color, metalness = 0, roughness = 0.55, rotation }: {
   position: [number, number, number]
   radius: number
   height: number
   color: string
   metalness?: number
   roughness?: number
+  rotation?: [number, number, number]
 }) {
   return (
     <mesh position={position} castShadow receiveShadow>
