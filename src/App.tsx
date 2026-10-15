@@ -7,6 +7,7 @@ import {
   Settings, Volume2, Gamepad2, Play, RotateCcw, ArrowRight
 } from 'lucide-react'
 import RoomScene from './RoomScene'
+import { configureAudio, playSound, speakText, stopSpeech } from './audio'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer'
@@ -158,6 +159,9 @@ export default function App() {
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [menuSettings, setMenuSettings] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-reduced-motion') === 'true' } catch { return false } })
+  const [soundEnabled, setSoundEnabled] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-sound') !== 'false' } catch { return true } })
+  const [ambienceEnabled, setAmbienceEnabled] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-ambience') !== 'false' } catch { return true } })
+  const [voiceEnabled, setVoiceEnabled] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-voice') === 'true' } catch { return false } })
   const [panel, setPanel] = useState<Panel>('room')
   const [tab, setTab] = useState<Tab>('overview')
   const [cash, setCash] = useState(saved.cash ?? STARTING_CASH)
@@ -195,6 +199,25 @@ export default function App() {
   useEffect(() => {
     if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Ignore unavailable storage. */ } }
   }, [startNewCareerOnLoad])
+
+  useEffect(() => {
+    configureAudio({ enabled: soundEnabled, ambience: ambienceEnabled, voice: voiceEnabled, curtainsOpen, inRoom: mainMenu || panel === 'room', inCall: callStatus === 'active', paused: pauseOpen || menuSettings })
+    try {
+      localStorage.setItem('na-vse-kotirovki-sound', String(soundEnabled))
+      localStorage.setItem('na-vse-kotirovki-ambience', String(ambienceEnabled))
+      localStorage.setItem('na-vse-kotirovki-voice', String(voiceEnabled))
+    } catch { /* Audio preferences are optional if storage is unavailable. */ }
+    if (!voiceEnabled) stopSpeech()
+  }, [soundEnabled, ambienceEnabled, voiceEnabled, curtainsOpen, mainMenu, panel, callStatus, pauseOpen, menuSettings])
+
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest('button, [role="button"], .desktop-app-icon, .side-link')) playSound('ui')
+    }
+    window.addEventListener('pointerdown', onPointerDown, true)
+    return () => window.removeEventListener('pointerdown', onPointerDown, true)
+  }, [])
 
   useEffect(() => {
     if (!careerStarted) return
@@ -269,6 +292,8 @@ export default function App() {
   useEffect(() => {
     if (callStatus !== 'active' || timeLeft > 0) return
     setCallStatus('lost')
+    playSound('hangup')
+    speakText('Извините, у нас закончилось время. Давайте на этом закончим.', 'client')
     setTrust((value) => Math.max(0, value - 8))
     setPatience((value) => Math.max(0, value - 16))
     setLastResult('Клиент устал ждать и завершил звонок. В следующий раз изучи компанию заранее.')
@@ -324,6 +349,7 @@ export default function App() {
   function startNewGame() { setConfirmNewCareer(true) }
 
   function confirmStartNewGame() {
+    playSound('alarm')
     try { localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
     setCash(STARTING_CASH)
     setFirmCapital(STARTING_FIRM_CAPITAL)
@@ -399,6 +425,7 @@ export default function App() {
   }
 
   const openComputer = useCallback(() => {
+    playSound('computer')
     setPanel('computer')
     setTab('overview')
   }, [])
@@ -429,6 +456,8 @@ export default function App() {
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCallStatus('active')
+    playSound('computer')
+    speakText('Здравствуйте. ' + activeClient.quote, 'client')
     setTimeLeft(25)
     setLastPenaltySecond(25)
     setWindowMinimized(false)
@@ -441,6 +470,8 @@ export default function App() {
     const success = nextTrust >= threshold && nextPatience > 20
     setCallStatus(success ? 'won' : 'lost')
     if (success) {
+      playSound('deal')
+      speakText('Отлично. Давайте оформим сделку.', 'client')
       const payout = calculateDeal(activeClient, nextTrust, clientDealCounts[activeClient.id] ?? 0, clientInvested[activeClient.id] ?? 0)
       setCash((value) => value + payout.playerBonus)
       setFirmCapital((value) => Math.max(0, value + payout.firmRevenue - payout.playerBonus))
@@ -451,6 +482,8 @@ export default function App() {
       setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '.')
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' }])
     } else {
+      playSound('decline')
+      speakText('Спасибо за разговор, но я пока не готов инвестировать.', 'client')
       setReputation((value) => Math.max(0, value - 2))
       setLastResult('Сделка не состоялась. ' + activeClient.name + ' не готов доверить деньги на этих условиях. Подготовься лучше или предложи более подходящий вариант.')
       setConversation((items) => [...items, { from: 'system', text: '— Клиент отказался от сделки. Комиссия не начислена.' }])
@@ -475,6 +508,8 @@ export default function App() {
     const nextPatience = Math.max(0, patience - 4)
     setTrust(nextTrust)
     setPatience(nextPatience)
+    speakText(text, 'player')
+    if (questionIndex < activeQuestions.length - 1) speakText(activeQuestions[questionIndex + 1].title, 'client')
     setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: questions[questionIndex + 1].title }] : [])])
     setFreeAnswer('')
     if (questionIndex >= activeQuestions.length - 1) {
@@ -524,6 +559,7 @@ export default function App() {
 
   function endDay() {
     if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
+    playSound('notification')
     setDayEnded(true)
     setCanInteractWithComputer(false)
     setCanSleep(false)
@@ -535,6 +571,7 @@ export default function App() {
 
   function sleepNow() {
     if (!dayEnded) { setToast('Пока рано спать: сначала заверши рабочий день на компьютере.'); return }
+    playSound('sleep')
     const nextDay = day + 1
     setDay(nextDay)
     setCallsToday(0)
@@ -611,7 +648,7 @@ export default function App() {
             </div>
           </section>
           <div className="menu-bottomline"><span><Gamepad2 size={15} /> WASD · МЫШЬ · ПЕРЕГОВОРЫ · КАРЬЕРА</span><span>НЕФИНАНСОВЫЙ СОВЕТ. НЕ СОВСЕМ ЧЕСТНЫЕ БРОКЕРЫ.</span></div>
-          {menuSettings && <div className="menu-modal-backdrop" onClick={() => setMenuSettings(false)}><section className="menu-settings-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setMenuSettings(false)} aria-label="Закрыть настройки"><X size={18} /></button><span className="menu-eyebrow"><Settings size={14} /> ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><div className="settings-row"><span><strong>Музыка и звуки</strong><small>Фоновая музыка будет добавлена позже.</small></span><span className="settings-coming-soon"><Volume2 size={16} /> СКОРО</span></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Отключает декоративные движения интерфейса.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Сохранение</strong><small>Прогресс карьеры хранится локально в браузере.</small></span><span className="settings-local-save">ЛОКАЛЬНО</span></div><button className="menu-modal-done" onClick={() => setMenuSettings(false)}>Готово <ArrowRight size={16} /></button></section></div>}
+          {menuSettings && <div className="menu-modal-backdrop" onClick={() => setMenuSettings(false)}><section className="menu-settings-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setMenuSettings(false)} aria-label="Закрыть настройки"><X size={18} /></button><span className="menu-eyebrow"><Settings size={14} /> ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><div className="settings-row"><span><strong>Звуковые эффекты</strong><small>Кнопки, шаги, компьютер и действия в комнате.</small></span><button className={'settings-toggle' + (soundEnabled ? ' on' : '')} onClick={() => setSoundEnabled((value) => !value)} aria-pressed={soundEnabled}>{soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Шум города и дождь</strong><small>Тихий процедурный фон; за закрытыми шторами звучит тише.</small></span><button className={'settings-toggle' + (ambienceEnabled ? ' on' : '')} onClick={() => setAmbienceEnabled((value) => !value)} aria-pressed={ambienceEnabled}>{ambienceEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Озвучка переговоров</strong><small>Синтез речи на устройстве; голоса зависят от браузера.</small></span><button className={'settings-toggle' + (voiceEnabled ? ' on' : '')} onClick={() => setVoiceEnabled((value) => !value)} aria-pressed={voiceEnabled}>{voiceEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Отключает декоративные движения интерфейса.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Сохранение</strong><small>Прогресс карьеры хранится локально в браузере.</small></span><span className="settings-local-save">ЛОКАЛЬНО</span></div><button className="menu-modal-done" onClick={() => setMenuSettings(false)}>Готово <ArrowRight size={16} /></button></section></div>}
           {confirmNewCareer && <div className="menu-modal-backdrop" onClick={() => setConfirmNewCareer(false)}><section className="menu-settings-modal confirm-career-modal" onClick={(event) => event.stopPropagation()}><span className="menu-eyebrow"><RotateCcw size={14} /> НОВОЕ НАЧАЛО</span><h2>Начать новую карьеру?</h2><p className="online-info-copy">Текущее сохранение будет удалено с этого устройства. Это действие нельзя отменить.</p><div className="confirm-career-actions"><button className="menu-secondary-button" onClick={() => setConfirmNewCareer(false)}>Отмена</button><button className="menu-play-button" onClick={confirmStartNewGame}>Начать заново <ArrowRight size={16} /></button></div></section></div>}
           {changelogOpen && <div className="menu-modal-backdrop" onClick={() => setChangelogOpen(false)}><section className="menu-settings-modal changelog-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setChangelogOpen(false)} aria-label="Закрыть историю обновлений"><X size={18} /></button><span className="menu-eyebrow"><Clock3 size={14} /> ЖУРНАЛ РАЗРАБОТКИ</span><h2>История обновлений</h2><div className="changelog-list"><article className="changelog-entry current"><div className="changelog-version"><strong>v0.5.0</strong><span>В РАБОТЕ</span></div><h3>Первые шаги к полноценной игре</h3><ul><li>Вступительная сцена пробуждения и временные подсказки управления.</li><li>Улучшение взаимодействия с компьютером и столкновений в комнате.</li><li>Стартовый экран компьютера превращён в рабочий стол с иконками приложений.</li><li>Начата визуальная переработка видеопереговоров.</li></ul></article><article className="changelog-entry"><div className="changelog-version"><strong>v0.4.0</strong><span>ПРОТОТИП</span></div><h3>Стартовое меню и локальная карьера</h3><ul><li>Добавлены офлайн-режим, экран загрузки сохранения и создание новой карьеры.</li><li>Добавлены настройки и заглушка будущего онлайн-режима.</li><li>Прогресс сохраняется в браузере на этом устройстве.</li></ul></article></div><p className="changelog-note">Здесь будут появляться заметки к каждой опубликованной версии.</p><button className="menu-modal-done" onClick={() => setChangelogOpen(false)}>Назад в меню</button></section></div>}
           {onlineInfo && <div className="menu-modal-backdrop" onClick={() => setOnlineInfo(false)}><section className="menu-settings-modal online-info-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setOnlineInfo(false)} aria-label="Закрыть окно"><X size={18} /></button><span className="menu-eyebrow"><Users size={14} /> СЕТЕВАЯ КАРЬЕРА</span><h2>Онлайн появится позже</h2><p className="online-info-copy">Сначала доведём до ума одиночную карьеру. Затем добавим аккаунты и серверные сохранения, таблицы лидеров и соревнования с друзьями. Сейчас онлайн-режим ещё не подключён.</p><div className="online-roadmap"><span><Check size={15} /> Локальная карьера</span><span><Clock3 size={15} /> Сервер и аккаунты — в разработке</span><span><Users size={15} /> Соревнования — позже</span></div><button className="menu-modal-done" onClick={() => setOnlineInfo(false)}>Понятно</button></section></div>}
@@ -635,7 +672,7 @@ export default function App() {
         </div>
       </header>
 
-      {panel === 'room' && <div className="room-control-dock" aria-label="Управление комнатой"><span>КОМНАТА</span><button className={deskLampOn ? 'room-control active' : 'room-control'} onClick={() => setDeskLampOn((value) => !value)}><i>Л</i><span>Лампа</span><small>{deskLampOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={roomLightOn ? 'room-control active' : 'room-control'} onClick={() => setRoomLightOn((value) => !value)}><i>С</i><span>Свет</span><small>{roomLightOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={curtainsOpen ? 'room-control active' : 'room-control'} onClick={() => setCurtainsOpen((value) => !value)}><i>Ш</i><span>Шторы</span><small>{curtainsOpen ? 'Открыты' : 'Закрыты'}</small></button></div>}
+      {panel === 'room' && <div className="room-control-dock" aria-label="Управление комнатой"><span>КОМНАТА</span><button className={deskLampOn ? 'room-control active' : 'room-control'} onClick={() => { playSound('lamp'); setDeskLampOn((value) => !value) }}><i>Л</i><span>Лампа</span><small>{deskLampOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={roomLightOn ? 'room-control active' : 'room-control'} onClick={() => { playSound('lamp'); setRoomLightOn((value) => !value) }}><i>С</i><span>Свет</span><small>{roomLightOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={curtainsOpen ? 'room-control active' : 'room-control'} onClick={() => { playSound('curtain'); setCurtainsOpen((value) => !value) }}><i>Ш</i><span>Шторы</span><small>{curtainsOpen ? 'Открыты' : 'Закрыты'}</small></button></div>}
 
       {panel === 'room' && (
         <>
@@ -764,7 +801,7 @@ export default function App() {
         </div>
       )}
 
-      {menuSettings && !mainMenu && <div className="pause-backdrop"><section className="pause-menu pause-settings-panel" role="dialog" aria-modal="true" aria-label="Настройки"><span className="pause-kicker">ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><p>Управляй визуальными эффектами. Прогресс сохраняется автоматически.</p><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Снижает интенсивность декоративных движений.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><button className="pause-primary" onClick={() => setMenuSettings(false)}>Готово</button></section></div>}
+      {menuSettings && !mainMenu && <div className="pause-backdrop"><section className="pause-menu pause-settings-panel" role="dialog" aria-modal="true" aria-label="Настройки"><span className="pause-kicker">ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><p>Управляй визуальными эффектами. Прогресс сохраняется автоматически.</p><div className="settings-row"><span><strong>Звуковые эффекты</strong><small>Кнопки, шаги и действия.</small></span><button className={'settings-toggle' + (soundEnabled ? ' on' : '')} onClick={() => setSoundEnabled((value) => !value)}>{soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Шум города и дождь</strong><small>Меняется при закрытии штор.</small></span><button className={'settings-toggle' + (ambienceEnabled ? ' on' : '')} onClick={() => setAmbienceEnabled((value) => !value)}>{ambienceEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Озвучка переговоров</strong><small>Голоса синтезируются браузером.</small></span><button className={'settings-toggle' + (voiceEnabled ? ' on' : '')} onClick={() => setVoiceEnabled((value) => !value)}>{voiceEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Снижает интенсивность декоративных движений.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><button className="pause-primary" onClick={() => setMenuSettings(false)}>Готово</button></section></div>}
 
       {pauseOpen && !mainMenu && <div className="pause-backdrop"><section className="pause-menu" role="dialog" aria-modal="true" aria-label="Пауза"><span className="pause-kicker">ИГРА ПРИОСТАНОВЛЕНА</span><h2>Передохнём?</h2><p>Время остановлено. Карьера сохраняется автоматически.</p><button className="pause-primary" onClick={() => setPauseOpen(false)}><Play size={17} fill="currentColor" /> Вернуться в игру</button><button onClick={() => { setPauseOpen(false); setMainMenu(true); setOfflineMenu(true); setConfirmNewCareer(true) }}><RotateCcw size={16} /> Начать заново</button><button onClick={() => { setPauseOpen(false); setMenuSettings(true) }}><Settings size={16} /> Настройки</button><button className="pause-exit" onClick={() => { setPauseOpen(false); setPanel('room'); setCallStatus('idle'); setMainMenu(true); setOfflineMenu(false) }}><ArrowLeft size={16} /> В главное меню</button><small>ESC — продолжить игру</small></section></div>}
 
