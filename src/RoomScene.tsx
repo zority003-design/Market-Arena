@@ -255,11 +255,11 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       <Box position={[-1.9, 1.96, -3.805]} size={[1.68, 1.08, 0.012]} color="#10201f" roughness={0.8} />
       {[1.62, 1.88, 2.14, 2.4].map((y) => <Box key={y} position={[-1.9, y, -3.794]} size={[1.58, 0.008, 0.006]} color="#2a4540" />)}
       {[-2.55, -2.15, -1.75, -1.35].map((x) => <Box key={x} position={[x, 1.96, -3.793]} size={[0.008, 0.98, 0.006]} color="#2a4540" />)}
-      <Box position={[-2.46, 2.0, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.32]} />
-      <Box position={[-2.15, 2.12, -3.785]} size={[0.38, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, 0.28]} />
-      <Box position={[-1.82, 2.2, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.2]} />
-      <Box position={[-1.48, 2.32, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, 0.22]} />
-      <Box position={[-1.2, 2.37, -3.785]} size={[0.28, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.1]} />
+
+
+
+
+
       {/* Candles and volume bars make the wall chart read as a real market chart, not random stripes. */}
       {[
         { x: -2.62, y: 1.78, h: 0.22, up: true }, { x: -2.38, y: 1.91, h: 0.31, up: true },
