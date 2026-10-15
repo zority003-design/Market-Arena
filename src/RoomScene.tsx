@@ -72,7 +72,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
       const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      if (key === 'e' && !introActiveRef.current) { if (sleepable.current) { event.preventDefault(); onSleepInteract(); return } if (nearbyObject.current) { event.preventDefault(); onInteractObject(nearbyObject.current); return } if (interactable.current) { event.preventDefault(); onInteract(); return } }
+      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
       if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
         keys.current[codeKey || key] = true
         event.preventDefault()
