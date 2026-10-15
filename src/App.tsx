@@ -563,7 +563,7 @@ export default function App() {
             <div className="terminal-title"><span className="terminal-logo"><Activity size={17} /></span><span><strong>КОТИРОВКИ / TERMINAL</strong><small>PERSONAL BROKER WORKSTATION · v0.1</small></span></div>
             <div className="secure-label"><LockKeyhole size={13} /> ЛОКАЛЬНАЯ СЕССИЯ</div>
           </div>
-          <div className="terminal-body">
+          <div className={'terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '')}>
             <aside className="terminal-sidebar">
               <div className="profile-card">
                 <div className="avatar">БР</div><div><strong>Младший брокер</strong><small>Стажёр · 1-й день</small></div><span className="online-indicator" />
@@ -583,21 +583,22 @@ export default function App() {
 
             <section className="terminal-content">
               {tab === 'overview' && (
-                <div className="overview-page">
-                  <div className="page-heading"><div><div className="eyebrow">ЧЕТВЕРГ · 09:16 · ПЕРВЫЙ РАБОЧИЙ ДЕНЬ</div><h2>Доброе утро, брокер.</h2><p>Рынок уже проснулся. Посмотрим, что сегодня можно продать — и что лучше не обещать.</p></div><div className="market-status"><span className="live-dot" /> ТОРГИ ИДУТ</div></div>
-                  <div className="metric-grid">
-                    <div className="metric-card"><span className="metric-icon green"><Wallet size={17} /></span><small>ТВОИ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong><em>Личный счёт</em></div>
-                    <div className="metric-card"><span className="metric-icon blue"><BriefcaseBusiness size={17} /></span><small>СДЕЛКИ СЕГОДНЯ</small><strong>{deals}</strong><em>Цель: первая сделка</em></div>
-                    <div className="metric-card"><span className="metric-icon gold"><Activity size={17} /></span><small>РЕПУТАЦИЯ</small><strong>{reputation}<sup>/100</sup></strong><em>{reputation >= 50 ? 'Клиенты начинают доверять' : 'Докажи, что тебе можно верить'}</em></div>
-                    <div className="metric-card"><span className="metric-icon violet"><House size={17} /></span><small>ТЕКУЩЕЕ ЖИЛЬЁ</small><strong>{currentHousing.name}</strong><em>Расходы: {currentHousing.dailyCost.toLocaleString('ru-RU')} ₽/день</em></div>
+                <div className="desktop-page">
+                  <div className="desktop-wallpaper-glow" />
+                  <div className="desktop-greeting"><span className="desktop-system-label"><span className="live-dot" /> KOTIROVKI OS · ЛИЧНЫЙ КОМПЬЮТЕР</span><h2>Доброе утро.</h2><p>День {String(day).padStart(2, '0')} · {currentHousing.name} · Терминал брокера готов к работе.</p></div>
+                  <div className="desktop-app-grid">
+                    <button className="desktop-app-icon" onClick={() => setTab('market')}><span className="desktop-icon-tile market-app"><TrendingUp size={23} /></span><strong>Биржа</strong></button>
+                    <button className="desktop-app-icon" onClick={() => setTab('news')}><span className="desktop-icon-tile news-app"><Newspaper size={23} /></span><strong>Новости</strong><small>Сводка рынка</small></button>
+                    <button className="desktop-app-icon" onClick={() => setTab('calls')}><span className="desktop-icon-tile calls-app"><Video size={23} /></span><strong>Видеозвонки</strong>{callStatus === 'active' && <i>LIVE</i>}</button>
+                    <button className="desktop-app-icon" onClick={() => setTab('clients')}><span className="desktop-icon-tile clients-app"><Users size={23} /></span><strong>Клиенты</strong><small>{availableClients.length} лидов</small></button>
+                    <button className="desktop-app-icon" onClick={() => setTab('shop')}><span className="desktop-icon-tile shop-app"><ShoppingBag size={23} /></span><strong>Магазин</strong><small>Рабочее место</small></button>
+                    <button className="desktop-app-icon" onClick={() => setTab('housing')}><span className="desktop-icon-tile housing-app"><House size={23} /></span><strong>Недвижимость</strong></button>
                   </div>
-                  <div className="section-head"><div><h3>План на сегодня</h3><p>Небольшие шаги. Никаких золотых унитазов — пока.</p></div><span className="progress-label">0 / 3</span></div>
-                  <div className="mission-list">
-                    <div className="mission-row"><span className="mission-number">01</span><div><strong>Разобраться в одной компании</strong><small>Прочитай показатели и свежие новости.</small></div><button onClick={() => setTab('market')}>Открыть <ChevronRight size={14} /></button></div>
-                    <div className="mission-row"><span className="mission-number">02</span><div><strong>Провести первый звонок</strong><small>Клиент сомневается — и правильно делает.</small></div><button disabled={availableClients.length === 0 || callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2)} onClick={startCall}>{availableClients.length === 0 ? 'Нет клиентов' : callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) ? 'Лимит звонков' : 'Принять звонок'} <ChevronRight size={14} /></button></div>
-                    <div className="mission-row"><span className="mission-number">03</span><div><strong>Закрыть день без скандала</strong><small>Сохрани деньги и не потеряй репутацию.</small></div><span className="mission-locked"><LockKeyhole size={13} /> ПОЗЖЕ</span></div>
+                  <div className="desktop-bottom-widgets">
+                    <div className="desktop-widget daily-task-widget"><div className="desktop-widget-heading"><span><Sparkles size={15} /> СЕГОДНЯ</span><span>ДЕНЬ {day}</span></div><h3>Сначала разберись в рынке</h3><p>Посмотри компанию и новости, затем позвони клиенту. Не обещай доходность, которую не можешь гарантировать.</p><div className="desktop-task-actions"><button onClick={() => setTab('market')}>Изучить рынок <ArrowRight size={14} /></button><button disabled={availableClients.length === 0 || callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2)} onClick={startCall}>Позвонить клиенту <Phone size={14} /></button></div></div>
+                    <div className="desktop-widget desktop-finances"><div className="desktop-widget-heading"><span><Wallet size={15} /> МОИ ФИНАНСЫ</span><span className="desktop-account-status">ЛОКАЛЬНО</span></div><strong>{cash.toLocaleString('ru-RU')} ₽</strong><small>Личные деньги</small><div className="desktop-finance-row"><span>Репутация</span><b>{reputation}/100</b></div><div className="desktop-finance-track"><span style={{ width: reputation + '%' }} /></div><div className="desktop-finance-row"><span>Капитал фирмы</span><b>{firmCapital.toLocaleString('ru-RU')} ₽</b></div><button className="desktop-end-day" onClick={endDay}>Завершить рабочий день <ArrowRight size={14} /></button></div>
                   </div>
-                  <div className="bottom-note"><ShieldAlert size={16} /><span><strong>Правило № 1:</strong> не обещай гарантированную доходность. Клиент может забыть цифру, но не забудет, что ты его обманул.</span></div>
+                  <div className="desktop-taskbar"><span className="taskbar-start"><TrendingUp size={15} /> КОТИРОВКИ</span><span><span className="live-dot" /> Рынок открыт</span><span>{new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span></div>
                 </div>
               )}
 
