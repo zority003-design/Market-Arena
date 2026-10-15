@@ -214,7 +214,10 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} />
-      <Box position={[-3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#5c646d" />
+      <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color="#5c646d" />
+      <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
+      <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 3.82]} color="#5c646d" />
+      <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} />
       <FloorBoards />
@@ -237,19 +240,21 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       {/* Window on left wall */}
       <Box position={[-3.86, 2.05, -1.15]} size={[0.09, 1.62, 2.05]} color="#2a3946" roughness={0.35} />
       <Box position={[-3.79, 2.05, -1.15]} size={[0.035, 1.43, 1.86]} color="#9ecbe0" roughness={0.22} metalness={0.08} />
-      {/* Layered skyline beyond the glass: simple silhouettes, softened by distance. */}
+      {/* A real 3D city sits beyond the open window cut-out, not on the glass as a flat picture. */}
       {[
-        { z: -1.82, y: 1.65, h: 0.58, w: 0.28 }, { z: -1.48, y: 1.79, h: 0.86, w: 0.24 },
-        { z: -1.16, y: 1.57, h: 0.42, w: 0.29 }, { z: -0.82, y: 1.72, h: 0.72, w: 0.26 },
-        { z: -0.5, y: 1.52, h: 0.32, w: 0.25 }, { z: -1.98, y: 1.48, h: 0.24, w: 0.16 },
+        { z: -1.92, y: 1.72, h: 1.18, w: 0.46, d: 0.55 },
+        { z: -1.48, y: 1.98, h: 1.65, w: 0.38, d: 0.42 },
+        { z: -1.02, y: 1.58, h: 0.88, w: 0.45, d: 0.5 },
+        { z: -0.58, y: 1.84, h: 1.38, w: 0.4, d: 0.48 },
+        { z: -0.18, y: 1.52, h: 0.78, w: 0.34, d: 0.38 },
       ].map((building, i) => (
         <group key={i}>
-          <Box position={[-3.77, building.y, building.z]} size={[0.018, building.h, building.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#354d60' : '#293f50') : (i % 2 ? '#527183' : '#405b6b')} roughness={0.95} />
-          {Array.from({ length: Math.max(1, Math.floor(building.h / 0.15)) }, (_, row) => (
-            <Box key={row} position={[-3.758, building.y - building.h / 2 + 0.09 + row * 0.15, building.z]} size={[0.006, 0.022, building.w * 0.46]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#e8d7a1' : '#a9c2c6'} roughness={0.6} />
+          <Box position={[-4.55 - (i % 2) * 0.22, building.y, building.z]} size={[building.d, building.h, building.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#293b4b' : '#344653') : (i % 2 ? '#607b89' : '#526d7a')} roughness={0.96} />
+          {Array.from({ length: Math.max(2, Math.floor(building.h / 0.2)) }, (_, row) => (
+            <Box key={row} position={[-4.55 - (i % 2) * 0.22 + building.d / 2 + 0.008, building.y - building.h / 2 + 0.12 + row * 0.19, building.z]} size={[0.012, 0.045, building.w * 0.58]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#f3d48d' : '#9ec4c9'} roughness={0.6} />
           ))}
         </group>
-      ))}
+      ))
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
@@ -362,7 +367,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       </group>
 
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
-      <group position={[3.3, 0.96, -0.92]}>
+      <group position={[3.3, 0.82, -0.92]}>
         <Box position={[0, 0.09, 0]} size={[0.3, 0.18, 0.12]} color="#252d31" roughness={0.42} />
         <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#172a2b" roughness={0.28} />
         <Cylinder position={[0, 0.1, 0.074]} rotation={[Math.PI / 2, 0, 0]} radius={0.062} height={0.009} color="#d6c8a5" roughness={0.45} />
