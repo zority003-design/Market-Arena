@@ -668,3 +668,11 @@ button:focus-visible, textarea:focus-visible {
   .background-selector > small { grid-column: auto; }
 }
 
+@keyframes videoPresence { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes videoAmbient { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
+.video-avatar-orb { animation: videoPresence 3.8s ease-in-out infinite; }
+.client-video-feed::before { animation: videoAmbient 5s ease-in-out infinite; }
+.video-live-indicator i { animation: videoAmbient 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .video-avatar-orb, .client-video-feed::before, .video-live-indicator i { animation: none; }
+}
