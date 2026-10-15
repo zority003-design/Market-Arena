@@ -255,8 +255,8 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       <Box position={[-1.9, 1.96, -3.805]} size={[1.68, 1.08, 0.012]} color="#10201f" roughness={0.8} />
       <Text position={[-2.64, 2.42, -3.78]} fontSize={0.075} color="#a7c4b5" anchorX="left" anchorY="middle">KOTL · 1D</Text>
       <Text position={[-1.23, 2.42, -3.78]} fontSize={0.075} color="#dc8178" anchorX="right" anchorY="middle">−4,2%</Text>
-      {[1.62, 1.88, 2.14, 2.4].map((y) => <Box key={y} position={[-1.9, y, -3.794]} size={[1.58, 0.008, 0.006]} color="#2a4540" />)}
-      {[-2.55, -2.15, -1.75, -1.35].map((x) => <Box key={x} position={[x, 1.96, -3.793]} size={[0.008, 0.98, 0.006]} color="#2a4540" />)}
+      {[1.58, 1.82, 2.06, 2.3].map((y) => <Box key={y} position={[-1.9, y, -3.794]} size={[1.58, 0.006, 0.006]} color="#203b36" />)}
+      {[-2.55, -2.15, -1.75, -1.35].map((x) => <Box key={x} position={[x, 1.96, -3.793]} size={[0.006, 0.92, 0.006]} color="#203b36" />)}
 
 
 
@@ -453,12 +453,6 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       <Box position={[2.52, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
       {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[2.52 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
-      {/* Bedside crate and books */}
-      <Box position={[3.3, 0.38, -0.92]} size={[0.65, 0.72, 0.66]} color="#6a5141" />
-      <Box position={[3.3, 0.78, -0.92]} size={[0.69, 0.08, 0.7]} color="#8a6b50" />
-      <Box position={[3.25, 0.86, -0.91]} size={[0.35, 0.1, 0.26]} color="#9d4f3f" />
-      <Box position={[3.26, 0.94, -0.91]} size={[0.35, 0.06, 0.26]} color="#d1b67f" />
-
       {/* Shelf with clutter */}
       <Box position={[3.2, 2.18, -3.62]} size={[1.2, 0.08, 0.48]} color="#6b4b38" />
       <Box position={[3.2, 1.4, -3.62]} size={[1.2, 0.08, 0.48]} color="#6b4b38" />
@@ -502,15 +496,14 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       ))}
 
       {/* A full-height second-hand wardrobe with doors and brass handles. */}
-      <group position={[-3.05, 0.98, -2.92]}>
+      <group position={[-3.05, 0.16, -2.92]}>
         <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} />
         <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} />
         <Box position={[0, 1.87, 0.37]} size={[0.96, 0.07, 0.06]} color="#a17a57" />{[-0.07, 0.07].map((x) => <Cylinder key={x} position={[x, 0.92, 0.405]} radius={0.025} height={0.12} color="#c3a46f" metalness={0.6} rotation={[Math.PI / 2, 0, 0]} />)}
         <Box position={[0, 0.19, 0.36]} size={[0.9, 0.08, 0.04]} color="#382b25" />
       </group>
       {/* Taller floor plant and small pots on the shelf. */}
-      <group position={[-2.8, 0.1, 2.6]}><Cylinder position={[0, 0.25, 0]} radius={0.24} height={0.5} color="#795846" />{Array.from({ length: 13 }, (_, i) => { const angle = i * 2.399; const height = 0.62 + (i % 5) * 0.13; return <mesh key={i} position={[Math.cos(angle) * (0.12 + (i % 3) * 0.04), height, Math.sin(angle) * (0.12 + (i % 3) * 0.04)]} rotation={[0.4 + (i % 3) * 0.18, angle, 0.45]}><sphereGeometry args={[0.13 + (i % 4) * 0.015, 12, 10]} /><meshStandardMaterial color={i % 3 === 0 ? '#315c43' : i % 2 ? '#477b51' : '#5d8e5d'} roughness={0.94} /></mesh> })}</group>
-      {[2.82, 3.15, 3.48].map((x, i) => <group key={'shelf-pot-' + i} position={[x, 2.48, -3.55]}><Cylinder position={[0, 0.07, 0]} radius={0.09} height={0.14} color={i % 2 ? '#a86f53' : '#d1b58b'} /><mesh position={[0, 0.22, 0]}><sphereGeometry args={[0.14, 12, 10]} /><meshStandardMaterial color={i % 2 ? '#548b5b' : '#47764f'} roughness={0.9} /></mesh></group>)}
+      <group position={[3.25, 0.1, 2.95]}><Cylinder position={[0, 0.25, 0]} radius={0.24} height={0.5} color="#795846" />{Array.from({ length: 13 }, (_, i) => { const angle = i * 2.399; const height = 0.62 + (i % 5) * 0.13; return <mesh key={i} position={[Math.cos(angle) * (0.12 + (i % 3) * 0.04), height, Math.sin(angle) * (0.12 + (i % 3) * 0.04)]} rotation={[0.4 + (i % 3) * 0.18, angle, 0.45]}><sphereGeometry args={[0.13 + (i % 4) * 0.015, 12, 10]} /><meshStandardMaterial color={i % 3 === 0 ? '#315c43' : i % 2 ? '#477b51' : '#5d8e5d'} roughness={0.94} /></mesh> })}</group>
 
       {/* Worn rug */}
       <Box position={[0.1, 0.078, 0.5]} size={[3.1, 0.035, 2.1]} color="#3b4d50" roughness={1} />
