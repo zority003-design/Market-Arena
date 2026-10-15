@@ -5,7 +5,7 @@ import {
   Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
-  Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor,
+  Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video,
   Settings, Play, RotateCcw, ArrowRight
 } from 'lucide-react'
 import RoomScene from './RoomScene'
