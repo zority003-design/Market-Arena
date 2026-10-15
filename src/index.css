@@ -1536,3 +1536,13 @@ button:focus-visible, textarea:focus-visible {
 .outfit-illustration { display:block; width:100%; max-width:138px; height:150px; filter:drop-shadow(0 8px 9px rgba(0,0,0,.26)); transition:transform .25s ease, filter .25s ease; }
 .outfit-preview-button:hover .outfit-illustration { transform:translateY(-2px) scale(1.035); filter:drop-shadow(0 11px 12px rgba(0,0,0,.34)); }
 .outfit-card.wearing .outfit-swatch { outline:1px solid rgba(113,224,169,.32); outline-offset:-1px; }
+
+
+.market-order-dock { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:16px; padding:15px 16px; border:1px solid rgba(108,218,164,.22); border-radius:10px; background:linear-gradient(105deg,rgba(32,76,59,.35),rgba(12,23,28,.85)); }
+.market-order-dock > div { min-width:0; }
+.market-order-dock .eyebrow { display:block; margin-bottom:5px; color:#85d8ae; font-size:9px; letter-spacing:.08em; }
+.market-order-dock strong { color:#e0eee6; font-size:13px; }
+.market-order-dock p { margin:5px 0 0; color:#9fb5aa; font-size:11px; line-height:1.55; }
+.market-order-dock > button { flex:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 12px; border:1px solid rgba(110,220,165,.28); border-radius:8px; background:rgba(74,177,127,.15); color:#bdf0d3; font-size:11px; cursor:pointer; }
+.market-order-dock > button:hover { background:rgba(74,177,127,.24); }
+@media (max-width:640px) { .market-order-dock { align-items:stretch; flex-direction:column; } .market-order-dock > button { width:100%; } }
