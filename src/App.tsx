@@ -3,12 +3,13 @@ import {
   Activity, ArrowLeft, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, LockKeyhole, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
-  Sparkles, TrendingUp, Wallet, X, Zap
+  Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck
 } from 'lucide-react'
 import RoomScene from './RoomScene'
+import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID } from './game/economy'
 
 type Panel = 'room' | 'computer'
-type Tab = 'overview' | 'market' | 'news' | 'calls'
+type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing'
 type CallStatus = 'idle' | 'active' | 'won' | 'lost'
 
 const questions = [
@@ -57,7 +58,7 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; reputation?: number; day?: number; deals?: number }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -66,10 +67,15 @@ export default function App() {
   const saved = useMemo(() => readSave(), [])
   const [panel, setPanel] = useState<Panel>('room')
   const [tab, setTab] = useState<Tab>('overview')
-  const [cash, setCash] = useState(saved.cash ?? 18500)
+  const [cash, setCash] = useState(saved.cash ?? STARTING_CASH)
+  const [firmCapital, setFirmCapital] = useState(saved.firmCapital ?? STARTING_FIRM_CAPITAL)
   const [reputation, setReputation] = useState(saved.reputation ?? 42)
   const [day, setDay] = useState(saved.day ?? 1)
   const [deals, setDeals] = useState(saved.deals ?? 0)
+  const [housingId, setHousingId] = useState(saved.housingId ?? STARTING_HOUSING_ID)
+  const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])
+  const [selectedClientId, setSelectedClientId] = useState(saved.selectedClientId ?? 'alex-vorontsov')
+  const [videoEnabled, setVideoEnabled] = useState(true)
   const [callStatus, setCallStatus] = useState<CallStatus>('idle')
   const [questionIndex, setQuestionIndex] = useState(0)
   const [trust, setTrust] = useState(48)
@@ -86,8 +92,8 @@ export default function App() {
   const [newsReviewed, setNewsReviewed] = useState(false)
 
   useEffect(() => {
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, reputation, day, deals })) } catch { /* Ignore unavailable storage. */ }
-  }, [cash, reputation, day, deals])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, reputation, day, deals, housingId, ownedItems, selectedClientId })) } catch { /* Ignore unavailable storage. */ }
+  }, [cash, firmCapital, reputation, day, deals, housingId, ownedItems, selectedClientId])
 
   useEffect(() => {
     if (tab === 'market') setMarketReviewed(true)
@@ -129,6 +135,9 @@ export default function App() {
     setConversation((items) => [...items, { from: 'system', text: '⏱ Время вышло. Клиент завершил звонок.' }])
   }, [timeLeft, callStatus])
 
+  const availableClients = getAvailableClients(day, reputation)
+  const activeClient = availableClients.find((client) => client.id === selectedClientId) ?? availableClients[0] ?? CLIENTS[0]
+  const currentHousing = HOUSING.find((home) => home.id === housingId) ?? HOUSING[0]
   const activeQuestion = questions[questionIndex]
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
 
@@ -140,13 +149,15 @@ export default function App() {
   function startCall() {
     setQuestionIndex(0)
     const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0)
-    setTrust(48 + preparationBonus)
-    setPatience(74)
+    const roomBonus = getFirstImpression(housingId, ownedItems, activeClient)
+    const videoBonus = videoEnabled ? Math.min(3, getVideoQuality(ownedItems)) : 0
+    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + videoBonus)))
+    setPatience(activeClient.patience)
     setTimeLeft(12)
     setLastPenaltySecond(12)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'client', text: 'Здравствуйте. У меня есть немного свободных денег, но я не хочу покупать кота в мешке. Расскажите про «Котолёт».' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальный уровень доверия повышен на ' + preparationBonus + ' пунктов.' }] : [])])
+    setConversation([{ from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCallStatus('active')
@@ -154,17 +165,21 @@ export default function App() {
   }
 
   function resolveCall(nextTrust: number, nextPatience: number) {
-    setCallStatus(nextTrust >= 58 && nextPatience > 20 ? 'won' : 'lost')
-    if (nextTrust >= 58 && nextPatience > 20) {
-      setCash((value) => value + 3200)
-      setReputation((value) => Math.min(100, value + 4))
+    const threshold = 58 + activeClient.tier * 2
+    const success = nextTrust >= threshold && nextPatience > 20
+    setCallStatus(success ? 'won' : 'lost')
+    if (success) {
+      const payout = calculateDeal(activeClient, nextTrust)
+      setCash((value) => value + payout.playerBonus)
+      setFirmCapital((value) => Math.max(0, value + payout.firmRevenue - payout.playerBonus))
+      setReputation((value) => Math.min(100, value + (activeClient.tier >= 2 ? 5 : 4)))
       setDeals((value) => value + 1)
-      setLastResult('Сделка закрыта: клиент согласился на небольшую пробную позицию. Комиссия +3 200 ₽, репутация +4.')
-      setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Клиент выбрал небольшую пробную позицию.' }])
+      setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '.')
+      setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' }])
     } else {
       setReputation((value) => Math.max(0, value - 2))
-      setLastResult('Сделка не состоялась. Клиент пока не готов рисковать деньгами. Подготовься лучше и попробуй снова.')
-      setConversation((items) => [...items, { from: 'system', text: '— Клиент отказался от сделки.' }])
+      setLastResult('Сделка не состоялась. ' + activeClient.name + ' не готов доверить деньги на этих условиях. Подготовься лучше или предложи более подходящий вариант.')
+      setConversation((items) => [...items, { from: 'system', text: '— Клиент отказался от сделки. Комиссия не начислена.' }])
     }
   }
 
@@ -201,10 +216,31 @@ export default function App() {
     answerQuestion(text, Math.max(-15, Math.min(8, delta)))
   }
 
+  function buyRoomItem(itemId: string) {
+    const item = ROOM_ITEMS.find((candidate) => candidate.id === itemId)
+    if (!item || ownedItems.includes(itemId)) return
+    if (day < item.minDay) { setToast('Этот предмет появится в продаже на ' + item.minDay + '-й день.'); return }
+    if (cash < item.price) { setToast('Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽.'); return }
+    setCash((value) => value - item.price)
+    setOwnedItems((items) => [...items, itemId])
+    setToast('Куплено: ' + item.name + '. Предмет добавлен в инвентарь комнаты.')
+  }
+
+  function moveToHousing(homeId: string) {
+    const home = HOUSING.find((candidate) => candidate.id === homeId)
+    if (!home || home.id === housingId) return
+    if (day < home.minDay || reputation < home.minReputation) { setToast('Пока недоступно: требуется день ' + home.minDay + ' и репутация ' + home.minReputation + '.'); return }
+    if (cash < home.price) { setToast('Не хватает ' + (home.price - cash).toLocaleString('ru-RU') + ' ₽ на переезд и депозит.'); return }
+    setCash((value) => value - home.price)
+    setHousingId(home.id)
+    setToast('Переезд завершён: ' + home.name + '. Ежедневные расходы теперь ' + home.dailyCost.toLocaleString('ru-RU') + ' ₽.')
+  }
+
   function endDay() {
     setDay((value) => value + 1)
-    setCash((value) => Math.max(0, value - 650))
-    setToast('День завершён. Аренда рабочего места и бытовые расходы: −650 ₽.')
+    const dailyCosts = currentHousing.dailyCost
+    setCash((value) => Math.max(0, value + DAILY_SALARY - dailyCosts))
+    setToast('День завершён: оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, жильё и быт −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.')
     window.setTimeout(() => setToast(''), 3600)
     setPanel('room')
     setCallStatus('idle')
