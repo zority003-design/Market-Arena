@@ -14,6 +14,9 @@ type RoomSceneProps = {
   gameMinutes: number
   onSleepInteract: () => void
   onCanSleepChange: (value: boolean) => void
+  deskLampOn: boolean
+  roomLightOn: boolean
+  curtainsOpen: boolean
 }
 
 function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
@@ -211,7 +214,7 @@ function WindowRain() {
   return <group ref={rainRef}>{Array.from({ length: 26 }, (_, i) => <Box key={i} position={[-3.69, 1.34 + (i % 9) * 0.16, -2.0 + Math.floor(i / 9) * 0.58 + (i % 3) * 0.08]} size={[0.006, 0.105, 0.006]} color="#b8dce7" transparent opacity={0.52} rotation={[0, 0, -0.13]} />)}</group>
 }
 
-function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange }: RoomSceneProps) {
+function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
@@ -226,9 +229,9 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
     <>
       <color attach="background" args={['#101922']} />
       <fog attach="fog" args={['#101922', 8, 18]} />
-      <ambientLight intensity={0.55} />
-      <hemisphereLight args={['#b8d7ed', '#25252a', 1.05]} />
-      <directionalLight position={[-3.8, 6, 2]} intensity={2.25} color="#ffe2bd" castShadow shadow-mapSize={[1536, 1536]} />
+      <ambientLight intensity={roomLightOn ? 0.55 : 0.16} />
+      <hemisphereLight args={['#b8d7ed', '#25252a', roomLightOn ? 1.05 : 0.32]} />
+      <directionalLight position={[-3.8, 6, 2]} intensity={roomLightOn ? 2.25 : 0.45} color="#ffe2bd" castShadow shadow-mapSize={[1536, 1536]} />
       <pointLight position={[-3.2, 2.2, -1.5]} intensity={2.2} distance={7} color="#7bb7d9" />
       <pointLight ref={glowRef} position={[0, 1.55, -2.12]} intensity={1.2} distance={2.8} color="#31d6a0" />
 
@@ -281,6 +284,8 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
+      <Box position={[-3.72, 2.04, curtainsOpen ? -1.95 : -1.62]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} />
+      <Box position={[-3.72, 2.04, curtainsOpen ? -0.35 : -0.68]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} />
       {[-2.05, -1.75, -1.45, -1.15, -0.85, -0.55, -0.25].map((z) => (
         <Box key={z} position={[-3.69, 2.67, z]} size={[0.14, 0.07, 0.22]} color="#b7a58d" />
       ))}
@@ -349,7 +354,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       <Cylinder position={[1.1, 1.09, -2.03]} radius={0.075} height={0.012} color="#31251f" />
       <Cylinder position={[-1.03, 1.05, -2.67]} radius={0.04} height={0.22} color="#343b41" metalness={0.5} />
       <Box position={[-1.03, 1.17, -2.67]} size={[0.28, 0.07, 0.17]} color={ownedItems.includes("desk-lamp") ? "#f2ce83" : "#bba16f"} rotation={[0, 0, -0.25]} />
-      <pointLight position={[-1.03, 1.12, -2.56]} intensity={ownedItems.includes("desk-lamp") ? 1.05 : 0.65} distance={2.4} color="#ffd69a" />
+      <pointLight position={[-1.03, 1.12, -2.56]} intensity={deskLampOn ? 1.25 : 0} distance={2.4} color="#ffd69a" />
 
       {/* Purchasable equipment changes the physical scene, not only a menu statistic. */}
       {ownedItems.includes("ring-light") && <group position={[1.12, 1.68, -2.1]}>
@@ -501,7 +506,7 @@ export default function RoomScene({ onInteract, onCanInteractChange, introActive
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
+      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
     </Canvas>
   )
 }
