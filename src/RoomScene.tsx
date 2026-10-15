@@ -35,9 +35,10 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
     yaw.current = 0
     pitch.current = -0.04
     camera.rotation.set(pitch.current, yaw.current, 0)
-    onCanInteractChange(false)
-    interactable.current = false
+  }, [camera])
 
+  useEffect(() => {
+    if (!active) { onCanInteractChange(false); interactable.current = false; keys.current = {}; return }
     const down = (event: KeyboardEvent) => {
       if (!active) return
       const target = event.target as HTMLElement | null
@@ -77,7 +78,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
-  }, [camera, gl, active, onInteract, onCanInteractChange])
+  }, [gl, active, onInteract, onCanInteractChange])
 
   useEffect(() => {
     if (!introActive) return
