@@ -326,6 +326,17 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
           ))}
         </group>
       ))}
+      {/* Layered distant skyline and street-level depth: a city view, not a row of floating blocks. */}
+      <Box position={[-5.65, 2.05, -1.15]} size={[0.04, 3.5, 4.1]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#263b52' : '#8fb9c9'} roughness={1} />
+      {[
+        { z: -2.03, h: 1.15, w: 0.34 }, { z: -1.76, h: 1.65, w: 0.26 },
+        { z: -1.48, h: 1.32, w: 0.3 }, { z: -1.2, h: 1.8, w: 0.25 },
+        { z: -0.91, h: 1.12, w: 0.32 }, { z: -0.61, h: 1.52, w: 0.29 },
+        { z: -0.33, h: 1.08, w: 0.3 }, { z: -0.08, h: 1.42, w: 0.24 },
+      ].map((b, i) => <group key={'distant-skyline-' + i}>
+        <Box position={[-5.38, 1.48 + b.h / 2, b.z]} size={[0.18, b.h, b.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#30475d' : '#22364a') : (i % 2 ? '#9ab9c5' : '#7da5b5')} roughness={0.98} />
+        {Array.from({ length: Math.max(2, Math.floor(b.h / 0.24)) }, (_, row) => <Box key={row} position={[-5.275, 1.56 + row * 0.22, b.z]} size={[0.008, 0.045, b.w * 0.48]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#e7c98b' : '#c8e1e5'} emissive={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#d9ad62' : '#000000'} emissiveIntensity={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? 0.45 : 0} roughness={0.65} />)}
+      </group>)}
       <CityTraffic night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
