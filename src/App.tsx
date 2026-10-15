@@ -6,7 +6,7 @@ import {
   Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor
 } from 'lucide-react'
 import RoomScene from './RoomScene'
-import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing'
@@ -58,7 +58,7 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number; dailyLeadIds?: string[] }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -80,6 +80,7 @@ export default function App() {
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
   const [clientDealCounts, setClientDealCounts] = useState<Record<string, number>>(saved.clientDealCounts ?? {})
   const [clientInvested, setClientInvested] = useState<Record<string, number>>(saved.clientInvested ?? {})
+  const [dailyLeadIds, setDailyLeadIds] = useState<string[]>(saved.dailyLeadIds ?? getDailyLeadIds(day, reputation, saved.clientLastContactDay ?? {}, saved.clientDealCounts ?? {}, saved.clientInvested ?? {}))
   const [callClientId, setCallClientId] = useState(saved.callClientId ?? 'alex-vorontsov')
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [videoBackground, setVideoBackground] = useState<VideoBackground>(saved.videoBackground ?? 'real')
@@ -99,8 +100,8 @@ export default function App() {
   const [newsReviewed, setNewsReviewed] = useState(false)
 
   useEffect(() => {
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday })) } catch { /* Ignore unavailable storage. */ }
-  }, [cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds })) } catch { /* Ignore unavailable storage. */ }
+  }, [cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds])
 
   useEffect(() => {
     if (tab === 'market') setMarketReviewed(true)
@@ -142,11 +143,14 @@ export default function App() {
     setConversation((items) => [...items, { from: 'system', text: '⏱ Время вышло. Клиент завершил звонок.' }])
   }, [timeLeft, callStatus])
 
-  const availableClients = getAvailableClients(day, reputation).filter((client) =>
+  const eligibleClients = getAvailableClients(day, reputation).filter((client) =>
     day - (clientLastContactDay[client.id] ?? -100) >= 3 &&
     (clientDealCounts[client.id] ?? 0) < 3 &&
     (clientInvested[client.id] ?? 0) < client.budget
   )
+  const availableClients = dailyLeadIds
+    .map((id) => eligibleClients.find((client) => client.id === id))
+    .filter((client): client is (typeof eligibleClients)[number] => Boolean(client))
   const selectedAvailableClient = availableClients.find((client) => client.id === selectedClientId) ?? availableClients[0] ?? CLIENTS[0]
   const activeClient = callStatus === 'idle'
     ? selectedAvailableClient
@@ -171,7 +175,7 @@ export default function App() {
     const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0)
     const roomBonus = getFirstImpression(housingId, ownedItems, activeClient)
     const relationshipBonus = Math.min(15, (clientDealCounts[activeClient.id] ?? 0) * 6)
-    const videoBonus = videoEnabled ? Math.min(3, getVideoQuality(ownedItems)) : 0
+    const videoBonus = videoEnabled ? 2 + Math.min(3, getVideoQuality(ownedItems)) : 0
     const backgroundBonus = videoEnabled ? getBackgroundModifier(videoBackground, ownedItems, activeClient) : 0
     setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + relationshipBonus + videoBonus + backgroundBonus)))
     setPatience(activeClient.patience)
@@ -262,8 +266,10 @@ export default function App() {
   }
 
   function endDay() {
-    setDay((value) => value + 1)
+    const nextDay = day + 1
+    setDay(nextDay)
     setCallsToday(0)
+    setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
     const dailyCosts = currentHousing.dailyCost
     const available = cash + DAILY_SALARY
     const paidCosts = Math.min(available, dailyCosts)
