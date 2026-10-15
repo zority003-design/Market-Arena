@@ -219,7 +219,7 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -393,8 +393,8 @@ export default function App() {
   const [newsImpacts, setNewsImpacts] = useState<Record<string, number>>({})
   const [marketReviewed, setMarketReviewed] = useState(false)
   const [newsReviewed, setNewsReviewed] = useState(false)
-  const [dailySalesAmount, setDailySalesAmount] = useState(0)
-  const [dailySalesShares, setDailySalesShares] = useState(0)
+  const [dailySalesAmount, setDailySalesAmount] = useState(saved.dailySalesAmount ?? 0)
+  const [dailySalesShares, setDailySalesShares] = useState(saved.dailySalesShares ?? 0)
   const [shiftReport, setShiftReport] = useState<{success:boolean; ticker:string; company:string; shares:number; targetShares:number; amount:number; targetAmount:number; reward:number; penalty:number} | null>(null)
   const [cityLocation, setCityLocation] = useState('office')
   const [cityVisitedToday, setCityVisitedToday] = useState<string[]>([])
