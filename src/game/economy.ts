@@ -75,3 +75,23 @@ export function getBackgroundModifier(mode:VideoBackground, ownedItems:string[],
  if(!hasChromakey) return -6
  return client.statusSensitive ? 4 : 1
 }
+
+export function getDailyLeadIds(
+ day:number,
+ reputation:number,
+ lastContact:Record<string,number>={},
+ dealCounts:Record<string,number>={},
+ invested:Record<string,number>={}
+):string[] {
+ const eligible=getAvailableClients(day,reputation).filter(client =>
+   day-(lastContact[client.id] ?? -100)>=3 &&
+   (dealCounts[client.id] ?? 0)<3 &&
+   (invested[client.id] ?? 0)<client.budget
+ )
+ if(eligible.length===0) return []
+ const limit=reputation>=60?4:reputation>=35?3:2
+ if(day<=2) return eligible.slice(0,limit).map(client=>client.id)
+ const offset=(day*3+Math.floor(reputation/10))%eligible.length
+ const rotated=[...eligible.slice(offset),...eligible.slice(0,offset)]
+ return rotated.slice(0,limit).map(client=>client.id)
+}
