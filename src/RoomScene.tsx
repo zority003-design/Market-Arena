@@ -136,18 +136,20 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
   return null
 }
 
-function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation }: {
+function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, transparent = false, opacity = 1 }: {
   position: [number, number, number]
   size: [number, number, number]
   color: string
   roughness?: number
   metalness?: number
   rotation?: [number, number, number]
+  transparent?: boolean
+  opacity?: number
 }) {
   return (
     <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
     </mesh>
   )
 }
@@ -187,6 +189,19 @@ function FloorBoards() {
   }).flat(), [])
 
   return <group>{boards.map((board) => <Box key={board.key} position={board.position} size={board.size} color={board.color} roughness={0.76} />)}</group>
+}
+
+
+function WindowRain() {
+  const rainRef = useRef<THREE.Group>(null)
+  useFrame((_, delta) => {
+    if (!rainRef.current) return
+    rainRef.current.children.forEach((drop, index) => {
+      drop.position.y -= delta * (1.35 + (index % 4) * 0.22)
+      if (drop.position.y < 1.28) drop.position.y = 2.78 + (index % 3) * 0.04
+    })
+  })
+  return <group ref={rainRef}>{Array.from({ length: 26 }, (_, i) => <Box key={i} position={[-3.69, 1.34 + (i % 9) * 0.16, -2.0 + Math.floor(i / 9) * 0.58 + (i % 3) * 0.08]} size={[0.006, 0.105, 0.006]} color="#b8dce7" transparent opacity={0.52} rotation={[0, 0, -0.13]} />)}</group>
 }
 
 function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes }: RoomSceneProps) {
@@ -239,7 +254,8 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
 
       {/* Window on left wall */}
       <Box position={[-3.86, 2.05, -1.15]} size={[0.09, 1.62, 2.05]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.79, 2.05, -1.15]} size={[0.035, 1.43, 1.86]} color="#9ecbe0" roughness={0.22} metalness={0.08} />
+      <Box position={[-3.79, 2.05, -1.15]} size={[0.035, 1.43, 1.86]} color="#9ecbe0" roughness={0.22} metalness={0.08} transparent opacity={0.14} />
+      <WindowRain />
       {/* A real 3D city sits beyond the open window cut-out, not on the glass as a flat picture. */}
       {[
         { z: -1.92, y: 1.72, h: 1.18, w: 0.46, d: 0.55 },
