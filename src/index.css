@@ -1011,7 +1011,7 @@ button:focus-visible, textarea:focus-visible {
 .os-window-controls button:hover { background: rgba(255,255,255,.09); color: white; }
 .os-window-controls button:last-child:hover { background: #a94343; }
 .os-window-maximized { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; margin: 0 !important; border-radius: 0 !important; resize: none !important; z-index: 10; }
-.os-window-minimized { display: none !important; }
+.os-window-minimized { height: auto !important; min-height: 170px !important; resize: none !important; } .os-window-minimized .os-window-titlebar { display: none !important; }
 .os-minimized-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 300px; color: #a9c1b6; }
 .os-minimized-placeholder button { padding: 9px 14px; border: 1px solid #456b5d; border-radius: 7px; color: #d8eee4; background: #1b3b30; cursor: pointer; }
 .os-shell .os-taskbar { position: absolute; z-index: 30; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 10px; height: 38px; box-sizing: border-box; padding: 0 12px; background: rgba(12,23,23,.97); border-top: 1px solid rgba(175,218,200,.13); color: #8da99c; font-size: 10px; }
