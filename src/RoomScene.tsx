@@ -70,11 +70,19 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
       if (!active) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
-      if (event.key.toLowerCase() === 'e' && active && !introActiveRef.current) { if (sleepable.current) { event.preventDefault(); onSleepInteract(); return } if (nearbyObject.current) { event.preventDefault(); onInteractObject(nearbyObject.current); return } if (interactable.current) { event.preventDefault(); onInteract(); return } }
-      keys.current[event.key.toLowerCase()] = true
-      if (['w', 'a', 's', 'd', ' '].includes(event.key.toLowerCase())) event.preventDefault()
+      const key = event.key.toLowerCase()
+      const codeKey = event.code === 'KeyW' ? 'w' : event.code === 'KeyA' ? 'a' : event.code === 'KeyS' ? 's' : event.code === 'KeyD' ? 'd' : ''
+      if (key === 'e' && !introActiveRef.current) { if (sleepable.current) { event.preventDefault(); onSleepInteract(); return } if (nearbyObject.current) { event.preventDefault(); onInteractObject(nearbyObject.current); return } if (interactable.current) { event.preventDefault(); onInteract(); return } }
+      if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
+        keys.current[codeKey || key] = true
+        event.preventDefault()
+      }
     }
-    const up = (event: KeyboardEvent) => { keys.current[event.key.toLowerCase()] = false }
+    const up = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase()
+      const codeKey = event.code === 'KeyW' ? 'w' : event.code === 'KeyA' ? 'a' : event.code === 'KeyS' ? 's' : event.code === 'KeyD' ? 'd' : ''
+      keys.current[codeKey || key] = false
+    }
     const blur = () => { keys.current = {} }
     const element = gl.domElement
     const pointerDown = (event: PointerEvent) => {
@@ -92,15 +100,15 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
       pitch.current = THREE.MathUtils.clamp(pitch.current - dy * 0.003, -1.05, 0.62)
     }
     const pointerUp = () => { dragging.current = false }
-    window.addEventListener('keydown', down)
-    window.addEventListener('keyup', up)
+    window.addEventListener('keydown', down, true)
+    window.addEventListener('keyup', up, true)
     window.addEventListener('blur', blur)
     element.addEventListener('pointerdown', pointerDown)
     window.addEventListener('pointermove', pointerMove)
     window.addEventListener('pointerup', pointerUp)
     return () => {
-      window.removeEventListener('keydown', down)
-      window.removeEventListener('keyup', up)
+      window.removeEventListener('keydown', down, true)
+      window.removeEventListener('keyup', up, true)
       window.removeEventListener('blur', blur)
       element.removeEventListener('pointerdown', pointerDown)
       window.removeEventListener('pointermove', pointerMove)
