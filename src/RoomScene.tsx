@@ -11,6 +11,7 @@ type RoomSceneProps = {
   active: boolean
   ownedItems: string[]
   housingId: string
+  gameMinutes: number
 }
 
 function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, onIntroComplete }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; introActive: boolean; onIntroComplete: () => void }) {
@@ -188,7 +189,7 @@ function FloorBoards() {
   return <group>{boards.map((board) => <Box key={board.key} position={board.position} size={board.size} color={board.color} roughness={0.76} />)}</group>
 }
 
-function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId }: RoomSceneProps) {
+function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
@@ -222,8 +223,16 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       <Box position={[0, 0.14, -3.86]} size={[7.7, 0.16, 0.07]} color="#b4a18b" />
       <Box position={[-3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#9b8a78" />
       <Box position={[3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#8b7a6b" />
-      <Box position={[-1.9, 2.6, -3.86]} size={[1.8, 0.06, 0.04]} color="#424951" />
-      <Box position={[-1.9, 1.25, -3.86]} size={[1.8, 0.06, 0.04]} color="#424951" />
+      {/* A framed market chart instead of unexplained wall stripes. */}
+      <Box position={[-1.9, 1.96, -3.84]} size={[1.82, 1.22, 0.055]} color="#222b30" roughness={0.55} />
+      <Box position={[-1.9, 1.96, -3.805]} size={[1.68, 1.08, 0.012]} color="#10201f" roughness={0.8} />
+      {[1.62, 1.88, 2.14, 2.4].map((y) => <Box key={y} position={[-1.9, y, -3.794]} size={[1.58, 0.008, 0.006]} color="#2a4540" />)}
+      {[-2.55, -2.15, -1.75, -1.35].map((x) => <Box key={x} position={[x, 1.96, -3.793]} size={[0.008, 0.98, 0.006]} color="#2a4540" />)}
+      <Box position={[-2.46, 2.0, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.32]} />
+      <Box position={[-2.15, 2.12, -3.785]} size={[0.38, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, 0.28]} />
+      <Box position={[-1.82, 2.2, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.2]} />
+      <Box position={[-1.48, 2.32, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, 0.22]} />
+      <Box position={[-1.2, 2.37, -3.785]} size={[0.28, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.1]} />
 
       {/* Window on left wall */}
       <Box position={[-3.86, 2.05, -1.15]} size={[0.09, 1.62, 2.05]} color="#2a3946" roughness={0.35} />
@@ -235,9 +244,9 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
         { z: -0.5, y: 1.52, h: 0.32, w: 0.25 }, { z: -1.98, y: 1.48, h: 0.24, w: 0.16 },
       ].map((building, i) => (
         <group key={i}>
-          <Box position={[-3.77, building.y, building.z]} size={[0.018, building.h, building.w]} color={i % 2 ? '#527183' : '#405b6b'} roughness={0.95} />
+          <Box position={[-3.77, building.y, building.z]} size={[0.018, building.h, building.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#354d60' : '#293f50') : (i % 2 ? '#527183' : '#405b6b')} roughness={0.95} />
           {Array.from({ length: Math.max(1, Math.floor(building.h / 0.15)) }, (_, row) => (
-            <Box key={row} position={[-3.758, building.y - building.h / 2 + 0.09 + row * 0.15, building.z]} size={[0.006, 0.022, building.w * 0.46]} color="#a9c2c6" roughness={0.6} />
+            <Box key={row} position={[-3.758, building.y - building.h / 2 + 0.09 + row * 0.15, building.z]} size={[0.006, 0.022, building.w * 0.46]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#e8d7a1' : '#a9c2c6'} roughness={0.6} />
           ))}
         </group>
       ))}
@@ -337,21 +346,29 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
         <Box position={[1.42, 2.0, -3.09]} size={[0.045, 2.0, 0.05]} color="#4d5c5d" metalness={0.35} />
       </group>}
 
-      {/* Chair */}
+      {/* More believable swivel chair: padded seat, back, armrests, five-spoke base and casters. */}
       <Box position={[0.1, 0.52, -1.08]} size={[0.72, 0.16, 0.68]} color={ownedItems.includes("used-chair") ? "#344e4c" : "#2a3a3d"} roughness={0.72} />
+      <Box position={[0.1, 0.61, -1.08]} size={[0.61, 0.055, 0.57]} color={ownedItems.includes("used-chair") ? "#47635e" : "#35494b"} roughness={0.88} />
       <Box position={[0.1, 0.93, -0.78]} size={[0.7, 0.72, 0.13]} color={ownedItems.includes("used-chair") ? "#35504c" : "#263538"} roughness={0.7} />
-      <Cylinder position={[0.1, 0.28, -1.08]} radius={0.07} height={0.42} color="#363e44" metalness={0.7} />
-      {[-0.22, 0.42].map((x) => (
-        <Box key={x} position={[x, 0.17, -1.08]} size={[0.045, 0.25, 0.045]} color="#353e45" metalness={0.7} />
-      ))}
+      <Box position={[0.1, 1.18, -0.765]} size={[0.46, 0.13, 0.145]} color="#344447" roughness={0.82} />
+      {[-0.27, 0.47].map((x) => <group key={x}>
+        <Box position={[x, 0.72, -1.08]} size={[0.07, 0.09, 0.45]} color="#303b3e" />
+        <Box position={[x, 0.78, -1.04]} size={[0.09, 0.055, 0.4]} color="#3a474a" />
+      </group>)}
+      <Cylinder position={[0.1, 0.32, -1.08]} radius={0.055} height={0.38} color="#363e44" metalness={0.7} />
+      {[0, 72, 144, 216, 288].map((angle) => <group key={angle} rotation={[0, angle * Math.PI / 180, 0]} position={[0.1, 0.14, -1.08]}>
+        <Box position={[0.2, 0, 0]} size={[0.42, 0.045, 0.055]} color="#3a454a" metalness={0.68} />
+        <Cylinder position={[0.39, -0.045, 0]} rotation={[Math.PI / 2, 0, 0]} radius={0.045} height={0.06} color="#1d2529" metalness={0.4} />
+      </group>
 
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
-      <group position={[3.3, 0.86, 0.5]}>
+      <group position={[3.3, 0.96, -0.92]}>
         <Box position={[0, 0.09, 0]} size={[0.3, 0.18, 0.12]} color="#252d31" roughness={0.42} />
-        <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#8b493f" roughness={0.28} />
-        <Box position={[-0.055, 0.105, 0.072]} size={[0.025, 0.052, 0.004]} color="#f0a47b" roughness={0.35} />
-        <Box position={[0.005, 0.105, 0.072]} size={[0.025, 0.052, 0.004]} color="#f0a47b" roughness={0.35} />
-        <Box position={[0.065, 0.105, 0.072]} size={[0.025, 0.052, 0.004]} color="#f0a47b" roughness={0.35} />
+        <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#172a2b" roughness={0.28} />
+        <Cylinder position={[0, 0.1, 0.074]} rotation={[Math.PI / 2, 0, 0]} radius={0.062} height={0.009} color="#d6c8a5" roughness={0.45} />
+        <Box position={[0, 0.117, 0.081]} size={[0.006, 0.036, 0.005]} color="#2a3937" rotation={[0, 0, -((gameMinutes % 720) / 720) * Math.PI * 2]} />
+        <Box position={[0, 0.104, 0.084]} size={[0.005, 0.052, 0.005]} color="#2a3937" rotation={[0, 0, -((gameMinutes % 60) / 60) * Math.PI * 2]} />
+        <Cylinder position={[0, 0.1, 0.087]} rotation={[Math.PI / 2, 0, 0]} radius={0.006} height={0.006} color="#a34c3f" />
         <Cylinder position={[-0.105, 0.2, 0]} radius={0.055} height={0.025} color="#454c4c" metalness={0.3} />
         <Cylinder position={[0.105, 0.2, 0]} radius={0.055} height={0.025} color="#454c4c" metalness={0.3} />
       </group>
@@ -433,7 +450,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
   )
 }
 
-export default function RoomScene({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes }: RoomSceneProps) {
   return (
     <Canvas
       shadows
@@ -446,7 +463,7 @@ export default function RoomScene({ onInteract, onCanInteractChange, introActive
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} />
+      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} />
     </Canvas>
   )
 }
