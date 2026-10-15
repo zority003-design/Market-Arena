@@ -409,7 +409,7 @@ export default function App() {
           </div>
           <section className="menu-content">
             <div className="menu-copy">
-              <div className="menu-eyebrow"><span /> РЫНОК ОТКРЫВАЕТСЯ ЧЕРЕЗ 00:59</div>
+              <div className="menu-eyebrow"><span /> ТВОЯ КАРЬЕРА НАЧИНАЕТСЯ СЕЙЧАС</div>
               <h1>Большие деньги.<br /><em>Маленькая комната.</em></h1>
               <p className="menu-description">Начни с подержанного ноутбука и пары сомнительных акций. Убеди первых клиентов, заработай репутацию и построй брокерскую империю — или потеряй всё, пытаясь казаться богаче, чем ты есть.</p>
               <div className="menu-actions">
@@ -425,7 +425,7 @@ export default function App() {
             </div>
             <div className="menu-scene-caption">
               <span className="caption-line" />
-              <div><strong>ДЕНЬ 01 / ОБЩЕЖИТИЕ</strong><small>Твой первый офис — пока что чужая комната.</small></div>
+              <div><strong>ДЕНЬ {String(day).padStart(2, '0')} / {currentHousing.name.toUpperCase()}</strong><small>Твой первый офис — пока что чужая комната.</small></div>
             </div>
           </section>
           <div className="menu-bottomline"><span><Gamepad2 size={15} /> WASD · МЫШЬ · ПЕРЕГОВОРЫ · КАРЬЕРА</span><span>НЕФИНАНСОВЫЙ СОВЕТ. НЕ СОВСЕМ ЧЕСТНЫЕ БРОКЕРЫ.</span></div>
