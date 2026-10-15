@@ -1613,3 +1613,39 @@ button:focus-visible, textarea:focus-visible {
 .city-location-list button em { flex:none; color:#8cafa0; font-size:8px; font-style:normal; }
 @media(max-width:850px) { .city-map-shell { grid-template-columns:1fr; }.city-map-art { min-height:370px; } }
 @media(max-width:520px) { .city-page { padding:14px; }.city-map-art { min-height:320px; }.city-map-pin { gap:5px; padding:5px; }.city-map-pin b { width:25px; height:25px; }.city-map-pin span { font-size:8px; }.city-map-pin { max-width:140px; } }
+
+
+/* Readability and layout pass: larger type and scrollable content instead of clipped dashboards. */
+:root { font-size: 16px; }
+body, button, input, select, textarea { font-size: 16px; }
+p, .shop-item-meta p, .outfit-card-copy p, .briefing-copy p, .call-purpose-strip p { font-size: 15px; line-height: 1.65; }
+small, .eyebrow, .side-section-label, .terminal-title small, .terminal-title strong, .side-link, .account-row, .nav-live, .day-pill, .market-open { font-size: 12px; }
+.top-hud { min-height: 82px; }
+.brand-text strong { font-size: 14px; }
+.brand-text small { font-size: 11px; }
+.hud-stat small { font-size: 11px; }
+.hud-stat strong { font-size: 15px; }
+.terminal-body { min-height: 0; height: calc(100% - 66px); overflow: hidden; }
+.terminal-content { min-height: 0; max-height: 100%; overflow: auto; scrollbar-gutter: stable; }
+.os-window { min-height: 0; }
+.os-window-desktop { overflow-y: auto; }
+.desktop-page { min-height: 100%; height: auto; overflow: visible; padding-bottom: 28px; }
+.desktop-shift-strip { flex-shrink: 0; }
+.desktop-app-grid, .desktop-widgets, .desktop-dashboard-grid { min-width: 0; }
+.side-link { padding: 12px 10px; }
+.back-button, .primary-action, .secondary-action, .end-day-button { font-size: 14px; }
+.shop-item-details-toggle, .outfit-details-button { font-size: 14px; padding: 9px 11px; }
+.shop-item-detail-panel, .outfit-detail-panel { font-size: 14px; line-height: 1.65; }
+.wardrobe-overlay { z-index: 12; }
+.wardrobe-screen { flex: 1; min-height: 0; overflow: auto; padding: 20px clamp(14px, 3vw, 38px) 36px; }
+.wardrobe-screen .page-heading h2 { font-size: clamp(26px, 3vw, 38px); }
+.wardrobe-screen .wardrobe-studio { margin-bottom: 26px; }
+.wardrobe-screen .outfit-selector { margin-bottom: 28px; }
+.wardrobe-screen .shop-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+@media (max-width: 900px) {
+  .computer-overlay { padding: 8px; }
+  .terminal-body { grid-template-columns: 170px minmax(0,1fr); }
+  .terminal-sidebar { padding: 12px 8px; }
+  .side-link { gap: 7px; font-size: 13px; }
+  .terminal-content { min-width: 0; }
+}
