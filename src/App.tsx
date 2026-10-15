@@ -13,6 +13,7 @@ import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroun
 type Panel = 'room' | 'computer'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing'
 type CallStatus = 'idle' | 'active' | 'won' | 'lost'
+type RoomObject = 'lamp' | 'light' | 'curtains' | 'wardrobe'
 
 const questions = [
   {
@@ -132,6 +133,33 @@ function readSave() {
   return {}
 }
 
+function SelfCameraPreview({ enabled, background }: { enabled: boolean; background: VideoBackground }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [cameraError, setCameraError] = useState(false)
+  useEffect(() => {
+    let stream: MediaStream | null = null
+    let cancelled = false
+    setCameraError(false)
+    if (!enabled || !navigator.mediaDevices?.getUserMedia) return
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
+      .then((result) => {
+        if (cancelled) { result.getTracks().forEach((track) => track.stop()); return }
+        stream = result
+        if (videoRef.current) videoRef.current.srcObject = result
+      })
+      .catch(() => { if (!cancelled) setCameraError(true) })
+    return () => {
+      cancelled = true
+      stream?.getTracks().forEach((track) => track.stop())
+      if (videoRef.current) videoRef.current.srcObject = null
+    }
+  }, [enabled])
+  return <div className={'player-preview-tile ' + background + (cameraError ? ' camera-unavailable' : '')}>
+    {enabled && !cameraError ? <video ref={videoRef} autoPlay muted playsInline aria-label="Предпросмотр камеры игрока" /> : <div className="player-silhouette"><span className="player-head" /><span className="player-body" /></div>}
+    <small>{cameraError ? 'КАМЕРА НЕДОСТУПНА' : enabled ? 'ТВОЯ КАМЕРА' : 'КАМЕРА ВЫКЛЮЧЕНА'}</small>
+  </div>
+}
+
 export default function App() {
   const startNewCareerOnLoad = useMemo(() => { try { return localStorage.getItem('na-vse-kotirovki-start-new-career') === 'true' } catch { return false } }, [])
   const saved = useMemo(() => readSave(), [])
@@ -154,6 +182,7 @@ export default function App() {
   const [roomLightOn, setRoomLightOn] = useState(true)
   const [curtainsOpen, setCurtainsOpen] = useState(true)
   const [controlsVisible, setControlsVisible] = useState(true)
+  const [nearbyRoomObject, setNearbyRoomObject] = useState<RoomObject | null>(null)
   const finishIntro = useCallback(() => setIntroActive(false), [])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
@@ -186,7 +215,7 @@ export default function App() {
   const [questionIndex, setQuestionIndex] = useState(0)
   const [trust, setTrust] = useState(48)
   const [patience, setPatience] = useState(74)
-  const [timeLeft, setTimeLeft] = useState(25)
+  const [timeLeft, setTimeLeft] = useState(60)
   const [lastPenaltySecond, setLastPenaltySecond] = useState(25)
   const [freeAnswer, setFreeAnswer] = useState('')
   const [conversation, setConversation] = useState<{ from: 'client' | 'you' | 'system'; text: string }[]>([])
@@ -249,7 +278,7 @@ export default function App() {
   // In-game clock: ten minutes pass in the world every real minute; pausing freezes it.
   useEffect(() => {
     if (pauseOpen) return
-    const clock = window.setInterval(() => setGameMinutes((value) => (value + 10) % (24 * 60)), 60000)
+    const clock = window.setInterval(() => setGameMinutes((value) => (value + 5) % (24 * 60)), 60000)
     return () => window.clearInterval(clock)
   }, [mainMenu, pauseOpen])
 
@@ -287,7 +316,7 @@ export default function App() {
   }, [callStatus, questionIndex])
 
   useEffect(() => {
-    if (callStatus !== 'active' || timeLeft > 20 || timeLeft <= 0) return
+    if (callStatus !== 'active' || timeLeft > 50 || timeLeft <= 0) return
     const second = Math.floor(timeLeft)
     if (second >= lastPenaltySecond) return
     setLastPenaltySecond(second)
@@ -355,7 +384,7 @@ export default function App() {
   function startNewGame() { setConfirmNewCareer(true) }
 
   function confirmStartNewGame() {
-    window.setTimeout(() => playSound('alarm'), 450)
+    window.setTimeout(() => playSound('alarm'), 900)
     try { localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
     setCash(STARTING_CASH)
     setFirmCapital(STARTING_FIRM_CAPITAL)
@@ -377,12 +406,12 @@ export default function App() {
     setVideoSwitchEffectUsed(false)
     setSelectedCompany('KOTL')
     setToast('')
-    setLastPenaltySecond(25)
+    setLastPenaltySecond(60)
     setCallStatus('idle')
     setQuestionIndex(0)
     setTrust(48)
     setPatience(74)
-    setTimeLeft(25)
+    setTimeLeft(60)
     setLastPenaltySecond(25)
     setGameMinutes(7 * 60)
     setPauseOpen(false)
@@ -409,12 +438,22 @@ export default function App() {
     setControlsVisible(true)
     setCanInteractWithComputer(false)
     setIntroActive(true)
+    setNearbyRoomObject(null)
   }
 
   const openComputer = useCallback(() => {
     playSound('computer')
     setPanel('computer')
     setTab('overview')
+    setNearbyRoomObject(null)
+  }, [])
+
+  const interactWithRoomObject = useCallback((object: RoomObject) => {
+    setNearbyRoomObject(null)
+    if (object === 'lamp') { playSound('lamp'); setDeskLampOn((value) => !value); return }
+    if (object === 'light') { playSound('lamp'); setRoomLightOn((value) => !value); return }
+    if (object === 'curtains') { playSound('curtain'); setCurtainsOpen((value) => !value); return }
+    if (object === 'wardrobe') { setPanel('computer'); setTab('shop'); setWindowMinimized(false); setWindowMaximized(false); setWindowOffset({ x: 0, y: 0 }) }
   }, [])
 
   function startCall() {
@@ -587,7 +626,7 @@ export default function App() {
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
       {!mainMenu && introActive && <div className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </div>
 
       {mainMenu && (
@@ -659,12 +698,12 @@ export default function App() {
         </div>
       </header>
 
-      {panel === 'room' && <div className="room-control-dock" aria-label="Управление комнатой"><span>КОМНАТА</span><button className={deskLampOn ? 'room-control active' : 'room-control'} onClick={() => { playSound('lamp'); setDeskLampOn((value) => !value) }}><i>Л</i><span>Лампа</span><small>{deskLampOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={roomLightOn ? 'room-control active' : 'room-control'} onClick={() => { playSound('lamp'); setRoomLightOn((value) => !value) }}><i>С</i><span>Свет</span><small>{roomLightOn ? 'Вкл.' : 'Выкл.'}</small></button><button className={curtainsOpen ? 'room-control active' : 'room-control'} onClick={() => { playSound('curtain'); setCurtainsOpen((value) => !value) }}><i>Ш</i><span>Шторы</span><small>{curtainsOpen ? 'Открыты' : 'Закрыты'}</small></button></div>}
+      {/* Contextual E prompts replace the fixed room-control dock. */}
 
       {panel === 'room' && (
         <>
           {controlsVisible && <div className="control-hint control-hint-temporary"><div className="key-cluster"><kbd>W</kbd><div><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div></div><span>ПЕРЕДВИЖЕНИЕ</span><i /><div className="mouse-hint"><span className="mouse-icon" /></div><span>ОБЗОР</span></div>}
-          {canSleep && dayEnded ? <button className="interact-card proximity-interact sleep-interact" onClick={sleepNow}><span className="enter-key">E</span><span className="interact-copy"><strong>Лечь спать</strong><em>Отдохнуть и начать новый день</em></span><ChevronRight size={17} /></button> : canInteractWithComputer && <button className="interact-card proximity-interact" onClick={openComputer}><span className="enter-key">E</span><span className="interact-copy"><strong>Сесть за компьютер</strong><em>Нажми E, чтобы начать работу</em></span><ChevronRight size={17} /></button>}
+          {canSleep && dayEnded ? <button className="interact-card proximity-interact sleep-interact" onClick={sleepNow}><span className="enter-key">E</span><span className="interact-copy"><strong>Лечь спать</strong><em>Отдохнуть и начать новый день</em></span><ChevronRight size={17} /></button> : nearbyRoomObject ? <button className="interact-card proximity-interact" onClick={() => interactWithRoomObject(nearbyRoomObject)}><span className="enter-key">E</span><span className="interact-copy"><strong>{nearbyRoomObject === 'lamp' ? `Настольная лампа · ${deskLampOn ? 'выключить' : 'включить'}` : nearbyRoomObject === 'light' ? `Освещение комнаты · ${roomLightOn ? 'выключить' : 'включить'}` : nearbyRoomObject === 'curtains' ? `Шторы · ${curtainsOpen ? 'закрыть' : 'открыть'}` : 'Открыть шкаф и гардероб'}</strong><em>{nearbyRoomObject === 'wardrobe' ? 'Одежда и внешний вид персонажа' : 'Нажми E, чтобы взаимодействовать'}</em></span><ChevronRight size={17} /></button> : canInteractWithComputer && <button className="interact-card proximity-interact" onClick={openComputer}><span className="enter-key">E</span><span className="interact-copy"><strong>Сесть за компьютер</strong><em>Нажми E, чтобы начать работу</em></span><ChevronRight size={17} /></button>}
         </>
       )}
 
@@ -770,7 +809,7 @@ export default function App() {
                   {callStatus === 'idle' && <div className="background-selector"><div className="background-selector-copy"><span className="eyebrow">ТВОЙ ОБРАЗ В КАДРЕ</span><p>Фон влияет на первое впечатление. Виртуальный офис может насторожить опытного клиента, если качество маски слабое.</p></div><div className="background-options"><button className={videoBackground === 'real' ? 'selected' : ''} onClick={() => setVideoBackground('real')}>Реальная комната</button><button disabled={!ownedItems.includes('neutral-backdrop') && !ownedItems.includes('chromakey-kit')} className={videoBackground === 'neutral' ? 'selected' : ''} onClick={() => setVideoBackground('neutral')}>Нейтральный фон</button><button disabled={!ownedItems.includes('chromakey-kit')} className={videoBackground === 'luxury' ? 'selected' : ''} onClick={() => setVideoBackground('luxury')}>Премиум-офис</button></div><small>{videoBackground === 'luxury' ? 'Виртуальный офис: бонус статуса, но опытный клиент может заметить подмену.' : videoBackground === 'neutral' ? 'Нейтральный фон: небольшой бонус без притворства, что это реальное жильё.' : 'Показываешь свою комнату без дополнительных эффектов.'}</small></div>}
                   {callStatus === 'idle' && availableClients.length > 0 && callsToday < (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) && <div className="incoming-call"><div className="incoming-visual"><div className="client-avatar"><span>{activeClient.initials}</span><i /></div><div className="incoming-wave"><span /><span /><span /><span /><span /><span /><span /></div></div><div className="incoming-copy"><span className="eyebrow">{activeClient.source.toUpperCase()} · УРОВЕНЬ {activeClient.tier}</span><h3>{activeClient.name}</h3><p>{activeClient.age} лет · {activeClient.profession}</p><div className="client-tags"><span><ShieldAlert size={13} /> {activeClient.temperament}</span><span><CircleDollarSign size={13} /> Капитал {activeClient.budget.toLocaleString('ru-RU')} ₽</span><span><Activity size={13} /> Опыт: {activeClient.experience.toLowerCase()}</span></div><blockquote>{activeClient.quote}</blockquote><button className="primary-action" onClick={startCall}><Video size={16} /> Начать видеозвонок <ChevronRight size={16} /></button></div></div>}
                   {callStatus === 'idle' && (availableClients.length === 0 || callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2)) && <div className="no-leads-card"><Users size={25} /><h3>{callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) ? 'На сегодня звонки закончились' : 'Свободных клиентов пока нет'}</h3><p>{callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) ? 'Лимит на сегодня: ' + callsToday + ' звонка. Заверши день, чтобы восстановить рабочее время.' : 'Дождись повторного контакта или развивай репутацию, чтобы открыть новые предложения.'}</p><button className="primary-action" onClick={endDay}>Завершить день <ChevronRight size={15} /></button></div>}
-                  {callStatus === 'active' && activeQuestion && <div className="call-workspace immersive-call-workspace"><div className="client-panel"><div className="client-panel-top"><div className="client-avatar large"><span>{activeClient.initials}</span><i /></div><div><span className="eyebrow">КЛИЕНТ · ВИДЕОСВЯЗЬ</span><h3>{activeClient.name}</h3><p>{activeClient.temperament} инвестор · {activeClient.age} лет</p></div><button className="hangup" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={16} /></button></div><div className="client-video-stage"><div className="client-video-feed"><div className="video-avatar-orb">{activeClient.initials}</div><span className="video-nameplate">{activeClient.name}</span><span className="video-live-indicator"><i /> СВЯЗЬ СТАБИЛЬНА</span><div className={"player-preview-tile " + videoBackground}><span>БР</span><small>ТВОЙ КАДР</small></div></div><div className="video-side-info"><span className="eyebrow">ВИДЕОЗВОНОК</span><strong>{videoEnabled ? 'Камера включена' : 'Только аудио'}</strong><small>Качество оборудования: {getVideoQuality(ownedItems)}/8</small><button className="video-toggle" onClick={toggleVideo}><Video size={14} /> {videoEnabled ? 'Отключить видео' : 'Включить видео'}</button></div></div><div className="client-meters"><div className="meter-label"><span>Доверие</span><strong>{trust}% <small>{trustLabel}</small></strong></div><div className="trust-track"><span style={{ width: trust + '%' }} /></div><div className="meter-label"><span>Терпение</span><strong>{patience}%</strong></div><div className="patience-track"><span style={{ width: patience + '%' }} /></div></div><div className="call-stock-offer"><span>ТВОЁ ПРЕДЛОЖЕНИЕ</span><strong>{activeCompany.name}</strong><small>{activeCompany.sector} · {activeCompany.price} · риск {activeCompany.risk.toLowerCase()}</small><p>{activeCompany.description}</p><div className="call-stock-offer-columns"><span><b>Плюс:</b> {activeCompany.advantages}</span><span><b>Риск:</b> {activeCompany.risks}</span></div></div><div className="client-goal"><small>ЦЕЛЬ КЛИЕНТА</small><strong>{activeClient.goal}</strong><p>{activeClient.temperament}. {activeClient.experience}. Подбирай аргументы под его задачу.</p></div><div className="conversation-log">{conversation.slice(-4).map((entry, i) => <div key={i} className={'log-line ' + entry.from}><span>{entry.from === 'you' ? 'ТЫ' : entry.from === 'system' ? 'СИСТЕМА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}</div></div><div className="answer-panel"><div className="answer-heading"><span className="eyebrow">ВОПРОС {questionIndex + 1} ИЗ {questions.length}</span><div className={'timer-pill ' + (timeLeft <= 4 ? 'urgent' : '')}><Clock3 size={15} /><strong>{timeLeft.toFixed(1)}с</strong></div></div><h3>{questionIndex === 0 ? activeClient.quote : activeQuestion.title}</h3><p className="question-hint"><Sparkles size={14} /> {activeQuestion.hint}</p><div className="answer-options">{activeQuestion.choices.map((choice, i) => <button className="answer-option" key={choice.label} onClick={() => answerQuestion(choice.label, choice.delta)}><span className="option-letter">{String.fromCharCode(65 + i)}</span><span>{choice.label}</span><ChevronRight size={16} /></button>)}</div><div className="free-answer"><label htmlFor="free-answer">СВОЙ ОТВЕТ</label><textarea id="free-answer" placeholder="Напиши, что ответил бы клиенту… (например: «Гарантий нет, давайте сначала разберём риски») " value={freeAnswer} onChange={(event) => setFreeAnswer(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendFreeAnswer() } }} /><div className="free-answer-footer"><span>Enter — отправить · Shift + Enter — новая строка</span><button disabled={!freeAnswer.trim()} onClick={sendFreeAnswer}>Ответить <ArrowUpRight size={14} /></button></div></div><div className="timer-warning"><Clock3 size={14} /> Чем дольше думаешь, тем быстрее падает терпение. После таймера клиент может уйти.</div></div></div>}
+                  {callStatus === 'active' && activeQuestion && <div className="call-workspace immersive-call-workspace"><div className="client-panel"><div className="client-panel-top"><div className="client-avatar large"><span>{activeClient.initials}</span><i /></div><div><span className="eyebrow">КЛИЕНТ · ВИДЕОСВЯЗЬ</span><h3>{activeClient.name}</h3><p>{activeClient.temperament} инвестор · {activeClient.age} лет</p></div><button className="hangup" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={16} /></button></div><div className="client-video-stage"><div className="client-video-feed"><div className="client-sim-person" aria-label={"Видеопортрет клиента " + activeClient.name}><div className={"client-sim-hair hair-" + activeClient.tier} /><div className="client-sim-neck" /><div className="client-sim-face"><i className="client-sim-brow left" /><i className="client-sim-brow right" /><i className="client-sim-eye left" /><i className="client-sim-eye right" /><i className="client-sim-nose" /><i className="client-sim-mouth" /></div><div className={"client-sim-shirt shirt-" + activeClient.tier} /></div><span className="video-nameplate">{activeClient.name}</span><span className="video-live-indicator"><i /> СВЯЗЬ СТАБИЛЬНА</span><SelfCameraPreview enabled={videoEnabled} background={videoBackground} /></div><div className="video-side-info"><span className="eyebrow">ВИДЕОЗВОНОК</span><strong>{videoEnabled ? 'Камера включена' : 'Только аудио'}</strong><small>Качество оборудования: {getVideoQuality(ownedItems)}/8</small><button className="video-toggle" onClick={toggleVideo}><Video size={14} /> {videoEnabled ? 'Отключить видео' : 'Включить видео'}</button></div></div><div className="client-meters"><div className="meter-label"><span>Доверие</span><strong>{trust}% <small>{trustLabel}</small></strong></div><div className="trust-track"><span style={{ width: trust + '%' }} /></div><div className="meter-label"><span>Терпение</span><strong>{patience}%</strong></div><div className="patience-track"><span style={{ width: patience + '%' }} /></div></div><div className="call-stock-offer"><span>ТВОЁ ПРЕДЛОЖЕНИЕ</span><strong>{activeCompany.name}</strong><small>{activeCompany.sector} · {activeCompany.price} · риск {activeCompany.risk.toLowerCase()}</small><p>{activeCompany.description}</p><div className="call-stock-offer-columns"><span><b>Плюс:</b> {activeCompany.advantages}</span><span><b>Риск:</b> {activeCompany.risks}</span></div></div><div className="client-goal"><small>ЦЕЛЬ КЛИЕНТА</small><strong>{activeClient.goal}</strong><p>{activeClient.temperament}. {activeClient.experience}. Подбирай аргументы под его задачу.</p></div><div className="conversation-log">{conversation.slice(-4).map((entry, i) => <div key={i} className={'log-line ' + entry.from}><span>{entry.from === 'you' ? 'ТЫ' : entry.from === 'system' ? 'СИСТЕМА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}</div></div><div className="answer-panel"><div className="answer-heading"><span className="eyebrow">ВОПРОС {questionIndex + 1} ИЗ {questions.length}</span><div className={'timer-pill ' + (timeLeft <= 4 ? 'urgent' : '')}><Clock3 size={15} /><strong>{timeLeft.toFixed(1)}с</strong></div></div><h3>{questionIndex === 0 ? activeClient.quote : activeQuestion.title}</h3><p className="question-hint"><Sparkles size={14} /> {activeQuestion.hint}</p><div className="answer-options">{activeQuestion.choices.map((choice, i) => <button className="answer-option" key={choice.label} onClick={() => answerQuestion(choice.label, choice.delta)}><span className="option-letter">{String.fromCharCode(65 + i)}</span><span>{choice.label}</span><ChevronRight size={16} /></button>)}</div><div className="free-answer"><label htmlFor="free-answer">СВОЙ ОТВЕТ</label><textarea id="free-answer" placeholder="Напиши, что ответил бы клиенту… (например: «Гарантий нет, давайте сначала разберём риски») " value={freeAnswer} onChange={(event) => setFreeAnswer(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendFreeAnswer() } }} /><div className="free-answer-footer"><span>Enter — отправить · Shift + Enter — новая строка</span><button disabled={!freeAnswer.trim()} onClick={sendFreeAnswer}>Ответить <ArrowUpRight size={14} /></button></div></div><div className="timer-warning"><Clock3 size={14} /> Чем дольше думаешь, тем быстрее падает терпение. После таймера клиент может уйти.</div></div></div>}
                   {(callStatus === 'won' || callStatus === 'lost') && <div className="call-result"><div className={callStatus === 'won' ? 'result-icon success' : 'result-icon failure'}>{callStatus === 'won' ? <Check size={28} /> : <X size={28} />}</div><span className="eyebrow">ИТОГ ПЕРЕГОВОРОВ</span><h3>{callStatus === 'won' ? 'Сделка закрыта.' : 'Переговоры не завершились сделкой.'}</h3><p>{lastResult}</p><div className="result-stats"><div><small>ДОВЕРИЕ</small><strong>{trust}/100</strong></div><div><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></div><div><small>ЗАКРЫТО СДЕЛОК</small><strong>{deals}</strong></div></div><div className="result-actions"><button className="secondary-action" onClick={() => setCallStatus('idle')}>Вернуться к клиентам</button><button className="primary-action" onClick={() => { setCallStatus('idle'); setTab('overview') }}>К обзору дня <ChevronRight size={16} /></button></div></div>}
                 </div>
               )}
