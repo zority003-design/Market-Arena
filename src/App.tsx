@@ -4,7 +4,7 @@ import {
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, LockKeyhole, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
   Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor,
-  Settings, Volume2, Gamepad2, Wifi, Play, RotateCcw, ArrowRight
+  Settings, Volume2, Gamepad2, Play, RotateCcw, ArrowRight
 } from 'lucide-react'
 import RoomScene from './RoomScene'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
