@@ -355,7 +355,7 @@ export default function App() {
   function startNewGame() { setConfirmNewCareer(true) }
 
   function confirmStartNewGame() {
-    playSound('alarm')
+    window.setTimeout(() => playSound('alarm'), 450)
     try { localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
     setCash(STARTING_CASH)
     setFirmCapital(STARTING_FIRM_CAPITAL)
