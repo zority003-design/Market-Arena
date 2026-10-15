@@ -182,6 +182,15 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     <mesh position={[0, 1.91, 0.27]} rotation={[0, 0, 0]}><boxGeometry args={[0.09, 0.012, 0.015]} /><meshStandardMaterial color="#79453a" roughness={0.8} /></mesh>
     {outfit !== 'intern' && <mesh position={[0, 1.25, 0.255]}><coneGeometry args={[0.09, 0.27, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b69a62' : '#283b52'} roughness={0.6} /></mesh>}
     {outfit === 'premium' && <mesh position={[0.18, 1.32, 0.251]}><sphereGeometry args={[0.027, 12, 10]} /><meshStandardMaterial color="#d7b879" metalness={0.7} roughness={0.32} /></mesh>}
+    {/* Tailoring details: lapels, shirt collar, buttons and cuffs read clearly at video-call scale. */}
+    {outfit !== 'intern' && <>
+      <mesh position={[-0.115, 1.31, 0.252]} rotation={[0, 0, -0.22]}><boxGeometry args={[0.105, 0.31, 0.025]} /><meshStandardMaterial color={outfit === 'premium' ? '#253a45' : '#455a6d'} roughness={0.72} /></mesh>
+      <mesh position={[0.115, 1.31, 0.252]} rotation={[0, 0, 0.22]}><boxGeometry args={[0.105, 0.31, 0.025]} /><meshStandardMaterial color={outfit === 'premium' ? '#253a45' : '#455a6d'} roughness={0.72} /></mesh>
+      <mesh position={[0, 1.43, 0.252]}><coneGeometry args={[0.085, 0.13, 3]} /><meshStandardMaterial color="#f2eee2" roughness={0.82} /></mesh>
+      {[1.22, 1.12, 1.02].map((y) => <mesh key={y} position={[0, y, 0.272]}><sphereGeometry args={[0.012, 10, 8]} /><meshStandardMaterial color={outfit === 'premium' ? '#d7b879' : '#b6c1c4'} metalness={0.35} roughness={0.45} /></mesh>)}
+      <mesh position={[0.2, 1.26, 0.27]}><sphereGeometry args={[0.022, 10, 8]} /><meshStandardMaterial color={outfit === 'premium' ? '#d7b879' : '#8ba7a8'} metalness={0.4} roughness={0.4} /></mesh>
+    </>}
+    {[-0.19, 0.19].map((x) => <mesh key={'sole'+x} position={[x, 0.085, 0.075]}><boxGeometry args={[0.205, 0.025, 0.37]} /><meshStandardMaterial color="#111719" roughness={0.95} /></mesh>)}
   </group>
 }
 
