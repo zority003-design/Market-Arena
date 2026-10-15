@@ -12,9 +12,11 @@ type RoomSceneProps = {
   ownedItems: string[]
   housingId: string
   gameMinutes: number
+  onSleepInteract: () => void
+  onCanSleepChange: (value: boolean) => void
 }
 
-function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, onIntroComplete }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; introActive: boolean; onIntroComplete: () => void }) {
+function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
   const dragging = useRef(false)
@@ -25,6 +27,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
   const forward = useRef(new THREE.Vector3())
   const right = useRef(new THREE.Vector3())
   const interactable = useRef(false)
+  const sleepable = useRef(false)
   const introActiveRef = useRef(introActive)
   introActiveRef.current = introActive
   const introProgress = useRef(0)
@@ -39,12 +42,12 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
   }, [camera])
 
   useEffect(() => {
-    if (!active) { onCanInteractChange(false); interactable.current = false; keys.current = {}; return }
+    if (!active) { onCanInteractChange(false); onCanSleepChange(false); interactable.current = false; sleepable.current = false; keys.current = {}; return }
     const down = (event: KeyboardEvent) => {
       if (!active) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
-      if (event.key.toLowerCase() === 'e' && active && !introActiveRef.current && interactable.current) { event.preventDefault(); onInteract(); return }
+      if (event.key.toLowerCase() === 'e' && active && !introActiveRef.current) { if (sleepable.current) { event.preventDefault(); onSleepInteract(); return } if (interactable.current) { event.preventDefault(); onInteract(); return } }
       keys.current[event.key.toLowerCase()] = true
       if (['w', 'a', 's', 'd', ' '].includes(event.key.toLowerCase())) event.preventDefault()
     }
@@ -79,7 +82,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
-  }, [gl, active, onInteract, onCanInteractChange])
+  }, [gl, active, onInteract, onCanInteractChange, onSleepInteract, onCanSleepChange])
 
   useEffect(() => {
     if (!introActive) return
@@ -131,6 +134,9 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
     const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 0.9)
     const canUse = distance < 1.25 && camera.position.z > -1.83
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
+    const bedDistance = Math.hypot(camera.position.x - 1.2, camera.position.z - 0.8)
+    const canSleep = bedDistance < 1.05 && camera.position.x > 0.55
+    if (canSleep !== sleepable.current) { sleepable.current = canSleep; onCanSleepChange(canSleep) }
   })
 
   return null
@@ -205,7 +211,7 @@ function WindowRain() {
   return <group ref={rainRef}>{Array.from({ length: 26 }, (_, i) => <Box key={i} position={[-3.69, 1.34 + (i % 9) * 0.16, -2.0 + Math.floor(i / 9) * 0.58 + (i % 3) * 0.08]} size={[0.006, 0.105, 0.006]} color="#b8dce7" transparent opacity={0.52} rotation={[0, 0, -0.13]} />)}</group>
 }
 
-function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes }: RoomSceneProps) {
+function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
@@ -482,7 +488,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
   )
 }
 
-export default function RoomScene({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange }: RoomSceneProps) {
   return (
     <Canvas
       shadows
@@ -495,7 +501,7 @@ export default function RoomScene({ onInteract, onCanInteractChange, introActive
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} />
+      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
     </Canvas>
   )
 }
