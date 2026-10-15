@@ -289,7 +289,7 @@ export default function CityScene(props: CitySceneProps) {
   const [nearby, setNearby] = useState<LocationId | 'home' | null>(null)
   const nearbyPlace = locations.find((place) => place.id === nearby)
   return <div className="city-3d-root">
-    <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 1.68, 1.25], fov: 72, near: 0.1, far: 100 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.08 }}>
+    <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 1.68, 1.25], fov: 72, near: 0.1, far: 100 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.08; gl.shadowMap.type = THREE.PCFSoftShadowMap; gl.outputColorSpace = THREE.SRGBColorSpace }}>
       <District gameMinutes={props.gameMinutes} />
       <FirstPersonCity {...props} onNearbyChange={setNearby} />
     </Canvas>
