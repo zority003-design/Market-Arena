@@ -49,7 +49,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
   }, [camera])
 
   useEffect(() => {
-    if (!active) { onCanInteractChange(false); onCanSleepChange(false); interactable.current = false; sleepable.current = false; keys.current = {}; return }
+    if (!active) { onCanInteractChange(false); onCanSleepChange(false); onNearbyObjectChange(null); nearbyObject.current = null; interactable.current = false; sleepable.current = false; keys.current = {}; return }
     const down = (event: KeyboardEvent) => {
       if (!active) return
       const target = event.target as HTMLElement | null
