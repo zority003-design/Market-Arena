@@ -27,13 +27,23 @@ function Building({ x, z, width, depth, height, color, label, shop = false, nigh
   return <group position={[x, 0, z]}>
     <Block position={[0, height / 2, 0]} size={[width, height, depth]} color={color} />
     <Block position={[0, height + 0.07, 0]} size={[width + 0.18, 0.14, depth + 0.18]} color={shop ? '#343d3c' : '#3b4449'} />
+    <Block position={[0, height - 0.12, depth / 2 + 0.04]} size={[width + 0.08, 0.12, 0.1]} color="#b8b7a9" roughness={0.82} />
+    {Array.from({ length: Math.max(2, Math.floor(width / 1.7)) }, (_, i) => {
+      const count = Math.max(2, Math.floor(width / 1.7))
+      const px = -width / 2 + (i + 0.5) * width / count
+      return <Block key={'pier-' + i} position={[px, height / 2, depth / 2 + 0.035]} size={[0.055, height - 0.2, 0.07]} color="#a6a89e" roughness={0.85} />
+    })}
+    <Block position={[0, 0.18, depth / 2 + 0.035]} size={[width + 0.04, 0.18, 0.1]} color="#5c625e" roughness={0.9} />
     {Array.from({ length: floors }, (_, row) => Array.from({ length: windows }, (_, col) => {
       const wx = -width / 2 + (col + 0.5) * width / windows
       const wy = 0.55 + row * (height - 0.8) / floors
       const lit = night && (row * 3 + col * 5 + Math.round(x)) % 4 !== 0
       return <group key={row + '-' + col}>
-        <Block position={[wx, wy, depth / 2 + 0.012]} size={[Math.min(0.34, width / windows * 0.48), shop ? 0.36 : 0.42, 0.035]} color={lit ? '#e5c68b' : '#7396a0'} roughness={0.35} metalness={0.08} />
-        <Block position={[wx, wy, -depth / 2 - 0.012]} size={[Math.min(0.34, width / windows * 0.48), 0.42, 0.035]} color={lit ? '#e5c68b' : '#7396a0'} roughness={0.35} />
+        <Block position={[wx, wy, depth / 2 + 0.025]} size={[Math.min(0.43, width / windows * 0.64), shop ? 0.53 : 0.59, 0.055]} color="#35464b" roughness={0.72} metalness={0.12} />
+        <Block position={[wx, wy, depth / 2 + 0.058]} size={[Math.min(0.34, width / windows * 0.48), shop ? 0.36 : 0.42, 0.018]} color={lit ? '#f3d8a1' : '#6f929c'} roughness={0.28} metalness={0.12} />
+        <Block position={[wx, wy - (shop ? 0.23 : 0.27), depth / 2 + 0.067]} size={[Math.min(0.46, width / windows * 0.7), 0.045, 0.09]} color="#a9b1ad" roughness={0.65} />
+        <Block position={[wx, wy, -depth / 2 - 0.025]} size={[Math.min(0.43, width / windows * 0.64), 0.59, 0.055]} color="#35464b" roughness={0.72} />
+        <Block position={[wx, wy, -depth / 2 - 0.058]} size={[Math.min(0.34, width / windows * 0.48), 0.42, 0.018]} color={lit ? '#f3d8a1' : '#6f929c'} roughness={0.28} />
       </group>
     })) }
     {shop && <>
@@ -47,9 +57,10 @@ function Building({ x, z, width, depth, height, color, label, shop = false, nigh
 function Tree({ position }: { position: [number, number, number] }) {
   return <group position={position}>
     <mesh position={[0, 0.62, 0]} castShadow><cylinderGeometry args={[0.12, 0.17, 1.25, 8]} /><meshStandardMaterial color="#574536" roughness={1} /></mesh>
-    <mesh position={[0, 1.72, 0]} castShadow><icosahedronGeometry args={[0.78, 1]} /><meshStandardMaterial color="#365c48" roughness={1} /></mesh>
-    <mesh position={[-0.27, 1.48, 0.13]} castShadow><icosahedronGeometry args={[0.48, 1]} /><meshStandardMaterial color="#416d50" roughness={1} /></mesh>
-    <mesh position={[0.29, 1.55, -0.12]} castShadow><icosahedronGeometry args={[0.49, 1]} /><meshStandardMaterial color="#2e513f" roughness={1} /></mesh>
+    <mesh position={[0, 1.72, 0]} castShadow><dodecahedronGeometry args={[0.76, 1]} /><meshStandardMaterial color="#365c48" roughness={1} flatShading /></mesh>
+    <mesh position={[-0.3, 1.48, 0.13]} castShadow><dodecahedronGeometry args={[0.46, 1]} /><meshStandardMaterial color="#416d50" roughness={1} flatShading /></mesh>
+    <mesh position={[0.31, 1.58, -0.14]} castShadow><dodecahedronGeometry args={[0.48, 1]} /><meshStandardMaterial color="#2e513f" roughness={1} flatShading /></mesh>
+    <mesh position={[0.02, 2.0, -0.1]} castShadow><dodecahedronGeometry args={[0.34, 1]} /><meshStandardMaterial color="#4d7151" roughness={1} flatShading /></mesh>
   </group>
 }
 
@@ -59,6 +70,39 @@ function StreetLamp({ position, night }: { position: [number, number, number]; n
     <Block position={[0.27, 3.03, 0]} size={[0.62, 0.08, 0.08]} color="#333e42" metalness={0.55} />
     <mesh position={[0.55, 2.98, 0]}><sphereGeometry args={[0.13, 16, 12]} /><meshStandardMaterial color={night ? '#f4dba0' : '#c9d6cb'} emissive={night ? '#f3c875' : '#000000'} emissiveIntensity={night ? 1.6 : 0} /></mesh>
     {night && <pointLight position={[0.55, 2.8, 0]} intensity={0.65} distance={5} color="#f4d7a0" />}
+  </group>
+}
+
+
+function Planter({ position, width = 1.15 }: { position: [number, number, number]; width?: number }) {
+  return <group position={position}>
+    <Block position={[0, 0.24, 0]} size={[width, 0.46, 0.62]} color="#777d74" roughness={0.94} />
+    <Block position={[0, 0.48, 0]} size={[width - 0.08, 0.06, 0.54]} color="#493f32" roughness={1} />
+    {Array.from({ length: 5 }, (_, i) => <mesh key={i} position={[(i - 2) * width / 5, 0.72 + (i % 2) * 0.08, (i % 2 ? 0.1 : -0.08)]} rotation={[0.2 * (i % 2), i * 0.8, 0]}>
+      <dodecahedronGeometry args={[0.22 + (i % 3) * 0.025, 1]} />
+      <meshStandardMaterial color={i % 2 ? '#496b51' : '#5b7857'} roughness={1} />
+    </mesh>)}
+  </group>
+}
+
+function Bench({ position }: { position: [number, number, number] }) {
+  return <group position={position}>
+    {[-0.58, 0.58].map((x) => <Block key={x} position={[x, 0.28, 0]} size={[0.09, 0.52, 0.42]} color="#414b4c" metalness={0.42} roughness={0.58} />)}
+    {[-0.18, 0, 0.18].map((y) => <Block key={y} position={[0, 0.47 + y, 0]} size={[1.38, 0.065, 0.42]} color="#8b7255" roughness={0.78} />)}
+    {[-0.1, 0.1].map((z) => <Block key={z} position={[0, 0.88, z]} size={[1.38, 0.07, 0.07]} color="#8b7255" roughness={0.78} />)}
+  </group>
+}
+
+function RoadDetail({ position, size, color }: { position: [number, number, number]; size: [number, number, number]; color: string }) {
+  return <mesh position={position} receiveShadow><boxGeometry args={size} /><meshStandardMaterial color={color} roughness={0.98} metalness={0.01} /></mesh>
+}
+
+function DistantBlock({ position, size, color }: { position: [number, number, number]; size: [number, number, number]; color: string }) {
+  return <group position={position}>
+    <Block position={[0, size[1] / 2, 0]} size={size} color={color} roughness={0.95} />
+    {Array.from({ length: Math.max(3, Math.floor(size[0] / 1.1)) }, (_, i) => Array.from({ length: Math.max(2, Math.floor(size[1] / 1.5)) }, (_, j) =>
+      <Block key={i + '-' + j} position={[-size[0] / 2 + (i + 0.5) * size[0] / Math.max(3, Math.floor(size[0] / 1.1)), 0.7 + j * 1.2, size[2] / 2 + 0.015]} size={[0.34, 0.48, 0.025]} color={(i + j) % 4 === 0 ? '#d6c59d' : '#40545b'} roughness={0.45} />
+    ))}
   </group>
 }
 
@@ -79,6 +123,13 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     {Array.from({ length: 10 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, 13 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
     <Block position={[-6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
     <Block position={[6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
+    {/* Modular sidewalk slabs, curbs, crosswalk and drain details break up the toy-like flat ground. */}
+    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 5 }, (_, i) => <RoadDetail key={'crosswalk-' + i} position={[-2.2 + i * 1.1, 0.052, -1.2]} size={[0.64, 0.025, 2.8]} color="#d3d1c4" />)}
+    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, 0.82]} size={[0.07, 0.012, 0.36]} color="#252f32" />)
 
     {/* The player's small home is the same landmark that anchors the entrance back into the interior. */}
     <group position={[0, 0, 5.2]}>
@@ -98,6 +149,17 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     <Building x={8.3} z={-1.3} width={5.2} depth={4.2} height={7.1} color="#727b7d" label="ОФИСЫ" night={night} />
     <Building x={-10.2} z={-7.8} width={5.3} depth={4.5} height={6.4} color="#8b8b80" label="ЖИЛОЙ ДОМ" night={night} />
     <Building x={11.5} z={-12.5} width={6.2} depth={4.4} height={9.5} color="#596d76" label="ДЕЛОВОЙ ЦЕНТР" night={night} />
+    {/* Layered skyline adds depth beyond the walkable block. */}
+    <DistantBlock position={[-13.2, 0, -20.5]} size={[7.4, 12.5, 4.4]} color="#667b80" />
+    <DistantBlock position={[-5.7, 0, -22.4]} size={[6.1, 8.4, 4.1]} color="#788783" />
+    <DistantBlock position={[2.0, 0, -22.8]} size={[7.2, 14.2, 4.8]} color="#536b74" />
+    <DistantBlock position={[10.1, 0, -21.1]} size={[7.0, 10.5, 4.2]} color="#6a7a7d" />
+    <Planter position={[-4.5, 0, 1.1]} width={1.25} />
+    <Planter position={[4.7, 0, -2.8]} width={1.35} />
+    <Planter position={[-7.2, 0, -4.4]} width={1.25} />
+    <Planter position={[7.2, 0, -8.9]} width={1.35} />
+    <Bench position={[-7.1, 0, 1.2]} />
+    <Bench position={[7.1, 0, -3.8]} />
     {[-2, 1.5, 9.2, -9.1].map((x, i) => <Tree key={'tree-' + i} position={[x, 0, i % 2 ? -3.1 : -7.1]} />)}
     {[-8, 0, 8].map((z) => <StreetLamp key={'lamp-' + z} position={[-7.7, 0, z]} night={night} />)}
     {[ -8, 0, 8 ].map((z) => <StreetLamp key={'lamp-r-' + z} position={[7.7, 0, z]} night={night} />)}
