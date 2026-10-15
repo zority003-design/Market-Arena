@@ -29,15 +29,33 @@ function FirstPersonRig() {
     }
     const up = (event: KeyboardEvent) => { keys.current[event.key.toLowerCase()] = false }
     const blur = () => { keys.current = {} }
+    const element = gl.domElement
+    const pointerDown = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      dragging.current = true
+      last.current = { x: event.clientX, y: event.clientY }
+    }
+    const pointerMove = (event: PointerEvent) => {
+      if (!dragging.current) return
+      const dx = event.clientX - last.current.x
+      const dy = event.clientY - last.current.y
+      last.current = { x: event.clientX, y: event.clientY }
+      yaw.current -= dx * 0.0035
+      pitch.current = THREE.MathUtils.clamp(pitch.current - dy * 0.003, -1.05, 0.62)
+    }
     const pointerUp = () => { dragging.current = false }
     window.addEventListener('keydown', down)
     window.addEventListener('keyup', up)
     window.addEventListener('blur', blur)
+    element.addEventListener('pointerdown', pointerDown)
+    window.addEventListener('pointermove', pointerMove)
     window.addEventListener('pointerup', pointerUp)
     return () => {
       window.removeEventListener('keydown', down)
       window.removeEventListener('keyup', up)
       window.removeEventListener('blur', blur)
+      element.removeEventListener('pointerdown', pointerDown)
+      window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
   }, [camera])
@@ -62,26 +80,7 @@ function FirstPersonRig() {
     camera.rotation.set(pitch.current, yaw.current, 0)
   })
 
-  return (
-    <mesh
-      visible={false}
-      onPointerDown={(event) => {
-        dragging.current = true
-        last.current = { x: event.clientX, y: event.clientY }
-      }}
-      onPointerMove={(event) => {
-        if (!dragging.current) return
-        const dx = event.clientX - last.current.x
-        const dy = event.clientY - last.current.y
-        last.current = { x: event.clientX, y: event.clientY }
-        yaw.current -= dx * 0.0035
-        pitch.current = THREE.MathUtils.clamp(pitch.current - dy * 0.003, -1.05, 0.62)
-      }}
-    >
-      <planeGeometry />
-      <meshBasicMaterial />
-    </mesh>
-  )
+  return null
 }
 
 function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation }: {
