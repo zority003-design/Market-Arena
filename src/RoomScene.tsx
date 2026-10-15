@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
@@ -120,6 +120,27 @@ function Cylinder({ position, radius, height, color, metalness = 0, roughness = 
   )
 }
 
+const woodPalette = ['#73523d', '#805c43', '#674936', '#896447', '#76543d']
+
+function FloorBoards() {
+  const boards = useMemo(() => Array.from({ length: 20 }, (_, row) => {
+    const widths = row % 2 ? [2.35, 2.55, 2.9] : [1.9, 2.7, 3.2]
+    let cursor = -3.9
+    return widths.map((width, col) => {
+      const x = cursor + width / 2
+      cursor += width
+      return {
+        key: row + '-' + col,
+        position: [x, 0.056, -3.705 + row * 0.39] as [number, number, number],
+        size: [width - 0.025, 0.022, 0.365] as [number, number, number],
+        color: woodPalette[(row * 3 + col * 2) % woodPalette.length],
+      }
+    })
+  }).flat(), [])
+
+  return <group>{boards.map((board) => <Box key={board.key} position={board.position} size={board.size} color={board.color} roughness={0.76} />)}</group>
+}
+
 function Room({ onInteract, active }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
@@ -145,7 +166,8 @@ function Room({ onInteract, active }: RoomSceneProps) {
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color="#68717a" />
       <Box position={[-3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#5c646d" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
-      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color="#695348" roughness={0.98} />
+      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color="#30251f" roughness={0.98} />
+      <FloorBoards />
 
       {/* Back wall details and skirting */}
       <Box position={[0, 0.14, -3.86]} size={[7.7, 0.16, 0.07]} color="#b4a18b" />
@@ -172,6 +194,11 @@ function Room({ onInteract, active }: RoomSceneProps) {
         </group>
       ))}
       <Box position={[0.15, 0.45, -2.36]} size={[2.38, 0.055, 0.06]} color="#343a3f" metalness={0.65} />
+      {/* Compact desktop tower, with vents and a power LED. */}
+      <Box position={[-1.57, 0.39, -2.22]} size={[0.39, 0.68, 0.58]} color="#222a30" roughness={0.42} metalness={0.28} />
+      <Box position={[-1.57, 0.39, -1.923]} size={[0.29, 0.55, 0.012]} color="#303b42" roughness={0.48} />
+      {Array.from({ length: 7 }, (_, i) => <Box key={i} position={[-1.57, 0.19 + i * 0.055, -1.914]} size={[0.19, 0.012, 0.008]} color="#11191e" roughness={0.8} />)}
+      <Box position={[-1.57, 0.65, -1.912]} size={[0.035, 0.035, 0.01]} color="#43d9a4" roughness={0.25} />
 
       {/* Monitor, screen faces into the room */}
       <Box position={[0.1, 1.38, -2.64]} size={[1.42, 0.9, 0.09]} color="#151b21" roughness={0.28} metalness={0.25} />
@@ -193,6 +220,7 @@ function Room({ onInteract, active }: RoomSceneProps) {
       <Box position={[0.43, 1.57, -2.565]} size={[0.2, 0.018, 0.008]} color="#55e7b4" />
       <Cylinder position={[0.1, 0.95, -2.61]} radius={0.09} height={0.12} color="#343c43" metalness={0.65} />
       <Box position={[0.1, 0.91, -2.61]} size={[0.44, 0.035, 0.23]} color="#313940" metalness={0.55} />
+      <Box position={[0.1, 0.885, -2.61]} size={[0.27, 0.012, 0.16]} color="#11171c" roughness={0.35} />
 
       {/* Keyboard and mouse */}
       <Box position={[0.08, 0.96, -1.94]} size={[0.88, 0.045, 0.29]} color="#222a31" roughness={0.45} />
@@ -227,6 +255,7 @@ function Room({ onInteract, active }: RoomSceneProps) {
       <Box position={[2.52, 0.69, 1.2]} size={[1.72, 0.09, 1.65]} color="#536c78" roughness={1} rotation={[0.02, 0, -0.025]} />
       <Box position={[2.52, 0.75, 1.9]} size={[0.85, 0.12, 0.52]} color="#c8c2b5" roughness={1} />
       <Box position={[2.52, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
+      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[2.52 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
       {/* Bedside crate and books */}
       <Box position={[3.3, 0.38, -0.92]} size={[0.65, 0.72, 0.66]} color="#6a5141" />
@@ -279,6 +308,8 @@ function Room({ onInteract, active }: RoomSceneProps) {
       {/* Worn rug */}
       <Box position={[0.1, 0.035, 0.5]} size={[3.1, 0.035, 2.1]} color="#3b4d50" roughness={1} />
       <Box position={[0.1, 0.055, 0.5]} size={[2.92, 0.008, 1.92]} color="#5c6966" roughness={1} />
+      {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.061, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
+      {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.061, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
       <FirstPersonRig active={active} />
     </>
