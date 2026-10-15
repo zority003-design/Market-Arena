@@ -405,7 +405,7 @@ export default function App() {
           <div className="menu-atmosphere" />
           <div className="menu-topline">
             <div className="menu-brand"><span className="brand-mark"><TrendingUp size={20} strokeWidth={2.5} /></span><span><strong>НА ВСЕ КОТИРОВКИ</strong><small>КАРЬЕРА БРОКЕРА · САТИРИЧЕСКИЙ СИМУЛЯТОР</small></span></div>
-            <div className="menu-build"><span className="live-dot" /> ОФЛАЙН-ДЕМО <i>v0.3</i></div>
+            <div className="menu-build"><span className="live-dot" /> ОФЛАЙН-ДЕМО <i>v0.4</i></div>
           </div>
           <section className="menu-content">
             <div className="menu-copy">
@@ -585,14 +585,14 @@ export default function App() {
               <div className="rail-widget"><div className="rail-widget-heading"><span className="rail-icon gold"><Zap size={16} /></span><span><small>ЗАДАЧА ДНЯ</small><strong>Первая сделка</strong></span></div><div className="task-progress"><span style={{ width: deals > 0 ? '100%' : '0%' }} /></div><div className="rail-caption">{deals > 0 ? 'Выполнено — отлично!' : 'Осталось закрыть 1 сделку'}</div></div>
               <div className="rail-widget mini-news"><div className="rail-widget-heading"><span className="rail-icon green"><Newspaper size={16} /></span><span><small>ВАЖНОЕ</small><strong>Новости рынка</strong></span></div><p>«Котолёт» ведёт переговоры о крупном контракте.</p><button onClick={() => setTab('news')}>Читать ленту <ChevronRight size={13} /></button></div>
               <div className="rail-widget contact-widget"><div className="rail-widget-heading"><span className="rail-icon blue"><MessageCircle size={16} /></span><span><small>НАСТАВНИК</small><strong>Виктор Петрович</strong></span></div><p>«Не продавай то, чего сам не понимаешь. Особенно если оно летает на батарейках».</p></div>
-              <div className="rail-footer"><span><span className="live-dot" /> Все системы работают</span><small>BUILD 0.1.0 · DEMO</small></div>
+              <div className="rail-footer"><span><span className="live-dot" /> Все системы работают</span><small>BUILD 0.4.0 · DEMO</small></div>
             </aside>
           </div>
         </div>
       )}
 
       {toast && <div className="toast"><Check size={16} /> {toast}</div>}
-      <div className="version-watermark">PROTOTYPE 0.3 <span>·</span> НЕФИНАНСОВЫЙ СОВЕТ</div>
+      <div className="version-watermark">PROTOTYPE 0.4 <span>·</span> НЕФИНАНСОВЫЙ СОВЕТ</div>
       </> }
     </main>
   )
