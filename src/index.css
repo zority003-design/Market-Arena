@@ -676,3 +676,10 @@ button:focus-visible, textarea:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .video-avatar-orb, .client-video-feed::before, .video-live-indicator i { animation: none; }
 }
+
+.debt-stat { color: var(--red); }
+.debt-stat strong, .debt-value { color: #f28b8b !important; }
+.no-leads-card { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 20px; border: 1px dashed rgba(183,208,214,.2); border-radius: 10px; color: #92a5a5; background: rgba(255,255,255,.015); text-align: center; }
+.no-leads-card > svg { color: var(--gold); }
+.no-leads-card h3 { margin: 0; color: #e0eae5; font-size: 14px; }
+.no-leads-card p { max-width: 420px; margin: 0 0 5px; color: #899c9e; font-size: 10px; line-height: 1.7; }
