@@ -1436,3 +1436,11 @@ button:focus-visible, textarea:focus-visible {
 .terminal-content { scrollbar-color:rgba(112,166,142,.42) rgba(5,15,20,.2); scrollbar-width:thin; }
 .terminal-content :is(button,input,select,textarea):focus-visible { outline:2px solid #68e3b5; outline-offset:3px; }
 @media (max-width:760px) { .mission-checklist { grid-template-columns:1fr; } .mission-step { padding:10px 12px; } .guided-mission { padding:16px !important; } .market-summary { gap:12px; } }
+
+.desktop-mission-steps { display:grid; gap:8px; margin:17px 0 16px; }
+.desktop-mission-steps > span { display:flex; align-items:center; gap:10px; color:#b7c9c0; font-size:12px; line-height:1.4; }
+.desktop-mission-steps b { display:grid; place-items:center; width:25px; height:25px; flex:0 0 25px; border-radius:50%; border:1px solid rgba(166,195,180,.24); color:#e3eee8; background:rgba(255,255,255,.035); font:700 11px 'DM Mono',monospace; }
+.desktop-mission-steps .is-done { color:#e3f6ec; }
+.desktop-mission-steps .is-done b { color:#0d2a20; background:#63e6ae; border-color:#63e6ae; }
+.desktop-task-actions { flex-wrap:wrap; }
+@media (min-width:761px) { .desktop-mission-steps { grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; } .desktop-mission-steps > span { align-items:flex-start; font-size:11px; } }
