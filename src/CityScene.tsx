@@ -129,7 +129,7 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
     {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
     {Array.from({ length: 5 }, (_, i) => <RoadDetail key={'crosswalk-' + i} position={[-2.2 + i * 1.1, 0.052, -1.2]} size={[0.64, 0.025, 2.8]} color="#d3d1c4" />)}
-    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, 0.82]} size={[0.07, 0.012, 0.36]} color="#252f32" />)
+    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, 0.82]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
 
     {/* The player's small home is the same landmark that anchors the entrance back into the interior. */}
     <group position={[0, 0, 5.2]}>
