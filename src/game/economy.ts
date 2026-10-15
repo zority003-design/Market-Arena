@@ -60,8 +60,10 @@ export function getFirstImpression(housingId:string, ownedItems:string[], client
 export function getVideoQuality(ownedItems:string[]):number {
  return Math.min(8,ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.videoQuality ?? 0),0))
 }
-export function calculateDeal(client:ClientProfile, trust:number) {
- const ticket=Math.min(client.ticket,Math.floor(client.budget*client.maxAllocation))
+export function calculateDeal(client:ClientProfile, trust:number, previousDeals=0, previouslyInvested=0) {
+ const remainingBudget=Math.max(0,client.budget-previouslyInvested)
+ const allocationRate=Math.min(.45,client.maxAllocation+previousDeals*.05)
+ const ticket=Math.min(Math.round(client.ticket*(1+previousDeals*.25)),Math.floor(client.budget*allocationRate),remainingBudget)
  const qualityMultiplier=trust>=75?1.25:trust>=62?1.1:1
  return {ticket,firmRevenue:Math.round(ticket*client.commissionRate),playerBonus:Math.round(ticket*client.bonusRate*qualityMultiplier),qualityMultiplier}
 }
