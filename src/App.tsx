@@ -202,7 +202,7 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     <mesh position={[0, 0.105, 0.045]} castShadow><capsuleGeometry args={[0.115, 0.15, 6, 18]} /><meshStandardMaterial color="#171c22" roughness={0.72} /></mesh>
     {[-0.19, 0.19].map((x) => <group key={x} position={[x, 0.08, 0]}>
       <mesh position={[0, 0.47, 0]} castShadow><capsuleGeometry args={[0.108, 0.64, 8, 20]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
-      <mesh position={[0, 0.13, 0.09]} castShadow><capsuleGeometry args={[0.09, 0.12, 6, 16]} /><meshStandardMaterial color="#20262a" roughness={0.78} /></mesh>
+      <mesh position={[0, 0.13, 0.09]} rotation={[Math.PI / 2, 0, 0]} castShadow><capsuleGeometry args={[0.09, 0.12, 6, 16]} /><meshStandardMaterial color="#20262a" roughness={0.78} /></mesh>
     </group>)}
     {/* The jacket is a single tailored volume rather than a stack of torso blocks. */}
     <mesh position={[0, 1.18, 0]} scale={[1, 1.05, 0.94]} castShadow><capsuleGeometry args={[0.285, 0.46, 12, 32]} /><meshStandardMaterial color={jacket} roughness={0.94} /></mesh>
