@@ -5,6 +5,7 @@ import * as THREE from 'three'
 function PortraitHead({ tier }: { tier: number }) {
   const head = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
+  const mouth = useRef<THREE.Mesh>(null)
   const skin = tier >= 4 ? '#9b674e' : tier === 3 ? '#c58d6b' : tier === 2 ? '#d4a17e' : '#b77b5c'
   const hair = tier >= 4 ? '#38231f' : tier === 3 ? '#222426' : tier === 2 ? '#60412e' : '#33241f'
   const shirt = tier >= 4 ? '#493b35' : tier === 3 ? '#293b49' : tier === 2 ? '#425e5c' : '#354d46'
@@ -20,6 +21,7 @@ function PortraitHead({ tier }: { tier: number }) {
       const blink = Math.max(0, 1 - Math.abs((t % 5.6) - 4.65) / 0.085)
       eyes.current.scale.y = Math.max(0.08, 1 - blink * 0.92)
     }
+    if (mouth.current) mouth.current.scale.y = 0.018 + Math.max(0, Math.sin(t * 3.7 + tier)) * 0.018
   })
 
   return <group>
@@ -45,7 +47,7 @@ function PortraitHead({ tier }: { tier: number }) {
       </group>
       <mesh position={[0, 0.29, 0.58]} scale={[0.105, 0.2, 0.12]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} roughness={0.76} /></mesh>
       <mesh position={[0, 0.19, 0.66]} scale={[0.14, 0.052, 0.045]} castShadow><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#a76557" roughness={0.75} /></mesh>
-      <mesh position={[0, 0.125, 0.653]} scale={[0.115, 0.018, 0.025]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#713d37" roughness={0.85} /></mesh>
+      <mesh ref={mouth} position={[0, 0.125, 0.653]} scale={[0.115, 0.018, 0.025]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#713d37" roughness={0.85} /></mesh>
       {tier >= 3 && <mesh position={[0, 0.01, 0.47]} scale={[0.43, 0.28, 0.18]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={hair} roughness={0.98} /></mesh>}
       {tier >= 2 && <mesh position={[0, 0.79, 0.34]} scale={[0.25, 0.07, 0.22]}><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color={hair} roughness={0.92} /></mesh>}
     </group>
