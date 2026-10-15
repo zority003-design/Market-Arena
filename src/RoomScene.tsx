@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
@@ -190,6 +190,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
+  const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
     const pulse = 0.88 + Math.sin(clock.elapsedTime * 1.4) * 0.06
@@ -405,7 +406,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
       {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={(value) => { interactable.current = value; onCanInteractChange(value) }} introActive={introActive} onIntroComplete={onIntroComplete} />
+      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={handleCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} />
     </>
   )
 }
