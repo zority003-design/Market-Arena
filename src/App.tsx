@@ -147,6 +147,8 @@ export default function App() {
   const [confirmNewCareer, setConfirmNewCareer] = useState(false)
   const [introActive, setIntroActive] = useState(false)
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
+  const [canSleep, setCanSleep] = useState(false)
+  const [dayEnded, setDayEnded] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
   const finishIntro = useCallback(() => setIntroActive(false), [])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
@@ -349,6 +351,8 @@ export default function App() {
     setLastPenaltySecond(25)
     setGameMinutes(7 * 60)
     setPauseOpen(false)
+    setDayEnded(false)
+    setCanSleep(false)
     setWindowOffset({ x: 0, y: 0 })
     setWindowMaximized(false)
     setWindowMinimized(false)
@@ -394,6 +398,7 @@ export default function App() {
   }, [])
 
   function startCall() {
+    if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
     const dailyCallLimit = reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2
     if (callsToday >= dailyCallLimit) { setToast('На сегодня лимит звонков исчерпан. Восстановись и продолжи завтра.'); return }
     if (!availableClients.some((client) => client.id === activeClient.id)) { setToast('Этот лид сейчас недоступен. Выбери клиента из списка актуальных предложений.'); return }
@@ -512,6 +517,18 @@ export default function App() {
   }
 
   function endDay() {
+    if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
+    setDayEnded(true)
+    setCanInteractWithComputer(false)
+    setCanSleep(false)
+    setPanel('room')
+    setCallStatus('idle')
+    setToast('Рабочий день завершён. Подойди к кровати и нажми E, чтобы лечь спать.')
+    window.setTimeout(() => setToast(''), 5200)
+  }
+
+  function sleepNow() {
+    if (!dayEnded) { setToast('Пока рано спать: сначала заверши рабочий день на компьютере.'); return }
     const nextDay = day + 1
     setDay(nextDay)
     setCallsToday(0)
@@ -527,7 +544,10 @@ export default function App() {
     const debtNote = shortfall > 0
       ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
       : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
-    setToast('День завершён: дневной оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽ (это не выплата за звонок), жильё и быт −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
+    setGameMinutes(7 * 60)
+    setDayEnded(false)
+    setCanSleep(false)
+    setToast('Доброе утро! День ' + nextDay + '. Дневной оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽ (не выплата за звонок), расходы −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
     window.setTimeout(() => setToast(''), 5200)
     setPanel('room')
     setCallStatus('idle')
@@ -537,7 +557,7 @@ export default function App() {
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
       {!mainMenu && introActive && <div className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} />
+        <RoomScene onInteract={openComputer} onCanInteractChange={setCanInteractWithComputer} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} />
       </div>
 
       {mainMenu && (
@@ -612,7 +632,7 @@ export default function App() {
       {panel === 'room' && (
         <>
           {controlsVisible && <div className="control-hint control-hint-temporary"><div className="key-cluster"><kbd>W</kbd><div><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div></div><span>ПЕРЕДВИЖЕНИЕ</span><i /><div className="mouse-hint"><span className="mouse-icon" /></div><span>ОБЗОР</span></div>}
-          {canInteractWithComputer && <button className="interact-card proximity-interact" onClick={openComputer}><span className="enter-key">E</span><span className="interact-copy"><strong>Сесть за компьютер</strong><em>Нажми E, чтобы начать работу</em></span><ChevronRight size={17} /></button>}
+          {canSleep && dayEnded ? <button className="interact-card proximity-interact sleep-interact" onClick={sleepNow}><span className="enter-key">E</span><span className="interact-copy"><strong>Лечь спать</strong><em>Отдохнуть и начать новый день</em></span><ChevronRight size={17} /></button> : canInteractWithComputer && <button className="interact-card proximity-interact" onClick={openComputer}><span className="enter-key">E</span><span className="interact-copy"><strong>Сесть за компьютер</strong><em>Нажми E, чтобы начать работу</em></span><ChevronRight size={17} /></button>}
         </>
       )}
 
