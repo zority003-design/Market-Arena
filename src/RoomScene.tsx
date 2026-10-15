@@ -164,7 +164,7 @@ function Cylinder({ position, radius, height, color, metalness = 0, roughness = 
   rotation?: [number, number, number]
 }) {
   return (
-    <mesh position={position} castShadow receiveShadow>
+    <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <cylinderGeometry args={[radius, radius, height, 24]} />
       <meshStandardMaterial color={color} metalness={metalness} roughness={roughness} />
     </mesh>
