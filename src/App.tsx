@@ -88,6 +88,17 @@ export default function App() {
   }, [cash, reputation, day, deals])
 
   useEffect(() => {
+    if (panel !== 'room') return
+    const handleInteractionKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
+      if (event.key.toLowerCase() === 'e') openComputer()
+    }
+    window.addEventListener('keydown', handleInteractionKey)
+    return () => window.removeEventListener('keydown', handleInteractionKey)
+  }, [panel])
+
+  useEffect(() => {
     if (callStatus !== 'active') return
     const timer = window.setInterval(() => setTimeLeft((value) => Math.max(0, Math.round((value - 0.1) * 10) / 10)), 100)
     return () => window.clearInterval(timer)
