@@ -1060,3 +1060,12 @@ button:focus-visible, textarea:focus-visible {
   .os-topbar-center { font-size: 9px; }
   .pause-menu { padding: 23px; }
 }
+
+/* Readable negotiation choices and clear call timing. */
+.answer-option { min-height: 58px; padding: 12px 15px !important; gap: 12px; }
+.answer-option > span:nth-child(2) { font-size: 14px !important; line-height: 1.5 !important; }
+.option-letter { flex: 0 0 26px; width: 26px; height: 26px; font-size: 12px !important; }
+.answer-panel > h3 { font-size: clamp(18px, 2vw, 23px) !important; line-height: 1.4 !important; }
+.timer-pill { min-width: 82px; justify-content: center; padding: 8px 12px !important; font-size: 15px !important; }
+.timer-warning { font-size: 11px !important; line-height: 1.5 !important; }
+@media (max-width: 720px) { .answer-option { min-height: 64px; } .answer-option > span:nth-child(2) { font-size: 13px !important; } }
