@@ -132,8 +132,13 @@ function readSave() {
 }
 
 export default function App() {
+  const startNewCareerOnLoad = useMemo(() => { try { return localStorage.getItem('na-vse-kotirovki-start-new-career') === 'true' } catch { return false } }, [])
   const saved = useMemo(() => readSave(), [])
-  const [mainMenu, setMainMenu] = useState(true)
+  const [mainMenu, setMainMenu] = useState(!startNewCareerOnLoad)
+  const [offlineMenu, setOfflineMenu] = useState(false)
+  const [onlineInfo, setOnlineInfo] = useState(false)
+  const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
+  const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [menuSettings, setMenuSettings] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-reduced-motion') === 'true' } catch { return false } })
   const [panel, setPanel] = useState<Panel>('room')
@@ -172,8 +177,13 @@ export default function App() {
   const [newsReviewed, setNewsReviewed] = useState(false)
 
   useEffect(() => {
+    if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Ignore unavailable storage. */ } }
+  }, [startNewCareerOnLoad])
+
+  useEffect(() => {
+    if (!careerStarted) return
     try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds })) } catch { /* Ignore unavailable storage. */ }
-  }, [cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds])
+  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds])
 
   useEffect(() => {
     if (tab === 'market') setMarketReviewed(true)
@@ -233,10 +243,20 @@ export default function App() {
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
 
   function enterOfflineGame() {
+    setCareerStarted(true)
+    setHasSavedGame(true)
     setMainMenu(false)
+    setOfflineMenu(false)
     setMenuSettings(false)
+    setOnlineInfo(false)
     setPanel('room')
     setCallStatus('idle')
+  }
+
+  function openOfflineMenu() {
+    setOfflineMenu(true)
+    setMenuSettings(false)
+    setOnlineInfo(false)
   }
 
   function toggleReducedMotion() {
@@ -248,9 +268,12 @@ export default function App() {
   }
 
   function startNewGame() {
-    const confirmed = window.confirm('Начать новую карьеру? Текущее сохранение будет удалено.')
+    const confirmed = window.confirm('Начать новую карьеру с нуля? Старое локальное сохранение будет заменено.')
     if (!confirmed) return
-    try { localStorage.removeItem('na-vse-kotirovki-save-v1') } catch { /* Ignore unavailable storage. */ }
+    try {
+      localStorage.removeItem('na-vse-kotirovki-save-v1')
+      localStorage.setItem('na-vse-kotirovki-start-new-career', 'true')
+    } catch { /* The game can still start for this session if storage is unavailable. */ }
     window.location.reload()
   }
 
@@ -408,21 +431,36 @@ export default function App() {
             <div className="menu-build"><span className="live-dot" /> ОФЛАЙН-ДЕМО <i>v0.4</i></div>
           </div>
           <section className="menu-content">
-            <div className="menu-copy">
-              <div className="menu-eyebrow"><span /> ТВОЯ КАРЬЕРА НАЧИНАЕТСЯ СЕЙЧАС</div>
-              <h1>Большие деньги.<br /><em>Маленькая комната.</em></h1>
-              <p className="menu-description">Начни с подержанного ноутбука и пары сомнительных акций. Убеди первых клиентов, заработай репутацию и построй брокерскую империю — или потеряй всё, пытаясь казаться богаче, чем ты есть.</p>
-              <div className="menu-actions">
-                <button className="menu-play-button" onClick={enterOfflineGame}><Play size={18} fill="currentColor" /> Играть офлайн <ArrowRight size={17} /></button>
-                <button className="menu-secondary-button" onClick={() => setMenuSettings(true)}><Settings size={17} /> Настройки</button>
-                <button className="menu-secondary-button" onClick={startNewGame}><RotateCcw size={16} /> Новая карьера</button>
+            {!offlineMenu ? (
+              <div className="menu-copy">
+                <div className="menu-eyebrow"><span /> ТВОЯ КАРЬЕРА НАЧИНАЕТСЯ СЕЙЧАС</div>
+                <h1>Большие деньги.<br /><em>Маленькая комната.</em></h1>
+                <p className="menu-description">Начни с подержанного ноутбука и пары сомнительных акций. Убеди первых клиентов, заработай репутацию и построй брокерскую империю — или потеряй всё, пытаясь казаться богаче, чем ты есть.</p>
+                <div className="menu-actions menu-main-actions">
+                  <button className="menu-play-button" onClick={openOfflineMenu}><Play size={18} fill="currentColor" /> Играть офлайн <ArrowRight size={17} /></button>
+                  <button className="menu-secondary-button menu-online-button" onClick={() => setOnlineInfo(true)}><Users size={17} /> Играть онлайн <span>СКОРО</span></button>
+                  <button className="menu-secondary-button" onClick={() => setMenuSettings(true)}><Settings size={17} /> Настройки</button>
+                </div>
+                <div className="menu-footnote">ОФЛАЙН-КАРЬЕРА · СОХРАНЕНИЕ В БРАУЗЕРЕ НА ЭТОМ УСТРОЙСТВЕ</div>
               </div>
-              <div className="menu-future-links">
-                <div className="menu-future-item"><Wifi size={17} /><span><strong>Онлайн</strong><small>Соревнования и игра с друзьями</small></span><b>СКОРО</b></div>
-                <div className="menu-future-item"><Sparkles size={17} /><span><strong>Поддержать разработку</strong><small>Косметика и дополнительные возможности — позже</small></span><b>ПОЗЖЕ</b></div>
+            ) : (
+              <div className="menu-copy offline-select-screen">
+                <button className="menu-back-button" onClick={() => setOfflineMenu(false)}><ArrowLeft size={15} /> ГЛАВНОЕ МЕНЮ</button>
+                <div className="menu-eyebrow"><span /> ОФЛАЙН-КАРЬЕРА</div>
+                <h1>С чего <em>начнём?</em></h1>
+                <p className="menu-description">Прогресс автоматически сохраняется в этом браузере. Пока серверных аккаунтов нет, сохранение доступно только на этом устройстве и в этом браузере.</p>
+                <div className="offline-save-card">
+                  <div className="offline-save-icon"><Laptop size={23} /></div>
+                  <div className="offline-save-copy"><strong>Твоя карьера</strong><small>{hasSavedGame ? `День ${String(day).padStart(2, '0')} · ${currentHousing.name} · ${cash.toLocaleString('ru-RU')} ₽` : 'Сохранений пока нет — самое время начать.'}</small></div>
+                  <span className={'offline-save-status' + (hasSavedGame ? ' saved' : '')}>{hasSavedGame ? 'СОХРАНЕНО' : 'ПУСТО'}</span>
+                </div>
+                <div className="offline-menu-actions">
+                  <button className="menu-play-button" onClick={enterOfflineGame} disabled={!hasSavedGame}><Play size={17} fill="currentColor" /> Загрузить игру <ArrowRight size={16} /></button>
+                  <button className="menu-secondary-button" onClick={startNewGame}><RotateCcw size={16} /> Новая карьера</button>
+                </div>
+                <p className="offline-save-note">{hasSavedGame ? 'Загрузка продолжит последнее сохранение.' : 'Сначала создай карьеру. После начала игры она будет сохраняться автоматически.'}</p>
               </div>
-              <div className="menu-footnote">ОФЛАЙН-КАРЬЕРА · СОХРАНЕНИЕ НА ЭТОМ УСТРОЙСТВЕ</div>
-            </div>
+            )}
             <div className="menu-scene-caption">
               <span className="caption-line" />
               <div><strong>ДЕНЬ {String(day).padStart(2, '0')} / {currentHousing.name.toUpperCase()}</strong><small>Твой первый офис — пока что чужая комната.</small></div>
@@ -430,6 +468,7 @@ export default function App() {
           </section>
           <div className="menu-bottomline"><span><Gamepad2 size={15} /> WASD · МЫШЬ · ПЕРЕГОВОРЫ · КАРЬЕРА</span><span>НЕФИНАНСОВЫЙ СОВЕТ. НЕ СОВСЕМ ЧЕСТНЫЕ БРОКЕРЫ.</span></div>
           {menuSettings && <div className="menu-modal-backdrop" onClick={() => setMenuSettings(false)}><section className="menu-settings-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setMenuSettings(false)} aria-label="Закрыть настройки"><X size={18} /></button><span className="menu-eyebrow"><Settings size={14} /> ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><div className="settings-row"><span><strong>Музыка и звуки</strong><small>Фоновая музыка будет добавлена позже.</small></span><span className="settings-coming-soon"><Volume2 size={16} /> СКОРО</span></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Отключает декоративные движения интерфейса.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Сохранение</strong><small>Прогресс карьеры хранится локально в браузере.</small></span><span className="settings-local-save">ЛОКАЛЬНО</span></div><button className="menu-modal-done" onClick={() => setMenuSettings(false)}>Готово <ArrowRight size={16} /></button></section></div>}
+          {onlineInfo && <div className="menu-modal-backdrop" onClick={() => setOnlineInfo(false)}><section className="menu-settings-modal online-info-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setOnlineInfo(false)} aria-label="Закрыть окно"><X size={18} /></button><span className="menu-eyebrow"><Users size={14} /> СЕТЕВАЯ КАРЬЕРА</span><h2>Онлайн появится позже</h2><p className="online-info-copy">Сначала доведём до ума одиночную карьеру. Затем добавим аккаунты и серверные сохранения, таблицы лидеров и соревнования с друзьями. Сейчас онлайн-режим ещё не подключён.</p><div className="online-roadmap"><span><Check size={15} /> Локальная карьера</span><span><Clock3 size={15} /> Сервер и аккаунты — в разработке</span><span><Users size={15} /> Соревнования — позже</span></div><button className="menu-modal-done" onClick={() => setOnlineInfo(false)}>Понятно</button></section></div>}
         </div>
       )}
 
