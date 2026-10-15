@@ -1530,3 +1530,9 @@ button:focus-visible, textarea:focus-visible {
  .shift-strip-title, .desktop-shift-strip > button { grid-column:auto; }
  .shift-strip-step { grid-template-columns:25px 1fr; }
 }
+
+
+.outfit-swatch { display:grid; place-items:center; min-height:152px; overflow:hidden; border-radius:8px; background:radial-gradient(ellipse at 50% 24%,rgba(100,180,145,.16),transparent 57%),linear-gradient(180deg,rgba(20,37,36,.88),rgba(8,16,19,.96)); }
+.outfit-illustration { display:block; width:100%; max-width:138px; height:150px; filter:drop-shadow(0 8px 9px rgba(0,0,0,.26)); transition:transform .25s ease, filter .25s ease; }
+.outfit-preview-button:hover .outfit-illustration { transform:translateY(-2px) scale(1.035); filter:drop-shadow(0 11px 12px rgba(0,0,0,.34)); }
+.outfit-card.wearing .outfit-swatch { outline:1px solid rgba(113,224,169,.32); outline-offset:-1px; }
