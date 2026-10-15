@@ -1409,3 +1409,30 @@ button:focus-visible, textarea:focus-visible {
 @keyframes wake-blink-top { 0%,100% { transform:translateY(-100%); } 45%,65% { transform:translateY(0); } }
 @keyframes wake-blink-bottom { 0%,100% { transform:translateY(100%); } 45%,65% { transform:translateY(0); } }
 @keyframes wake-focus { 0%,20% { opacity:1; backdrop-filter:blur(16px); } 48% { opacity:.75; backdrop-filter:blur(10px); } 72% { opacity:.22; backdrop-filter:blur(3px); } 100% { opacity:0; backdrop-filter:blur(0); } }
+
+
+/* Market Arena: polished, legible workstation and clear learning loop */
+.guided-mission {
+  position: relative; overflow: hidden;
+  box-shadow: 0 14px 36px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.035);
+}
+.guided-mission::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:linear-gradient(180deg,#7df2c2,#2d9f83); }
+.mission-checklist { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:19px; max-width:820px; }
+.mission-step { display:flex; align-items:center; gap:10px; min-width:0; padding:11px 12px; border-radius:10px; border:1px solid rgba(190,214,205,.13); background:rgba(6,18,24,.28); }
+.mission-step > b { display:grid; place-items:center; flex:0 0 29px; width:29px; height:29px; border-radius:50%; border:1px solid rgba(139,170,157,.3); color:#d9e8e1; font:700 12px 'DM Mono',monospace; }
+.mission-step > span { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.mission-step strong { color:#e8f3ee; font-size:12px; line-height:1.35; }
+.mission-step small { color:#9db2a8; font-size:10px; line-height:1.35; }
+.mission-step.complete { border-color:rgba(71,213,165,.38); background:rgba(43,145,111,.12); }
+.mission-step.complete > b { background:#47d5a5; color:#10271f; border-color:#47d5a5; }
+.market-summary, .company-detail, .company-table, .news-card { box-shadow:0 12px 32px rgba(0,0,0,.13), inset 0 1px 0 rgba(255,255,255,.025); }
+.company-row { transition:background .16s ease,border-color .16s ease,transform .16s ease; }
+.company-row:hover { background:rgba(80,190,150,.065); }
+.company-row.selected { box-shadow:inset 3px 0 0 #52d9a9; }
+.company-detail { border:1px solid rgba(133,181,158,.16); border-radius:16px; }
+.detail-stats > div { border:1px solid rgba(133,181,158,.1); border-radius:10px; background:rgba(255,255,255,.018); }
+.row-action { transition:transform .15s ease,background .15s ease,border-color .15s ease; }
+.row-action:hover { transform:translateY(-1px); }
+.terminal-content { scrollbar-color:rgba(112,166,142,.42) rgba(5,15,20,.2); scrollbar-width:thin; }
+.terminal-content :is(button,input,select,textarea):focus-visible { outline:2px solid #68e3b5; outline-offset:3px; }
+@media (max-width:760px) { .mission-checklist { grid-template-columns:1fr; } .mission-step { padding:10px 12px; } .guided-mission { padding:16px !important; } .market-summary { gap:12px; } }
