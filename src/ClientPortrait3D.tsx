@@ -56,7 +56,7 @@ function PortraitHead({ tier }: { tier: number }) {
 
 export default function ClientPortrait3D({ tier }: { tier: number }) {
   return <div className="client-portrait-3d" aria-label="Анимированный 3D-портрет клиента">
-    <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.12, 4.1], fov: 36, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
+    <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.12, 4.1], fov: 44, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
       <ambientLight intensity={1.15} />
       <hemisphereLight args={['#d9e6f1', '#4b4039', 0.72]} />
       <directionalLight position={[-2.5, 4, 3]} intensity={2.1} color="#ffe1c4" castShadow />
