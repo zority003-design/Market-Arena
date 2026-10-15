@@ -165,8 +165,8 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     ]
     const foundObject = objectDistances.find((item) => Math.hypot(camera.position.x - item.x, camera.position.z - item.z) < item.radius)?.id ?? null
     if (foundObject !== nearbyObject.current) { nearbyObject.current = foundObject; onNearbyObjectChange(foundObject) }
-    const bedDistance = Math.hypot(camera.position.x - 1.2, camera.position.z - 0.8)
-    const canSleep = bedDistance < 1.05 && camera.position.x > 0.55
+    const bedDistance = Math.hypot(camera.position.x - 0.95, camera.position.z - 0.8)
+    const canSleep = bedDistance < 1.05 && camera.position.x > 0.25
     if (canSleep !== sleepable.current) { sleepable.current = canSleep; onCanSleepChange(canSleep) }
   })
 
@@ -454,13 +454,13 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[1.73, 0.09, 2.9]} size={[0.31, 0.08, 0.44]} color="#4e4642" rotation={[0, 0.12, 0]} roughness={0.95} />
 
       {/* Bed and rumpled bedding */}
-      <Box position={[2.52, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
-      <Box position={[2.52, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#d0c8b8" roughness={0.98} />
-      <Box position={[2.52, 0.7, -0.13]} size={[1.75, 0.11, 0.82]} color="#b3c1c4" roughness={1} />
-      <Box position={[2.52, 0.69, 1.2]} size={[1.72, 0.09, 1.65]} color="#536c78" roughness={1} rotation={[0.02, 0, -0.025]} />
-      <Box position={[2.52, 0.75, 1.9]} size={[0.85, 0.12, 0.52]} color="#c8c2b5" roughness={1} />
-      <Box position={[2.52, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
-      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[2.52 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
+      <Box position={[0.95, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
+      <Box position={[0.95, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#d0c8b8" roughness={0.98} />
+      <Box position={[0.95, 0.7, -0.13]} size={[1.75, 0.11, 0.82]} color="#b3c1c4" roughness={1} />
+      <Box position={[0.95, 0.69, 1.2]} size={[1.72, 0.09, 1.65]} color="#536c78" roughness={1} rotation={[0.02, 0, -0.025]} />
+      <Box position={[0.95, 0.75, 1.9]} size={[0.85, 0.12, 0.52]} color="#c8c2b5" roughness={1} />
+      <Box position={[0.95, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
+      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[0.95 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
       {/* Shelf with clutter */}
       <Box position={[3.2, 2.18, -3.62]} size={[1.2, 0.08, 0.48]} color="#6b4b38" />
