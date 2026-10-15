@@ -4,7 +4,7 @@ import {
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
   Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor,
-  Settings, Volume2, Gamepad2, Play, RotateCcw, ArrowRight
+  Settings, Gamepad2, Play, RotateCcw, ArrowRight
 } from 'lucide-react'
 import RoomScene from './RoomScene'
 import { configureAudio, playSound, speakText, stopSpeech } from './audio'
