@@ -412,7 +412,7 @@ export default function App() {
     setTrust(48)
     setPatience(74)
     setTimeLeft(60)
-    setLastPenaltySecond(25)
+    setLastPenaltySecond(60)
     setGameMinutes(7 * 60)
     setPauseOpen(false)
     setDayEnded(false)
@@ -484,8 +484,8 @@ export default function App() {
     setCallStatus('active')
     playSound('computer')
     speakText('Здравствуйте. ' + activeClient.quote, 'client')
-    setTimeLeft(25)
-    setLastPenaltySecond(25)
+    setTimeLeft(60)
+    setLastPenaltySecond(60)
     setWindowMinimized(false)
     setWindowMaximized(true)
     setTab('calls')
@@ -781,7 +781,7 @@ export default function App() {
                 <div className="shop-page">
                   <div className="page-heading"><div><div className="eyebrow">ИНВЕНТАРЬ · ОБОРУДОВАНИЕ</div><h2>Улучши рабочее место</h2><p>Техника улучшает качество звонков и первое впечатление. Она не заменяет знания и честные ответы.</p></div><div className="market-status"><ShoppingBag size={14} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
                   <div className="economy-summary"><div><small>ЛИЧНЫЕ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>УСТАНОВЛЕНО ПРЕДМЕТОВ</small><strong>{ownedItems.length}</strong></div><div><small>КАЧЕСТВО ВИДЕО</small><strong>{getVideoQuality(ownedItems)}/8</strong></div></div>
-                  <div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; return <article className={owned ? 'shop-item owned' : 'shop-item'} key={item.id}><div className={'shop-item-icon ' + item.category}>{item.category === 'video' ? <Camera size={21} /> : item.category === 'background' ? <Video size={21} /> : item.category === 'work' ? <Monitor size={21} /> : <PackageCheck size={21} />}</div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p></div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div>
+                  <div className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><div className="wardrobe-character"><span className="wardrobe-hair" /><span className="wardrobe-head"><i /><i /><b /></span><span className="wardrobe-neck" /><span className="wardrobe-shirt"><i /><i /></span><span className="wardrobe-arm left" /><span className="wardrobe-arm right" /><span className="wardrobe-pants"><i /><i /></span><span className="wardrobe-shoe left" /><span className="wardrobe-shoe right" /></div><span className="wardrobe-stage-label">ПРЕДПРОСМОТР ПЕРСОНАЖА</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ГАРДЕРОБ · ПЕРСОНАЖ</span><h3>Твой брокерский образ</h3><p>Сейчас на тебе базовая одежда стажёра. Покупки пока улучшают комнату и качество видеосвязи; следующий шаг — отдельная система одежды и смены внешности.</p><div className="wardrobe-look-tags"><span>Базовая футболка</span><span>Тёмные брюки</span><span>Повседневный стиль</span></div></div></div><div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; return <article className={owned ? 'shop-item owned' : 'shop-item'} key={item.id}><div className={'shop-item-icon ' + item.category}>{item.category === 'video' ? <Camera size={21} /> : item.category === 'background' ? <Video size={21} /> : item.category === 'work' ? <Monitor size={21} /> : <PackageCheck size={21} />}</div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p></div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div>
                   <div className="bottom-note"><Sparkles size={16} /><span>Установленные предметы сохраняются. Бонус от внешнего вида ограничен: подготовка к звонку и качество ответов важнее дорогого оборудования.</span></div>
                 </div>
               )}
