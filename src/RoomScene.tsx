@@ -22,6 +22,22 @@ type RoomSceneProps = {
   curtainsOpen: boolean
 }
 
+function CityTraffic({ night }: { night: boolean }) {
+  const traffic = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => { if (traffic.current) traffic.current.position.z = -1.15 + Math.sin(clock.elapsedTime * 0.18) * 0.76 })
+  return <group>
+    <Box position={[-4.8, 1.34, -1.15]} size={[0.8, 0.045, 2.1]} color={night ? '#17232c' : '#68747a'} roughness={0.98} />
+    <group ref={traffic} position={[-4.22, 1.42, -1.15]}>
+      <Box position={[0, 0, 0]} size={[0.035, 0.035, 0.19]} color={night ? '#d5b06c' : '#c3d3ce'} emissive={night ? '#e1a84b' : '#668b86'} emissiveIntensity={night ? 1.5 : 0.18} />
+      <Box position={[0, 0.005, -0.09]} size={[0.04, 0.018, 0.025]} color="#e9d8a4" emissive="#f0cb7a" emissiveIntensity={night ? 1.8 : 0.25} />
+      <Box position={[0, 0.005, 0.09]} size={[0.04, 0.018, 0.025]} color="#e9d8a4" emissive="#f0cb7a" emissiveIntensity={night ? 1.8 : 0.25} />
+    </group>
+    <group position={[-5.2, 1.32, 0.25]}>
+      <Box position={[0, 0, 0]} size={[0.035, 0.035, 0.15]} color={night ? '#c6a06a' : '#a9c4c0'} emissive="#c99a54" emissiveIntensity={night ? 1.1 : 0.1} />
+    </group>
+  </group>
+}
+
 function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
@@ -283,19 +299,22 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       {/* Clear window by default: rain is not a permanent weather state. */}
       {/* A real 3D city sits beyond the open window cut-out, not on the glass as a flat picture. */}
       {[
-        { z: -1.92, y: 1.72, h: 1.18, w: 0.46, d: 0.55 },
-        { z: -1.48, y: 1.98, h: 1.65, w: 0.38, d: 0.42 },
-        { z: -1.02, y: 1.58, h: 0.88, w: 0.45, d: 0.5 },
-        { z: -0.58, y: 1.84, h: 1.38, w: 0.4, d: 0.48 },
-        { z: -0.18, y: 1.52, h: 0.78, w: 0.34, d: 0.38 },
+        { z: -2.04, y: 2.05, h: 2.45, w: 0.48, d: 0.36, depth: 0.0 },
+        { z: -1.68, y: 2.0, h: 3.05, w: 0.42, d: 0.42, depth: 0.45 },
+        { z: -1.34, y: 1.95, h: 2.2, w: 0.38, d: 0.32, depth: 0.18 },
+        { z: -1.03, y: 2.04, h: 2.7, w: 0.45, d: 0.44, depth: 0.58 },
+        { z: -0.7, y: 1.9, h: 2.0, w: 0.35, d: 0.34, depth: 0.22 },
+        { z: -0.38, y: 2.0, h: 2.8, w: 0.42, d: 0.36, depth: 0.5 },
+        { z: -0.13, y: 1.86, h: 1.75, w: 0.34, d: 0.3, depth: 0.08 },
       ].map((building, i) => (
         <group key={i}>
-          <Box position={[-4.55 - (i % 2) * 0.22, building.y, building.z]} size={[building.d, building.h, building.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#293b4b' : '#344653') : (i % 2 ? '#607b89' : '#526d7a')} roughness={0.96} />
-          {Array.from({ length: Math.max(2, Math.floor(building.h / 0.2)) }, (_, row) => (
-            <Box key={row} position={[-4.55 - (i % 2) * 0.22 + building.d / 2 + 0.008, building.y - building.h / 2 + 0.12 + row * 0.19, building.z]} size={[0.012, 0.045, building.w * 0.58]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? '#f3d48d' : '#9ec4c9'} roughness={0.6} />
+          <Box position={[-4.42 - building.depth, building.y, building.z]} size={[building.d, building.h, building.w]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 2 ? '#263b4c' : '#344b5d') : (i % 2 ? '#5c7887' : '#4c6879')} roughness={0.94} />
+          {Array.from({ length: Math.max(3, Math.floor(building.h / 0.18)) }, (_, row) => (
+            <Box key={row} position={[-4.42 - building.depth + building.d / 2 + 0.009, building.y - building.h / 2 + 0.13 + row * 0.18, building.z]} size={[0.012, 0.052, building.w * 0.58]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? (i % 3 === 0 ? '#f0d18a' : '#90b5bd') : '#a9c9cf'} roughness={0.55} />
           ))}
         </group>
       ))}
+      <CityTraffic night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
