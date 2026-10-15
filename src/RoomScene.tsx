@@ -260,10 +260,24 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       <Box position={[-1.82, 2.2, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.2]} />
       <Box position={[-1.48, 2.32, -3.785]} size={[0.42, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, 0.22]} />
       <Box position={[-1.2, 2.37, -3.785]} size={[0.28, 0.025, 0.008]} color="#63dca7" rotation={[0, 0, -0.1]} />
+      {/* Candles and volume bars make the wall chart read as a real market chart, not random stripes. */}
+      {[
+        { x: -2.62, y: 1.78, h: 0.22, up: true }, { x: -2.38, y: 1.91, h: 0.31, up: true },
+        { x: -2.14, y: 1.85, h: 0.18, up: false }, { x: -1.9, y: 2.05, h: 0.34, up: true },
+        { x: -1.66, y: 2.16, h: 0.27, up: false }, { x: -1.42, y: 2.29, h: 0.32, up: true },
+      ].map((candle) => <group key={'wall-candle-' + candle.x}>
+        <Box position={[candle.x, candle.y, -3.776]} size={[0.025, candle.h + 0.1, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
+        <Box position={[candle.x, candle.y, -3.769]} size={[0.075, candle.h * 0.45, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
+      </group>)}
 
       {/* Window on left wall */}
-      <Box position={[-3.86, 2.05, -1.15]} size={[0.09, 1.62, 2.05]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.79, 2.05, -1.15]} size={[0.035, 1.43, 1.86]} color="#9ecbe0" roughness={0.22} metalness={0.08} transparent opacity={0.14} />
+      {/* Open window aperture: frame pieces leave the center transparent so the skyline is actually visible. */}
+      <Box position={[-3.86, 2.05, -2.18]} size={[0.09, 1.62, 0.09]} color="#2a3946" roughness={0.35} />
+      <Box position={[-3.86, 2.05, -0.12]} size={[0.09, 1.62, 0.09]} color="#2a3946" roughness={0.35} />
+      <Box position={[-3.86, 2.82, -1.15]} size={[0.09, 0.09, 2.12]} color="#2a3946" roughness={0.35} />
+      <Box position={[-3.86, 1.28, -1.15]} size={[0.09, 0.09, 2.12]} color="#2a3946" roughness={0.35} />
+      <Box position={[-6.25, 2.05, -1.15]} size={[0.08, 3.8, 4.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182b40" : "#a9d4e4"} roughness={1} />
+      <Box position={[-3.79, 2.05, -1.15]} size={[0.018, 1.43, 1.86]} color="#9ecbe0" roughness={0.12} metalness={0.08} transparent opacity={0.055} />
       {/* Clear window by default: rain is not a permanent weather state. */}
       {/* A real 3D city sits beyond the open window cut-out, not on the glass as a flat picture. */}
       {[
