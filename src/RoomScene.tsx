@@ -25,22 +25,6 @@ type RoomSceneProps = {
   curtainsOpen: boolean
 }
 
-function CityTraffic({ night }: { night: boolean }) {
-  const traffic = useRef<THREE.Group>(null)
-  useFrame(({ clock }) => { if (traffic.current) traffic.current.position.z = -1.15 + Math.sin(clock.elapsedTime * 0.18) * 0.76 })
-  return <group>
-    <Box position={[-4.8, 1.34, -1.15]} size={[0.8, 0.045, 2.1]} color={night ? '#17232c' : '#68747a'} roughness={0.98} />
-    <group ref={traffic} position={[-4.22, 1.42, -1.15]}>
-      <Box position={[0, 0, 0]} size={[0.035, 0.035, 0.19]} color={night ? '#d5b06c' : '#c3d3ce'} emissive={night ? '#e1a84b' : '#668b86'} emissiveIntensity={night ? 1.5 : 0.18} />
-      <Box position={[0, 0.005, -0.09]} size={[0.04, 0.018, 0.025]} color="#e9d8a4" emissive="#f0cb7a" emissiveIntensity={night ? 1.8 : 0.25} />
-      <Box position={[0, 0.005, 0.09]} size={[0.04, 0.018, 0.025]} color="#e9d8a4" emissive="#f0cb7a" emissiveIntensity={night ? 1.8 : 0.25} />
-    </group>
-    <group position={[-5.2, 1.32, 0.25]}>
-      <Box position={[0, 0, 0]} size={[0.035, 0.035, 0.15]} color={night ? '#c6a06a' : '#a9c4c0'} emissive="#c99a54" emissiveIntensity={night ? 1.1 : 0.1} />
-    </group>
-  </group>
-}
-
 function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onExitCity: () => void; onCanExitCityChange: (value: boolean) => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
