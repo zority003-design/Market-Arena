@@ -105,7 +105,7 @@ function District({ gameMinutes }: { gameMinutes: number }) {
   </>
 }
 
-function FirstPersonCity({ gameMinutes, onEnterHome, onOpenLocation, onNearbyChange }: CitySceneProps & { onNearbyChange: (nearby: LocationId | 'home' | null) => void }) {
+function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySceneProps & { onNearbyChange: (nearby: LocationId | 'home' | null) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
   const yaw = useRef(0)
