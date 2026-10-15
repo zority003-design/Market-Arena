@@ -172,12 +172,11 @@ export function speakText(text: string, role: 'client' | 'player' = 'client') {
   if (!settings.voice || typeof window === 'undefined' || !('speechSynthesis' in window)) return
   const clean = text.replace(/<[^>]*>/g, '').trim()
   if (!clean) return
-  window.speechSynthesis.cancel()
   const utterance = new SpeechSynthesisUtterance(clean)
   utterance.lang = 'ru-RU'
   utterance.rate = role === 'client' ? 0.94 : 1.02
   utterance.pitch = role === 'client' ? 0.91 : 1.04
-  utterance.volume = settings.enabled ? 0.9 : 0
+  utterance.volume = 0.9
   const voices = window.speechSynthesis.getVoices()
   const russian = voices.find((voice) => voice.lang.toLowerCase().startsWith('ru'))
   if (russian) utterance.voice = russian
