@@ -231,7 +231,7 @@ function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, a
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} />
       <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color="#5c646d" />
       <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
-      <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 3.82]} color="#5c646d" />
+      <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
       <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} />
