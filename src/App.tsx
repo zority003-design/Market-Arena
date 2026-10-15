@@ -249,7 +249,7 @@ export default function App() {
   return (
     <main className="game-shell">
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} active={panel === 'room'} />
+        <RoomScene onInteract={openComputer} active={panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
       </div>
 
       <header className="top-hud">
