@@ -207,6 +207,11 @@ export default function App() {
     if (tab === 'news') setNewsReviewed(true)
   }, [tab])
 
+  useEffect(() => {
+    if (tab !== 'calls' || callStatus !== 'active') setWindowMaximized(false)
+    setWindowMinimized(false)
+  }, [tab, callStatus])
+
   // In-game clock: ten minutes pass in the world every real minute; pausing freezes it.
   useEffect(() => {
     if (mainMenu || pauseOpen) return
