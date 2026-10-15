@@ -724,10 +724,10 @@ button:focus-visible, textarea:focus-visible {
 .menu-description { max-width: 475px; margin: 0; color: #b0c0bc; font-size: clamp(12px, 1.1vw, 14px); line-height: 1.85; }
 .menu-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 28px; }
 .menu-play-button, .menu-secondary-button { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; border-radius: 7px; transition: transform .2s ease, border-color .2s ease, background .2s ease; }
-.menu-play-button { padding: 0 18px; color: #06140e; background: linear-gradient(135deg,#83edc3,#35bd8c); border: 1px solid rgba(151,255,214,.7); box-shadow: 0 8px 30px rgba(35,185,131,.17); font-size: 12px; font-weight: 800; }
+.menu-play-button { padding: 0 22px; min-height: 56px; color: #06140e; background: linear-gradient(135deg,#83edc3,#35bd8c); border: 1px solid rgba(151,255,214,.7); box-shadow: 0 8px 30px rgba(35,185,131,.17); font-size: 15px; font-weight: 800; }
 .menu-play-button svg:last-child { margin-left: 8px; }
 .menu-play-button:hover { transform: translateY(-2px); background: linear-gradient(135deg,#a0f5d1,#47d29f); }
-.menu-secondary-button { padding: 0 15px; border: 1px solid rgba(198,220,212,.17); background: rgba(8,18,22,.56); color: #d3dfda; font-size: 11px; font-weight: 700; }
+.menu-secondary-button { padding: 0 18px; min-height: 52px; border: 1px solid rgba(198,220,212,.17); background: rgba(8,18,22,.56); color: #d3dfda; font-size: 13px; font-weight: 700; }
 .menu-secondary-button:hover { transform: translateY(-2px); border-color: rgba(126,224,183,.5); background: rgba(21,45,40,.76); }
 .menu-future-links { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 27px; max-width: 560px; }
 .menu-future-item { display: grid; grid-template-columns: 19px minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 13px 12px; border: 1px solid rgba(190,214,205,.11); border-radius: 7px; background: rgba(8,16,20,.5); color: #80d9b1; }
@@ -1337,3 +1337,9 @@ button:focus-visible, textarea:focus-visible {
 .settings-volume-row small { color:#8ea29a; font-size:10px; line-height:1.6; }
 .settings-volume-row output { min-width:45px; color:#9de8c4; font:12px 'DM Mono',monospace; text-align:right; }
 .settings-volume-row input[type="range"] { display:block; width:100%; height:6px; accent-color:#55dba5; cursor:pointer; }
+
+/* Menu readability and larger, easier-to-hit controls. */
+.menu-description { font-size: 16px; line-height: 1.75; }
+.menu-eyebrow { font-size: 11px; }
+.menu-main-actions .menu-play-button, .menu-main-actions .menu-secondary-button { min-height: 58px; font-size: 14px; }
+.offline-menu-actions .menu-play-button, .offline-menu-actions .menu-secondary-button { min-height: 58px; font-size: 14px; }
