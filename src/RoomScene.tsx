@@ -129,7 +129,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
     if (!active) return
     const dt = Math.min(delta, 0.04)
     if (introActive) {
-      introProgress.current = Math.min(1, introProgress.current + dt / 3.1)
+      introProgress.current = Math.min(1, introProgress.current + dt / 4.2)
       const t = introProgress.current * introProgress.current * (3 - 2 * introProgress.current)
       camera.position.set(2.52 + (1.45 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (2.15 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
