@@ -515,3 +515,54 @@ button:focus-visible, textarea:focus-visible {
   }
 }
 
+/* Pre-call preparation is a small, actionable gameplay system—not a passive hint. */
+.precall-briefing {
+  display: grid;
+  grid-template-columns: minmax(220px, .9fr) minmax(300px, 1.1fr);
+  gap: 14px 22px;
+  align-items: center;
+  margin: 0 0 14px;
+  padding: 17px 18px;
+  border: 1px solid rgba(228,188,119,.18);
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(228,188,119,.075), transparent 52%),
+    linear-gradient(135deg, rgba(21,30,34,.96), rgba(13,20,25,.96));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 10px 30px rgba(0,0,0,.12);
+}
+.briefing-copy { min-width: 0; }
+.briefing-copy > strong { display: block; margin-top: 8px; color: #e8eee9; font-size: 14px; letter-spacing: -.025em; }
+.briefing-copy p { max-width: 390px; margin: 7px 0 0; color: #899a9d; font-size: 10px; line-height: 1.65; }
+.briefing-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.briefing-action {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgba(183,208,214,.12);
+  border-radius: 7px;
+  background: rgba(255,255,255,.025);
+  color: #9fb3b1;
+  text-align: left;
+  transition: border-color .18s, background .18s, transform .18s;
+}
+.briefing-action:hover { transform: translateY(-1px); border-color: rgba(56,214,160,.28); background: rgba(56,214,160,.045); }
+.briefing-action > svg { flex: 0 0 auto; color: var(--gold); }
+.briefing-action > span:nth-child(2) { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+.briefing-action strong { color: #dce7e3; font-size: 10px; font-weight: 700; }
+.briefing-action small { color: #7e9293; font-size: 8px; line-height: 1.4; }
+.briefing-action .briefing-check { color: #829597; font: 12px 'DM Mono', monospace; }
+.briefing-action.complete { border-color: rgba(56,214,160,.24); background: rgba(56,214,160,.065); }
+.briefing-action.complete > svg, .briefing-action.complete .briefing-check { color: var(--green); }
+.briefing-total { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid rgba(183,208,214,.09); color: #7f9295; font-size: 9px; }
+.briefing-total strong { color: var(--green); font: 11px 'DM Mono', monospace; }
+@media (max-width: 760px) {
+  .precall-briefing { grid-template-columns: 1fr; gap: 13px; padding: 13px; }
+  .briefing-copy > strong { font-size: 12px; }
+  .briefing-actions { gap: 6px; }
+  .briefing-action { gap: 6px; padding: 8px; }
+  .briefing-action strong { font-size: 9px; }
+  .briefing-action small { font-size: 7px; }
+}
+
