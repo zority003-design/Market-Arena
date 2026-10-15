@@ -75,6 +75,7 @@ export default function App() {
   const [trust, setTrust] = useState(48)
   const [patience, setPatience] = useState(74)
   const [timeLeft, setTimeLeft] = useState(12)
+  const [lastPenaltySecond, setLastPenaltySecond] = useState(12)
   const [freeAnswer, setFreeAnswer] = useState('')
   const [conversation, setConversation] = useState<{ from: 'client' | 'you' | 'system'; text: string }[]>([])
   const [lastResult, setLastResult] = useState('')
@@ -91,6 +92,15 @@ export default function App() {
     const timer = window.setInterval(() => setTimeLeft((value) => Math.max(0, Math.round((value - 0.1) * 10) / 10)), 100)
     return () => window.clearInterval(timer)
   }, [callStatus, questionIndex])
+
+  useEffect(() => {
+    if (callStatus !== 'active' || timeLeft > 9 || timeLeft <= 0) return
+    const second = Math.floor(timeLeft)
+    if (second >= lastPenaltySecond) return
+    setLastPenaltySecond(second)
+    setTrust((value) => Math.max(0, value - 1))
+    setPatience((value) => Math.max(0, value - 2))
+  }, [timeLeft, callStatus, lastPenaltySecond])
 
   useEffect(() => {
     if (callStatus !== 'active' || timeLeft > 0) return
@@ -114,6 +124,7 @@ export default function App() {
     setTrust(48)
     setPatience(74)
     setTimeLeft(12)
+    setLastPenaltySecond(12)
     setFreeAnswer('')
     setLastResult('')
     setConversation([{ from: 'client', text: 'Здравствуйте. У меня есть немного свободных денег, но я не хочу покупать кота в мешке. Расскажите про «Котолёт».' }])
@@ -148,7 +159,9 @@ export default function App() {
       resolveCall(nextTrust, nextPatience)
     } else {
       setQuestionIndex((value) => value + 1)
-      setTimeLeft(questionIndex === 1 ? 9 : 12)
+      const nextTime = questionIndex === 1 ? 9 : 12
+      setTimeLeft(nextTime)
+      setLastPenaltySecond(nextTime)
     }
   }
 
