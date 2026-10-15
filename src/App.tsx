@@ -82,10 +82,17 @@ export default function App() {
   const [toast, setToast] = useState('')
   const [selectedCompany, setSelectedCompany] = useState('KOTL')
   const [showGuide, setShowGuide] = useState(true)
+  const [marketReviewed, setMarketReviewed] = useState(false)
+  const [newsReviewed, setNewsReviewed] = useState(false)
 
   useEffect(() => {
     try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, reputation, day, deals })) } catch { /* Ignore unavailable storage. */ }
   }, [cash, reputation, day, deals])
+
+  useEffect(() => {
+    if (tab === 'market') setMarketReviewed(true)
+    if (tab === 'news') setNewsReviewed(true)
+  }, [tab])
 
   useEffect(() => {
     if (panel !== 'room') return
@@ -132,13 +139,16 @@ export default function App() {
 
   function startCall() {
     setQuestionIndex(0)
-    setTrust(48)
+    const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0)
+    setTrust(48 + preparationBonus)
     setPatience(74)
     setTimeLeft(12)
     setLastPenaltySecond(12)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'client', text: 'Здравствуйте. У меня есть немного свободных денег, но я не хочу покупать кота в мешке. Расскажите про «Котолёт».' }])
+    setConversation([{ from: 'client', text: 'Здравствуйте. У меня есть немного свободных денег, но я не хочу покупать кота в мешке. Расскажите про «Котолёт».' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальный уровень доверия повышен на ' + preparationBonus + ' пунктов.' }] : [])])
+    setMarketReviewed(false)
+    setNewsReviewed(false)
     setCallStatus('active')
     setTab('calls')
   }
@@ -304,6 +314,14 @@ export default function App() {
               {tab === 'calls' && (
                 <div className="calls-page">
                   <div className="page-heading"><div><div className="eyebrow">ОТДЕЛ ПРОДАЖ · ЛИНИЯ 01</div><h2>Клиенты и звонки</h2><p>Доверие нельзя купить. Но можно потерять за одну фразу.</p></div><div className={callStatus === 'active' ? 'call-live-badge active' : 'call-live-badge'}><span className="live-dot" /> {callStatus === 'active' ? 'ЗВОНОК ИДЁТ' : 'ЛИНИЯ СВОБОДНА'}</div></div>
+                  {callStatus === 'idle' && <div className="precall-briefing">
+                    <div className="briefing-copy"><span className="eyebrow">ПОДГОТОВКА К ПЕРЕГОВОРАМ</span><strong>Сначала факты — потом обещания</strong><p>Изучи компанию и свежие новости. За каждый просмотренный раздел получишь +4 к начальному доверию клиента.</p></div>
+                    <div className="briefing-actions">
+                      <button className={marketReviewed ? 'briefing-action complete' : 'briefing-action'} onClick={() => setTab('market')}><TrendingUp size={15} /><span><strong>Отчёт компании</strong><small>{marketReviewed ? 'Изучено · +4 доверия' : 'Финансы и риски'}</small></span><span className="briefing-check">{marketReviewed ? '✓' : '↗'}</span></button>
+                      <button className={newsReviewed ? 'briefing-action complete' : 'briefing-action'} onClick={() => setTab('news')}><Newspaper size={15} /><span><strong>Новости рынка</strong><small>{newsReviewed ? 'Изучено · +4 доверия' : 'Катализаторы и угрозы'}</small></span><span className="briefing-check">{newsReviewed ? '✓' : '↗'}</span></button>
+                    </div>
+                    <div className="briefing-total"><span>Бонус подготовки</span><strong>+{(marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0)} доверия</strong></div>
+                  </div>}
                   {callStatus === 'idle' && <div className="incoming-call"><div className="incoming-visual"><div className="client-avatar"><span>А</span><i /></div><div className="incoming-wave"><span /><span /><span /><span /><span /><span /><span /></div></div><div className="incoming-copy"><span className="eyebrow">ВХОДЯЩИЙ КЛИЕНТ · 01</span><h3>Алексей Воронцов</h3><p>34 года · владелец небольшой студии дизайна</p><div className="client-tags"><span><ShieldAlert size={13} /> Осторожный</span><span><CircleDollarSign size={13} /> Бюджет 50 000 ₽</span><span><Activity size={13} /> Опыт: новичок</span></div><blockquote>«Хочу попробовать инвестировать, но мне уже обещали золотые горы. Чем вы отличаетесь?»</blockquote><button className="primary-action" onClick={startCall}><Phone size={16} /> Принять звонок <ChevronRight size={16} /></button></div></div>}
                   {callStatus === 'active' && activeQuestion && <div className="call-workspace"><div className="client-panel"><div className="client-panel-top"><div className="client-avatar large"><span>А</span><i /></div><div><span className="eyebrow">КЛИЕНТ · ВХОДЯЩИЙ ЗВОНОК</span><h3>Алексей Воронцов</h3><p>Осторожный инвестор · 34 года</p></div><button className="hangup" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={16} /></button></div><div className="client-meters"><div className="meter-label"><span>Доверие</span><strong>{trust}% <small>{trustLabel}</small></strong></div><div className="trust-track"><span style={{ width: trust + '%' }} /></div><div className="meter-label"><span>Терпение</span><strong>{patience}%</strong></div><div className="patience-track"><span style={{ width: patience + '%' }} /></div></div><div className="client-goal"><small>ЦЕЛЬ КЛИЕНТА</small><strong>Сохранить накопления и разобраться в инвестициях</strong><p>Не любит давление. Проверяет обещания и боится скрытых рисков.</p></div><div className="conversation-log">{conversation.slice(-4).map((entry, i) => <div key={i} className={'log-line ' + entry.from}><span>{entry.from === 'you' ? 'ТЫ' : entry.from === 'system' ? 'СИСТЕМА' : 'АЛЕКСЕЙ'}</span><p>{entry.text}</p></div>)}</div></div><div className="answer-panel"><div className="answer-heading"><span className="eyebrow">ВОПРОС {questionIndex + 1} ИЗ {questions.length}</span><div className={'timer-pill ' + (timeLeft <= 4 ? 'urgent' : '')}><Clock3 size={15} /><strong>{timeLeft.toFixed(1)}с</strong></div></div><h3>{activeQuestion.title}</h3><p className="question-hint"><Sparkles size={14} /> {activeQuestion.hint}</p><div className="answer-options">{activeQuestion.choices.map((choice, i) => <button className="answer-option" key={choice.label} onClick={() => answerQuestion(choice.label, choice.delta)}><span className="option-letter">{String.fromCharCode(65 + i)}</span><span>{choice.label}</span><ChevronRight size={16} /></button>)}</div><div className="free-answer"><label htmlFor="free-answer">СВОЙ ОТВЕТ</label><textarea id="free-answer" placeholder="Напиши, что ответил бы клиенту… (например: «Гарантий нет, давайте сначала разберём риски») " value={freeAnswer} onChange={(event) => setFreeAnswer(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendFreeAnswer() } }} /><div className="free-answer-footer"><span>Enter — отправить · Shift + Enter — новая строка</span><button disabled={!freeAnswer.trim()} onClick={sendFreeAnswer}>Ответить <ArrowUpRight size={14} /></button></div></div><div className="timer-warning"><Clock3 size={14} /> Чем дольше думаешь, тем быстрее падает терпение. После таймера клиент может уйти.</div></div></div>}
                   {(callStatus === 'won' || callStatus === 'lost') && <div className="call-result"><div className={callStatus === 'won' ? 'result-icon success' : 'result-icon failure'}>{callStatus === 'won' ? <Check size={28} /> : <X size={28} />}</div><span className="eyebrow">ИТОГ ПЕРЕГОВОРОВ</span><h3>{callStatus === 'won' ? 'Первый клиент — почти твой.' : 'Не каждая сделка твоя.'}</h3><p>{lastResult}</p><div className="result-stats"><div><small>ДОВЕРИЕ</small><strong>{trust}/100</strong></div><div><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></div><div><small>ЗАКРЫТО СДЕЛОК</small><strong>{deals}</strong></div></div><div className="result-actions"><button className="secondary-action" onClick={() => setCallStatus('idle')}>Вернуться к клиентам</button><button className="primary-action" onClick={() => { setCallStatus('idle'); setTab('overview') }}>К обзору дня <ChevronRight size={16} /></button></div></div>}
