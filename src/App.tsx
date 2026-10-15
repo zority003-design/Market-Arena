@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three'
 import { OrbitControls } from '@react-three/drei'
 import {
   Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays, MapPin,
@@ -279,7 +280,37 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
   const trousers = outfit === 'premium' ? '#202b33' : outfit === 'classic' ? '#303943' : '#303b42'
   const skin = '#c58d6a'
   const hair = outfit === 'premium' ? '#211e1c' : '#35271f'
-  const skinMaterial = <meshStandardMaterial color={skin} roughness={0.86} metalness={0} />
+  const skinTexture = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    const base = ctx.createLinearGradient(0, 0, 512, 512)
+    base.addColorStop(0, '#d5a181')
+    base.addColorStop(0.45, '#c58d6a')
+    base.addColorStop(1, '#b77c5d')
+    ctx.fillStyle = base
+    ctx.fillRect(0, 0, 512, 512)
+    const cheek = ctx.createRadialGradient(180, 245, 12, 180, 245, 170)
+    cheek.addColorStop(0, 'rgba(220,151,126,0.20)')
+    cheek.addColorStop(1, 'rgba(220,151,126,0)')
+    ctx.fillStyle = cheek
+    ctx.fillRect(0, 0, 512, 512)
+    let seed = 82471
+    const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646 }
+    for (let i = 0; i < 2100; i++) {
+      const x = random() * 512, y = random() * 512, r = 0.35 + random() * 1.15
+      ctx.fillStyle = random() > 0.5 ? 'rgba(91,48,35,0.10)' : 'rgba(255,224,193,0.12)'
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill()
+    }
+    const texture = new CanvasTexture(canvas)
+    texture.wrapS = RepeatWrapping
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    return texture
+  }, [])
+  const skinMaterial = <meshStandardMaterial color={skin} roughness={0.88} metalness={0} map={skinTexture ?? undefined} />
   return <group position={[0, 0.02, 0]}>
     <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[0.72, 48]} /><meshStandardMaterial color="#1a2829" roughness={0.96} /></mesh>
     <mesh position={[0, 0.78, 0]} scale={[0.34, 0.24, 0.205]} castShadow><sphereGeometry args={[1, 40, 32]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
@@ -294,7 +325,7 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
       <mesh position={[side * 0.16, -0.51, 0.01]} rotation={[0, 0, side * -0.13]} castShadow><capsuleGeometry args={[0.054, 0.13, 12, 22]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
     </group>)}
     <mesh position={[0, 1.59, 0]} castShadow><cylinderGeometry args={[0.065, 0.078, 0.19, 24]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
-    <mesh position={[0, 1.94, 0.005]} scale={[0.188, 0.245, 0.18]} castShadow><sphereGeometry args={[1, 48, 40]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
+    <mesh position={[0, 1.94, 0.005]} scale={[0.188, 0.245, 0.18]} castShadow><sphereGeometry args={[1, 64, 48]} />{skinMaterial}</mesh>
     <mesh position={[0, 2.105, -0.008]} scale={[0.19, 0.092, 0.184]} castShadow><sphereGeometry args={[1, 40, 28]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
     <mesh position={[0, 2.08, 0.095]} scale={[0.17, 0.065, 0.105]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
     {[-1, 1].map((side) => <mesh key={side} position={[side * 0.184, 1.95, 0.002]} scale={[0.027, 0.045, 0.026]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>)}
