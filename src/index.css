@@ -651,3 +651,20 @@ button:focus-visible, textarea:focus-visible {
   .opportunity-top { align-items: flex-start; flex-direction: column; gap: 5px; }
 }
 
+.background-selector { display: grid; grid-template-columns: minmax(180px,.85fr) minmax(260px,1.15fr); gap: 10px 18px; align-items: center; margin: 0 0 12px; padding: 14px 16px; border: 1px solid rgba(183,208,214,.12); border-radius: 9px; background: rgba(12,19,24,.72); }
+.background-selector-copy p { margin: 6px 0 0; color: #879a9c; font-size: 9px; line-height: 1.6; }
+.background-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.background-options button { padding: 8px 10px; border: 1px solid rgba(183,208,214,.13); border-radius: 5px; color: #9eafaf; background: rgba(255,255,255,.025); font-size: 9px; transition: background .18s,border-color .18s,color .18s; }
+.background-options button.selected { border-color: rgba(56,214,160,.42); color: #a4f0d2; background: rgba(56,214,160,.09); }
+.background-options button:disabled { opacity: .35; cursor: not-allowed; }
+.background-selector > small { grid-column: 1 / -1; color: #819395; font-size: 8px; line-height: 1.5; }
+.player-preview-tile { position: absolute; z-index: 3; right: 10px; bottom: 10px; display: flex; width: 70px; height: 60px; flex-direction: column; align-items: center; justify-content: center; gap: 3px; overflow: hidden; border: 1px solid rgba(230,244,239,.35); border-radius: 5px; background: linear-gradient(145deg,#5b7472,#263c40); box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+.player-preview-tile span { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 50%; color: #f0f6f1; background: rgba(18,33,36,.7); font-size: 9px; font-weight: 800; }
+.player-preview-tile small { color: #d4e2dc; font: 6px 'DM Mono',monospace; letter-spacing: .06em; }
+.player-preview-tile.neutral { background: linear-gradient(145deg,#9b9f99,#69736e); }
+.player-preview-tile.luxury { background: linear-gradient(145deg,#5d594d,#252e32 45%,#9b8057); }
+@media (max-width: 760px) {
+  .background-selector { grid-template-columns: 1fr; }
+  .background-selector > small { grid-column: auto; }
+}
+
