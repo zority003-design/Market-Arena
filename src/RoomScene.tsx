@@ -71,7 +71,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
-      const codeKey = event.code === 'KeyW' ? 'w' : event.code === 'KeyA' ? 'a' : event.code === 'KeyS' ? 's' : event.code === 'KeyD' ? 'd' : ''
+      const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
       if (key === 'e' && !introActiveRef.current) { if (sleepable.current) { event.preventDefault(); onSleepInteract(); return } if (nearbyObject.current) { event.preventDefault(); onInteractObject(nearbyObject.current); return } if (interactable.current) { event.preventDefault(); onInteract(); return } }
       if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
         keys.current[codeKey || key] = true
@@ -147,8 +147,9 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, onInteractObj
     if (k.d || k.arrowright) velocity.current.add(right.current)
     if (k.a || k.arrowleft) velocity.current.sub(right.current)
     if (velocity.current.lengthSq() > 0) {
+      // Movement is driven by held physical keys, independent of keyboard layout.
       playSound('step')
-      velocity.current.normalize().multiplyScalar(2.4 * dt)
+      velocity.current.normalize().multiplyScalar(3.15 * dt)
       const stepX = velocity.current.x
       const stepZ = velocity.current.z
       const blocked = (x: number, z: number) =>
