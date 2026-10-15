@@ -5,12 +5,15 @@ import * as THREE from 'three'
 
 type RoomSceneProps = {
   onInteract: () => void
+  onCanInteractChange: (value: boolean) => void
+  introActive: boolean
+  onIntroComplete: () => void
   active: boolean
   ownedItems: string[]
   housingId: string
 }
 
-function FirstPersonRig({ active }: { active: boolean }) {
+function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, onIntroComplete }: { active: boolean; onInteract: () => void; onCanInteractChange: (value: boolean) => void; introActive: boolean; onIntroComplete: () => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
   const dragging = useRef(false)
@@ -20,16 +23,25 @@ function FirstPersonRig({ active }: { active: boolean }) {
   const velocity = useRef(new THREE.Vector3())
   const forward = useRef(new THREE.Vector3())
   const right = useRef(new THREE.Vector3())
+  const interactable = useRef(false)
+  const introProgress = useRef(0)
+  const introFinished = useRef(false)
 
   useEffect(() => {
-    camera.position.set(0, 1.66, 3.55)
+    camera.position.set(introActive ? 2.52 : 0, introActive ? 0.76 : 1.66, introActive ? 0.85 : 3.55)
     camera.rotation.order = 'YXZ'
+    yaw.current = introActive ? 0.1 : 0
+    pitch.current = introActive ? 0.12 : -0.04
     camera.rotation.set(pitch.current, yaw.current, 0)
+    introProgress.current = 0
+    introFinished.current = false
+    if (!introActive) { onCanInteractChange(false); interactable.current = false }
 
     const down = (event: KeyboardEvent) => {
       if (!active) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
+      if (event.key.toLowerCase() === 'e' && active && !introActive && interactable.current) { event.preventDefault(); onInteract(); return }
       keys.current[event.key.toLowerCase()] = true
       if (['w', 'a', 's', 'd', ' '].includes(event.key.toLowerCase())) event.preventDefault()
     }
@@ -64,11 +76,21 @@ function FirstPersonRig({ active }: { active: boolean }) {
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
-  }, [camera, gl, active])
+  }, [camera, gl, active, introActive, onInteract, onCanInteractChange])
 
   useFrame((_, delta) => {
     if (!active) return
     const dt = Math.min(delta, 0.04)
+    if (introActive) {
+      introProgress.current = Math.min(1, introProgress.current + dt / 3.1)
+      const t = introProgress.current * introProgress.current * (3 - 2 * introProgress.current)
+      camera.position.set(2.52 + (1.45 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (2.15 - 0.85) * t)
+      pitch.current = 0.12 * (1 - t) - 0.04 * t
+      yaw.current = 0.1 * (1 - t)
+      camera.rotation.set(pitch.current, yaw.current, 0)
+      if (introProgress.current >= 1 && !introFinished.current) { introFinished.current = true; onIntroComplete() }
+      return
+    }
     forward.current.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current))
     right.current.set(Math.cos(yaw.current), 0, -Math.sin(yaw.current))
     velocity.current.set(0, 0, 0)
@@ -79,12 +101,23 @@ function FirstPersonRig({ active }: { active: boolean }) {
     if (k.a || k.arrowleft) velocity.current.sub(right.current)
     if (velocity.current.lengthSq() > 0) {
       velocity.current.normalize().multiplyScalar(2.4 * dt)
-      camera.position.add(velocity.current)
-      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -3.3, 3.3)
-      camera.position.z = THREE.MathUtils.clamp(camera.position.z, -3.45, 3.45)
+      const stepX = velocity.current.x
+      const stepZ = velocity.current.z
+      const blocked = (x: number, z: number) =>
+        (x > -1.38 && x < 1.62 && z > -2.98 && z < -1.72) ||
+        (x > -0.43 && x < 0.63 && z > -1.38 && z < -0.58) ||
+        (x > 1.48 && x < 3.62 && z > -0.78 && z < 2.78) ||
+        (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22)
+      const nextX = THREE.MathUtils.clamp(camera.position.x + stepX, -3.52, 3.52)
+      if (!blocked(nextX, camera.position.z)) camera.position.x = nextX
+      const nextZ = THREE.MathUtils.clamp(camera.position.z + stepZ, -3.52, 3.52)
+      if (!blocked(camera.position.x, nextZ)) camera.position.z = nextZ
     }
     camera.position.y = 1.66
     camera.rotation.set(pitch.current, yaw.current, 0)
+    const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 1.52)
+    const canUse = distance < 1.35 && camera.position.z > -1.83
+    if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
   })
 
   return null
@@ -143,9 +176,10 @@ function FloorBoards() {
   return <group>{boards.map((board) => <Box key={board.key} position={board.position} size={board.size} color={board.color} roughness={0.76} />)}</group>
 }
 
-function Room({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
+function Room({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
+  const interactable = useRef(false)
 
   useFrame(({ clock }) => {
     const pulse = 0.88 + Math.sin(clock.elapsedTime * 1.4) * 0.06
@@ -222,7 +256,7 @@ function Room({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
       <mesh
         ref={screenRef}
         position={[0.1, 1.39, -2.585]}
-        onClick={(event) => { event.stopPropagation(); onInteract() }}
+        onClick={(event) => { event.stopPropagation(); if (interactable.current) onInteract() }}
         onPointerOver={() => { document.body.style.cursor = 'pointer' }}
         onPointerOut={() => { document.body.style.cursor = 'default' }}
       >
@@ -291,11 +325,11 @@ function Room({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
       </group>}
 
       {/* Chair */}
-      <Box position={[0.1, 0.52, -0.98]} size={[0.72, 0.16, 0.68]} color={ownedItems.includes("used-chair") ? "#344e4c" : "#2a3a3d"} roughness={0.72} />
-      <Box position={[0.1, 0.93, -1.27]} size={[0.7, 0.72, 0.13]} color={ownedItems.includes("used-chair") ? "#35504c" : "#263538"} roughness={0.7} />
-      <Cylinder position={[0.1, 0.28, -0.98]} radius={0.07} height={0.42} color="#363e44" metalness={0.7} />
+      <Box position={[0.1, 0.52, -1.08]} size={[0.72, 0.16, 0.68]} color={ownedItems.includes("used-chair") ? "#344e4c" : "#2a3a3d"} roughness={0.72} />
+      <Box position={[0.1, 0.93, -0.78]} size={[0.7, 0.72, 0.13]} color={ownedItems.includes("used-chair") ? "#35504c" : "#263538"} roughness={0.7} />
+      <Cylinder position={[0.1, 0.28, -1.08]} radius={0.07} height={0.42} color="#363e44" metalness={0.7} />
       {[-0.22, 0.42].map((x) => (
-        <Box key={x} position={[x, 0.17, -0.98]} size={[0.045, 0.25, 0.045]} color="#353e45" metalness={0.7} />
+        <Box key={x} position={[x, 0.17, -1.08]} size={[0.045, 0.25, 0.045]} color="#353e45" metalness={0.7} />
       ))}
 
       {/* Bed and rumpled bedding */}
@@ -361,12 +395,12 @@ function Room({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
       {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig active={active} />
+      <FirstPersonRig active={active} onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} />
     </>
   )
 }
 
-export default function RoomScene({ onInteract, active, ownedItems, housingId }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onCanInteractChange, introActive, onIntroComplete, active, ownedItems, housingId }: RoomSceneProps) {
   return (
     <Canvas
       shadows
@@ -379,7 +413,7 @@ export default function RoomScene({ onInteract, active, ownedItems, housingId }:
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} active={active} ownedItems={ownedItems} housingId={housingId} />
+      <Room onInteract={onInteract} onCanInteractChange={onCanInteractChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} />
     </Canvas>
   )
 }
