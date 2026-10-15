@@ -3,7 +3,8 @@ import {
   Activity, ArrowLeft, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, LockKeyhole, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
-  Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor
+  Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor,
+  Settings, Volume2, Gamepad2, Wifi, Play, RotateCcw, ArrowRight
 } from 'lucide-react'
 import RoomScene from './RoomScene'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
@@ -132,6 +133,9 @@ function readSave() {
 
 export default function App() {
   const saved = useMemo(() => readSave(), [])
+  const [mainMenu, setMainMenu] = useState(true)
+  const [menuSettings, setMenuSettings] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-reduced-motion') === 'true' } catch { return false } })
   const [panel, setPanel] = useState<Panel>('room')
   const [tab, setTab] = useState<Tab>('overview')
   const [cash, setCash] = useState(saved.cash ?? STARTING_CASH)
@@ -227,6 +231,28 @@ export default function App() {
   const activeQuestions = getQuestionsForTier(activeClient.tier)
   const activeQuestion = activeQuestions[questionIndex]
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
+
+  function enterOfflineGame() {
+    setMainMenu(false)
+    setMenuSettings(false)
+    setPanel('room')
+    setCallStatus('idle')
+  }
+
+  function toggleReducedMotion() {
+    setReducedMotion((value) => {
+      const next = !value
+      try { localStorage.setItem('na-vse-kotirovki-reduced-motion', String(next)) } catch { /* Ignore unavailable storage. */ }
+      return next
+    })
+  }
+
+  function startNewGame() {
+    const confirmed = window.confirm('Начать новую карьеру? Текущее сохранение будет удалено.')
+    if (!confirmed) return
+    try { localStorage.removeItem('na-vse-kotirovki-save-v1') } catch { /* Ignore unavailable storage. */ }
+    window.location.reload()
+  }
 
   function openComputer() {
     setPanel('computer')
@@ -369,11 +395,45 @@ export default function App() {
   }
 
   return (
-    <main className="game-shell">
+    <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} active={panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
+        <RoomScene onInteract={openComputer} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} />
       </div>
 
+      {mainMenu && (
+        <div className="main-menu-screen">
+          <div className="menu-atmosphere" />
+          <div className="menu-topline">
+            <div className="menu-brand"><span className="brand-mark"><TrendingUp size={20} strokeWidth={2.5} /></span><span><strong>НА ВСЕ КОТИРОВКИ</strong><small>КАРЬЕРА БРОКЕРА · САТИРИЧЕСКИЙ СИМУЛЯТОР</small></span></div>
+            <div className="menu-build"><span className="live-dot" /> ОФЛАЙН-ДЕМО <i>v0.3</i></div>
+          </div>
+          <section className="menu-content">
+            <div className="menu-copy">
+              <div className="menu-eyebrow"><span /> РЫНОК ОТКРЫВАЕТСЯ ЧЕРЕЗ 00:59</div>
+              <h1>Большие деньги.<br /><em>Маленькая комната.</em></h1>
+              <p className="menu-description">Начни с подержанного ноутбука и пары сомнительных акций. Убеди первых клиентов, заработай репутацию и построй брокерскую империю — или потеряй всё, пытаясь казаться богаче, чем ты есть.</p>
+              <div className="menu-actions">
+                <button className="menu-play-button" onClick={enterOfflineGame}><Play size={18} fill="currentColor" /> Играть офлайн <ArrowRight size={17} /></button>
+                <button className="menu-secondary-button" onClick={() => setMenuSettings(true)}><Settings size={17} /> Настройки</button>
+                <button className="menu-secondary-button" onClick={startNewGame}><RotateCcw size={16} /> Новая карьера</button>
+              </div>
+              <div className="menu-future-links">
+                <div className="menu-future-item"><Wifi size={17} /><span><strong>Онлайн</strong><small>Соревнования и игра с друзьями</small></span><b>СКОРО</b></div>
+                <div className="menu-future-item"><Sparkles size={17} /><span><strong>Поддержать разработку</strong><small>Косметика и дополнительные возможности — позже</small></span><b>ПОЗЖЕ</b></div>
+              </div>
+              <div className="menu-footnote">ОФЛАЙН-КАРЬЕРА · СОХРАНЕНИЕ НА ЭТОМ УСТРОЙСТВЕ</div>
+            </div>
+            <div className="menu-scene-caption">
+              <span className="caption-line" />
+              <div><strong>ДЕНЬ 01 / ОБЩЕЖИТИЕ</strong><small>Твой первый офис — пока что чужая комната.</small></div>
+            </div>
+          </section>
+          <div className="menu-bottomline"><span><Gamepad2 size={15} /> WASD · МЫШЬ · ПЕРЕГОВОРЫ · КАРЬЕРА</span><span>НЕФИНАНСОВЫЙ СОВЕТ. НЕ СОВСЕМ ЧЕСТНЫЕ БРОКЕРЫ.</span></div>
+          {menuSettings && <div className="menu-modal-backdrop" onClick={() => setMenuSettings(false)}><section className="menu-settings-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setMenuSettings(false)} aria-label="Закрыть настройки"><X size={18} /></button><span className="menu-eyebrow"><Settings size={14} /> ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><div className="settings-row"><span><strong>Музыка и звуки</strong><small>Фоновая музыка будет добавлена позже.</small></span><span className="settings-coming-soon"><Volume2 size={16} /> СКОРО</span></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Отключает декоративные движения интерфейса.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Сохранение</strong><small>Прогресс карьеры хранится локально в браузере.</small></span><span className="settings-local-save">ЛОКАЛЬНО</span></div><button className="menu-modal-done" onClick={() => setMenuSettings(false)}>Готово <ArrowRight size={16} /></button></section></div>}
+        </div>
+      )}
+
+      {!mainMenu && <>
       <header className="top-hud">
         <button className="brand-lockup" onClick={() => { setPanel('room'); setCallStatus('idle') }} aria-label="Вернуться в комнату">
           <span className="brand-mark"><TrendingUp size={20} strokeWidth={2.5} /></span>
@@ -532,7 +592,8 @@ export default function App() {
       )}
 
       {toast && <div className="toast"><Check size={16} /> {toast}</div>}
-      <div className="version-watermark">PROTOTYPE 0.1 <span>·</span> НЕФИНАНСОВЫЙ СОВЕТ</div>
+      <div className="version-watermark">PROTOTYPE 0.3 <span>·</span> НЕФИНАНСОВЫЙ СОВЕТ</div>
+      </> }
     </main>
   )
 }
