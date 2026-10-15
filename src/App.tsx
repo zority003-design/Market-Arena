@@ -174,8 +174,10 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     <mesh position={[0, 2.245, 0.015]} scale={[0.275, 0.14, 0.24]} castShadow><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color={outfit === 'premium' ? '#211e1c' : '#35271f'} roughness={0.9} /></mesh>
     <mesh position={[0, 2.12, 0.215]} scale={[0.034, 0.04, 0.025]}><sphereGeometry args={[1, 12, 10]} /><meshStandardMaterial color="#30221d" /></mesh>
     {[-0.105, 0.105].map((x) => <group key={x}>
-      <mesh position={[x, 2.07, 0.265]}><sphereGeometry args={[0.035, 16, 12]} /><meshStandardMaterial color="#f0dfc9" roughness={0.55} /></mesh>
-      <mesh position={[x, 2.07, 0.292]}><sphereGeometry args={[0.018, 12, 10]} /><meshStandardMaterial color="#2b211d" roughness={0.4} /></mesh>
+      <mesh position={[x, 2.07, 0.265]} scale={[1.18, 1, 0.8]}><sphereGeometry args={[0.038, 20, 14]} /><meshStandardMaterial color="#fff8eb" roughness={0.28} /></mesh>
+      <mesh position={[x, 2.07, 0.296]}><sphereGeometry args={[0.022, 18, 14]} /><meshStandardMaterial color={outfit === 'premium' ? "#6b9a91" : "#5b8a78"} roughness={0.3} /></mesh>
+      <mesh position={[x, 2.07, 0.313]}><sphereGeometry args={[0.011, 16, 12]} /><meshStandardMaterial color="#171b20" roughness={0.2} /></mesh>
+      <mesh position={[x - 0.006, 2.079, 0.322]}><sphereGeometry args={[0.0045, 10, 8]} /><meshBasicMaterial color="#ffffff" /></mesh>
       <mesh position={[x, 2.125, 0.272]} rotation={[0, 0, x > 0 ? -0.1 : 0.1]}><boxGeometry args={[0.09, 0.018, 0.025]} /><meshStandardMaterial color="#493127" roughness={0.9} /></mesh>
     </group>)}
     <mesh position={[0, 1.99, 0.285]}><sphereGeometry args={[0.04, 12, 10]} /><meshStandardMaterial color="#b27a5a" roughness={0.85} /></mesh>
