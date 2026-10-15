@@ -455,7 +455,10 @@ function Room({ onInteract, onCanInteractChange, onInteractObject, onNearbyObjec
       </group>)}
 
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
-      <group position={[3.3, 0.82, -0.92]}>
+      <group position={[3.43, 0.82, -0.28]}>
+        {/* A real bedside table supports the alarm clock instead of leaving it floating. */}
+        <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} />
+        {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.21, z * 0.105]} size={[0.035, 0.38, 0.035]} color="#49372d" roughness={0.9} />))}
         <Box position={[0, 0.09, 0]} size={[0.3, 0.18, 0.12]} color="#252d31" roughness={0.42} />
         <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#172a2b" roughness={0.28} />
         <Cylinder position={[0, 0.1, 0.074]} rotation={[Math.PI / 2, 0, 0]} radius={0.062} height={0.009} color="#d6c8a5" roughness={0.45} />
