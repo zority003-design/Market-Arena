@@ -568,7 +568,7 @@ export default function App() {
             <div className="terminal-title"><span className="terminal-logo"><Activity size={17} /></span><span><strong>КОТИРОВКИ / TERMINAL</strong><small>KOTIROVKI OS · v0.5</small></span></div>
             <div className="secure-label"><LockKeyhole size={13} /> ЛОКАЛЬНАЯ СЕССИЯ</div>
           </div>
-          <div className={'terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '')}>
+          <div className={'terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '') + (tab === 'calls' && callStatus === 'active' ? ' immersive-call-body' : '')}>
             <aside className="terminal-sidebar">
               <div className="profile-card">
                 <div className="avatar">БР</div><div><strong>Младший брокер</strong><small>Стажёр · 1-й день</small></div><span className="online-indicator" />
