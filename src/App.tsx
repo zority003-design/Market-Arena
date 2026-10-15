@@ -174,12 +174,12 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     <mesh position={[0, 2.245, 0.015]} scale={[0.275, 0.14, 0.24]} castShadow><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color={outfit === 'premium' ? '#211e1c' : '#35271f'} roughness={0.9} /></mesh>
     <mesh position={[0, 2.12, 0.215]} scale={[0.034, 0.04, 0.025]}><sphereGeometry args={[1, 12, 10]} /><meshStandardMaterial color="#30221d" /></mesh>
     {[-0.105, 0.105].map((x) => <group key={x}>
-      <mesh position={[x, 2.07, 0.211]}><sphereGeometry args={[0.035, 16, 12]} /><meshStandardMaterial color="#f0dfc9" roughness={0.55} /></mesh>
-      <mesh position={[x, 2.07, 0.241]}><sphereGeometry args={[0.018, 12, 10]} /><meshStandardMaterial color="#2b211d" roughness={0.4} /></mesh>
-      <mesh position={[x, 2.125, 0.219]} rotation={[0, 0, x > 0 ? -0.1 : 0.1]}><boxGeometry args={[0.09, 0.018, 0.025]} /><meshStandardMaterial color="#493127" roughness={0.9} /></mesh>
+      <mesh position={[x, 2.07, 0.265]}><sphereGeometry args={[0.035, 16, 12]} /><meshStandardMaterial color="#f0dfc9" roughness={0.55} /></mesh>
+      <mesh position={[x, 2.07, 0.292]}><sphereGeometry args={[0.018, 12, 10]} /><meshStandardMaterial color="#2b211d" roughness={0.4} /></mesh>
+      <mesh position={[x, 2.125, 0.272]} rotation={[0, 0, x > 0 ? -0.1 : 0.1]}><boxGeometry args={[0.09, 0.018, 0.025]} /><meshStandardMaterial color="#493127" roughness={0.9} /></mesh>
     </group>)}
-    <mesh position={[0, 1.99, 0.248]}><sphereGeometry args={[0.04, 12, 10]} /><meshStandardMaterial color="#b27a5a" roughness={0.85} /></mesh>
-    <mesh position={[0, 1.91, 0.228]} rotation={[0, 0, 0]}><boxGeometry args={[0.09, 0.012, 0.015]} /><meshStandardMaterial color="#79453a" roughness={0.8} /></mesh>
+    <mesh position={[0, 1.99, 0.285]}><sphereGeometry args={[0.04, 12, 10]} /><meshStandardMaterial color="#b27a5a" roughness={0.85} /></mesh>
+    <mesh position={[0, 1.91, 0.27]} rotation={[0, 0, 0]}><boxGeometry args={[0.09, 0.012, 0.015]} /><meshStandardMaterial color="#79453a" roughness={0.8} /></mesh>
     {outfit !== 'intern' && <mesh position={[0, 1.25, 0.255]}><coneGeometry args={[0.09, 0.27, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b69a62' : '#283b52'} roughness={0.6} /></mesh>}
     {outfit === 'premium' && <mesh position={[0.18, 1.32, 0.251]}><sphereGeometry args={[0.027, 12, 10]} /><meshStandardMaterial color="#d7b879" metalness={0.7} roughness={0.32} /></mesh>}
   </group>
