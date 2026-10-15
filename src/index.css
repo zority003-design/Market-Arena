@@ -1107,3 +1107,7 @@ button:focus-visible, textarea:focus-visible {
 .call-stock-offer-columns span { color: #9db2a7; font-size: 10px; line-height: 1.5; }
 .call-stock-offer-columns b { color: #d7e7de; }
 @media (max-width: 760px) { .call-client-picker, .call-stock-picker, .company-pros-cons { grid-template-columns: 1fr; } .call-client-option { padding: 9px; } .call-planning-section { padding: 12px; } }
+
+.game-time-pill { font-variant-numeric: tabular-nums; letter-spacing: .04em; color: #d8eadf !important; }
+.game-weather-pill { color: #a6c9d7 !important; }
+@media (max-width: 760px) { .game-weather-pill { display: none !important; } }
