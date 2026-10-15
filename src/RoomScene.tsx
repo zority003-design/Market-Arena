@@ -5,9 +5,10 @@ import * as THREE from 'three'
 
 type RoomSceneProps = {
   onInteract: () => void
+  active: boolean
 }
 
-function FirstPersonRig() {
+function FirstPersonRig({ active }: { active: boolean }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
   const dragging = useRef(false)
@@ -24,6 +25,7 @@ function FirstPersonRig() {
     camera.rotation.set(pitch.current, yaw.current, 0)
 
     const down = (event: KeyboardEvent) => {
+      if (!active) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       keys.current[event.key.toLowerCase()] = true
@@ -60,9 +62,10 @@ function FirstPersonRig() {
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
     }
-  }, [camera])
+  }, [camera, gl, active])
 
   useFrame((_, delta) => {
+    if (!active) return
     const dt = Math.min(delta, 0.04)
     forward.current.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current))
     right.current.set(Math.cos(yaw.current), 0, -Math.sin(yaw.current))
@@ -117,7 +120,7 @@ function Cylinder({ position, radius, height, color, metalness = 0, roughness = 
   )
 }
 
-function Room({ onInteract }: RoomSceneProps) {
+function Room({ onInteract, active }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
 
@@ -277,12 +280,12 @@ function Room({ onInteract }: RoomSceneProps) {
       <Box position={[0.1, 0.035, 0.5]} size={[3.1, 0.035, 2.1]} color="#3b4d50" roughness={1} />
       <Box position={[0.1, 0.055, 0.5]} size={[2.92, 0.008, 1.92]} color="#5c6966" roughness={1} />
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig />
+      <FirstPersonRig active={active} />
     </>
   )
 }
 
-export default function RoomScene({ onInteract }: RoomSceneProps) {
+export default function RoomScene({ onInteract, active }: RoomSceneProps) {
   return (
     <Canvas
       shadows
@@ -295,7 +298,7 @@ export default function RoomScene({ onInteract }: RoomSceneProps) {
         gl.toneMappingExposure = 1.12
       }}
     >
-      <Room onInteract={onInteract} />
+      <Room onInteract={onInteract} active={active} />
     </Canvas>
   )
 }
