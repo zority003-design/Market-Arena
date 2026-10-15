@@ -3,7 +3,7 @@ import {
   Activity, ArrowLeft, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
   Laptop, LockKeyhole, MessageCircle, Newspaper, Phone, Power, ShieldAlert,
-  Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck
+  Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video, Camera, PackageCheck, Monitor
 } from 'lucide-react'
 import RoomScene from './RoomScene'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID } from './game/economy'
