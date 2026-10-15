@@ -1,4 +1,5 @@
 export type ClientTier = 0 | 1 | 2 | 3 | 4
+export type VideoBackground = 'real' | 'neutral' | 'luxury'
 export type ClientProfile = {
   id: string; name: string; initials: string; age: number; profession: string
   tier: ClientTier; budget: number; ticket: number; maxAllocation: number
@@ -63,4 +64,12 @@ export function calculateDeal(client:ClientProfile, trust:number) {
  const ticket=Math.min(client.ticket,Math.floor(client.budget*client.maxAllocation))
  const qualityMultiplier=trust>=75?1.25:trust>=62?1.1:1
  return {ticket,firmRevenue:Math.round(ticket*client.commissionRate),playerBonus:Math.round(ticket*client.bonusRate*qualityMultiplier),qualityMultiplier}
+}
+export function getBackgroundModifier(mode:VideoBackground, ownedItems:string[], client:ClientProfile):number {
+ if(mode==='real') return 0
+ const hasNeutral=ownedItems.includes('neutral-backdrop')
+ const hasChromakey=ownedItems.includes('chromakey-kit')
+ if(mode==='neutral') return hasNeutral || hasChromakey ? 2 : -3
+ if(!hasChromakey) return -6
+ return client.statusSensitive ? 4 : 1
 }
