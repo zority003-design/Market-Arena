@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
+import { playSound } from './audio'
 
 type RoomSceneProps = {
   onInteract: () => void
@@ -118,6 +119,7 @@ function FirstPersonRig({ active, onInteract, onCanInteractChange, introActive, 
     if (k.d || k.arrowright) velocity.current.add(right.current)
     if (k.a || k.arrowleft) velocity.current.sub(right.current)
     if (velocity.current.lengthSq() > 0) {
+      playSound('step')
       velocity.current.normalize().multiplyScalar(2.4 * dt)
       const stepX = velocity.current.x
       const stepZ = velocity.current.z
