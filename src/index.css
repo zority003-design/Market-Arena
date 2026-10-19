@@ -2425,3 +2425,42 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .negotiation-live-quota-row { display:flex; justify-content:space-between; gap:8px; margin-top:10px; color:#9bb2a8; font-size:11px; }
 .negotiation-live-quota-row b { color:#e1f0e8; font:11px 'DM Mono',monospace; text-align:right; }
 .negotiation-live-quota > small { display:block; margin-top:9px; color:#829b90; font-size:10px; line-height:1.5; }
+
+
+/* Intentional, short sleep sequence: eyelids close before the new-day wake-up begins. */
+.sleep-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #070b0d;
+  color: #e8eee8;
+  animation: sleep-scene-dim 1.8s ease-in-out both;
+  pointer-events: all;
+}
+.sleep-eyelids {
+  position: absolute;
+  inset: -12%;
+  background: linear-gradient(180deg, #020405 0%, #020405 0%, transparent 48%, transparent 52%, #020405 100%);
+  animation: sleep-eyes-close 1.25s cubic-bezier(.6,0,.9,.35) both;
+}
+.sleep-transition-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px;
+  opacity: 0;
+  animation: sleep-copy-in .5s ease .65s forwards;
+}
+.sleep-transition-copy span { color: #9eb7a9; font-size: 11px; letter-spacing: .22em; font-weight: 800; }
+.sleep-transition-copy strong { font-size: clamp(22px, 4vw, 38px); letter-spacing: -.035em; }
+.sleep-transition-copy small { color: #8d9a94; font-size: 14px; }
+@keyframes sleep-eyes-close { 0% { clip-path: inset(0 0 0 0); } 100% { clip-path: inset(48% 0 48% 0); } }
+@keyframes sleep-scene-dim { 0% { opacity: 0; } 22% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes sleep-copy-in { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(8px); } }
+.reduced-motion .sleep-transition, .reduced-motion .sleep-eyelids, .reduced-motion .sleep-transition-copy { animation-duration: .01ms; animation-delay: 0ms; }
