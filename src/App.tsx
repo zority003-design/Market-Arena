@@ -532,13 +532,13 @@ export default function App() {
   const activeQuestions = getStockQuestions(activeCompany)
   const activeQuestion = activeQuestions[questionIndex]
   function openAppWindow(app: 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing') {
-    setAppWindows((current) => {
-      const existing = current.find((item) => item.app === app)
-      if (existing) return [...current.filter((item) => item.id !== existing.id), { ...existing, minimized: false }]
-      const id = nextAppWindowId
-      setNextAppWindowId((value) => value + 1)
-      return [...current, { id, app, x: Math.min(36 * current.length, 180), y: Math.min(30 * current.length, 120), minimized: false, maximized: false }]
-    })
+    const existing = appWindows.find((item) => item.app === app)
+    if (existing) {
+      setAppWindows([...appWindows.filter((item) => item.id !== existing.id), { ...existing, minimized: false }])
+    } else {
+      setAppWindows([...appWindows, { id: nextAppWindowId, app, x: Math.min(36 * appWindows.length, 180), y: Math.min(30 * appWindows.length, 120), minimized: false, maximized: false }])
+      setNextAppWindowId(nextAppWindowId + 1)
+    }
     setStartMenuOpen(false)
     setStartSearch('')
   }
