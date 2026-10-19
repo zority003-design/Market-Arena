@@ -551,7 +551,7 @@ export default function App() {
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
 
   useEffect(() => {
-    if (panel !== 'computer' || tab !== 'calls' || callStatus !== 'active') return
+    if (((panel !== 'computer' || tab !== 'calls') && !appWindows.some((win) => win.app === 'calls' && !win.minimized)) || callStatus !== 'active') return
     function handleNegotiationKeys(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null
       if (target && (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT' || target.isContentEditable)) return
@@ -563,7 +563,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handleNegotiationKeys)
     return () => window.removeEventListener('keydown', handleNegotiationKeys)
-  }, [panel, tab, callStatus, displayedChoices, questionIndex, trust, patience, videoEnabled, videoBackground, ownedItems, activeClient, activeQuestions])
+  }, [panel, tab, appWindows, callStatus, displayedChoices, questionIndex, trust, patience, videoEnabled, videoBackground, ownedItems, activeClient, activeQuestions])
 
   function enterOfflineGame() {
     setCareerStarted(true)
