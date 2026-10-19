@@ -311,6 +311,7 @@ export default function App() {
   const [windowMinimized, setWindowMinimized] = useState(false)
   const [windowOffset, setWindowOffset] = useState({ x: 0, y: 0 })
   const [startMenuOpen, setStartMenuOpen] = useState(false)
+  const [startSearch, setStartSearch] = useState('')
   const dragWindowRef = useRef<{ x: number; y: number; originX: number; originY: number } | null>(null)
   const [offlineMenu, setOfflineMenu] = useState(false)
   const [onlineInfo, setOnlineInfo] = useState(false)
@@ -1134,17 +1135,18 @@ export default function App() {
           </div>
           {startMenuOpen && <div className="os-start-menu" role="dialog" aria-label="Меню Пуск">
             <div className="os-start-header"><div className="os-start-user"><span>БР</span><div><strong>Младший брокер</strong><small>Личный компьютер</small></div></div><button aria-label="Закрыть меню Пуск" onClick={() => setStartMenuOpen(false)}><X size={15} /></button></div>
-            <div className="os-start-search"><span>⌕</span><span>Найти приложение или задачу</span><kbd>⌘ K</kbd></div>
+            <label className="os-start-search"><span>⌕</span><input aria-label="Поиск приложения" placeholder="Найти приложение или задачу" value={startSearch} onChange={event => setStartSearch(event.target.value)} /><kbd>APP</kbd></label>
             <div className="os-start-section"><strong>Закреплённые приложения</strong><small>РАБОЧИЕ ИНСТРУМЕНТЫ</small></div>
             <div className="os-start-apps">
-              <button onClick={() => { setTab('overview'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-overview"><Activity size={18} /></span><strong>Обзор дня</strong></button>
-              <button onClick={() => { setTab('market'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-market"><TrendingUp size={18} /></span><strong>Биржа</strong></button>
-              <button onClick={() => { setTab('news'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-news"><Newspaper size={18} /></span><strong>Новости</strong></button>
-              <button onClick={() => { setTab('calls'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-calls"><Video size={18} /></span><strong>Видеозвонки</strong></button>
-              <button onClick={() => { setTab('clients'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-clients"><Users size={18} /></span><strong>Клиенты</strong></button>
-              <button onClick={() => { setTab('shop'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-shop"><ShoppingBag size={18} /></span><strong>Магазин</strong></button>
-              <button onClick={() => { setTab('housing'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-housing"><House size={18} /></span><strong>Жильё</strong></button>
+              {(!startSearch.trim() || 'обзор дня'.includes(startSearch.trim().toLowerCase())) && <button onClick={() => { setTab('overview'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-overview"><Activity size={18} /></span><strong>Обзор дня</strong></button>}
+              {(!startSearch.trim() || 'биржа'.includes(startSearch.trim().toLowerCase())) && <button onClick={() => { setTab('market'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-market"><TrendingUp size={18} /></span><strong>Биржа</strong></button>}
+              {(!startSearch.trim() || 'новости'.includes(startSearch.trim().toLowerCase())) && <button onClick={() => { setTab('news'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-news"><Newspaper size={18} /></span><strong>Новости</strong></button>}
+              {(!startSearch.trim() || 'видеозвонки'.includes(startSearch.trim().toLowerCase())) && <button onClick={() => { setTab('calls'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-calls"><Video size={18} /></span><strong>Видеозвонки</strong></button>}
+              {(!startSearch.trim() || 'клиенты'.includes(startSearch.trim().toLowerCase())) && <button onClick={() => { setTab('clients'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-clients"><Users size={18} /></span><strong>Клиенты</strong></button>}
+              {(!startSearch.trim() || 'магазин'.includes(startSearch.trim().toLowerCase())) && <button onClick={() => { setTab('shop'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-shop"><ShoppingBag size={18} /></span><strong>Магазин</strong></button>}
+              {(!startSearch.trim() || 'жильё'.includes(startSearch.trim().toLowerCase())) && <button onClick={() => { setTab('housing'); setWindowMinimized(false); setWindowMaximized(false); setStartMenuOpen(false) }}><span className="start-app-icon start-housing"><House size={18} /></span><strong>Жильё</strong></button>}
             </div>
+            {startSearch.trim() && !['обзор дня','биржа','новости','видеозвонки','клиенты','магазин','жильё'].some(name => name.includes(startSearch.trim().toLowerCase())) && <div className="os-start-empty">Ничего не найдено</div>}
             <div className="os-start-footer"><span><span className="os-start-status" /> Система готова</span><button onClick={() => { setStartMenuOpen(false); setPauseOpen(true) }}><Power size={15} /> Питание</button></div>
           </div>}
           <div className="os-taskbar"><button className={startMenuOpen ? 'taskbar-start active' : 'taskbar-start'} onClick={() => setStartMenuOpen(value => !value)}><span className="start-windows-mark">▦</span> <strong>Пуск</strong></button><span className="os-taskbar-separator" />{tab !== 'overview' && <button className="os-taskbar-app" onClick={() => setWindowMinimized((value) => !value)}>{tab === 'market' ? 'Биржа' : tab === 'news' ? 'Новости' : tab === 'calls' ? 'Видеозвонки' : tab === 'clients' ? 'Клиенты' : tab === 'shop' ? 'Магазин' : tab === 'city' ? 'Город' : 'Недвижимость'}</button>}<span className="os-taskbar-spacer" /><span className="os-taskbar-weather">☁ <span>Переменная облачность</span></span><span className="os-taskbar-clock">{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}<small>ДЕНЬ {day}</small></span></div>
