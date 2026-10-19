@@ -215,25 +215,6 @@ function OutfitIllustration({ id }: { id: OutfitId }) {
   </svg>
 }
 
-function RoomItemIllustration({ id }: { id: string }) {
-  const stroke = '#b8dfcc'
-  const shade = '#24463e'
-  return <svg className={'room-item-illustration illustration-' + id} viewBox="0 0 140 110" role="img" aria-label={id.replace(/-/g, ' ')}>
-    <defs><linearGradient id={'item-metal-' + id} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b8d2c7" /><stop offset="100%" stopColor="#47685e" /></linearGradient></defs>
-    <ellipse cx="70" cy="96" rx="44" ry="6" fill="#071011" opacity=".55" />
-    {id === 'desk-lamp' && <g stroke={stroke} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"><path d="M54 88h34M70 86l-8-34 23-17" /><path d="M74 27l28 4-9 17-28-4z" fill={shade} /><path d="M79 48l-5 9M86 49l-2 9" stroke="#e4c88b" strokeWidth="2" /></g>}
-    {id === 'used-chair' && <g stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M46 24q0-5 6-5h26q7 0 7 7v34H46z" fill={shade}/><path d="M43 58h47v13H43z" fill="#355a50"/><path d="M49 71l-7 20M83 71l9 20M66 71v20" fill="none"/><path d="M41 92h-8M92 92h9" fill="none"/></g>}
-    {id === 'headset' && <g stroke={stroke} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"><path d="M36 60V47a34 34 0 0 1 68 0v13"/><rect x="29" y="52" width="18" height="29" rx="7" fill={shade}/><rect x="93" y="52" width="18" height="29" rx="7" fill={shade}/><path d="M101 80q-3 15-22 15h-8" strokeWidth="3"/><circle cx="66" cy="95" r="4" fill="#d7b879" stroke="none"/></g>}
-    {id === 'ring-light' && <g strokeLinecap="round" strokeLinejoin="round" fill="none"><circle cx="70" cy="40" r="27" stroke="#e7d8a8" strokeWidth="7"/><circle cx="70" cy="40" r="19" stroke="#8bb9a4" strokeWidth="2"/><path d="M70 67v24M56 92h28" stroke={stroke} strokeWidth="4"/><path d="M48 26l-7-4M92 26l7-4" stroke="#f2d8a1" strokeWidth="2"/></g>}
-    {id === 'hd-camera' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><rect x="31" y="37" width="78" height="42" rx="9" fill={shade}/><circle cx="70" cy="58" r="17" fill="#0c1c1c"/><circle cx="70" cy="58" r="10" fill="#548b7b"/><circle cx="66" cy="54" r="4" fill="#c5ead8" stroke="none"/><path d="M48 36l7-8h30l7 8" fill="none"/><circle cx="98" cy="47" r="3" fill="#d7b879" stroke="none"/></g>}
-    {id === 'neutral-backdrop' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><path d="M36 86V24M104 86V24M32 25h76" fill="none"/><path d="M42 29h56v55H42z" fill={shade}/><path d="M51 31v51M63 31v51M76 31v51M88 31v51" stroke="#547d6d" strokeWidth="2"/><path d="M31 88h15M94 88h15" fill="none"/></g>}
-    {id === 'second-monitor' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><rect x="18" y="23" width="48" height="43" rx="4" fill={shade}/><rect x="72" y="15" width="50" height="51" rx="4" fill="#19332e"/><path d="M26 53l10-12 8 6 11-15M80 50l10-15 8 8 14-14" fill="none" stroke="#7de0b1" strokeWidth="2.5"/><path d="M42 67v13M96 67v13M31 81h23M84 81h24" fill="none"/></g>}
-    {id === 'chromakey-kit' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><path d="M31 88V21M109 88V21M27 22h86" fill="none"/><path d="M38 27h64v55H38z" fill="#2f8466"/><path d="M46 35h48M46 45h48M46 55h48M46 65h48" stroke="#67b994" strokeWidth="2" opacity=".65"/><path d="M30 89h-7M110 89h7" fill="none"/></g>}
-    {id === 'pro-mic' && <g stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><rect x="54" y="16" width="32" height="48" rx="15" fill={shade}/><path d="M45 44v8a25 25 0 0 0 50 0v-8M70 77v13M56 91h28" fill="none"/><path d="M62 24v22M70 22v24M78 24v22" stroke="#80c4a2" strokeWidth="2"/></g>}
-    {!['desk-lamp','used-chair','headset','ring-light','hd-camera','neutral-backdrop','second-monitor','chromakey-kit','pro-mic'].includes(id) && <g stroke={stroke} strokeWidth="4" fill={shade}><rect x="35" y="25" width="70" height="55" rx="7"/><path d="M48 91h44M70 80v11" fill="none"/></g>}
-  </svg>
-}
-
 function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
   const jacket = outfit === 'premium' ? '#1b2d38' : outfit === 'classic' ? '#34485d' : '#496b60'
   const shirt = outfit === 'intern' ? '#6c897e' : '#e8e2d6'
