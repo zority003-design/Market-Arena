@@ -1,6 +1,36 @@
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+
+function makeSurfaceTexture(kind: 'skin' | 'hair' | 'fabric') {
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 128
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return new THREE.CanvasTexture(canvas)
+  const image = ctx.createImageData(canvas.width, canvas.height)
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const i = (y * canvas.width + x) * 4
+      const grain = ((x * 17 + y * 31 + (x * y) % 23) % 29) - 14
+      const weave = kind === 'fabric' ? (((x % 4 === 0) ? 8 : 0) + ((y % 4 === 0) ? 5 : 0)) : 0
+      const base = kind === 'skin' ? 226 : kind === 'hair' ? 205 : 220
+      const value = Math.max(0, Math.min(255, base + grain * (kind === 'skin' ? 0.35 : 0.7) + weave))
+      image.data[i] = value
+      image.data[i + 1] = value
+      image.data[i + 2] = value
+      image.data[i + 3] = 255
+    }
+  }
+  ctx.putImageData(image, 0, 0)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.RepeatWrapping
+  texture.repeat.set(kind === 'fabric' ? 2.5 : 1.5, kind === 'fabric' ? 3.5 : 1.5)
+  texture.needsUpdate = true
+  return texture
+}
 
 function PortraitHead({ tier }: { tier: number }) {
   const head = useRef<THREE.Group>(null)
@@ -9,6 +39,9 @@ function PortraitHead({ tier }: { tier: number }) {
   const skin = tier >= 4 ? '#8f7767' : tier === 3 ? '#b99a83' : tier === 2 ? '#c8ad95' : '#bda18a'
   const hair = tier >= 4 ? '#38231f' : tier === 3 ? '#222426' : tier === 2 ? '#60412e' : '#33241f'
   const shirt = tier >= 4 ? '#493b35' : tier === 3 ? '#293b49' : tier === 2 ? '#425e5c' : '#354d46'
+  const skinTexture = useMemo(() => makeSurfaceTexture('skin'), [])
+  const hairTexture = useMemo(() => makeSurfaceTexture('hair'), [])
+  const fabricTexture = useMemo(() => makeSurfaceTexture('fabric'), [])
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
@@ -25,12 +58,12 @@ function PortraitHead({ tier }: { tier: number }) {
   })
 
   return <group>
-    <mesh position={[0, 0.38, 0]} castShadow><cylinderGeometry args={[0.22, 0.28, 0.62, 32]} /><meshStandardMaterial color={skin} roughness={0.9} /></mesh>
-    <mesh position={[0, -0.28, -0.02]} scale={[1.2, 0.78, 0.56]} castShadow><sphereGeometry args={[0.72, 48, 32]} /><meshStandardMaterial color={shirt} roughness={0.86} /></mesh>
-    <mesh position={[0, 0.01, 0.43]} scale={[0.36, 0.39, 0.1]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={shirt === '#293b49' ? '#d8d9d1' : '#c5c8bc'} roughness={0.9} /></mesh>
+    <mesh position={[0, 0.38, 0]} castShadow><cylinderGeometry args={[0.22, 0.28, 0.62, 32]} /><meshStandardMaterial color={skin} map={skinTexture} roughness={0.9} /></mesh>
+    <mesh position={[0, -0.28, -0.02]} scale={[1.2, 0.78, 0.56]} castShadow><sphereGeometry args={[0.72, 48, 32]} /><meshStandardMaterial color={shirt} map={fabricTexture} roughness={0.86} /></mesh>
+    <mesh position={[0, 0.01, 0.43]} scale={[0.36, 0.39, 0.1]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={shirt === '#293b49' ? '#d8d9d1' : '#c5c8bc'} map={fabricTexture} roughness={0.9} /></mesh>
     <group ref={head} position={[0, 1.1, 0]}>
       <mesh position={[0, 0.52, 0]} scale={[0.66, 0.84, 0.59]} castShadow receiveShadow><sphereGeometry args={[1, 64, 48]} /><meshStandardMaterial color={skin} roughness={0.82} /></mesh>
-      <mesh position={[0, 1.02, -0.015]} scale={[0.66, 0.34, 0.59]} castShadow><sphereGeometry args={[1, 48, 32]} /><meshStandardMaterial color={hair} roughness={0.92} /></mesh>
+      <mesh position={[0, 1.02, -0.015]} scale={[0.66, 0.34, 0.59]} castShadow><sphereGeometry args={[1, 48, 32]} /><meshStandardMaterial color={hair} map={hairTexture} roughness={0.92} /></mesh>
       <mesh position={[-0.48, 0.57, 0.06]} scale={[0.16, 0.24, 0.13]} castShadow><sphereGeometry args={[1, 24, 20]} /><meshStandardMaterial color={hair} roughness={0.94} /></mesh>
       <mesh position={[0.48, 0.57, 0.06]} scale={[0.16, 0.24, 0.13]} castShadow><sphereGeometry args={[1, 24, 20]} /><meshStandardMaterial color={hair} roughness={0.94} /></mesh>
       {[-1, 1].map(side => <group key={side} position={[side * 0.65, 0.46, 0]}>
