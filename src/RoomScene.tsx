@@ -346,8 +346,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -1.95 : -1.62]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -0.35 : -0.68]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} />
+      <Box position={[-3.72, 2.04, curtainsOpen ? -1.95 : -1.62]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.72, 2.04, curtainsOpen ? -0.35 : -0.68]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
       {[-2.05, -1.75, -1.45, -1.15, -0.85, -0.55, -0.25].map((z) => (
         <Box key={z} position={[-3.69, 2.67, z]} size={[0.14, 0.07, 0.22]} color="#b7a58d" />
       ))}
@@ -473,8 +473,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
       <group position={[1.25, 0.82, -0.28]}>
         {/* A real bedside table supports the alarm clock instead of leaving it floating. */}
-        <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} />
-        {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.39, z * 0.105]} size={[0.035, 0.74, 0.035]} color="#49372d" roughness={0.9} />))}
+        <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} textureKind="wood" />
+        {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.39, z * 0.105]} size={[0.035, 0.74, 0.035]} color="#49372d" roughness={0.9} textureKind="wood" />))}
         <Box position={[0, 0.09, 0]} size={[0.3, 0.18, 0.12]} color="#252d31" roughness={0.42} />
         <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#172a2b" roughness={0.28} />
         <Cylinder position={[0, 0.1, 0.074]} rotation={[Math.PI / 2, 0, 0]} radius={0.062} height={0.009} color="#d6c8a5" roughness={0.45} />
