@@ -67,6 +67,42 @@ function makeSurfaceTexture(kind: 'skin' | 'hair' | 'fabric') {
   texture.needsUpdate = true
   return texture
 }
+function makeHeadGeometry() {
+  const segments = 64
+  const rings = 48
+  const vertices: number[] = []
+  const uvs: number[] = []
+  const indices: number[] = []
+  for (let iy = 0; iy <= rings; iy++) {
+    const t = iy / rings
+    const y = -0.82 + t * 1.64
+    const sinProfile = Math.max(0.015, Math.sin(Math.PI * t))
+    const jaw = t < 0.25 ? 0.76 + t * 0.96 : t > 0.82 ? 1 - (t - 0.82) * 1.1 : 1
+    const rx = 0.66 * Math.pow(sinProfile, 0.42) * jaw
+    const rz = 0.59 * Math.pow(sinProfile, 0.48) * (t < 0.22 ? 0.82 : 1)
+    for (let ix = 0; ix <= segments; ix++) {
+      const u = ix / segments
+      const angle = u * Math.PI * 2
+      const front = Math.max(0, Math.sin(angle))
+      const x = rx * Math.cos(angle)
+      const z = rz * Math.sin(angle) + front * 0.025 * Math.exp(-Math.pow((y - 0.08) / 0.42, 2))
+      vertices.push(x, y, z)
+      uvs.push(u, t)
+      if (iy < rings && ix < segments) {
+        const a = iy * (segments + 1) + ix
+        const b = a + segments + 1
+        indices.push(a, b, a + 1, b, b + 1, a + 1)
+      }
+    }
+  }
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+  geometry.setIndex(indices)
+  geometry.computeVertexNormals()
+  return geometry
+}
+
 function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'client' | 'player'; outfit: 'intern' | 'classic' | 'premium' }) {
   const head = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
@@ -77,6 +113,7 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
   const skinTexture = useMemo(() => makeSurfaceTexture('skin'), [])
   const hairTexture = useMemo(() => makeSurfaceTexture('hair'), [])
   const fabricTexture = useMemo(() => makeSurfaceTexture('fabric'), [])
+  const headGeometry = useMemo(() => makeHeadGeometry(), [])
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
@@ -99,7 +136,7 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
     {variant === 'client' || outfit !== 'intern' ? <><mesh position={[0, -0.18, 0.49]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.052, 0.28, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b99b59' : tier >= 3 ? '#7b4238' : '#263e49'} roughness={0.58} metalness={0.08} /></mesh><mesh position={[-0.19, -0.02, 0.395]} rotation={[0, 0, -0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={outfit === 'premium' ? '#343d49' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh><mesh position={[0.19, -0.02, 0.395]} rotation={[0, 0, 0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={outfit === 'premium' ? '#343d49' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh>{outfit === 'premium' && <mesh position={[0.28, -0.1, 0.44]}><sphereGeometry args={[0.025, 16, 12]} /><meshStandardMaterial color="#e2c078" metalness={0.65} roughness={0.25} /></mesh>}</> : null}
     <mesh position={[0, 0.01, 0.43]} scale={[0.36, 0.39, 0.1]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={shirt === '#293b49' ? '#d8d9d1' : '#c5c8bc'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.86} /></mesh>
     <group ref={head} position={[0, 1.1, 0]}>
-      <mesh position={[0, 0.52, 0]} scale={[0.66, 0.84, 0.59]} castShadow receiveShadow><sphereGeometry args={[1, 64, 48]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.022} roughness={0.78} /></mesh>
+      <mesh position={[0, 0.52, 0]} geometry={headGeometry} castShadow receiveShadow><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.022} roughness={0.78} /></mesh>
       <mesh position={[0, 1.02, -0.015]} scale={[0.66, 0.34, 0.59]} castShadow><sphereGeometry args={[1, 48, 32]} /><meshStandardMaterial color={hair} map={hairTexture} bumpMap={hairTexture} bumpScale={0.055} roughness={0.88} /></mesh>
       <mesh position={[-0.48, 0.57, 0.06]} scale={[0.16, 0.24, 0.13]} castShadow><sphereGeometry args={[1, 24, 20]} /><meshStandardMaterial color={hair} map={hairTexture} bumpMap={hairTexture} bumpScale={0.055} roughness={0.9} /></mesh>
       <mesh position={[0.48, 0.57, 0.06]} scale={[0.16, 0.24, 0.13]} castShadow><sphereGeometry args={[1, 24, 20]} /><meshStandardMaterial color={hair} map={hairTexture} roughness={0.94} /></mesh>
