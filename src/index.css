@@ -1924,3 +1924,49 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
  .immersive-call-workspace .self-video-column { grid-column:1; grid-row:2; }
  .immersive-call-workspace .video-side-info { grid-column:1; grid-row:3; flex-direction:row; align-items:center; }
 }
+
+
+/* Functional desktop Start menu: a real app launcher, not a decorative taskbar button. */
+.os-shell .os-taskbar { z-index: 50; }
+.os-shell .os-taskbar .taskbar-start { min-width: 92px; justify-content: center; gap: 8px; }
+.os-shell .os-taskbar .taskbar-start.active,
+.os-shell .os-taskbar .taskbar-start:hover { background: rgba(88,184,145,.18); border-color: rgba(119,226,180,.42); }
+.start-windows-mark { display: inline-grid; place-items: center; width: 19px; height: 19px; border-radius: 4px; color: #c7f4df; background: linear-gradient(145deg,#388cbb,#3bbd8a); font-size: 15px; line-height: 1; }
+.os-start-menu { position: absolute; z-index: 49; left: 12px; bottom: 48px; width: min(430px,calc(100% - 24px)); padding: 18px; border: 1px solid rgba(193,224,210,.2); border-radius: 13px; color: #e5f2eb; background: linear-gradient(145deg,rgba(28,43,43,.98),rgba(12,22,25,.99)); box-shadow: 0 22px 70px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.045); backdrop-filter: blur(20px); animation: startMenuIn .14s ease-out; }
+@keyframes startMenuIn { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.os-start-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:15px; border-bottom:1px solid rgba(190,220,205,.11); }
+.os-start-user { display:flex; align-items:center; gap:10px; }
+.os-start-user > span { display:grid; place-items:center; width:39px; height:39px; border:1px solid rgba(113,220,173,.28); border-radius:10px; color:#d5f5e4; background:linear-gradient(145deg,#2f6955,#243b3b); font-size:12px; font-weight:800; }
+.os-start-user strong,.os-start-user small { display:block; }
+.os-start-user strong { font-size:13px; }
+.os-start-user small { margin-top:4px; color:#87a69a; font-size:10px; }
+.os-start-header > button { display:grid; place-items:center; width:30px; height:30px; border:1px solid transparent; border-radius:6px; color:#a8c2b6; background:transparent; cursor:pointer; }
+.os-start-header > button:hover { background:rgba(255,255,255,.08); }
+.os-start-search { display:flex; align-items:center; gap:9px; margin:14px 0 18px; padding:10px 12px; border:1px solid rgba(171,209,191,.16); border-radius:7px; color:#809d90; background:rgba(3,11,13,.42); font-size:11px; }
+.os-start-search > span:first-child { color:#b8e9d0; font-size:20px; line-height:1; }
+.os-start-search kbd { margin-left:auto; padding:3px 5px; border:1px solid rgba(171,209,191,.15); border-radius:4px; color:#759285; font:9px 'DM Mono',monospace; }
+.os-start-section { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.os-start-section strong { font-size:12px; }
+.os-start-section small { color:#6e9583; font:8px 'DM Mono',monospace; letter-spacing:.08em; }
+.os-start-apps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.os-start-apps button { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:0; padding:11px 4px 9px; border:1px solid transparent; border-radius:8px; color:#d0e1d7; background:transparent; cursor:pointer; }
+.os-start-apps button:hover { border-color:rgba(116,221,174,.18); background:rgba(116,221,174,.07); }
+.start-app-icon { display:grid; place-items:center; width:38px; height:38px; border:1px solid rgba(183,215,199,.12); border-radius:10px; }
+.start-app-icon.start-overview { color:#9fe2be; background:linear-gradient(145deg,#225a46,#17352f); }
+.start-app-icon.start-market { color:#9bc7f2; background:linear-gradient(145deg,#254d6b,#1a2c3d); }
+.start-app-icon.start-news { color:#f1c783; background:linear-gradient(145deg,#5d492d,#30261e); }
+.start-app-icon.start-calls { color:#c3b0f3; background:linear-gradient(145deg,#4b3b70,#29243e); }
+.start-app-icon.start-clients { color:#a9d8e5; background:linear-gradient(145deg,#28565d,#1a343c); }
+.start-app-icon.start-shop { color:#f0b6a3; background:linear-gradient(145deg,#69453e,#382925); }
+.start-app-icon.start-housing { color:#b8e0b0; background:linear-gradient(145deg,#3c6245,#23372b); }
+.os-start-apps button strong { overflow:hidden; max-width:100%; font-size:10px; font-weight:550; text-overflow:ellipsis; white-space:nowrap; }
+.os-start-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; padding-top:13px; border-top:1px solid rgba(190,220,205,.11); color:#8ca99a; font-size:10px; }
+.os-start-footer > span { display:flex; align-items:center; gap:7px; }
+.os-start-status { width:7px; height:7px; border-radius:50%; background:#67d9a5; box-shadow:0 0 0 4px rgba(103,217,165,.09); }
+.os-start-footer button { display:flex; align-items:center; gap:7px; padding:7px 9px; border:1px solid rgba(208,151,139,.2); border-radius:6px; color:#d9a69d; background:rgba(175,80,65,.06); cursor:pointer; font-size:10px; }
+.os-start-footer button:hover { background:rgba(175,80,65,.14); }
+@media(max-width:520px) {
+  .os-start-menu { left:6px; bottom:46px; width:calc(100% - 12px); padding:13px; }
+  .os-start-apps { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .os-start-section small { display:none; }
+}
