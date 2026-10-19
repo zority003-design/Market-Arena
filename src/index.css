@@ -2318,3 +2318,81 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .negotiation-client-video .client-portrait-3d { min-height:145px; }
   .negotiation-heading h3 { font-size:18px; }
 }
+
+
+/* Readability and interaction pass: default text is sized for real play, not a tiny mockup. */
+.os-floating-window { min-width: 340px; min-height: 260px; }
+.os-floating-content { padding: 20px; font-size: 14px; line-height: 1.55; }
+.os-floating-content h3 { font-size: 24px; line-height: 1.2; }
+.os-floating-content h4 { font-size: 18px; }
+.os-floating-content p { font-size: 13px; line-height: 1.6; }
+.os-floating-content button { font-size: 13px; }
+.os-floating-eyebrow, .negotiation-section-label { font-size: 10px; }
+.negotiation-heading h3 { font-size: 26px; }
+.negotiation-status { font-size: 10px; }
+.negotiation-setup-card, .negotiation-goal-card, .negotiation-trust-card, .negotiation-risk-note { padding: 18px; }
+.negotiation-field-label { font-size: 13px; }
+.negotiation-company-select { font-size: 14px; padding: 12px; }
+.negotiation-product-top { font-size: 12px; }
+.negotiation-product-card > strong { font-size: 18px; }
+.negotiation-product-card p, .negotiation-goal-card p { font-size: 12px; line-height: 1.65; }
+.negotiation-product-metrics small, .negotiation-client-goal > small { font-size: 10px; }
+.negotiation-product-metrics b { font-size: 14px; }
+.negotiation-brief strong { font-size: 13px; }
+.negotiation-brief p { font-size: 12px; }
+.negotiation-setup-card .os-call-client-option strong { font-size: 13px; }
+.negotiation-setup-card .os-call-client-option small { font-size: 11px; }
+.negotiation-client-goal strong { font-size: 14px; }
+.negotiation-client-goal p { font-size: 11px; }
+.negotiation-footnote { font-size: 11px; }
+.negotiation-video-label { font-size: 9px; }
+.negotiation-video-caption strong { font-size: 13px; }
+.negotiation-video-caption small { font-size: 11px; }
+.negotiation-current-question strong { font-size: 15px; line-height: 1.5; }
+.negotiation-answer-heading strong { font-size: 14px; }
+.negotiation-answer-heading small { font-size: 11px; }
+.negotiation-answer { grid-template-columns: 28px minmax(0,1fr); padding: 12px; gap: 10px; }
+.negotiation-answer kbd { width: 26px; height: 26px; font-size: 12px; }
+.negotiation-answer span { font-size: 13px; line-height: 1.55; }
+.negotiation-answer small { font-size: 10px; }
+.negotiation-call-controls > span { font-size: 11px; }
+.negotiation-call-controls .os-call-end { font-size: 12px; }
+.negotiation-goal-card > strong { font-size: 15px; }
+.negotiation-goal-card > small { font-size: 11px; }
+.negotiation-goal-price { font-size: 15px; }
+.negotiation-goal-price span { font-size: 12px; }
+.negotiation-client-facts span { font-size: 11px; }
+.negotiation-client-facts b { font-size: 12px; }
+.negotiation-trust-card > div:not(.negotiation-meter) { font-size: 12px; }
+.negotiation-trust-card > div strong { font-size: 14px; }
+.negotiation-stage { font-size: 11px; }
+.negotiation-risk-note > strong { font-size: 13px; }
+.negotiation-risk-note p { font-size: 11px; line-height: 1.6; }
+.negotiation-result-panel h4 { font-size: 24px; }
+.negotiation-result-panel p { font-size: 13px; }
+.negotiation-result-summary span { font-size: 12px; }
+.negotiation-result-panel .os-floating-primary { font-size: 14px; padding: 13px; }
+.negotiation-daily-goal, .negotiation-earnings-card { min-width: 0; padding: 15px; border: 1px solid rgba(94,218,171,.22); border-radius: 9px; background: linear-gradient(145deg,rgba(31,74,62,.22),rgba(12,22,26,.86)); }
+.negotiation-daily-goal > strong { display:block; margin-top:8px; color:#e2f2e9; font-size:16px; }
+.negotiation-daily-goal p { color:#a8bdb4; font-size:12px; line-height:1.6; }
+.negotiation-daily-goal > small { color:#b2cfc2; font-size:11px; }
+.negotiation-quota-track { height:7px; margin:12px 0 8px; overflow:hidden; border-radius:6px; background:rgba(255,255,255,.09); }
+.negotiation-quota-track span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#3a9f7c,#72e4b5); transition:width .25s; }
+.negotiation-daily-goal .negotiation-spend-hint { margin-top:13px; padding-top:12px; border-top:1px solid rgba(180,220,205,.12); color:#d6c79e; }
+.negotiation-earnings-card { border-color:rgba(226,188,119,.25); background:linear-gradient(145deg,rgba(111,80,36,.16),rgba(12,22,26,.9)); }
+.negotiation-earnings-main { display:flex; flex-direction:column; gap:5px; margin:12px 0; padding:13px; border-radius:7px; background:rgba(255,255,255,.035); }
+.negotiation-earnings-main small { color:#c4b28b; font-size:10px; }
+.negotiation-earnings-main strong { color:#7ce4b7; font:700 23px 'DM Mono',monospace; }
+.negotiation-earnings-row { display:flex; justify-content:space-between; gap:8px; padding:6px 0; color:#91a69c; font-size:12px; }
+.negotiation-earnings-row b { color:#e1ece6; font:12px 'DM Mono',monospace; text-align:right; }
+.negotiation-earnings-card p { margin:10px 0 0; color:#8fa49b; font-size:11px; line-height:1.55; }
+.os-floating-titlebar { min-height:44px; }
+.os-floating-titlebar > span { font-size:13px; }
+.os-floating-controls button { min-width:32px; min-height:30px; font-size:17px; }
+@media (max-width: 620px) {
+  .os-floating-window { min-width:280px; }
+  .os-floating-content { padding:14px; }
+  .negotiation-heading h3 { font-size:21px; }
+  .negotiation-setup-card, .negotiation-goal-card, .negotiation-trust-card, .negotiation-risk-note { padding:13px; }
+  .negotiation-answer span { font-size:12px; }
+}
