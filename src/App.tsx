@@ -532,13 +532,16 @@ export default function App() {
   const activeQuestions = getStockQuestions(activeCompany)
   const activeQuestion = activeQuestions[questionIndex]
   function openAppWindow(app: 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing') {
-    const existing = appWindows.find((item) => item.app === app)
-    if (existing) {
-      setAppWindows([...appWindows.filter((item) => item.id !== existing.id), { ...existing, minimized: false }])
-    } else {
-      setAppWindows([...appWindows, { id: nextAppWindowId, app, x: Math.min(36 * appWindows.length, 180), y: Math.min(30 * appWindows.length, 120), minimized: false, maximized: false }])
-      setNextAppWindowId(nextAppWindowId + 1)
-    }
+    // Each launch creates a real independent window, just like a desktop OS.
+    setAppWindows((items) => [...items, {
+      id: nextAppWindowId,
+      app,
+      x: 24 + ((items.length * 38) % 250),
+      y: 22 + ((items.length * 28) % 150),
+      minimized: false,
+      maximized: false,
+    }])
+    setNextAppWindowId((id) => id + 1)
     setStartMenuOpen(false)
     setStartSearch('')
   }
@@ -1157,9 +1160,9 @@ export default function App() {
                 </header>
                 {!win.minimized && <div className="os-floating-content">
                   {win.app === 'overview' && <><span className="os-floating-eyebrow">СИСТЕМА · ДЕНЬ {day}</span><h3>{gameMinutes < 12 * 60 ? 'Доброе утро' : gameMinutes < 18 * 60 ? 'Хорошего дня' : 'Добрый вечер'}</h3><div className="os-floating-stat-grid"><div><small>ЛИЧНЫЕ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></div></div><button className="os-floating-primary" onClick={() => { setTab('overview'); setWindowMinimized(false) }}>Открыть полный обзор</button></>}
-                  {win.app === 'market' && <><span className="os-floating-eyebrow">КОТИРОВКИ · РЫНОК</span><h3>{activeCompany.name}</h3><p>Тикер {activeCompany.ticker} · Цена {activeCompany.price} ₽</p><div className="os-floating-meter"><span style={{ width: marketReviewed ? '100%' : '28%' }} /></div><small>{marketReviewed ? 'Отчёт уже изучен' : 'Отчёт компании ещё не изучен'}</small><button className="os-floating-primary" onClick={() => setTab('market')}>Открыть терминал</button></>}
+                  {win.app === 'market' && <><span className="os-floating-eyebrow">КОТИРОВКИ · РЫНОК</span><h3>Биржевой терминал</h3><div className="os-market-list" aria-label="Все акции"><div className="os-market-list-heading"><span>КОМПАНИЯ / ТИКЕР</span><span>ЦЕНА / ДЕНЬ</span></div>{companies.map((company) => <button key={company.ticker} className={'os-market-row' + (selectedCompany === company.ticker ? ' selected' : '')} onClick={() => setSelectedCompany(company.ticker)}><span><strong>{company.name}</strong><small>{company.ticker} · {company.sector}</small></span><span className="os-market-price"><strong>{getDisplayedPrice(company)}</strong><small className={getDisplayedChange(company).startsWith('-') || getDisplayedChange(company).startsWith('−') ? 'negative' : 'positive'}>{getDisplayedChange(company)}</small></span></button>)}</div><div className="os-market-detail"><span className="os-floating-eyebrow">ВЫБРАННАЯ КОМПАНИЯ</span><h4>{activeCompany.name}</h4><p>{activeCompany.description}</p><div className="os-market-detail-stats"><span><small>КАПИТАЛИЗАЦИЯ</small><strong>{activeCompany.cap}</strong></span><span><small>РИСК</small><strong>{activeCompany.risk}</strong></span></div><button className="os-floating-primary" onClick={() => setTab('market')}>Открыть полный терминал</button></div></>}
                   {win.app === 'news' && <><span className="os-floating-eyebrow">ИНФОРМАЦИОННАЯ ЛЕНТА</span><h3>Новости рынка</h3><p>«Котолёт» ведёт переговоры о крупном контракте. Новость может повлиять на ожидания клиентов.</p><p>Перед сделкой сравни новость с отчётом компании и оцени риск.</p><button className="os-floating-primary" onClick={() => setTab('news')}>Открыть все новости</button></>}
-                  {win.app === 'calls' && <><span className="os-floating-eyebrow">СВЯЗЬ С КЛИЕНТАМИ</span><h3>{callStatus === 'active' ? 'Звонок идёт' : 'Видеозвонки'}</h3><div className="os-floating-stat-grid"><div><small>ЗВОНКИ СЕГОДНЯ</small><strong>{callsToday}</strong></div><div><small>ДОСТУПНЫЕ ЛИДЫ</small><strong>{availableClients.length}</strong></div></div><button className="os-floating-primary" onClick={() => setTab('calls')}>{callStatus === 'active' ? 'Вернуться к звонку' : 'Открыть приложение звонков'}</button></>}
+                  {win.app === 'calls' && <><span className="os-floating-eyebrow">СВЯЗЬ · ВИДЕОКОНФЕРЕНЦИЯ</span><h3>{callStatus === 'active' ? 'Идёт видеозвонок' : 'Видеозвонки'}</h3><div className="os-call-person"><div className="os-call-portrait"><ClientPortrait3D tier={activeClient.tier} /></div><div className="os-call-person-info"><strong>{activeClient.name}</strong><span>{activeClient.profession}</span><small>{callStatus === 'active' ? '● СОЕДИНЕНИЕ УСТАНОВЛЕНО' : 'ГОТОВ К ЗВОНКУ'}</small></div></div><blockquote className="os-call-quote">«{activeClient.quote}»</blockquote><div className="os-floating-stat-grid"><div><small>ЗВОНКИ СЕГОДНЯ</small><strong>{callsToday}</strong></div><div><small>ДОСТУПНЫЕ КЛИЕНТЫ</small><strong>{availableClients.length}</strong></div></div><button className="os-floating-primary" onClick={() => setTab('calls')}>{callStatus === 'active' ? 'Вернуться к звонку' : 'Открыть приложение звонков'}</button></>}
                   {win.app === 'clients' && <><span className="os-floating-eyebrow">CRM · КОНТАКТЫ</span><h3>База клиентов</h3><p>Доступно новых лидов: <strong>{availableClients.length}</strong></p><p>Репутация фирмы: <strong>{reputation}/100</strong>. Успешные сделки открывают клиентов с большим капиталом.</p><button className="os-floating-primary" onClick={() => setTab('clients')}>Открыть CRM</button></>}
                   {win.app === 'shop' && <><span className="os-floating-eyebrow">ОБОРУДОВАНИЕ</span><h3>Магазин рабочего места</h3><p>Баланс: <strong>{cash.toLocaleString('ru-RU')} ₽</strong></p><p>Покупай оборудование, чтобы улучшать рабочую среду и качество звонков.</p><button className="os-floating-primary" onClick={() => setTab('shop')}>Открыть магазин</button></>}
                   {win.app === 'housing' && <><span className="os-floating-eyebrow">ЖИЛЬЁ</span><h3>{currentHousing.name}</h3><p>Улучшай жильё по мере роста дохода и репутации.</p><button className="os-floating-primary" onClick={() => setTab('housing')}>Открыть недвижимость</button></>}
