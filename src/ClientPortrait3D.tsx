@@ -67,13 +67,13 @@ function makeSurfaceTexture(kind: 'skin' | 'hair' | 'fabric') {
   texture.needsUpdate = true
   return texture
 }
-function PortraitHead({ tier, variant }: { tier: number; variant: 'client' | 'player' }) {
+function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'client' | 'player'; outfit: 'intern' | 'classic' | 'premium' }) {
   const head = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
   const mouth = useRef<THREE.Mesh>(null)
   const skin = variant === 'player' ? '#b68e72' : tier >= 4 ? '#8f7767' : tier === 3 ? '#b99a83' : tier === 2 ? '#c8ad95' : '#bda18a'
   const hair = variant === 'player' ? '#1d272b' : tier >= 4 ? '#38231f' : tier === 3 ? '#222426' : tier === 2 ? '#60412e' : '#33241f'
-  const shirt = variant === 'player' ? '#263e4b' : tier >= 4 ? '#493b35' : tier === 3 ? '#293b49' : tier === 2 ? '#425e5c' : '#354d46'
+  const shirt = variant === 'player' ? (outfit === 'premium' ? '#202a36' : outfit === 'classic' ? '#293f4b' : '#354d46') : tier >= 4 ? '#493b35' : tier === 3 ? '#293b49' : tier === 2 ? '#425e5c' : '#354d46'
   const skinTexture = useMemo(() => makeSurfaceTexture('skin'), [])
   const hairTexture = useMemo(() => makeSurfaceTexture('hair'), [])
   const fabricTexture = useMemo(() => makeSurfaceTexture('fabric'), [])
@@ -96,9 +96,7 @@ function PortraitHead({ tier, variant }: { tier: number; variant: 'client' | 'pl
     <mesh position={[0, 0.38, 0]} castShadow><cylinderGeometry args={[0.22, 0.28, 0.62, 32]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.018} roughness={0.84} /></mesh>
     <mesh position={[0, -0.28, -0.02]} scale={[1.2, 0.78, 0.56]} castShadow><sphereGeometry args={[0.72, 48, 32]} /><meshStandardMaterial color={shirt} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.035} roughness={0.82} /></mesh>
     <mesh position={[0, -0.13, 0.435]} scale={[0.18, 0.34, 0.045]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color="#d9d7cd" map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.025} roughness={0.88} /></mesh>
-    <mesh position={[0, -0.18, 0.49]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.052, 0.28, 4]} /><meshStandardMaterial color={tier >= 3 ? '#7b4238' : '#263e49'} roughness={0.58} metalness={0.08} /></mesh>
-    <mesh position={[-0.19, -0.02, 0.395]} rotation={[0, 0, -0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={shirt === '#293b49' ? '#344b58' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh>
-    <mesh position={[0.19, -0.02, 0.395]} rotation={[0, 0, 0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={shirt === '#293b49' ? '#344b58' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh>
+    {variant === 'client' || outfit !== 'intern' ? <><mesh position={[0, -0.18, 0.49]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.052, 0.28, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b99b59' : tier >= 3 ? '#7b4238' : '#263e49'} roughness={0.58} metalness={0.08} /></mesh><mesh position={[-0.19, -0.02, 0.395]} rotation={[0, 0, -0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={outfit === 'premium' ? '#343d49' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh><mesh position={[0.19, -0.02, 0.395]} rotation={[0, 0, 0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={outfit === 'premium' ? '#343d49' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh>{outfit === 'premium' && <mesh position={[0.28, -0.1, 0.44]}><sphereGeometry args={[0.025, 16, 12]} /><meshStandardMaterial color="#e2c078" metalness={0.65} roughness={0.25} /></mesh>}</> : null}
     <mesh position={[0, 0.01, 0.43]} scale={[0.36, 0.39, 0.1]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={shirt === '#293b49' ? '#d8d9d1' : '#c5c8bc'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.86} /></mesh>
     <group ref={head} position={[0, 1.1, 0]}>
       <mesh position={[0, 0.52, 0]} scale={[0.66, 0.84, 0.59]} castShadow receiveShadow><sphereGeometry args={[1, 64, 48]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.022} roughness={0.78} /></mesh>
@@ -133,14 +131,14 @@ function PortraitHead({ tier, variant }: { tier: number; variant: 'client' | 'pl
   </group>
 }
 
-export default function ClientPortrait3D({ tier, variant = 'client' }: { tier: number; variant?: 'client' | 'player' }) {
+export default function ClientPortrait3D({ tier, variant = 'client', outfit = 'intern' }: { tier: number; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium' }) {
   return <div className="client-portrait-3d" aria-label="Анимированный 3D-портрет клиента">
     <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.45, 5.0], fov: 38, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl, camera }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 0.98; gl.outputColorSpace = THREE.SRGBColorSpace; camera.lookAt(0, 1.12, 0) }}>
       <ambientLight intensity={1.15} />
       <hemisphereLight args={['#d9e6f1', '#4b4039', 0.72]} />
       <directionalLight position={[-2.5, 4, 3]} intensity={2.1} color="#ffe1c4" castShadow />
       <pointLight position={[2.2, 1.4, 1.2]} intensity={0.7} color="#91c5b5" />
-      <PortraitHead tier={tier} variant={variant} />
+      <PortraitHead tier={tier} variant={variant} outfit={outfit} />
     </Canvas>
   </div>
 }
