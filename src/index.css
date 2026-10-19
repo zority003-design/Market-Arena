@@ -865,8 +865,9 @@ button:focus-visible, textarea:focus-visible {
 .intro-wake-caption strong { font-size: 14px; font-weight: 500; letter-spacing: .04em; }
 @keyframes eyelid-open-top { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
 @keyframes eyelid-open-bottom { 0% { transform: translateY(0); } 100% { transform: translateY(100%); } }
-@keyframes wake-caption { 0%,20% { opacity: 0; } 40%,75% { opacity: .8; } 100% { opacity: 0; } }
-@keyframes wake-scene-fade { 0%,65% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@keyframes wake-caption { 0%,12% { opacity: 0; transform: translate(-50%, 12px); } 28%,72% { opacity: .92; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -8px); } }
+@keyframes wake-scene-fade { 0% { opacity: 1; } 22% { opacity: .78; } 100% { opacity: 0; visibility: hidden; } }
+.intro-wake-caption small { color: rgba(216,232,223,.68); font-size: 10px; letter-spacing: .04em; }
 .immersive-call-workspace { grid-template-columns: minmax(0, 1.12fr) minmax(340px, .88fr); gap: 16px; align-items: stretch; }
 .immersive-call-workspace .client-panel { padding: 18px; border-color: rgba(105,220,177,.18); background: radial-gradient(ellipse at 48% 18%,rgba(39,107,89,.17),transparent 55%),linear-gradient(160deg,#111d23,#0a1116); }
 .immersive-call-workspace .client-video-stage { display: flex; min-height: 350px; flex-direction: column; gap: 10px; }
