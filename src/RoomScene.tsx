@@ -118,9 +118,11 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     if (!active) return
     const dt = Math.min(delta, 0.04)
     if (introActive) {
-      introProgress.current = Math.min(1, introProgress.current + dt / 3.1)
-      const t = introProgress.current * introProgress.current * (3 - 2 * introProgress.current)
-      camera.position.set(2.52 + (1.05 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (2.78 - 0.85) * t)
+      introProgress.current = Math.min(1, introProgress.current + dt / 2.45)
+      // Wake up in place, then ease off the mattress; avoid the old long diagonal glide that felt like flying.
+      const p = introProgress.current
+      const t = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
+      camera.position.set(2.52 + (1.62 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (2.18 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
@@ -454,7 +456,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[2.55, 0.72, -0.22]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
       <Box position={[2.55, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
       <Box position={[2.55, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
-      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[2.55 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
+      {[-0.72, 0.72].map((x) => [-1.32, 1.32].map((z) => <Box key={x + ":" + z} position={[2.55 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
       {/* Keep the wall beside the door clear and uncluttered. */}
 
