@@ -43,7 +43,7 @@ function ProductModel({ id }: { id: ItemId }) {
       </group>}
       {id === 'hd-camera' && <group>
         <mesh position={[0,0,0]}><boxGeometry args={[0.72,0.42,0.38]} /><Dark /></mesh>
-        <mesh position={[0,0,0.21]}><cylinderGeometry args={[0.19,0.22,0.12,32]} rotation={[Math.PI/2,0,0]} /><meshStandardMaterial color="#111a20" metalness={0.5} roughness={0.2} /></mesh>
+        <mesh position={[0,0,0.21]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.19,0.22,0.12,32]} /><meshStandardMaterial color="#111a20" metalness={0.5} roughness={0.2} /></mesh>
         <mesh position={[0,0,0.29]}><circleGeometry args={[0.14,32]} /><meshStandardMaterial color="#2f7f78" metalness={0.55} roughness={0.18} /></mesh>
         <mesh position={[-0.02,0.04,0.31]}><circleGeometry args={[0.065,24]} /><meshStandardMaterial color="#b9e8d7" emissive="#3a9d8b" emissiveIntensity={0.25} /></mesh>
         <mesh position={[0,0.25,0]}><boxGeometry args={[0.28,0.09,0.22]} /><Metal /></mesh>
