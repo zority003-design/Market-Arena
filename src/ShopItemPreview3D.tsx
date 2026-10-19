@@ -68,7 +68,7 @@ function ProductModel({ id }: { id: ItemId }) {
         <mesh position={[0,0.04,-0.06]}><boxGeometry args={[1.0,1.08,0.035]} /><meshStandardMaterial color="#287f4d" roughness={0.94} side={THREE.DoubleSide} /></mesh>
         <mesh position={[-0.52,0.04,-0.06]}><cylinderGeometry args={[0.025,0.025,1.24,10]} /><Metal /></mesh>
         <mesh position={[0.52,0.04,-0.06]}><cylinderGeometry args={[0.025,0.025,1.24,10]} /><Metal /></mesh>
-        <mesh position={[0,0.66,-0.06]}><cylinderGeometry args={[0.025,0.025,1.12,10]} rotation={[0,0,Math.PI/2} /><Metal /></mesh>
+        <mesh position={[0,0.66,-0.06]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[0.025,0.025,1.12,10]} /><Metal /></mesh>
         <mesh position={[-0.32,-0.59,-0.06]}><boxGeometry args={[0.36,0.04,0.3]} /><Metal /></mesh>
         <mesh position={[0.32,-0.59,-0.06]}><boxGeometry args={[0.36,0.04,0.3]} /><Metal /></mesh>
       </group>}
