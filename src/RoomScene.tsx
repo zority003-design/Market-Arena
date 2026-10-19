@@ -153,9 +153,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     }
     camera.position.y = 1.66
     camera.rotation.set(pitch.current, yaw.current, 0)
-    const exitDistance = Math.hypot(camera.position.x - 3.15, camera.position.z - 2.45)
-    const canExit = exitDistance < 1.05
-    if (canExit !== exitable.current) { exitable.current = canExit; onCanExitCityChange(canExit) }
+    if (exitable.current) { exitable.current = false; onCanExitCityChange(false) }
     const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 0.9)
     const canUse = distance < 1.25 && camera.position.z > -1.83
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
