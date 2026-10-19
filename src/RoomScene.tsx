@@ -45,7 +45,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   const introFinished = useRef(false)
 
   useEffect(() => {
-    camera.position.set(0, 1.66, 3.55)
+    camera.position.set(0, 1.66, 3.12)
     camera.rotation.order = 'YXZ'
     yaw.current = 0
     pitch.current = -0.04
@@ -119,7 +119,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     if (introActive) {
       introProgress.current = Math.min(1, introProgress.current + dt / 4.2)
       const t = introProgress.current * introProgress.current * (3 - 2 * introProgress.current)
-      camera.position.set(2.52 + (1.45 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (2.15 - 0.85) * t)
+      camera.position.set(2.52 + (0 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (3.12 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
@@ -445,12 +445,12 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Removed misplaced floor props to keep the entry path clear. */}
 
-      {/* Bed zone: aligned frame and neatly layered bedding */}
+      {/* Bed aligned to the room axis: headboard and pillows at the window end, clear footboard at the opposite end. */}
       <Box position={[1.2, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
       <Box position={[1.2, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} />
-      <Box position={[1.2, 0.7, -0.13]} size={[1.75, 0.11, 0.82]} color="#b3c1c4" roughness={1} />
-      <Box position={[1.2, 0.69, 1.18]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} />
-      <Box position={[1.2, 0.75, 1.86]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
+      <Box position={[1.2, 0.69, 0.98]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} />
+      <Box position={[1.2, 0.72, -0.22]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
+      <Box position={[1.2, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
       <Box position={[1.2, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
       {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[1.2 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
@@ -500,20 +500,40 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 }
 
 export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+  const sendMoveKey = (key: 'w' | 'a' | 's' | 'd', pressed: boolean) => {
+    const code = ({ w: 'KeyW', a: 'KeyA', s: 'KeyS', d: 'KeyD' } as const)[key]
+    window.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, bubbles: true, cancelable: true }))
+  }
+  const touchButton = (key: 'w' | 'a' | 's' | 'd', label: string, glyph: string) => (
+    <button key={key} type="button" className={`room-touch-key room-touch-${key}`} aria-label={label}
+      onPointerDown={(event) => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); sendMoveKey(key, true) }}
+      onPointerUp={() => sendMoveKey(key, false)}
+      onPointerCancel={() => sendMoveKey(key, false)}
+      onLostPointerCapture={() => sendMoveKey(key, false)}>{glyph}</button>
+  )
   return (
-    <Canvas
-      tabIndex={0}
-      shadows
-      dpr={[1, 1.6]}
-      camera={{ position: [0, 1.66, 3.55], fov: 64, near: 0.1, far: 40 }}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
-      onCreated={({ gl }) => {
-        gl.setClearColor('#101922')
-        gl.toneMapping = THREE.ACESFilmicToneMapping
-        gl.toneMappingExposure = 1.12
-      }}
-    >
-      <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
-    </Canvas>
+    <div className="room-scene-root">
+      <Canvas
+        tabIndex={0}
+        shadows
+        dpr={[1, 1.6]}
+        camera={{ position: [0, 1.66, 3.12], fov: 64, near: 0.1, far: 40 }}
+        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#101922')
+          gl.toneMapping = THREE.ACESFilmicToneMapping
+          gl.toneMappingExposure = 1.12
+        }}
+      >
+        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+      </Canvas>
+      {active && !introActive && <div className="room-touch-controls" aria-label="Управление персонажем">
+        <div className="room-touch-dpad">
+          {touchButton('w', 'Идти вперёд', '↑')}
+          <div className="room-touch-middle">{touchButton('a', 'Идти влево', '←')}{touchButton('s', 'Идти назад', '↓')}{touchButton('d', 'Идти вправо', '→')}</div>
+        </div>
+        <span className="room-touch-caption">ДВИЖЕНИЕ</span>
+      </div>}
+    </div>
   )
 }
