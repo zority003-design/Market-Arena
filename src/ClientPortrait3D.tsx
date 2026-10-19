@@ -21,7 +21,7 @@ function PortraitHead({ tier }: { tier: number }) {
       const blink = Math.max(0, 1 - Math.abs((t % 5.6) - 4.65) / 0.085)
       eyes.current.scale.y = Math.max(0.08, 1 - blink * 0.92)
     }
-    if (mouth.current) mouth.current.scale.y = 0.018 + Math.max(0, Math.sin(t * 3.7 + tier)) * 0.018
+    if (mouth.current) mouth.current.scale.y = 0.025 + Math.max(0, Math.sin(t * 8.2 + tier)) * 0.085
   })
 
   return <group>
@@ -47,7 +47,7 @@ function PortraitHead({ tier }: { tier: number }) {
       </group>
       <mesh position={[0, 0.29, 0.58]} scale={[0.105, 0.2, 0.12]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} roughness={0.76} /></mesh>
       <mesh position={[0, 0.19, 0.66]} scale={[0.14, 0.052, 0.045]} castShadow><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#9c7067" roughness={0.75} /></mesh>
-      <mesh ref={mouth} position={[0, 0.125, 0.653]} scale={[0.115, 0.018, 0.025]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#713d37" roughness={0.85} /></mesh>
+      <mesh ref={mouth} position={[0, 0.125, 0.653]} scale={[0.115, 0.025, 0.035]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#713d37" roughness={0.85} /></mesh>
       {tier >= 3 && <mesh position={[0, 0.01, 0.47]} scale={[0.43, 0.28, 0.18]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={hair} roughness={0.98} /></mesh>}
       {tier >= 2 && <mesh position={[0, 0.79, 0.34]} scale={[0.25, 0.07, 0.22]}><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color={hair} roughness={0.92} /></mesh>}
     </group>
