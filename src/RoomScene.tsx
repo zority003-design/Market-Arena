@@ -430,7 +430,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       </group>)}
 
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
-      <group position={[3.43, 0.82, -0.28]}>
+      <group position={[2.15, 0.82, -0.28]}>
         {/* A real bedside table supports the alarm clock instead of leaving it floating. */}
         <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} />
         {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.21, z * 0.105]} size={[0.035, 0.38, 0.035]} color="#49372d" roughness={0.9} />))}
@@ -450,15 +450,14 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[-0.08, 0.49, -0.02]} size={[0.18, 0.025, 0.16]} color="#536d76" rotation={[0, 0.2, -0.08]} />
         <Box position={[0.08, 0.5, 0.05]} size={[0.2, 0.03, 0.16]} color="#7c5d55" rotation={[0, -0.15, 0.04]} />
       </group>
-      <Box position={[1.42, 0.09, 2.82]} size={[0.32, 0.08, 0.46]} color="#394a50" rotation={[0, -0.15, 0]} roughness={0.95} />
-      <Box position={[1.73, 0.09, 2.9]} size={[0.31, 0.08, 0.44]} color="#4e4642" rotation={[0, 0.12, 0]} roughness={0.95} />
+      {/* Removed misplaced floor props to keep the entry path clear. */}
 
-      {/* Bed and rumpled bedding */}
+      {/* Bed zone: aligned frame and neatly layered bedding */}
       <Box position={[0.95, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
-      <Box position={[0.95, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#d0c8b8" roughness={0.98} />
+      <Box position={[0.95, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} />
       <Box position={[0.95, 0.7, -0.13]} size={[1.75, 0.11, 0.82]} color="#b3c1c4" roughness={1} />
-      <Box position={[0.95, 0.69, 1.2]} size={[1.72, 0.09, 1.65]} color="#536c78" roughness={1} rotation={[0.02, 0, -0.025]} />
-      <Box position={[0.95, 0.75, 1.9]} size={[0.85, 0.12, 0.52]} color="#c8c2b5" roughness={1} />
+      <Box position={[0.95, 0.69, 1.18]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} />
+      <Box position={[0.95, 0.75, 1.86]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
       <Box position={[0.95, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
       {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[0.95 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
