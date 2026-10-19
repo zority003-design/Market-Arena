@@ -1878,3 +1878,49 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .answer-controls { display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .answer-shortcut-hint { color:#718b87; font:8px 'DM Mono',monospace; letter-spacing:.02em; white-space:nowrap; }
 @media (max-width: 540px) { .answer-shortcut-hint { display:none; } }
+
+
+/* Focused call UI: less dashboard noise, more eye contact and one clear decision. */
+.call-command-strip, .call-purpose-strip { display:none !important; }
+.immersive-call-workspace { grid-template-columns:minmax(0,1.05fr) minmax(330px,.95fr); gap:14px; }
+.immersive-call-workspace .client-panel { padding:14px; }
+.immersive-call-workspace .client-panel-top { padding-bottom:10px; }
+.immersive-call-workspace .client-video-stage {
+  display:grid; grid-template-columns:minmax(0,1fr) 128px; grid-template-rows:minmax(280px,1fr) auto;
+  gap:9px; min-height:0; margin:12px 0;
+}
+.immersive-call-workspace .client-video-feed { grid-column:1; grid-row:1 / span 2; min-height:330px; }
+.immersive-call-workspace .self-video-column { grid-column:2; grid-row:1; min-width:0; }
+.immersive-call-workspace .video-side-info { grid-column:2; grid-row:2; display:flex; align-items:flex-start; flex-direction:column; gap:7px; padding:9px; }
+.immersive-call-workspace .video-side-info .eyebrow { width:auto; }
+.immersive-call-workspace .video-side-info small { display:none; }
+.immersive-call-workspace .client-meters { padding:8px 0; }
+.immersive-call-workspace .call-stock-offer { margin:8px 0; padding:10px 12px; }
+.immersive-call-workspace .call-stock-offer > p,
+.immersive-call-workspace .call-stock-offer-columns,
+.immersive-call-workspace .client-goal p { display:none; }
+.immersive-call-workspace .call-stock-offer > span { margin-bottom:4px; font-size:8px; }
+.immersive-call-workspace .call-stock-offer > strong { font-size:13px; }
+.immersive-call-workspace .call-stock-offer > small { font-size:9px; }
+.immersive-call-workspace .client-goal { padding:9px 0; }
+.immersive-call-workspace .client-goal small { margin-bottom:4px; font-size:8px; }
+.immersive-call-workspace .client-goal strong { font-size:10px; line-height:1.4; }
+.immersive-call-workspace .conversation-log { max-height:100px; padding-top:8px; gap:6px; }
+.immersive-call-workspace .log-line p { font-size:10px; line-height:1.4; }
+.immersive-call-workspace .answer-panel { padding:16px; }
+.immersive-call-workspace .answer-panel > h3 { margin:10px 0 6px; font-size:clamp(16px,1.45vw,21px) !important; line-height:1.4 !important; }
+.immersive-call-workspace .question-hint { margin:0 0 12px; font-size:10px; line-height:1.45; }
+.immersive-call-workspace .answer-option { padding:11px 12px; gap:10px; }
+.immersive-call-workspace .free-answer { margin-top:10px; }
+@media(max-width:900px) {
+ .immersive-call-workspace { grid-template-columns:minmax(0,1fr); }
+ .immersive-call-workspace .client-video-stage { grid-template-columns:minmax(0,1fr) 110px; }
+ .immersive-call-workspace .client-video-feed { min-height:280px; }
+ .immersive-call-workspace .answer-panel { position:static; }
+}
+@media(max-width:560px) {
+ .immersive-call-workspace .client-video-stage { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(240px,1fr) auto auto; }
+ .immersive-call-workspace .client-video-feed { grid-column:1; grid-row:1; min-height:260px; }
+ .immersive-call-workspace .self-video-column { grid-column:1; grid-row:2; }
+ .immersive-call-workspace .video-side-info { grid-column:1; grid-row:3; flex-direction:row; align-items:center; }
+}
