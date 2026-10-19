@@ -136,15 +136,15 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     if (k.a || k.arrowleft) velocity.current.sub(right.current)
     if (velocity.current.lengthSq() > 0) {
       // Movement is driven by held physical keys, independent of keyboard layout.
-      playSound('step')
+      if (Math.random() < dt * 2.4) playSound('step')
       velocity.current.normalize().multiplyScalar(3.15 * dt)
       const stepX = velocity.current.x
       const stepZ = velocity.current.z
       const blocked = (x: number, z: number) =>
         (x > -1.38 && x < 1.62 && z > -2.98 && z < -1.72) ||
         (x > -0.43 && x < 0.63 && z > -1.38 && z < -0.58) ||
-        (x > 0.77 && x < 2.73 && z > -0.66 && z < 2.58) ||
-        (x > 2.78 && x < 3.52 && z > -0.52 && z < 0.02) ||
+        (x > 1.52 && x < 3.62 && z > -0.66 && z < 2.58) ||
+        (x > 0.91 && x < 1.58 && z > -0.52 && z < 0.02) ||
         (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22) ||
         false
       const nextX = THREE.MathUtils.clamp(camera.position.x + stepX, -3.52, 3.52)
@@ -164,8 +164,8 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     ]
     const foundObject = objectDistances.find((item) => Math.hypot(camera.position.x - item.x, camera.position.z - item.z) < item.radius)?.id ?? null
     if (foundObject !== nearbyObject.current) { nearbyObject.current = foundObject; onNearbyObjectChange(foundObject) }
-    const bedDistance = Math.hypot(camera.position.x - 1.75, camera.position.z - 0.8)
-    const canSleep = bedDistance < 1.55 && camera.position.x < 0.8 && camera.position.x > -0.35
+    const bedDistance = Math.hypot(camera.position.x - 2.55, camera.position.z - 0.8)
+    const canSleep = bedDistance < 1.9 && camera.position.x < 2.0 && camera.position.x > 0.75
     if (canSleep !== sleepable.current) { sleepable.current = canSleep; onCanSleepChange(canSleep) }
   })
 
@@ -430,7 +430,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       </group>)}
 
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
-      <group position={[3.08, 0.82, -0.28]}>
+      <group position={[1.25, 0.82, -0.28]}>
         {/* A real bedside table supports the alarm clock instead of leaving it floating. */}
         <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} />
         {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.21, z * 0.105]} size={[0.035, 0.38, 0.035]} color="#49372d" roughness={0.9} />))}
@@ -447,12 +447,12 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Removed misplaced floor props to keep the entry path clear. */}
 
       {/* Bed aligned to the room axis: headboard and pillows at the window end, clear footboard at the opposite end. */}
-      <Box position={[1.75, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
-      <Box position={[1.75, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} />
-      <Box position={[1.75, 0.69, 0.98]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} />
-      <Box position={[1.75, 0.72, -0.22]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
-      <Box position={[1.75, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
-      <Box position={[1.75, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
+      <Box position={[2.55, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
+      <Box position={[2.55, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} />
+      <Box position={[2.55, 0.69, 0.98]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} />
+      <Box position={[2.55, 0.72, -0.22]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
+      <Box position={[2.55, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
+      <Box position={[2.55, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
       {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[1.75 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
       {/* Keep the wall beside the door clear and uncluttered. */}
