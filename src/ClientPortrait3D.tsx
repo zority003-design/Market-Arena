@@ -95,6 +95,10 @@ function PortraitHead({ tier }: { tier: number }) {
   return <group>
     <mesh position={[0, 0.38, 0]} castShadow><cylinderGeometry args={[0.22, 0.28, 0.62, 32]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.018} roughness={0.84} /></mesh>
     <mesh position={[0, -0.28, -0.02]} scale={[1.2, 0.78, 0.56]} castShadow><sphereGeometry args={[0.72, 48, 32]} /><meshStandardMaterial color={shirt} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.035} roughness={0.82} /></mesh>
+    <mesh position={[0, -0.13, 0.435]} scale={[0.18, 0.34, 0.045]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color="#d9d7cd" map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.025} roughness={0.88} /></mesh>
+    <mesh position={[0, -0.18, 0.49]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.052, 0.28, 4]} /><meshStandardMaterial color={tier >= 3 ? '#7b4238' : '#263e49'} roughness={0.58} metalness={0.08} /></mesh>
+    <mesh position={[-0.19, -0.02, 0.395]} rotation={[0, 0, -0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={shirt === '#293b49' ? '#344b58' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh>
+    <mesh position={[0.19, -0.02, 0.395]} rotation={[0, 0, 0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={shirt === '#293b49' ? '#344b58' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh>
     <mesh position={[0, 0.01, 0.43]} scale={[0.36, 0.39, 0.1]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={shirt === '#293b49' ? '#d8d9d1' : '#c5c8bc'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.86} /></mesh>
     <group ref={head} position={[0, 1.1, 0]}>
       <mesh position={[0, 0.52, 0]} scale={[0.66, 0.84, 0.59]} castShadow receiveShadow><sphereGeometry args={[1, 64, 48]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.022} roughness={0.78} /></mesh>
@@ -114,6 +118,11 @@ function PortraitHead({ tier }: { tier: number }) {
         </group>)}
       </group>
       <mesh position={[0, 0.3, 0.585]} scale={[0.075, 0.13, 0.09]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.02} roughness={0.74} /></mesh>
+      <mesh position={[0, 0.36, 0.62]} scale={[0.047, 0.12, 0.075]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.018} roughness={0.76} /></mesh>
+      <mesh position={[0, 0.255, 0.67]} scale={[0.068, 0.052, 0.052]} castShadow><sphereGeometry args={[1, 28, 20]} /><meshStandardMaterial color={skin} map={skinTexture} roughness={0.72} /></mesh>
+      {[-1, 1].map(side => <group key={'nostril-' + side} position={[side * 0.037, 0.235, 0.703]}><mesh scale={[0.014, 0.009, 0.008]}><sphereGeometry args={[1, 16, 12]} /><meshStandardMaterial color="#78564b" roughness={0.95} /></mesh></group>)}
+      {[-1, 1].map(side => <mesh key={'cheek-' + side} position={[side * 0.36, 0.27, 0.43]} scale={[0.17, 0.12, 0.06]}><sphereGeometry args={[1, 24, 18]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.012} roughness={0.86} /></mesh>)}
+      <mesh position={[0, 0.195, 0.66]} scale={[0.092, 0.018, 0.028]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#d8a49a" roughness={0.78} /></mesh>
       <mesh position={[0, 0.16, 0.665]} scale={[0.105, 0.018, 0.026]} castShadow><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#a8796c" roughness={0.75} /></mesh>
       <mesh ref={mouth} position={[0, 0.125, 0.688]} scale={[0.085, 0.018, 0.02]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#713d37" roughness={0.85} /></mesh>
       {tier >= 3 && <mesh position={[0, 0.01, 0.47]} scale={[0.43, 0.28, 0.18]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={hair} map={hairTexture} bumpMap={hairTexture} bumpScale={0.05} roughness={0.94} /></mesh>}
