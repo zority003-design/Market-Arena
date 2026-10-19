@@ -434,7 +434,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <group position={[1.25, 0.82, -0.28]}>
         {/* A real bedside table supports the alarm clock instead of leaving it floating. */}
         <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} />
-        {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.21, z * 0.105]} size={[0.035, 0.38, 0.035]} color="#49372d" roughness={0.9} />))}
+        {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.39, z * 0.105]} size={[0.035, 0.74, 0.035]} color="#49372d" roughness={0.9} />))}
         <Box position={[0, 0.09, 0]} size={[0.3, 0.18, 0.12]} color="#252d31" roughness={0.42} />
         <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#172a2b" roughness={0.28} />
         <Cylinder position={[0, 0.1, 0.074]} rotation={[Math.PI / 2, 0, 0]} radius={0.062} height={0.009} color="#d6c8a5" roughness={0.45} />
@@ -454,7 +454,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[2.55, 0.72, -0.22]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
       <Box position={[2.55, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
       <Box position={[2.55, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
-      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[1.75 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
+      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[2.55 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
       {/* Keep the wall beside the door clear and uncluttered. */}
 
