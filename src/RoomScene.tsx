@@ -523,8 +523,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* A full-height second-hand wardrobe with doors and brass handles. */}
       <group position={[-3.05, 0.04, -2.92]}>
-        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} />
-        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} />
+        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} textureKind="wood" /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} textureKind="wood" />
+        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} textureKind="wood" /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} textureKind="wood" />
         <Box position={[0, 1.87, 0.37]} size={[0.96, 0.07, 0.06]} color="#a17a57" />{[-0.07, 0.07].map((x) => <Cylinder key={x} position={[x, 0.92, 0.405]} radius={0.025} height={0.12} color="#c3a46f" metalness={0.6} rotation={[Math.PI / 2, 0, 0]} />)}
         <Box position={[0, 0.19, 0.36]} size={[0.9, 0.08, 0.04]} color="#382b25" />
       </group>
