@@ -67,6 +67,41 @@ function makeSurfaceTexture(kind: 'skin' | 'hair' | 'fabric') {
   texture.needsUpdate = true
   return texture
 }
+function makeTorsoGeometry() {
+  const segments = 48
+  const rings = 28
+  const vertices: number[] = []
+  const uvs: number[] = []
+  const indices: number[] = []
+  for (let iy = 0; iy <= rings; iy++) {
+    const t = iy / rings
+    const y = -0.55 + t * 1.1
+    const shoulder = Math.exp(-Math.pow((t - 0.78) / 0.22, 2))
+    const waist = Math.exp(-Math.pow((t - 0.28) / 0.22, 2))
+    const rx = 0.43 + 0.28 * shoulder - 0.035 * waist
+    const rz = 0.27 + 0.105 * shoulder
+    for (let ix = 0; ix <= segments; ix++) {
+      const u = ix / segments
+      const angle = u * Math.PI * 2
+      const x = rx * Math.cos(angle)
+      const z = rz * Math.sin(angle)
+      vertices.push(x, y, z)
+      uvs.push(u, t)
+      if (iy < rings && ix < segments) {
+        const a = iy * (segments + 1) + ix
+        const b = a + segments + 1
+        indices.push(a, b, a + 1, b, b + 1, a + 1)
+      }
+    }
+  }
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+  geometry.setIndex(indices)
+  geometry.computeVertexNormals()
+  return geometry
+}
+
 function makeHeadGeometry() {
   const segments = 64
   const rings = 48
@@ -114,6 +149,7 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
   const hairTexture = useMemo(() => makeSurfaceTexture('hair'), [])
   const fabricTexture = useMemo(() => makeSurfaceTexture('fabric'), [])
   const headGeometry = useMemo(() => makeHeadGeometry(), [])
+  const torsoGeometry = useMemo(() => makeTorsoGeometry(), [])
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
@@ -131,7 +167,7 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
 
   return <group>
     <mesh position={[0, 0.38, 0]} castShadow><cylinderGeometry args={[0.22, 0.28, 0.62, 32]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.018} roughness={0.84} /></mesh>
-    <mesh position={[0, -0.28, -0.02]} scale={[1.2, 0.78, 0.56]} castShadow><sphereGeometry args={[0.72, 48, 32]} /><meshStandardMaterial color={shirt} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.035} roughness={0.82} /></mesh>
+    <mesh position={[0, -0.28, -0.02]} geometry={torsoGeometry} castShadow receiveShadow><meshStandardMaterial color={shirt} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.035} roughness={0.82} /></mesh>
     <mesh position={[0, -0.13, 0.435]} scale={[0.18, 0.34, 0.045]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color="#d9d7cd" map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.025} roughness={0.88} /></mesh>
     {variant === 'client' || outfit !== 'intern' ? <><mesh position={[0, -0.18, 0.49]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.052, 0.28, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b99b59' : tier >= 3 ? '#7b4238' : '#263e49'} roughness={0.58} metalness={0.08} /></mesh><mesh position={[-0.19, -0.02, 0.395]} rotation={[0, 0, -0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={outfit === 'premium' ? '#343d49' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh><mesh position={[0.19, -0.02, 0.395]} rotation={[0, 0, 0.28]}><boxGeometry args={[0.17, 0.54, 0.045]} /><meshStandardMaterial color={outfit === 'premium' ? '#343d49' : '#263d37'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.76} /></mesh>{outfit === 'premium' && <mesh position={[0.28, -0.1, 0.44]}><sphereGeometry args={[0.025, 16, 12]} /><meshStandardMaterial color="#e2c078" metalness={0.65} roughness={0.25} /></mesh>}</> : null}
     <mesh position={[0, 0.01, 0.43]} scale={[0.36, 0.39, 0.1]}><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={shirt === '#293b49' ? '#d8d9d1' : '#c5c8bc'} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.03} roughness={0.86} /></mesh>
