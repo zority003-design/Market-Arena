@@ -2146,3 +2146,46 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .os-floating-window { contain: layout paint; }
 .os-floating-window .os-floating-controls button { position: relative; z-index: 3; min-width: 27px; min-height: 27px; cursor: pointer; }
 @media (max-width: 560px) { .os-call-portrait { flex-basis: 82px; width: 82px; height: 96px; } }
+
+/* Arena OS desktop rebuild: actual desktop canvas, shortcuts, status widgets and floating apps. */
+.terminal-body.desktop-home-body { display:block; position:relative; min-height:0; overflow:hidden; }
+.terminal-body.desktop-home-body .terminal-sidebar { display:none; }
+.terminal-body.desktop-home-body .terminal-content.os-window-desktop { position:absolute; inset:0; width:auto; min-width:0; min-height:0; border:0; border-radius:0; overflow:hidden; }
+.desktop-page.desktop-rebuilt { position:absolute; inset:0; display:flex; flex-direction:column; padding:22px 26px 12px; overflow:hidden; color:#edf6ff; background:radial-gradient(ellipse at 16% 18%,rgba(47,118,150,.42),transparent 38%),radial-gradient(ellipse at 88% 80%,rgba(38,114,93,.3),transparent 42%),linear-gradient(135deg,#111e2b 0%,#182d3c 44%,#0b171f 100%); }
+.desktop-rebuilt::before { content:""; position:absolute; inset:0; pointer-events:none; opacity:.24; background:linear-gradient(115deg,transparent 0 35%,rgba(132,199,221,.1) 35.2%,transparent 35.8% 100%),repeating-linear-gradient(0deg,transparent 0 44px,rgba(186,221,238,.035) 45px 46px); }
+.desktop-rebuilt-glow { position:absolute; width:430px; height:430px; right:18%; top:14%; border-radius:50%; background:radial-gradient(circle,rgba(60,153,171,.15),transparent 68%); pointer-events:none; }
+.desktop-rebuilt-topline,.desktop-rebuilt-workspace,.desktop-rebuilt-footer { position:relative; z-index:1; }
+.desktop-rebuilt-topline { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:18px; border-bottom:1px solid rgba(199,225,241,.14); }
+.desktop-rebuilt-topline > div { display:flex; align-items:center; gap:11px; }
+.desktop-rebuilt-mark { display:grid; place-items:center; width:38px; height:38px; border:1px solid rgba(164,212,240,.24); border-radius:11px; background:linear-gradient(145deg,rgba(108,177,211,.23),rgba(48,101,126,.13)); color:#d7efff; font-size:24px; }
+.desktop-rebuilt-topline strong,.desktop-rebuilt-topline small { display:block; }
+.desktop-rebuilt-topline strong { font-size:12px; letter-spacing:.14em; }
+.desktop-rebuilt-topline small { margin-top:4px; color:#94afc3; font-size:10px; }
+.desktop-rebuilt-session { display:flex; align-items:center; gap:7px; color:#a9c0d1; font:9px 'DM Mono',monospace; letter-spacing:.06em; }
+.desktop-rebuilt-session i,.desktop-rebuilt-footer > span i { width:6px; height:6px; border-radius:50%; background:#7be0ae; box-shadow:0 0 12px rgba(123,224,174,.65); }
+.desktop-rebuilt-workspace { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,300px); gap:22px; flex:1; min-height:0; padding:22px 0 18px; }
+.desktop-rebuilt-shortcuts { display:grid; grid-template-columns:repeat(3,minmax(90px,116px)); grid-auto-rows:112px; align-content:start; gap:12px; }
+.desktop-rebuilt-shortcuts > button { display:flex; flex-direction:column; align-items:flex-start; gap:7px; padding:12px; border:1px solid transparent; border-radius:12px; background:rgba(9,20,29,.16); color:#e7f3fb; text-align:left; cursor:pointer; transition:background .15s,border-color .15s,transform .15s; }
+.desktop-rebuilt-shortcuts > button:hover { border-color:rgba(167,213,243,.28); background:rgba(129,184,215,.13); transform:translateY(-2px); }
+.desktop-shortcut-icon { display:grid; place-items:center; width:40px; height:40px; border:1px solid rgba(255,255,255,.1); border-radius:11px; box-shadow:0 7px 20px rgba(0,0,0,.18); }
+.shortcut-overview { background:linear-gradient(145deg,#387f8b,#214b60); }.shortcut-market { background:linear-gradient(145deg,#2c8d6d,#185343); }.shortcut-news { background:linear-gradient(145deg,#647caa,#354767); }.shortcut-calls { background:linear-gradient(145deg,#876db6,#51406f); }.shortcut-clients { background:linear-gradient(145deg,#a17a50,#60452f); }.shortcut-shop { background:linear-gradient(145deg,#b37d53,#72472f); }.shortcut-housing { background:linear-gradient(145deg,#588d91,#31595d); }
+.desktop-rebuilt-shortcuts strong { font-size:11px; font-weight:700; }
+.desktop-rebuilt-shortcuts small { color:#92aabd; font-size:9px; line-height:1.35; }
+.desktop-rebuilt-widgets { display:grid; align-content:start; gap:10px; overflow:auto; padding-right:2px; }
+.desktop-os-widget { padding:13px 14px; border:1px solid rgba(179,213,235,.15); border-radius:12px; background:linear-gradient(145deg,rgba(20,39,52,.8),rgba(9,21,29,.76)); box-shadow:0 10px 28px rgba(0,0,0,.13); backdrop-filter:blur(14px); }
+.desktop-os-widget-label { display:flex; align-items:center; gap:7px; color:#91b1c6; font:8px 'DM Mono',monospace; letter-spacing:.1em; }
+.desktop-os-widget-label svg { color:#83c7e5; }
+.desktop-os-widget > strong { display:block; margin-top:10px; color:#f1f7fc; font-size:17px; }
+.desktop-os-widget > small { display:block; margin-top:6px; color:#94adbf; font-size:9px; line-height:1.5; }
+.desktop-os-clock > strong { font-size:32px; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+.desktop-os-market-line { display:flex; justify-content:space-between; gap:8px; margin-top:10px; color:#a3bbca; font-size:9px; }
+.desktop-os-market-line b { color:#e5f5ff; font-variant-numeric:tabular-nums; }
+.desktop-os-progress { height:3px; margin-top:8px; overflow:hidden; border-radius:6px; background:#2a3c49; }.desktop-os-progress span { display:block; height:100%; background:#73d4a8; }
+.desktop-os-widget > button { display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:11px; padding:8px 0 0; border:0; border-top:1px solid rgba(179,213,235,.12); background:transparent; color:#a6d9f2; font-size:9px; cursor:pointer; }
+.desktop-rebuilt-footer { display:flex; align-items:center; gap:14px; padding-top:11px; border-top:1px solid rgba(199,225,241,.13); color:#7f9db1; font:8px 'DM Mono',monospace; letter-spacing:.04em; }
+.desktop-rebuilt-footer > span:first-child { display:flex; align-items:center; gap:7px; color:#a9c5d5; }
+.desktop-rebuilt-footer > span:nth-child(2) { margin-left:auto; }
+.desktop-rebuilt-footer > button { display:flex; align-items:center; gap:6px; padding:6px 9px; border:1px solid rgba(179,213,235,.15); border-radius:6px; background:rgba(255,255,255,.04); color:#a9c5d5; cursor:pointer; }
+.os-multi-window-layer { inset:58px 22px 48px 22px; }
+@media(max-width:850px) { .desktop-page.desktop-rebuilt { padding:16px 14px 10px; } .desktop-rebuilt-workspace { grid-template-columns:minmax(0,1fr) minmax(180px,240px); gap:10px; } .desktop-rebuilt-shortcuts { grid-template-columns:repeat(2,minmax(84px,110px)); grid-auto-rows:104px; gap:6px; } .desktop-rebuilt-shortcuts > button { padding:8px; } }
+@media(max-width:560px) { .desktop-page.desktop-rebuilt { padding:12px 9px 8px; } .desktop-rebuilt-session { display:none; } .desktop-rebuilt-workspace { grid-template-columns:1fr; overflow:auto; } .desktop-rebuilt-shortcuts { grid-template-columns:repeat(3,minmax(65px,1fr)); grid-auto-rows:90px; } .desktop-rebuilt-shortcuts > button { padding:7px; } .desktop-shortcut-icon { width:32px; height:32px; } .desktop-rebuilt-shortcuts strong { font-size:9px; } .desktop-rebuilt-shortcuts small { font-size:8px; } .desktop-rebuilt-widgets { grid-template-columns:repeat(2,minmax(0,1fr)); overflow:visible; } .desktop-os-widget { padding:9px; } .desktop-os-widget > strong { font-size:13px; } .desktop-rebuilt-footer { flex-wrap:wrap; } .os-multi-window-layer { inset:56px 8px 48px 8px; } }
