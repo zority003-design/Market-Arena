@@ -68,7 +68,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     }
     const up = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase()
-      const codeKey = event.code === 'KeyW' ? 'w' : event.code === 'KeyA' ? 'a' : event.code === 'KeyS' ? 's' : event.code === 'KeyD' ? 'd' : ''
+      const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
       keys.current[codeKey || key] = false
     }
     const blur = () => { keys.current = {} }
@@ -111,15 +111,16 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     pitch.current = 0.12
     introProgress.current = 0
     introFinished.current = false
+    keys.current = {}
   }, [camera, introActive])
 
   useFrame((_, delta) => {
     if (!active) return
     const dt = Math.min(delta, 0.04)
     if (introActive) {
-      introProgress.current = Math.min(1, introProgress.current + dt / 4.2)
+      introProgress.current = Math.min(1, introProgress.current + dt / 3.1)
       const t = introProgress.current * introProgress.current * (3 - 2 * introProgress.current)
-      camera.position.set(2.52 + (0 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (3.12 - 0.85) * t)
+      camera.position.set(2.52 + (1.05 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (2.78 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
