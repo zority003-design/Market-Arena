@@ -12,6 +12,9 @@ import {
 import RoomScene from './RoomScene'
 import CityScene from './CityScene'
 import ClientPortrait3D from './ClientPortrait3D'
+import ShopItemPreview3D from './ShopItemPreview3D'
+import './shop-preview.css'
+import ShopItemPreview3D from './ShopItemPreview3D'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -212,25 +215,6 @@ function OutfitIllustration({ id }: { id: OutfitId }) {
   </svg>
 }
 
-function RoomItemIllustration({ id }: { id: string }) {
-  const stroke = '#b8dfcc'
-  const shade = '#24463e'
-  return <svg className={'room-item-illustration illustration-' + id} viewBox="0 0 140 110" role="img" aria-label={id.replace(/-/g, ' ')}>
-    <defs><linearGradient id={'item-metal-' + id} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b8d2c7" /><stop offset="100%" stopColor="#47685e" /></linearGradient></defs>
-    <ellipse cx="70" cy="96" rx="44" ry="6" fill="#071011" opacity=".55" />
-    {id === 'desk-lamp' && <g stroke={stroke} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"><path d="M54 88h34M70 86l-8-34 23-17" /><path d="M74 27l28 4-9 17-28-4z" fill={shade} /><path d="M79 48l-5 9M86 49l-2 9" stroke="#e4c88b" strokeWidth="2" /></g>}
-    {id === 'used-chair' && <g stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M46 24q0-5 6-5h26q7 0 7 7v34H46z" fill={shade}/><path d="M43 58h47v13H43z" fill="#355a50"/><path d="M49 71l-7 20M83 71l9 20M66 71v20" fill="none"/><path d="M41 92h-8M92 92h9" fill="none"/></g>}
-    {id === 'headset' && <g stroke={stroke} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"><path d="M36 60V47a34 34 0 0 1 68 0v13"/><rect x="29" y="52" width="18" height="29" rx="7" fill={shade}/><rect x="93" y="52" width="18" height="29" rx="7" fill={shade}/><path d="M101 80q-3 15-22 15h-8" strokeWidth="3"/><circle cx="66" cy="95" r="4" fill="#d7b879" stroke="none"/></g>}
-    {id === 'ring-light' && <g strokeLinecap="round" strokeLinejoin="round" fill="none"><circle cx="70" cy="40" r="27" stroke="#e7d8a8" strokeWidth="7"/><circle cx="70" cy="40" r="19" stroke="#8bb9a4" strokeWidth="2"/><path d="M70 67v24M56 92h28" stroke={stroke} strokeWidth="4"/><path d="M48 26l-7-4M92 26l7-4" stroke="#f2d8a1" strokeWidth="2"/></g>}
-    {id === 'hd-camera' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><rect x="31" y="37" width="78" height="42" rx="9" fill={shade}/><circle cx="70" cy="58" r="17" fill="#0c1c1c"/><circle cx="70" cy="58" r="10" fill="#548b7b"/><circle cx="66" cy="54" r="4" fill="#c5ead8" stroke="none"/><path d="M48 36l7-8h30l7 8" fill="none"/><circle cx="98" cy="47" r="3" fill="#d7b879" stroke="none"/></g>}
-    {id === 'neutral-backdrop' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><path d="M36 86V24M104 86V24M32 25h76" fill="none"/><path d="M42 29h56v55H42z" fill={shade}/><path d="M51 31v51M63 31v51M76 31v51M88 31v51" stroke="#547d6d" strokeWidth="2"/><path d="M31 88h15M94 88h15" fill="none"/></g>}
-    {id === 'second-monitor' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><rect x="18" y="23" width="48" height="43" rx="4" fill={shade}/><rect x="72" y="15" width="50" height="51" rx="4" fill="#19332e"/><path d="M26 53l10-12 8 6 11-15M80 50l10-15 8 8 14-14" fill="none" stroke="#7de0b1" strokeWidth="2.5"/><path d="M42 67v13M96 67v13M31 81h23M84 81h24" fill="none"/></g>}
-    {id === 'chromakey-kit' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><path d="M31 88V21M109 88V21M27 22h86" fill="none"/><path d="M38 27h64v55H38z" fill="#2f8466"/><path d="M46 35h48M46 45h48M46 55h48M46 65h48" stroke="#67b994" strokeWidth="2" opacity=".65"/><path d="M30 89h-7M110 89h7" fill="none"/></g>}
-    {id === 'pro-mic' && <g stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><rect x="54" y="16" width="32" height="48" rx="15" fill={shade}/><path d="M45 44v8a25 25 0 0 0 50 0v-8M70 77v13M56 91h28" fill="none"/><path d="M62 24v22M70 22v24M78 24v22" stroke="#80c4a2" strokeWidth="2"/></g>}
-    {!['desk-lamp','used-chair','headset','ring-light','hd-camera','neutral-backdrop','second-monitor','chromakey-kit','pro-mic'].includes(id) && <g stroke={stroke} strokeWidth="4" fill={shade}><rect x="35" y="25" width="70" height="55" rx="7"/><path d="M48 91h44M70 80v11" fill="none"/></g>}
-  </svg>
-}
-
 function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
   const jacket = outfit === 'premium' ? '#1b2d38' : outfit === 'classic' ? '#34485d' : '#496b60'
   const shirt = outfit === 'intern' ? '#6c897e' : '#e8e2d6'
@@ -324,6 +308,7 @@ export default function App() {
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
 
   const [canSleep, setCanSleep] = useState(false)
+  const [sleepTransition, setSleepTransition] = useState(false)
   const [dayEnded, setDayEnded] = useState(saved.dayEnded ?? false)
   const [deskLampOn, setDeskLampOn] = useState(false)
   const [roomLightOn, setRoomLightOn] = useState(true)
@@ -846,36 +831,44 @@ export default function App() {
   }
 
   function sleepNow() {
-    if (!dayEnded) { setToast('Пока рано спать: сначала заверши рабочий день на компьютере.'); return }
+    if (!dayEnded || sleepTransition) { if (!dayEnded) setToast('Пока рано спать: сначала заверши рабочий день на компьютере.'); return }
     playSound('sleep')
-    const nextDay = day + 1
-    setDay(nextDay)
-    setCallsToday(0)
-    setDailySalesAmount(0)
-    setDailySalesShares(0)
-    setShiftReport(null)
-    setCityVisitedToday([])
-    setCityBonus(0)
-    setCityLocation('office')
-    setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
-    const dailyCosts = currentHousing.dailyCost
-    const available = cash + DAILY_SALARY
-    const paidCosts = Math.min(available, dailyCosts)
-    const shortfall = dailyCosts - paidCosts
-    const remainder = available - paidCosts
-    const debtPayment = Math.min(debt, remainder)
-    setCash(remainder - debtPayment)
-    setDebt(Math.max(0, debt - debtPayment) + shortfall)
-    const debtNote = shortfall > 0
-      ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
-      : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
-    setGameMinutes(7 * 60)
-    setDayEnded(false)
+    setSleepTransition(true)
     setCanSleep(false)
-    setToast('Доброе утро! День ' + nextDay + '. Дневной оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽ (не выплата за звонок), расходы −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
-    window.setTimeout(() => setToast(''), 5200)
     setPanel('room')
     setCallStatus('idle')
+    // Give the player time to lie down and close their eyes before advancing the day.
+    window.setTimeout(() => {
+      const nextDay = day + 1
+      setDay(nextDay)
+      setCallsToday(0)
+      setDailySalesAmount(0)
+      setDailySalesShares(0)
+      setShiftReport(null)
+      setCityVisitedToday([])
+      setCityBonus(0)
+      setCityLocation('office')
+      // The next day's lead list is generated here, so new people become available after sleeping.
+      setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
+      const dailyCosts = currentHousing.dailyCost
+      const available = cash + DAILY_SALARY
+      const paidCosts = Math.min(available, dailyCosts)
+      const shortfall = dailyCosts - paidCosts
+      const remainder = available - paidCosts
+      const debtPayment = Math.min(debt, remainder)
+      setCash(remainder - debtPayment)
+      setDebt(Math.max(0, debt - debtPayment) + shortfall)
+      const debtNote = shortfall > 0
+        ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
+        : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
+      setGameMinutes(7 * 60)
+      setDayEnded(false)
+      setCanSleep(false)
+      setIntroActive(true)
+      setSleepTransition(false)
+      setToast('Доброе утро! День ' + nextDay + '. Дневной оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽ (не выплата за звонок), расходы −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
+      window.setTimeout(() => setToast(''), 5200)
+    }, 1800)
   }
 
   return (
@@ -886,6 +879,7 @@ export default function App() {
         <RoomScene onInteract={openComputer} onExitCity={() => {}} onCanExitCityChange={() => {}} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </div>
 
+      {sleepTransition && <div className="sleep-transition" role="status" aria-live="polite"><div className="sleep-eyelids" /><div className="sleep-transition-copy"><span>КОНЕЦ ДНЯ</span><strong>Ты ложишься спать…</strong><small>Новые контакты появятся утром</small></div></div>}
       {mainMenu && (
         <div className="main-menu-screen">
           <div className="menu-atmosphere" />
@@ -1003,7 +997,7 @@ export default function App() {
             <div className="page-heading"><div><div className="eyebrow">ОТДЕЛЬНО ОТ КОМПЬЮТЕРА</div><h2>Гардероб и личные покупки</h2><p>Меняй одежду и покупай предметы для комнаты здесь. Биржа, звонки и рабочие приложения находятся на компьютере.</p></div><div className="market-status"><Wallet size={15} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
             <section className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><Canvas className="wardrobe-3d-canvas" camera={{ position: [0, 1.35, 4.5], fov: 32 }} dpr={[1, 1.5]}><color attach="background" args={['#142224']} /><ambientLight intensity={1.05} /><directionalLight position={[-2.5, 4, 3]} intensity={2.1} /><pointLight position={[2, 2.5, -1]} intensity={0.8} color="#75d8ae" /><WardrobeAvatar3D outfit={selectedOutfit} /><OrbitControls enablePan={false} minDistance={3.8} maxDistance={5.5} minPolarAngle={1.05} maxPolarAngle={1.75} target={[0, 1.15, 0]} /></Canvas><span className="wardrobe-stage-label">ПЕРСОНАЖ · ПОТЯНИ, ЧТОБЫ ПОВЕРНУТЬ</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ТВОЙ ПЕРСОНАЖ</span><h3>{OUTFITS.find((outfit) => outfit.id === selectedOutfit)?.name}</h3><p>Одежда меняется и в гардеробе, и в видеокадре звонка. Модель пока стилизованная — это не реалистичный человеческий скан.</p><div className="wardrobe-look-tags"><span>Текущий образ</span><span>{ownedOutfits.length} комплект(а)</span></div></div></section>
             <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ОДЕЖДА</span><h3>Выбери комплект</h3></div><span>Деньги: {cash.toLocaleString('ru-RU')} ₽</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '') + (outfitDetailsId === outfit.id ? ' details-open' : '')} key={outfit.id}><button className="outfit-preview-button" onClick={() => { setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id) }}><div className="outfit-swatch"><OutfitIllustration id={outfit.id} /></div><span className="outfit-preview-caption">{wearing ? 'Сейчас надет' : 'Примерить'}</span></button><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><div className="outfit-card-actions"><button className="outfit-details-button" onClick={() => setOutfitDetailsId(outfitDetailsId === outfit.id ? null : outfit.id)}>{outfitDetailsId === outfit.id ? 'Скрыть детали' : 'Что даёт?'}</button><button disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); return } setCash((value) => value - outfit.price); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('deal') }}>{wearing ? 'Надет' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></div>{outfitDetailsId === outfit.id && <div className="outfit-detail-panel"><strong>Что даёт этот образ</strong><p>{outfit.id === 'intern' ? 'Бесплатный базовый комплект. Сохраняет деньги на оборудование и развитие.' : outfit.id === 'classic' ? 'Деловой внешний вид для ролевого прогресса. Не улучшает качество рекомендаций сам по себе.' : 'Премиальный внешний вид для встреч высокого уровня. Не гарантирует доверие или сделку.'}</p></div>}</article> })}</div></section>
-            <section className="outfit-selector wardrobe-store"><div className="outfit-selector-heading"><div><span className="eyebrow">МАГАЗИН КОМНАТЫ</span><h3>Оборудование и обстановка</h3></div><span>Магазин также доступен на компьютере</span></div><div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; const detailsOpen = roomItemDetailsId === item.id; return <article className={'shop-item' + (owned ? ' owned' : '') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap"><RoomItemIllustration id={item.id} /><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохой маске клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт, без прямого бонуса к переговорам.' : 'Улучшает атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Доступно с ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div></section>
+            <section className="outfit-selector wardrobe-store"><div className="outfit-selector-heading"><div><span className="eyebrow">МАГАЗИН КОМНАТЫ</span><h3>Оборудование и обстановка</h3></div><span>Магазин также доступен на компьютере</span></div><div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; const detailsOpen = roomItemDetailsId === item.id; return <article className={'shop-item' + (owned ? ' owned' : '') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap"><ShopItemPreview3D id={item.id} /><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохой маске клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт, без прямого бонуса к переговорам.' : 'Улучшает атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Доступно с ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div></section>
           </main>
         </div>
       )}
@@ -1098,7 +1092,7 @@ export default function App() {
                   <div className="economy-summary"><div><small>ЛИЧНЫЕ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>УСТАНОВЛЕНО ПРЕДМЕТОВ</small><strong>{ownedItems.length}</strong></div><div><small>КАЧЕСТВО ВИДЕО</small><strong>{getVideoQuality(ownedItems)}/8</strong></div></div>
                   <div className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><Canvas className="wardrobe-3d-canvas" camera={{ position: [0, 1.35, 4.5], fov: 32 }} dpr={[1, 1.5]} shadows><color attach="background" args={['#142224']} /><ambientLight intensity={1.05} /><directionalLight position={[-2.5, 4, 3]} intensity={2.1} castShadow /><pointLight position={[2, 2.5, -1]} intensity={0.8} color="#75d8ae" /><WardrobeAvatar3D outfit={selectedOutfit} /><OrbitControls enablePan={false} minDistance={3.8} maxDistance={5.5} minPolarAngle={1.05} maxPolarAngle={1.75} target={[0, 1.15, 0]} /></Canvas><span className="wardrobe-stage-label">ПЕРСОНАЖ · ПОТЯНИ, ЧТОБЫ ПОВЕРНУТЬ</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ГАРДЕРОБ · ПЕРСОНАЖ</span><h3>Твой брокерский образ</h3><p>Выбирай образ для переговоров: одежда меняется и в гардеробе, и в маленьком видеокадре во время звонка.</p><div className="wardrobe-look-tags"><span>{selectedOutfit === 'premium' ? 'Премиальный костюм' : selectedOutfit === 'classic' ? 'Деловой пиджак' : 'Базовая футболка'}</span><span>{selectedOutfit === 'intern' ? 'Тёмные брюки' : 'Деловой силуэт'}</span><span>{selectedOutfit === 'premium' ? 'Золотые детали' : selectedOutfit === 'classic' ? 'Строгий стиль' : 'Повседневный стиль'}</span></div></div></div>
                   <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ГАРДЕРОБ</span><h3>Одежда персонажа</h3></div><span>На тебе: {OUTFITS.find((outfit) => outfit.id === selectedOutfit)?.name}</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '') + (outfitDetailsId === outfit.id ? ' details-open' : '')} key={outfit.id}><button className="outfit-preview-button" aria-label={'Примерить образ «' + outfit.name + '»'} onClick={() => { setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('ui') }}><div className="outfit-swatch"><OutfitIllustration id={outfit.id} /></div><span className="outfit-preview-caption">{wearing ? 'Сейчас надет' : 'Нажми для примерки'}</span></button><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><div className="outfit-card-actions"><button className="outfit-details-button" onClick={() => setOutfitDetailsId(outfitDetailsId === outfit.id ? null : outfit.id)}>{outfitDetailsId === outfit.id ? 'Скрыть детали' : 'Подробнее'}</button><button disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); playSound('ui'); return } setCash((value) => value - outfit.price); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('deal'); setToast('Новый образ добавлен в гардероб') }}>{wearing ? 'На тебе' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></div>{outfitDetailsId === outfit.id && <div className="outfit-detail-panel"><strong>Что даёт этот образ</strong><p>{outfit.id === 'intern' ? 'Бесплатный стартовый комплект. Не даёт бонуса к первому впечатлению, зато сохраняет деньги на важные покупки.' : outfit.id === 'classic' ? 'Деловой стиль для более убедительного образа на встречах. Это косметическое улучшение: знания компании и честность в ответах важнее одежды.' : 'Премиальный внешний вид для ролевого прогресса. Дороже остальных, но не гарантирует сделку и не заменяет подготовку.'}</p><span>{owned ? 'Уже куплено' : canAfford ? 'Можно купить сейчас' : 'Сначала накопи нужную сумму'}</span></div>}</article> })}</div></section>
-                  <div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; const detailsOpen = roomItemDetailsId === item.id; return <article className={(owned ? 'shop-item owned' : 'shop-item') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap"><RoomItemIllustration id={item.id} /><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохом качестве маски клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт для рабочего дня, без прямого бонуса к переговорам.' : item.id === 'desk-lamp' ? 'Небольшой бонус к первому впечатлению и качеству видео.' : 'Улучшает рабочую атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Доступно с ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div>
+                  <div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; const detailsOpen = roomItemDetailsId === item.id; return <article className={(owned ? 'shop-item owned' : 'shop-item') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap"><ShopItemPreview3D id={item.id} /><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохом качестве маски клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт для рабочего дня, без прямого бонуса к переговорам.' : item.id === 'desk-lamp' ? 'Небольшой бонус к первому впечатлению и качеству видео.' : 'Улучшает рабочую атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Доступно с ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div>
                   <div className="bottom-note"><Sparkles size={16} /><span>Установленные предметы сохраняются. Бонус от внешнего вида ограничен: подготовка к звонку и качество ответов важнее дорогого оборудования.</span></div>
                 </div>
               )}

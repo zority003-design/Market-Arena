@@ -1,0 +1,5 @@
+.shop-item-3d-preview{width:100%;height:156px;min-height:156px;overflow:hidden;border-radius:12px;background:radial-gradient(ellipse at 50% 35%,#263a39 0%,#101a1b 72%)}
+.shop-item-3d-preview canvas{display:block;width:100%;height:100%}
+.shop-item-icon-wrap .shop-item-3d-preview{margin-bottom:8px}
+.shop-item-icon-wrap>span{position:relative;z-index:1}
+@media(max-width:640px){.shop-item-3d-preview{height:136px;min-height:136px}}
