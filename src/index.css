@@ -1971,6 +1971,6 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .os-start-section small { display:none; }
 }
 
-.os-start-search input { flex:1; min-width:0; padding:0; border:0; outline:none; color:#dff0e6; background:transparent; font:11px inherit; }
+.os-start-search input { flex:1; min-width:0; padding:0; border:0; outline:none; color:#dff0e6; background:transparent; font-size:11px; font-family:inherit; }
 .os-start-search input::placeholder { color:#809d90; opacity:1; }
 .os-start-empty { padding:22px 8px; color:#8ca99a; font-size:11px; text-align:center; }
