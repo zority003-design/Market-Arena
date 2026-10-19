@@ -5,6 +5,42 @@ import * as THREE from 'three'
 import { playSound } from './audio'
 import { CityWindowView } from './CityScene'
 
+type RoomTextureKind = 'wood' | 'fabric' | 'plaster'
+
+function makeRoomTexture(kind: RoomTextureKind) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return new THREE.CanvasTexture(canvas)
+  const image = ctx.createImageData(256, 256)
+  for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) {
+    const i = (y * 256 + x) * 4
+    const seed = (x * 374761393 + y * 668265263 + x * y * 1442695041) >>> 0
+    const grain = ((seed ^ (seed >>> 13)) % 17) - 8
+    const woodGrain = kind === 'wood' ? Math.sin(y * 0.17 + Math.sin(x * 0.04) * 3) * 11 + (x % 29 === 0 ? -9 : 0) : 0
+    const fabricWeave = kind === 'fabric' ? ((x % 4 === 0 ? -8 : 0) + (y % 4 === 0 ? -7 : 0)) : 0
+    const value = Math.max(0, Math.min(255, (kind === 'plaster' ? 238 : 232) + grain + woodGrain + fabricWeave))
+    image.data[i] = value; image.data[i + 1] = value; image.data[i + 2] = value; image.data[i + 3] = 255
+  }
+  ctx.putImageData(image, 0, 0)
+  if (kind === 'wood') {
+    ctx.strokeStyle = 'rgba(70,45,27,0.13)'
+    for (let y = 0; y < 256; y += 23) { ctx.beginPath(); ctx.moveTo(0, y); ctx.bezierCurveTo(80, y + 5, 170, y - 5, 256, y + 2); ctx.stroke() }
+  } else if (kind === 'fabric') {
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)'
+    for (let n = 0; n < 256; n += 4) { ctx.beginPath(); ctx.moveTo(n, 0); ctx.lineTo(n, 256); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, n); ctx.lineTo(256, n); ctx.stroke() }
+  } else {
+    for (let n = 0; n < 320; n++) { ctx.fillStyle = n % 2 ? 'rgba(0,0,0,0.025)' : 'rgba(255,255,255,0.08)'; ctx.fillRect((n * 37) % 256, (n * 71) % 256, 1 + n % 2, 1 + n % 3) }
+  }
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping
+  texture.repeat.set(kind === 'wood' ? 2 : 1, kind === 'fabric' ? 2 : 1)
+  texture.anisotropy = 4
+  return texture
+}
+
 type RoomSceneProps = {
   onInteract: () => void
   onExitCity: () => void
@@ -118,9 +154,11 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     if (!active) return
     const dt = Math.min(delta, 0.04)
     if (introActive) {
-      introProgress.current = Math.min(1, introProgress.current + dt / 3.1)
-      const t = introProgress.current * introProgress.current * (3 - 2 * introProgress.current)
-      camera.position.set(2.52 + (1.05 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (2.78 - 0.85) * t)
+      introProgress.current = Math.min(1, introProgress.current + dt / 2.45)
+      // Wake up in place, then ease off the mattress; avoid the old long diagonal glide that felt like flying.
+      const p = introProgress.current
+      const t = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
+      camera.position.set(2.52 + (1.62 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (2.18 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
@@ -173,7 +211,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   return null
 }
 
-function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, transparent = false, opacity = 1, emissive, emissiveIntensity = 0 }: {
+function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, transparent = false, opacity = 1, emissive, emissiveIntensity = 0, textureKind }: {
   position: [number, number, number]
   size: [number, number, number]
   color: string
@@ -184,11 +222,13 @@ function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, 
   opacity?: number
   emissive?: string
   emissiveIntensity?: number
+  textureKind?: RoomTextureKind
 }) {
+  const surfaceTexture = useMemo(() => textureKind ? makeRoomTexture(textureKind) : null, [textureKind])
   return (
     <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} emissive={emissive} emissiveIntensity={emissiveIntensity} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
+      <meshStandardMaterial color={color} map={surfaceTexture ?? undefined} bumpMap={surfaceTexture ?? undefined} bumpScale={textureKind === 'wood' ? 0.045 : textureKind === 'fabric' ? 0.025 : 0.012} roughness={roughness} metalness={metalness} emissive={emissive} emissiveIntensity={emissiveIntensity} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
     </mesh>
   )
 }
@@ -256,14 +296,14 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} />
+      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} textureKind="plaster" />
       <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color="#5c646d" />
       <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
       <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
       <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
       {/* Closed wall: the outside district is intentionally out of scope for this chapter. */}
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
-      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} />
+      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
 
       {/* Back wall details and skirting */}
@@ -306,8 +346,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
       <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
       <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -1.95 : -1.62]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -0.35 : -0.68]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} />
+      <Box position={[-3.72, 2.04, curtainsOpen ? -1.95 : -1.62]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.72, 2.04, curtainsOpen ? -0.35 : -0.68]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
       {[-2.05, -1.75, -1.45, -1.15, -0.85, -0.55, -0.25].map((z) => (
         <Box key={z} position={[-3.69, 2.67, z]} size={[0.14, 0.07, 0.22]} color="#b7a58d" />
       ))}
@@ -317,8 +357,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.81, 1.55, 2.05]} size={[0.025, 0.075, 0.055]} color="#f1ead9" roughness={0.35} />
 
       {/* Desk and metal frame */}
-      <Box position={[0.15, 0.88, -2.36]} size={[2.7, 0.13, 1.05]} color="#674a37" roughness={0.5} />
-      <Box position={[0.15, 0.81, -2.36]} size={[2.58, 0.035, 0.94]} color="#8d684b" roughness={0.4} />
+      <Box position={[0.15, 0.88, -2.36]} size={[2.7, 0.13, 1.05]} color="#674a37" roughness={0.5} textureKind="wood" />
+      <Box position={[0.15, 0.81, -2.36]} size={[2.58, 0.035, 0.94]} color="#8d684b" roughness={0.4} textureKind="wood" />
       {[-1.05, 1.35].map((x) => (
         <group key={x}>
           <Box position={[x, 0.43, -2.02]} size={[0.075, 0.76, 0.075]} color="#343a3f" metalness={0.72} />
@@ -433,8 +473,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
       <group position={[1.25, 0.82, -0.28]}>
         {/* A real bedside table supports the alarm clock instead of leaving it floating. */}
-        <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} />
-        {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.39, z * 0.105]} size={[0.035, 0.74, 0.035]} color="#49372d" roughness={0.9} />))}
+        <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} textureKind="wood" />
+        {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.39, z * 0.105]} size={[0.035, 0.74, 0.035]} color="#49372d" roughness={0.9} textureKind="wood" />))}
         <Box position={[0, 0.09, 0]} size={[0.3, 0.18, 0.12]} color="#252d31" roughness={0.42} />
         <Box position={[0, 0.1, 0.066]} size={[0.22, 0.095, 0.008]} color="#172a2b" roughness={0.28} />
         <Cylinder position={[0, 0.1, 0.074]} rotation={[Math.PI / 2, 0, 0]} radius={0.062} height={0.009} color="#d6c8a5" roughness={0.45} />
@@ -448,13 +488,13 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Removed misplaced floor props to keep the entry path clear. */}
 
       {/* Bed aligned to the room axis: headboard and pillows at the window end, clear footboard at the opposite end. */}
-      <Box position={[2.55, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
-      <Box position={[2.55, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} />
-      <Box position={[2.55, 0.69, 0.98]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} />
+      <Box position={[2.55, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" textureKind="wood" />
+      <Box position={[2.55, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} textureKind="fabric" />
+      <Box position={[2.55, 0.69, 0.98]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} textureKind="fabric" />
       <Box position={[2.55, 0.72, -0.22]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
       <Box position={[2.55, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
       <Box position={[2.55, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
-      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[2.55 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
+      {[-0.72, 0.72].map((x) => [-1.32, 1.32].map((z) => <Box key={x + ":" + z} position={[2.55 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
 
       {/* Keep the wall beside the door clear and uncluttered. */}
 
@@ -483,8 +523,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* A full-height second-hand wardrobe with doors and brass handles. */}
       <group position={[-3.05, 0.04, -2.92]}>
-        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} />
-        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} />
+        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} textureKind="wood" /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} textureKind="wood" />
+        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} textureKind="wood" /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} textureKind="wood" />
         <Box position={[0, 1.87, 0.37]} size={[0.96, 0.07, 0.06]} color="#a17a57" />{[-0.07, 0.07].map((x) => <Cylinder key={x} position={[x, 0.92, 0.405]} radius={0.025} height={0.12} color="#c3a46f" metalness={0.6} rotation={[Math.PI / 2, 0, 0]} />)}
         <Box position={[0, 0.19, 0.36]} size={[0.9, 0.08, 0.04]} color="#382b25" />
       </group>
