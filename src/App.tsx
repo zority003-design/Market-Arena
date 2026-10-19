@@ -318,7 +318,7 @@ export default function App() {
   const [confirmNewCareer, setConfirmNewCareer] = useState(false)
   const [introActive, setIntroActive] = useState(false)
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
-  const [canExitCity, setCanExitCity] = useState(false)
+
   const [canSleep, setCanSleep] = useState(false)
   const [dayEnded, setDayEnded] = useState(saved.dayEnded ?? false)
   const [deskLampOn, setDeskLampOn] = useState(false)
@@ -859,7 +859,7 @@ export default function App() {
       {shiftReport && <div className="shift-report-backdrop"><section className="shift-report-modal"><span className="eyebrow">ДЕНЬ {day} · ОТЧЁТ ПО СМЕНЕ</span><div className={'shift-report-icon ' + (shiftReport.success ? 'success' : 'failure')}>{shiftReport.success ? <Check size={26} /> : <X size={26} />}</div><h2>{shiftReport.success ? 'План выполнен' : 'План не выполнен'}</h2><p className="shift-report-lead">{shiftReport.company} ({shiftReport.ticker}) — обязательная бумага дня. Сделки по другим акциям не заменяют этот план.</p><div className="shift-report-stats"><div><small>ПРОДАНО АКЦИЙ</small><strong>{shiftReport.shares} / {shiftReport.targetShares}</strong></div><div><small>ОБОРОТ ПО ЦЕЛЕВОЙ БУМАГЕ</small><strong>{shiftReport.amount.toLocaleString('ru-RU')} / {shiftReport.targetAmount.toLocaleString('ru-RU')} ₽</strong></div></div><div className={'shift-report-consequence ' + (shiftReport.success ? 'good' : 'bad')}>{shiftReport.success ? 'Премия +' + shiftReport.reward.toLocaleString('ru-RU') + ' ₽ и +4 к репутации.' : 'Штраф фирме −' + shiftReport.penalty.toLocaleString('ru-RU') + ' ₽ и −3 к репутации. Завтра план станет сложнее.'}</div><button className="primary-action" onClick={() => setShiftReport(null)}>Продолжить <ArrowRight size={15} /></button></section></div>}
       {!mainMenu && introActive && <div key={day + '-wake-' + String(introActive)} className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>07:00</span><strong>Пора вставать.</strong></div></div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
-        <RoomScene onInteract={openComputer} onExitCity={() => {}} onCanExitCityChange={setCanExitCity} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+        <RoomScene onInteract={openComputer} onExitCity={() => {}} onCanExitCityChange={() => {}} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </div>
 
       {mainMenu && (
