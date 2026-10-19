@@ -1993,3 +1993,78 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 @media (prefers-reduced-motion: reduce) {
   .intro-curtain, .intro-wake-caption { animation-duration: .35s; }
 }
+
+
+/* Multi-window desktop shell: independent app windows can remain open together. */
+.os-multi-window-layer {
+  position: absolute;
+  z-index: 45;
+  inset: 76px 250px 54px 250px;
+  overflow: visible;
+  pointer-events: none;
+}
+.os-floating-window {
+  position: absolute;
+  width: min(440px, calc(100vw - 300px));
+  min-width: 260px;
+  min-height: 190px;
+  max-height: calc(100% - 12px);
+  overflow: hidden;
+  border: 1px solid rgba(184, 220, 204, .28);
+  border-radius: 11px;
+  color: #e5f2eb;
+  background: linear-gradient(145deg, rgba(25, 39, 42, .985), rgba(10, 19, 23, .99));
+  box-shadow: 0 24px 70px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.045);
+  pointer-events: auto;
+  backdrop-filter: blur(22px);
+}
+.os-floating-window.maximized { width: auto; height: auto; right: 0; bottom: 0; max-height: none; }
+.os-floating-window.minimized { height: 42px; min-height: 42px; }
+.os-floating-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  padding: 0 8px 0 13px;
+  border-bottom: 1px solid rgba(184,220,204,.13);
+  background: linear-gradient(90deg, rgba(48,75,72,.62), rgba(20,31,34,.78));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.os-floating-titlebar:active { cursor: grabbing; }
+.os-floating-titlebar > span { display: flex; align-items: center; gap: 9px; color: #d9eee3; font-size: 11px; font-weight: 700; }
+.os-floating-titlebar > span svg { color: #8fe1b9; }
+.os-floating-controls { display: flex; gap: 3px; }
+.os-floating-controls button {
+  display: grid; place-items: center; width: 27px; height: 25px; padding: 0;
+  border: 1px solid transparent; border-radius: 5px; color: #a9c4b8;
+  background: transparent; font: 17px/1 'Manrope', sans-serif; cursor: pointer;
+}
+.os-floating-controls button:hover { border-color: rgba(190,220,205,.17); background: rgba(255,255,255,.09); color: white; }
+.os-floating-controls button:last-child:hover { background: #a94747; border-color: #c85d5d; }
+.os-floating-content { padding: 20px; overflow: auto; max-height: min(420px, calc(100vh - 180px)); }
+.os-floating-content h3 { margin: 8px 0 10px; color: #f0f7f2; font-size: 19px; letter-spacing: -.025em; }
+.os-floating-content p { margin: 9px 0; color: #a9beb5; font-size: 11px; line-height: 1.65; }
+.os-floating-content p strong { color: #e1f2e8; }
+.os-floating-eyebrow { color: #7ccba5; font: 8px 'DM Mono', monospace; letter-spacing: .16em; }
+.os-floating-stat-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin: 15px 0; }
+.os-floating-stat-grid > div { padding: 12px; border: 1px solid rgba(170,210,190,.12); border-radius: 8px; background: rgba(2,11,13,.34); }
+.os-floating-stat-grid small, .os-floating-stat-grid strong { display: block; }
+.os-floating-stat-grid small { margin-bottom: 7px; color: #78998a; font: 8px 'DM Mono', monospace; letter-spacing: .08em; }
+.os-floating-stat-grid strong { color: #e5f4eb; font-size: 16px; }
+.os-floating-primary { margin-top: 14px; padding: 10px 13px; border: 1px solid rgba(100,220,164,.28); border-radius: 7px; color: #dff9eb; background: linear-gradient(110deg, rgba(38,119,83,.75), rgba(26,75,60,.8)); font-size: 10px; font-weight: 700; cursor: pointer; }
+.os-floating-primary:hover { background: linear-gradient(110deg, rgba(48,145,101,.9), rgba(31,94,72,.9)); }
+.os-floating-meter { height: 5px; margin: 15px 0 7px; overflow: hidden; border-radius: 5px; background: rgba(255,255,255,.08); }
+.os-floating-meter span { display: block; height: 100%; border-radius: inherit; background: #65d9a3; }
+.os-floating-content > small { color: #78998a; font-size: 9px; }
+@media (max-width: 1000px) {
+  .os-multi-window-layer { inset: 74px 12px 54px 12px; }
+  .os-floating-window { width: min(440px, calc(100vw - 40px)); }
+}
+@media (max-width: 560px) {
+  .os-multi-window-layer { inset: 66px 6px 50px 6px; }
+  .os-floating-window { min-width: 0; width: calc(100vw - 32px); }
+  .os-floating-content { padding: 14px; }
+}
