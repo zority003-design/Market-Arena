@@ -2396,3 +2396,20 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .negotiation-setup-card, .negotiation-goal-card, .negotiation-trust-card, .negotiation-risk-note { padding:13px; }
   .negotiation-answer span { font-size:12px; }
 }
+
+
+/* Desktop widgets use readable body sizes; only metadata remains compact. */
+.desktop-os-widget { padding:16px; }
+.desktop-os-widget-label { font-size:10px; }
+.desktop-os-widget > strong { font-size:19px; line-height:1.35; }
+.desktop-os-widget > small { font-size:12px; line-height:1.6; }
+.desktop-os-market-line { font-size:12px; }
+.desktop-os-widget button { display:inline-flex; align-items:center; gap:6px; margin:12px 7px 0 0; padding:8px 10px; border:1px solid rgba(137,190,219,.2); border-radius:6px; background:rgba(118,177,207,.07); color:#d7edf9; font-size:12px; }
+.desktop-os-widget button:hover { background:rgba(118,177,207,.14); }
+.desktop-rebuilt-shortcuts button strong { font-size:13px; }
+.desktop-rebuilt-shortcuts button small { font-size:11px; }
+.desktop-rebuilt-session { font-size:10px; }
+.desktop-rebuilt-footer { font-size:11px; }
+.desktop-os-mission-widget { border-color:rgba(94,218,171,.25); background:linear-gradient(145deg,rgba(23,61,52,.8),rgba(9,21,29,.76)); }
+.desktop-os-mission-widget .desktop-os-widget-label { color:#8de0bd; }
+.desktop-os-mission-widget .desktop-os-widget-label svg { color:#78ddb4; }
