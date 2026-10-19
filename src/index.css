@@ -2121,3 +2121,28 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .os-call-quote { margin: 0; padding: 10px 12px; border-left: 2px solid #79b8f4; background: rgba(121,184,244,.06); color: #a9bfd1; font-size: 10px; line-height: 1.6; }
 @media (max-width: 1000px) { .os-multi-window-layer { inset: 74px 12px 54px 12px; } }
 @media (max-width: 560px) { .os-multi-window-layer { inset: 66px 6px 50px 6px; } .os-floating-window { width: calc(100vw - 24px); } .os-floating-content { padding: 12px; } .os-call-portrait { flex-basis: 90px; width: 90px; height: 108px; } }
+
+/* Regression fixes: keep the 3D caller inside its card and make the call app self-contained. */
+.os-call-portrait { position: relative; isolation: isolate; flex: 0 0 104px; width: 104px; height: 116px; min-width: 0; }
+.os-call-portrait .client-portrait-3d { position: absolute; inset: 0; width: 100%; height: 100%; }
+.os-call-portrait canvas { display: block; width: 100% !important; height: 100% !important; }
+.os-call-client-picker { display: grid; gap: 5px; margin: 12px 0; }
+.os-call-client-option { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 9px 10px; border: 1px solid rgba(175,202,230,.14); border-radius: 7px; background: #121c25; color: #e8f0f8; text-align: left; cursor: pointer; }
+.os-call-client-option.selected { border-color: #78b9f2; background: #1a3042; }
+.os-call-client-option > span:first-child { display: flex; flex-direction: column; gap: 4px; }
+.os-call-client-option strong { font-size: 10px; }
+.os-call-client-option small { color: #91a8bb; font-size: 9px; }
+.os-call-answers { display: grid; gap: 6px; margin-top: 12px; }
+.os-call-answers > button:not(.os-call-end) { display: grid; grid-template-columns: 23px minmax(0,1fr); gap: 3px 8px; align-items: start; padding: 9px; border: 1px solid rgba(175,202,230,.15); border-radius: 7px; background: #17232e; color: #e6f0f9; text-align: left; cursor: pointer; }
+.os-call-answers > button:hover { border-color: #78b9f2; background: #1d3040; }
+.os-call-answers kbd { grid-row: span 2; display: grid; place-items: center; width: 21px; height: 21px; border-radius: 4px; background: #273b4c; color: #dceeff; }
+.os-call-answers span { font-size: 10px; line-height: 1.45; }
+.os-call-answers small { color: #91a8bb; font-size: 8px; }
+.os-call-meter { display: grid; gap: 6px; margin: 9px 0; }
+.os-call-meter > span { display: block; height: 4px; border-radius: 8px; background: #72d4a7; max-width: 100%; }
+.os-call-meter small { color: #9ab0c1; font-size: 9px; }
+.os-call-end { padding: 8px 10px; border: 1px solid rgba(255,126,126,.35); border-radius: 7px; background: rgba(150,47,47,.12); color: #ffb1b1; cursor: pointer; }
+.os-call-result { color: #c1d0dc; font-size: 10px; line-height: 1.6; }
+.os-floating-window { contain: layout paint; }
+.os-floating-window .os-floating-controls button { position: relative; z-index: 3; min-width: 27px; min-height: 27px; cursor: pointer; }
+@media (max-width: 560px) { .os-call-portrait { flex-basis: 82px; width: 82px; height: 96px; } }
