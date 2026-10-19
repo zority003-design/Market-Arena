@@ -324,6 +324,7 @@ export default function App() {
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
 
   const [canSleep, setCanSleep] = useState(false)
+  const [sleepTransition, setSleepTransition] = useState(false)
   const [dayEnded, setDayEnded] = useState(saved.dayEnded ?? false)
   const [deskLampOn, setDeskLampOn] = useState(false)
   const [roomLightOn, setRoomLightOn] = useState(true)
@@ -846,36 +847,44 @@ export default function App() {
   }
 
   function sleepNow() {
-    if (!dayEnded) { setToast('Пока рано спать: сначала заверши рабочий день на компьютере.'); return }
+    if (!dayEnded || sleepTransition) { if (!dayEnded) setToast('Пока рано спать: сначала заверши рабочий день на компьютере.'); return }
     playSound('sleep')
-    const nextDay = day + 1
-    setDay(nextDay)
-    setCallsToday(0)
-    setDailySalesAmount(0)
-    setDailySalesShares(0)
-    setShiftReport(null)
-    setCityVisitedToday([])
-    setCityBonus(0)
-    setCityLocation('office')
-    setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
-    const dailyCosts = currentHousing.dailyCost
-    const available = cash + DAILY_SALARY
-    const paidCosts = Math.min(available, dailyCosts)
-    const shortfall = dailyCosts - paidCosts
-    const remainder = available - paidCosts
-    const debtPayment = Math.min(debt, remainder)
-    setCash(remainder - debtPayment)
-    setDebt(Math.max(0, debt - debtPayment) + shortfall)
-    const debtNote = shortfall > 0
-      ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
-      : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
-    setGameMinutes(7 * 60)
-    setDayEnded(false)
+    setSleepTransition(true)
     setCanSleep(false)
-    setToast('Доброе утро! День ' + nextDay + '. Дневной оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽ (не выплата за звонок), расходы −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
-    window.setTimeout(() => setToast(''), 5200)
     setPanel('room')
     setCallStatus('idle')
+    // Give the player time to lie down and close their eyes before advancing the day.
+    window.setTimeout(() => {
+      const nextDay = day + 1
+      setDay(nextDay)
+      setCallsToday(0)
+      setDailySalesAmount(0)
+      setDailySalesShares(0)
+      setShiftReport(null)
+      setCityVisitedToday([])
+      setCityBonus(0)
+      setCityLocation('office')
+      // The next day's lead list is generated here, so new people become available after sleeping.
+      setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
+      const dailyCosts = currentHousing.dailyCost
+      const available = cash + DAILY_SALARY
+      const paidCosts = Math.min(available, dailyCosts)
+      const shortfall = dailyCosts - paidCosts
+      const remainder = available - paidCosts
+      const debtPayment = Math.min(debt, remainder)
+      setCash(remainder - debtPayment)
+      setDebt(Math.max(0, debt - debtPayment) + shortfall)
+      const debtNote = shortfall > 0
+        ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
+        : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
+      setGameMinutes(7 * 60)
+      setDayEnded(false)
+      setCanSleep(false)
+      setIntroActive(true)
+      setSleepTransition(false)
+      setToast('Доброе утро! День ' + nextDay + '. Дневной оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽ (не выплата за звонок), расходы −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
+      window.setTimeout(() => setToast(''), 5200)
+    }, 1800)
   }
 
   return (
@@ -886,6 +895,7 @@ export default function App() {
         <RoomScene onInteract={openComputer} onExitCity={() => {}} onCanExitCityChange={() => {}} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </div>
 
+      {sleepTransition && <div className="sleep-transition" role="status" aria-live="polite"><div className="sleep-eyelids" /><div className="sleep-transition-copy"><span>КОНЕЦ ДНЯ</span><strong>Ты ложишься спать…</strong><small>Новые контакты появятся утром</small></div></div>}
       {mainMenu && (
         <div className="main-menu-screen">
           <div className="menu-atmosphere" />
