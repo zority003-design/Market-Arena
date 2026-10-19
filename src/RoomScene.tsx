@@ -45,7 +45,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   const introFinished = useRef(false)
 
   useEffect(() => {
-    camera.position.set(0, 1.66, 3.55)
+    camera.position.set(0, 1.66, 3.12)
     camera.rotation.order = 'YXZ'
     yaw.current = 0
     pitch.current = -0.04
@@ -60,7 +60,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
       const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (exitable.current) { onExitCity(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
+      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
       if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
         keys.current[codeKey || key] = true
         event.preventDefault()
@@ -119,7 +119,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     if (introActive) {
       introProgress.current = Math.min(1, introProgress.current + dt / 4.2)
       const t = introProgress.current * introProgress.current * (3 - 2 * introProgress.current)
-      camera.position.set(2.52 + (1.45 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (2.15 - 0.85) * t)
+      camera.position.set(2.52 + (0 - 2.52) * t, 0.76 + (1.66 - 0.76) * t, 0.85 + (3.12 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
@@ -143,7 +143,8 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       const blocked = (x: number, z: number) =>
         (x > -1.38 && x < 1.62 && z > -2.98 && z < -1.72) ||
         (x > -0.43 && x < 0.63 && z > -1.38 && z < -0.58) ||
-        (x > 1.48 && x < 3.62 && z > -0.78 && z < 2.78) ||
+        (x > 0.77 && x < 2.73 && z > -0.66 && z < 2.58) ||
+        (x > 2.78 && x < 3.52 && z > -0.52 && z < 0.02) ||
         (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22) ||
         false
       const nextX = THREE.MathUtils.clamp(camera.position.x + stepX, -3.52, 3.52)
@@ -153,9 +154,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     }
     camera.position.y = 1.66
     camera.rotation.set(pitch.current, yaw.current, 0)
-    const exitDistance = Math.hypot(camera.position.x - 3.15, camera.position.z - 2.45)
-    const canExit = exitDistance < 1.05
-    if (canExit !== exitable.current) { exitable.current = canExit; onCanExitCityChange(canExit) }
+    if (exitable.current) { exitable.current = false; onCanExitCityChange(false) }
     const distance = Math.hypot(camera.position.x - 0.1, camera.position.z + 0.9)
     const canUse = distance < 1.25 && camera.position.z > -1.83
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
@@ -165,8 +164,8 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     ]
     const foundObject = objectDistances.find((item) => Math.hypot(camera.position.x - item.x, camera.position.z - item.z) < item.radius)?.id ?? null
     if (foundObject !== nearbyObject.current) { nearbyObject.current = foundObject; onNearbyObjectChange(foundObject) }
-    const bedDistance = Math.hypot(camera.position.x - 0.95, camera.position.z - 0.8)
-    const canSleep = bedDistance < 1.05 && camera.position.x > 0.25
+    const bedDistance = Math.hypot(camera.position.x - 1.75, camera.position.z - 0.8)
+    const canSleep = bedDistance < 1.55 && camera.position.x < 0.8 && camera.position.x > -0.35
     if (canSleep !== sleepable.current) { sleepable.current = canSleep; onCanSleepChange(canSleep) }
   })
 
@@ -261,7 +260,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
       <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
       <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
-      <Box position={[3.98, 1.62, -1.15]} size={[0.18, 3.4, 5.7]} color="#454d56" />\n      <Box position={[3.98, 1.62, 3.65]} size={[0.18, 3.4, 0.7]} color="#454d56" />\n      {/* Front door to the same neighborhood shown in the window. */}\n      <Box position={[3.84, 2.42, 2.5]} size={[0.32, 0.18, 1.68]} color="#3c3028" />\n      <Box position={[3.86, 1.16, 2.5]} size={[0.12, 2.32, 1.52]} color="#76543d" roughness={0.92} />\n      <Box position={[3.78, 1.16, 1.74]} size={[0.08, 2.38, 0.08]} color="#c6aa7a" />\n      <Box position={[3.78, 1.16, 3.26]} size={[0.08, 2.38, 0.08]} color="#c6aa7a" />\n      <Box position={[3.78, 2.34, 2.5]} size={[0.08, 0.08, 1.6]} color="#c6aa7a" />\n      <Cylinder position={[3.68, 1.12, 2.98]} radius={0.055} height={0.055} color="#d3b778" metalness={0.65} rotation={[0, 0, Math.PI / 2]} />
+      {/* Closed wall: the outside district is intentionally out of scope for this chapter. */}
+      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} />
       <FloorBoards />
 
@@ -430,7 +430,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       </group>)}
 
       {/* Small lived-in details: a bedside alarm clock, laundry basket and slippers. */}
-      <group position={[3.43, 0.82, -0.28]}>
+      <group position={[3.08, 0.82, -0.28]}>
         {/* A real bedside table supports the alarm clock instead of leaving it floating. */}
         <Box position={[0, -0.015, 0]} size={[0.42, 0.035, 0.3]} color="#684b38" roughness={0.82} />
         {[-1, 1].flatMap((x) => [-1, 1].map((z) => <Box key={x + '-' + z} position={[x * 0.165, -0.21, z * 0.105]} size={[0.035, 0.38, 0.035]} color="#49372d" roughness={0.9} />))}
@@ -443,43 +443,19 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Cylinder position={[-0.105, 0.2, 0]} radius={0.055} height={0.025} color="#454c4c" metalness={0.3} />
         <Cylinder position={[0.105, 0.2, 0]} radius={0.055} height={0.025} color="#454c4c" metalness={0.3} />
       </group>
-      <group position={[3.45, 0.32, 2.92]}>
-        <Box position={[0, 0.23, 0]} size={[0.48, 0.46, 0.48]} color="#51575a" roughness={0.9} />
-        <Box position={[0, 0.47, 0]} size={[0.5, 0.035, 0.5]} color="#687174" roughness={0.85} />
-        {[-0.12, 0, 0.12].map((x) => <Box key={x} position={[x, 0.23, 0.245]} size={[0.018, 0.32, 0.008]} color="#343d40" />)}
-        <Box position={[-0.08, 0.49, -0.02]} size={[0.18, 0.025, 0.16]} color="#536d76" rotation={[0, 0.2, -0.08]} />
-        <Box position={[0.08, 0.5, 0.05]} size={[0.2, 0.03, 0.16]} color="#7c5d55" rotation={[0, -0.15, 0.04]} />
-      </group>
-      <Box position={[1.42, 0.09, 2.82]} size={[0.32, 0.08, 0.46]} color="#394a50" rotation={[0, -0.15, 0]} roughness={0.95} />
-      <Box position={[1.73, 0.09, 2.9]} size={[0.31, 0.08, 0.44]} color="#4e4642" rotation={[0, 0.12, 0]} roughness={0.95} />
 
-      {/* Bed and rumpled bedding */}
-      <Box position={[0.95, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
-      <Box position={[0.95, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#d0c8b8" roughness={0.98} />
-      <Box position={[0.95, 0.7, -0.13]} size={[1.75, 0.11, 0.82]} color="#b3c1c4" roughness={1} />
-      <Box position={[0.95, 0.69, 1.2]} size={[1.72, 0.09, 1.65]} color="#536c78" roughness={1} rotation={[0.02, 0, -0.025]} />
-      <Box position={[0.95, 0.75, 1.9]} size={[0.85, 0.12, 0.52]} color="#c8c2b5" roughness={1} />
-      <Box position={[0.95, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
-      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[0.95 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
+      {/* Removed misplaced floor props to keep the entry path clear. */}
 
-      {/* Shelf with clutter */}
-      <Box position={[3.2, 2.18, -3.62]} size={[1.2, 0.08, 0.48]} color="#6b4b38" />
-      <Box position={[3.2, 1.4, -3.62]} size={[1.2, 0.08, 0.48]} color="#6b4b38" />
-      {[-0.32, 0.28].map((x) => (
-        <Box key={x} position={[3.2 + x, 1.79, -3.62]} size={[0.06, 0.75, 0.43]} color="#4b382e" />
-      ))}
-      {[
-        { x: 2.82, y: 1.68, c: '#9a5e49', h: 0.45 },
-        { x: 2.98, y: 1.65, c: '#d0b27d', h: 0.39 },
-        { x: 3.14, y: 1.7, c: '#526f70', h: 0.48 },
-        { x: 3.35, y: 1.65, c: '#a7a6a0', h: 0.38 },
-        { x: 3.5, y: 1.69, c: '#7c514a', h: 0.44 },
-        { x: 2.9, y: 2.43, c: '#667b70', h: 0.35 },
-        { x: 3.1, y: 2.4, c: '#d1b27b', h: 0.31 },
-        { x: 3.35, y: 2.43, c: '#8d6457', h: 0.35 },
-      ].map((book, i) => (
-        <Box key={i} position={[book.x, book.y, -3.58]} size={[0.13, book.h, 0.3]} color={book.c} />
-      ))}
+      {/* Bed aligned to the room axis: headboard and pillows at the window end, clear footboard at the opposite end. */}
+      <Box position={[1.75, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" />
+      <Box position={[1.75, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} />
+      <Box position={[1.75, 0.69, 0.98]} size={[1.72, 0.09, 1.72]} color="#526b78" roughness={1} />
+      <Box position={[1.75, 0.72, -0.22]} size={[0.82, 0.12, 0.48]} color="#ded8cb" roughness={1} />
+      <Box position={[1.75, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
+      <Box position={[1.75, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
+      {[-0.72, 0.72].map((x) => [-0.25, 2.12].map((z) => <Box key={x + ":" + z} position={[1.75 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
+
+      {/* Keep the wall beside the door clear and uncluttered. */}
 
       {/* Wall poster, framed market doodle */}
       <Box position={[-1.95, 2.15, -3.84]} size={[1.15, 0.9, 0.06]} color="#2e393d" />
@@ -525,20 +501,40 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 }
 
 export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+  const sendMoveKey = (key: 'w' | 'a' | 's' | 'd', pressed: boolean) => {
+    const code = ({ w: 'KeyW', a: 'KeyA', s: 'KeyS', d: 'KeyD' } as const)[key]
+    document.body.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, bubbles: true, cancelable: true }))
+  }
+  const touchButton = (key: 'w' | 'a' | 's' | 'd', label: string, glyph: string) => (
+    <button key={key} type="button" className={`room-touch-key room-touch-${key}`} aria-label={label}
+      onPointerDown={(event) => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); sendMoveKey(key, true) }}
+      onPointerUp={() => sendMoveKey(key, false)}
+      onPointerCancel={() => sendMoveKey(key, false)}
+      onLostPointerCapture={() => sendMoveKey(key, false)}>{glyph}</button>
+  )
   return (
-    <Canvas
-      tabIndex={0}
-      shadows
-      dpr={[1, 1.6]}
-      camera={{ position: [0, 1.66, 3.55], fov: 64, near: 0.1, far: 40 }}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
-      onCreated={({ gl }) => {
-        gl.setClearColor('#101922')
-        gl.toneMapping = THREE.ACESFilmicToneMapping
-        gl.toneMappingExposure = 1.12
-      }}
-    >
-      <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
-    </Canvas>
+    <div className="room-scene-root">
+      <Canvas
+        tabIndex={0}
+        shadows
+        dpr={[1, 1.6]}
+        camera={{ position: [0, 1.66, 3.12], fov: 64, near: 0.1, far: 40 }}
+        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#101922')
+          gl.toneMapping = THREE.ACESFilmicToneMapping
+          gl.toneMappingExposure = 1.12
+        }}
+      >
+        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+      </Canvas>
+      {active && !introActive && <div className="room-touch-controls" aria-label="Управление персонажем">
+        <div className="room-touch-dpad">
+          {touchButton('w', 'Идти вперёд', '↑')}
+          <div className="room-touch-middle">{touchButton('a', 'Идти влево', '←')}{touchButton('s', 'Идти назад', '↓')}{touchButton('d', 'Идти вправо', '→')}</div>
+        </div>
+        <span className="room-touch-caption">ДВИЖЕНИЕ</span>
+      </div>}
+    </div>
   )
 }
