@@ -502,7 +502,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const sendMoveKey = (key: 'w' | 'a' | 's' | 'd', pressed: boolean) => {
     const code = ({ w: 'KeyW', a: 'KeyA', s: 'KeyS', d: 'KeyD' } as const)[key]
-    window.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, bubbles: true, cancelable: true }))
+    document.body.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, bubbles: true, cancelable: true }))
   }
   const touchButton = (key: 'w' | 'a' | 's' | 'd', label: string, glyph: string) => (
     <button key={key} type="button" className={`room-touch-key room-touch-${key}`} aria-label={label}
