@@ -1874,3 +1874,7 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .call-command-stock { grid-column:1; grid-row:auto; display:grid; grid-template-columns:auto 1fr; align-items:center; padding:8px 0 0; border-left:0; border-top:1px solid rgba(157,181,177,.15); }
   .call-command-stock small { grid-column:1 / -1; }
 }
+
+.answer-controls { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.answer-shortcut-hint { color:#718b87; font:8px 'DM Mono',monospace; letter-spacing:.02em; white-space:nowrap; }
+@media (max-width: 540px) { .answer-shortcut-hint { display:none; } }
