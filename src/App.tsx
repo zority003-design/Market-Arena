@@ -36,6 +36,14 @@ const companies = [
   { ticker: 'BTRAN', name: 'Банан Транс', sector: 'Топливо и сеть АЗС', price: '₽ 176,40', change: '+1,18%', positive: true, cap: '₽ 18,9 млрд', revenue: '380 ИУ', profit: '+29 ИУ', risk: 'Средний', description: 'Крупная городская сеть автозаправок: топливо, магазины у кассы, мойки и зарядные станции. Сильный денежный поток зависит от закупочных цен, трафика и маржи на литр.', advantages: 'Широкая сеть АЗС; повторяющийся спрос; дополнительные продажи в магазинах и сервисах.', risks: 'Колебания оптовых цен; расходы на содержание станций; конкуренция и переход части клиентов на электромобили.' },
 ]
 
+const COMPANY_BANTER: Record<string, string> = {
+  KOTL: '«Я слышал, ваши роботы уже доставляют посылки. Надеюсь, прибыль они тоже умеют доставлять — желательно не только в презентациях».',
+  OGUR: '«Соки я люблю. Особенно когда в отчёте прибыль не разбавлена водой».',
+  TAPK: '«Умные тапочки? Главное, чтобы после обновления они не начали ходить от инвесторов сами».',
+  DUST: '«Уборка — бизнес стабильный. Пыль, в отличие от инвесторов, возвращается регулярно».',
+  BTRAN: '«Бензин дорожает, кофе остывает, а инвестор всё ещё хочет гарантированную доходность. С чего начнём?»',
+}
+
 function getStockQuestions(company: typeof companies[number]) {
   const scenarios: Record<string, { prompts: string[]; hints: string[]; choices: [string, string, string][] }> = {
     KOTL: {
@@ -177,7 +185,7 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -360,6 +368,7 @@ export default function App() {
   const [clientInvested, setClientInvested] = useState<Record<string, number>>(saved.clientInvested ?? {})
   const [dailyLeadIds, setDailyLeadIds] = useState<string[]>(saved.dailyLeadIds ?? getDailyLeadIds(day, reputation, saved.clientLastContactDay ?? {}, saved.clientDealCounts ?? {}, saved.clientInvested ?? {}))
   const [callClientId, setCallClientId] = useState(saved.callClientId ?? 'alex-vorontsov')
+  const [callCompanyTicker, setCallCompanyTicker] = useState(saved.callCompanyTicker ?? '')
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [videoSwitchEffectUsed, setVideoSwitchEffectUsed] = useState(false)
   const [videoBackground, setVideoBackground] = useState<VideoBackground>(saved.videoBackground ?? 'real')
@@ -418,8 +427,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
 
   useEffect(() => {
     if (!controlsVisible) return
@@ -524,7 +533,9 @@ export default function App() {
   const activeClient = callStatus === 'idle'
     ? selectedAvailableClient
     : CLIENTS.find((client) => client.id === callClientId) ?? selectedAvailableClient
-  const activeCompany = companies.find((company) => company.ticker === selectedCompany) ?? companies[0]
+  const activeCompany = callStatus === 'idle'
+    ? (companies.find((company) => company.ticker === selectedCompany) ?? companies[0])
+    : (companies.find((company) => company.ticker === callCompanyTicker) ?? companies.find((company) => company.ticker === selectedCompany) ?? companies[0])
   const getDisplayedPrice = (company: typeof companies[number]) => { const base = Number(company.price.replace(/[^0-9,.-]/g, '').replace(',', '.')); const moved = base * (1 + (newsImpacts[company.ticker] ?? 0) / 100); return '₽ ' + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
   const getDisplayedChange = (company: typeof companies[number]) => { const base = Number(company.change.replace('%', '').replace(/[−–]/g, '-').replace(',', '.')); const moved = base + (newsImpacts[company.ticker] ?? 0); return (moved > 0 ? '+' : '') + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' }
   const marketIndexImpact = Object.values(newsImpacts).reduce((total, impact) => total + impact, 0) / 4
@@ -623,6 +634,7 @@ export default function App() {
     setVideoEnabled(true)
     setVideoSwitchEffectUsed(false)
     setSelectedCompany('KOTL')
+    setCallCompanyTicker('')
     setNewsImpacts({})
     setToast('')
     setLastPenaltySecond(60)
@@ -679,9 +691,13 @@ export default function App() {
     const dailyCallLimit = reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2
     if (callsToday >= dailyCallLimit) { setToast('На сегодня лимит звонков исчерпан. Восстановись и продолжи завтра.'); return }
     if (!availableClients.some((client) => client.id === activeClient.id)) { setToast('Этот лид сейчас недоступен. Выбери клиента из списка актуальных предложений.'); return }
+    const assignedCompany = dailyQuotaCompany
+    const assignedQuestions = getStockQuestions(assignedCompany)
+    setCallCompanyTicker(assignedCompany.ticker)
+    setSelectedCompany(assignedCompany.ticker)
     setCallsToday((count) => count + 1)
     setQuestionIndex(0)
-    setChoiceOrders(activeQuestions.map((question) => question.choices.map((_, index) => index).sort(() => Math.random() - 0.5)))
+    setChoiceOrders(assignedQuestions.map((question) => question.choices.map((_, index) => index).sort(() => Math.random() - 0.5)))
     lastTimerBeep.current = 0
     setVideoSwitchEffectUsed(false)
     setCallClientId(activeClient.id)
@@ -691,15 +707,15 @@ export default function App() {
     const relationshipBonus = Math.min(15, (clientDealCounts[activeClient.id] ?? 0) * 6)
     const videoBonus = videoEnabled ? 2 + Math.min(3, getVideoQuality(ownedItems)) : 0
     const backgroundBonus = videoEnabled ? getBackgroundModifier(videoBackground, ownedItems, activeClient) : 0
-    const newsFitBonus = (newsImpacts[activeCompany.ticker] ?? 0) > 0 ? 2 : (newsImpacts[activeCompany.ticker] ?? 0) < 0 ? -2 : 0
-    const companyFitBonus = (activeCompany.risk === 'Очень высокий' ? -5 : activeCompany.risk === 'Высокий' ? -2 : activeCompany.positive ? 3 : -3) + newsFitBonus
+    const newsFitBonus = (newsImpacts[assignedCompany.ticker] ?? 0) > 0 ? 2 : (newsImpacts[assignedCompany.ticker] ?? 0) < 0 ? -2 : 0
+    const companyFitBonus = (assignedCompany.risk === 'Очень высокий' ? -5 : assignedCompany.risk === 'Высокий' ? -2 : assignedCompany.positive ? 3 : -3) + newsFitBonus
     setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + relationshipBonus + videoBonus + backgroundBonus + companyFitBonus)))
     setPatience(activeClient.patience)
     setTimeLeft(75)
     setLastPenaltySecond(75)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'system', text: 'Твоё предложение: акция «' + activeCompany.name + '» (' + activeCompany.sector + ', риск: ' + activeCompany.risk.toLowerCase() + ').' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
+    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCityBonus(0)
@@ -778,12 +794,21 @@ export default function App() {
     if (!text || callStatus !== 'active') return
     const lower = text.toLowerCase()
     let delta = 0
-    const positiveWords = ['риск', 'убыт', 'долг', 'денеж', 'сценар', 'гарант', 'не обещ', 'прибыл', 'контракт', 'выруч', 'зависит', 'провер']
-    const riskyWords = ['гарантирую', 'точно вырастет', 'без риска', '100%', 'удво', 'не может упасть', 'всегда раст']
-    if (positiveWords.some((word) => lower.includes(word))) delta += 5
-    if (riskyWords.some((word) => lower.includes(word))) delta -= 13
+    const companySignals: Record<string, string[]> = {
+      KOTL: ['контракт', 'заказ', 'робот', 'сервис', 'масштаб', 'денеж', 'убыт', 'поставк', 'марж'],
+      OGUR: ['сырь', 'упаков', 'марж', 'дистрибу', 'полк', 'прибыл', 'повторн', 'конкур'],
+      TAPK: ['возврат', 'обновлен', 'качест', 'гарант', 'датчик', 'приложен', 'подтверж', 'убыт', 'денеж'],
+      DUST: ['контракт', 'зарплат', 'себестоим', 'денеж', 'марж', 'уборк', 'окупаем', 'индексац'],
+      BTRAN: ['оптов', 'топлив', 'марж', 'трафик', 'заряд', 'станц', 'магазин', 'денеж', 'окупаем'],
+    }
+    const riskAndEvidence = ['риск', 'убыт', 'расход', 'денежный поток', 'марж', 'провер', 'сценар', 'подтверж', 'не обещ', 'огранич', 'если']
+    const recklessPromises = ['гарантирую', 'точно вырастет', 'без риска', '100%', 'удво', 'не может упасть', 'всегда раст', 'не потеряете']
+    if ((companySignals[activeCompany.ticker] ?? []).some((word) => lower.includes(word))) delta += 3
+    if (riskAndEvidence.some((word) => lower.includes(word))) delta += 3
+    if (['клиент', 'цель', 'горизонт', 'ликвид', 'доля', 'размер позиции', 'подходит'].some((word) => lower.includes(word))) delta += 2
+    if (recklessPromises.some((word) => lower.includes(word))) delta -= 15
     if (text.length < 18) delta -= 2
-    if (text.length > 280) delta -= 2
+    if (text.length > 320) delta -= 2
     if (delta === 0) delta = -1
     answerQuestion(text, Math.max(-15, Math.min(8, delta)))
   }
@@ -1136,7 +1161,7 @@ export default function App() {
                 <div className="calls-page">
                   <div className="page-heading"><div><div className="eyebrow">ОТДЕЛ ПРОДАЖ · ЛИНИЯ 01</div><h2>Клиенты и звонки</h2><p>Слушай клиента, выбери точный ответ и закрой сделку без пустых обещаний. Репутация открывает клиентов крупнее, а деньги улучшают жильё и рабочее место.</p></div><div className={callStatus === 'active' ? 'call-live-badge active' : 'call-live-badge'}><span className="live-dot" /> {callStatus === 'active' ? 'ЗВОНОК ИДЁТ' : 'ЛИНИЯ СВОБОДНА'}</div></div>
                   {callStatus === 'idle' && <div className="precall-briefing">
-                    <div className="call-planning-section"><div className="call-planning-heading"><span className="eyebrow">ШАГ 1 · ВЫБЕРИ КЛИЕНТА</span><strong>Кому сегодня предложим инвестицию?</strong><small>В первый день доступны два клиента. Новые лиды открываются с ростом репутации и прогрессом карьеры.</small></div><div className="call-client-picker">{CLIENTS.map((client) => { const unlocked = availableClients.some((candidate) => candidate.id === client.id); return <button key={client.id} disabled={!unlocked} className={'call-client-option' + (selectedClientId === client.id ? ' selected' : '') + (!unlocked ? ' locked' : '')} onClick={() => setSelectedClientId(client.id)}><span className="call-client-avatar">{unlocked ? client.initials : '🔒'}</span><span className="call-client-option-copy"><strong>{client.name}</strong><small>{unlocked ? client.profession + ' · уровень ' + client.tier : 'Пока недоступен'}</small><em>{unlocked ? 'Капитал до ' + client.budget.toLocaleString('ru-RU') + ' ₽' : 'Развивай карьеру'}</em></span></button>})}</div><div className="call-planning-heading stock-planning-heading"><span className="eyebrow">ШАГ 2 · ВЫБЕРИ АКЦИЮ</span><strong>Что предложим клиенту?</strong><small>Выбор бумаги влияет на первое впечатление и риск сделки. Изучи карточку в приложении «Биржа».</small></div><div className="call-stock-picker">{companies.map((company) => <button key={company.ticker} className={'call-stock-option' + (selectedCompany === company.ticker ? ' selected' : '')} onClick={() => setSelectedCompany(company.ticker)}><span className={'company-logo ' + company.ticker.toLowerCase()}>{company.ticker.slice(0, 2)}</span><span><strong>{company.name}</strong><small>{company.sector} · риск {company.risk.toLowerCase()}</small></span><em className={company.positive ? 'positive' : 'negative'}>{company.change}</em></button>)}</div></div><div className="briefing-copy"><span className="eyebrow">ЗАЧЕМ НУЖЕН ЗВОНОК</span><strong>Ты не продаёшь акцию вслепую — ты помогаешь принять решение</strong><p>У {activeClient.name} есть собственные цели и отношение к риску. Выбранная акция — лишь предложение: объясни, как она может помочь, что может пойти не так и в каких случаях лучше отказаться от сделки.</p><div className="call-goal-list"><span>1. Разобраться в бизнесе</span><span>2. Проверить свежие новости</span><span>3. Обсудить риски с клиентом</span></div><small>Подготовка к рынку и новостям добавляет +4 к начальному доверию за каждый изученный раздел.</small></div>
+                    <div className="call-planning-section"><div className="call-planning-heading"><span className="eyebrow">ШАГ 1 · ВЫБЕРИ КЛИЕНТА</span><strong>Кому сегодня предложим инвестицию?</strong><small>В первый день доступны два клиента. Новые лиды открываются с ростом репутации и прогрессом карьеры.</small></div><div className="call-client-picker">{CLIENTS.map((client) => { const unlocked = availableClients.some((candidate) => candidate.id === client.id); return <button key={client.id} disabled={!unlocked} className={'call-client-option' + (selectedClientId === client.id ? ' selected' : '') + (!unlocked ? ' locked' : '')} onClick={() => setSelectedClientId(client.id)}><span className="call-client-avatar">{unlocked ? client.initials : '🔒'}</span><span className="call-client-option-copy"><strong>{client.name}</strong><small>{unlocked ? client.profession + ' · уровень ' + client.tier : 'Пока недоступен'}</small><em>{unlocked ? 'Капитал до ' + client.budget.toLocaleString('ru-RU') + ' ₽' : 'Развивай карьеру'}</em></span></button>})}</div><div className="call-planning-heading stock-planning-heading"><span className="eyebrow">ШАГ 2 · ПОРУЧЕНИЕ ДНЯ</span><strong>Сегодня продаём {dailyQuotaCompany.name} ({dailyQuotaCompany.ticker})</strong><small>Акцию назначил руководитель. Твоя задача — разобраться в бизнесе, подобрать аргументы для клиента и честно ответить на вопросы о слабых местах.</small></div><div className="mission-stock-brief"><div className="mission-stock-top"><span className={'company-logo ' + dailyQuotaCompany.ticker.toLowerCase()}>{dailyQuotaCompany.ticker.slice(0, 2)}</span><div><strong>{dailyQuotaCompany.name}</strong><small>{dailyQuotaCompany.sector} · цена {getDisplayedPrice(dailyQuotaCompany)}</small></div><em className={dailyQuotaCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(dailyQuotaCompany)}</em></div><p>{dailyQuotaCompany.description}</p><div className="mission-stock-columns"><section><small>ЧТО МОЖНО ПРОДАТЬ</small><p>{dailyQuotaCompany.advantages}</p></section><section><small>ЧТО КЛИЕНТ МОЖЕТ ОСПОРИТЬ</small><p>{dailyQuotaCompany.risks}</p></section></div><div className="mission-stock-actions"><span>План: {dailyQuotaShares} акций · оборот {dailyQuotaAmount.toLocaleString('ru-RU')} ₽</span><button className="secondary-action" onClick={() => { setSelectedCompany(dailyQuotaCompany.ticker); setTab('market') }}>Изучить отчёт <ChevronRight size={14} /></button></div></div></div><div className="briefing-copy"><span className="eyebrow">ЗАЧЕМ НУЖЕН ЗВОНОК</span><strong>Ты не продаёшь акцию вслепую — ты помогаешь принять решение</strong><p>У {activeClient.name} есть собственные цели и отношение к риску. Назначенная акция — часть задания: объясни, кому она может подойти, что может пойти не так и когда разумнее отказаться от сделки.</p><div className="call-goal-list"><span>1. Разобраться в бизнесе</span><span>2. Проверить свежие новости</span><span>3. Обсудить риски с клиентом</span></div><small>Подготовка к рынку и новостям добавляет +4 к начальному доверию за каждый изученный раздел.</small></div>
                     <div className="briefing-actions">
                       <button className={marketReviewed ? 'briefing-action complete' : 'briefing-action'} onClick={() => setTab('market')}><TrendingUp size={15} /><span><strong>Отчёт компании</strong><small>{marketReviewed ? 'Изучено · +4 доверия' : 'Финансы и риски'}</small></span><span className="briefing-check">{marketReviewed ? '✓' : '↗'}</span></button>
                       <button className={newsReviewed ? 'briefing-action complete' : 'briefing-action'} onClick={() => setTab('news')}><Newspaper size={15} /><span><strong>Новости рынка</strong><small>{newsReviewed ? 'Изучено · +4 доверия' : 'Катализаторы и угрозы'}</small></span><span className="briefing-check">{newsReviewed ? '✓' : '↗'}</span></button>
@@ -1154,7 +1179,7 @@ export default function App() {
             <aside className="terminal-right-rail">
               <div className="rail-title"><span>РАБОЧИЙ СТОЛ</span><button aria-label="Уведомления"><Bell size={15} /></button></div>
               <div className="rail-widget time-widget"><span className="rail-icon"><Clock3 size={16} /></span><small>ВРЕМЯ</small><strong>{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</strong><em>День {day} · рабочая смена</em></div>
-              <div className="rail-widget"><div className="rail-widget-heading"><span className="rail-icon gold"><Zap size={16} /></span><span><small>ЗАДАЧА ДНЯ</small><strong>Первая сделка</strong></span></div><div className="task-progress"><span style={{ width: deals > 0 ? '100%' : '0%' }} /></div><div className="rail-caption">{deals > 0 ? 'Выполнено — отлично!' : 'Осталось закрыть 1 сделку'}</div></div>
+              <div className="rail-widget"><div className="rail-widget-heading"><span className="rail-icon gold"><Zap size={16} /></span><span><small>ОБЯЗАТЕЛЬНОЕ ПОРУЧЕНИЕ</small><strong>{dailyQuotaCompany.ticker} · план смены</strong></span></div><div className="task-progress"><span style={{ width: Math.min(100, Math.min(dailySalesShares / dailyQuotaShares, dailySalesAmount / Math.max(1, dailyQuotaAmount)) * 100) + '%' }} /></div><div className="rail-caption">{dailySalesShares >= dailyQuotaShares && dailySalesAmount >= dailyQuotaAmount ? 'План выполнен — премия заработана.' : 'Продай ' + dailyQuotaShares + ' акций и набери оборот ' + dailyQuotaAmount.toLocaleString('ru-RU') + ' ₽.'}</div></div>
               <div className="rail-widget mini-news"><div className="rail-widget-heading"><span className="rail-icon green"><Newspaper size={16} /></span><span><small>ВАЖНОЕ</small><strong>Новости рынка</strong></span></div><p>«Котолёт» ведёт переговоры о крупном контракте.</p><button onClick={() => setTab('news')}>Читать ленту <ChevronRight size={13} /></button></div>
               <div className="rail-widget contact-widget"><div className="rail-widget-heading"><span className="rail-icon blue"><MessageCircle size={16} /></span><span><small>НАСТАВНИК</small><strong>Виктор Петрович</strong></span></div><p>«Не продавай то, чего сам не понимаешь. Особенно если оно летает на батарейках».</p></div>
               <div className="rail-footer"><span><span className="live-dot" /> Все системы работают</span><small>BUILD 0.8.0 · DEMO</small></div>
@@ -1180,11 +1205,8 @@ export default function App() {
                     {callStatus === 'idle' && <div className="negotiation-setup">
                       <section className="negotiation-setup-card">
                         <span className="negotiation-section-label">01 / ЧТО ПРОДАЁМ</span>
-                        <label className="negotiation-field-label" htmlFor="negotiation-company">Инвестиционный продукт</label>
-                        <select id="negotiation-company" className="negotiation-company-select" value={selectedCompany} onChange={(event) => setSelectedCompany(event.target.value)}>
-                          {companies.map((company) => <option key={company.ticker} value={company.ticker}>{company.name} · {company.ticker}</option>)}
-                        </select>
-                        <div className="negotiation-product-card"><div className="negotiation-product-top"><span>{activeCompany.ticker}</span><span className={activeCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(activeCompany)}</span></div><strong>{activeCompany.name}</strong><p>{activeCompany.description}</p><div className="negotiation-product-metrics"><span><small>ТЕКУЩАЯ ЦЕНА</small><b>{getDisplayedPrice(activeCompany)}</b></span><span><small>РИСК</small><b>{activeCompany.risk}</b></span></div></div>
+                        <label className="negotiation-field-label">Поручение руководителя · акцию менять нельзя</label>
+                        <div className="negotiation-product-card"><div className="negotiation-product-top"><span>{dailyQuotaCompany.ticker}</span><span className={dailyQuotaCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(dailyQuotaCompany)}</span></div><strong>{dailyQuotaCompany.name}</strong><p>{dailyQuotaCompany.description}</p><div className="negotiation-product-metrics"><span><small>ТЕКУЩАЯ ЦЕНА</small><b>{getDisplayedPrice(dailyQuotaCompany)}</b></span><span><small>РИСК</small><b>{dailyQuotaCompany.risk}</b></span></div><div className="mission-stock-columns"><section><small>ПЛЮСЫ</small><p>{dailyQuotaCompany.advantages}</p></section><section><small>МИНУСЫ</small><p>{dailyQuotaCompany.risks}</p></section></div></div>
                         <div className="negotiation-brief"><strong>Твоя задача</strong><p>Объяснить идею честно, раскрыть риски и помочь клиенту решить, подходит ли ему продукт. Не обещай гарантированную доходность.</p></div>
                       </section>
                       <section className="negotiation-setup-card">
