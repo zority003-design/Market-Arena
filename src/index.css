@@ -1978,7 +1978,7 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 
 .room-scene-root { position: absolute; inset: 0; width: 100%; height: 100%; }
 .room-scene-root > canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-.room-touch-controls { display: none; position: absolute; z-index: 12; left: max(18px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 154px; pointer-events: none; user-select: none; }
+.room-touch-controls { display: block; position: absolute; z-index: 12; left: max(18px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 154px; pointer-events: none; user-select: none; }
 .room-touch-dpad { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .room-touch-middle { display: flex; align-items: center; gap: 5px; }
 .room-touch-key { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 1px solid rgba(180,225,205,.36); border-radius: 13px; color: #e1f4e9; background: rgba(10,22,25,.72); box-shadow: 0 5px 18px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.06); backdrop-filter: blur(8px); font-size: 23px; line-height: 1; touch-action: none; pointer-events: auto; }
@@ -2458,4 +2458,32 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .mission-stock-columns { grid-template-columns: 1fr; }
   .mission-stock-actions { align-items: flex-start; flex-direction: column; }
   .mission-stock-actions .secondary-action { width: 100%; }
+}
+
+
+/* Visible movement affordances are also shown on desktop as a fallback for keyboard-focus issues. */
+.room-keyboard-hint {
+  position: absolute;
+  z-index: 11;
+  right: 22px;
+  bottom: 22px;
+  max-width: min(570px, calc(100vw - 220px));
+  padding: 10px 14px;
+  border: 1px solid rgba(176, 216, 200, .18);
+  border-radius: 10px;
+  color: rgba(225, 239, 231, .86);
+  background: rgba(8, 17, 21, .66);
+  box-shadow: 0 8px 28px rgba(0,0,0,.2);
+  backdrop-filter: blur(12px);
+  font: 10px 'DM Mono', monospace;
+  letter-spacing: .015em;
+  line-height: 1.5;
+  pointer-events: none;
+}
+.room-keyboard-hint span { margin: 0 5px; color: #5bd9a7; }
+.room-touch-caption { text-shadow: 0 2px 8px rgba(0,0,0,.65); }
+.room-touch-key { user-select: none; -webkit-user-select: none; }
+.room-scene-root > canvas:focus { outline: none; }
+@media (max-width: 700px) {
+  .room-keyboard-hint { right: 12px; bottom: 14px; max-width: calc(100vw - 190px); font-size: 8px; padding: 8px 9px; }
 }
