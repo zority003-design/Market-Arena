@@ -788,7 +788,12 @@ export default function App() {
     const nextPatience = Math.max(0, patience - 4)
     setTrust(nextTrust)
     setPatience(nextPatience)
-    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
+    const clientReaction = delta >= 7
+      ? ['«Хорошо. Это хотя бы звучит как разговор о бизнесе, а не трейлер к блокбастеру».', '«Уже лучше. Продолжайте, только без фокусов с гарантированной доходностью».', '«Ладно, вы назвали конкретный риск. Я начинаю подозревать, что вы читали отчёт».'][questionIndex % 3]
+      : delta <= -8
+        ? ['«Гарантированная прибыль? Отлично. А где здесь кнопка, чтобы сообщить об этом центральному банку?»', '«Слишком гладко. Даже мои тапочки столько не обещают».', '«Вы сейчас продаёте акцию или пытаетесь выиграть конкурс по уверенности?»'][questionIndex % 3]
+        : ['«Пока звучит расплывчато. Давайте ближе к цифрам».', '«Записал. Но на мой вопрос вы ответили примерно как автоответчик банка».', '«Неплохо обошли вопрос. Теперь попробуем ответить на него»'][questionIndex % 3]
+    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), { from: 'client' as const, text: clientReaction }, ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
     setFreeAnswer('')
     if (questionIndex >= activeQuestions.length - 1) {
       resolveCall(nextTrust, nextPatience)
