@@ -368,7 +368,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[0.75, 1.9, -3.72]} size={[2.42, 0.055, 0.075]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
       <Box position={[0.75, 2.88, -3.73]} size={[2.45, 0.055, 0.09]} color="#b6a58d" roughness={0.8} />
       {[-0.36, -0.08, 0.2, 0.48, 0.76, 1.04, 1.32, 1.6, 1.88].map((x) => (
-        <Cylinder key={'window-ring-' + x} position={[x, 2.83, -3.68]} radius={0.026} height={0.06} color="#c3a46f" metalness={0.45} rotation={[0, 0, Math.PI / 2} />
+        <Cylinder key={'window-ring-' + x} position={[x, 2.83, -3.68]} radius={0.026} height={0.06} color="#c3a46f" metalness={0.45} rotation={[0, 0, Math.PI / 2]} />
       ))}
       <Box position={[curtainsOpen ? -0.42 : 0.0, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
       <Box position={[curtainsOpen ? 1.92 : 1.5, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
