@@ -167,8 +167,12 @@ function District({ gameMinutes }: { gameMinutes: number }) {
   </>
 }
 
-export function CityWindowView({ night }: { night: boolean }) {
-  return <group position={[-5.72, 0.38, -1.15]} rotation={[0, Math.PI / 2, 0]} scale={0.46}>
+export function CityWindowView({ night, wall = 'left' }: { night: boolean; wall?: 'left' | 'back' }) {
+  // The back-wall layout is deliberately aligned with the player's spawn direction,
+  // so the city is visible immediately instead of hidden to the far left.
+  const position: [number, number, number] = wall === 'back' ? [0.72, 0.16, -6.55] : [-5.72, 0.38, -1.15]
+  const rotation: [number, number, number] = wall === 'back' ? [0, 0, 0] : [0, Math.PI / 2, 0]
+  return <group position={position} rotation={rotation} scale={wall === 'back' ? 0.48 : 0.46}>
     <Building x={-1.65} z={-0.6} width={3.4} depth={2.6} height={5.3} color={night ? '#344b5d' : '#7d9296'} label="КАФЕ" shop night={night} />
     <Building x={1.15} z={0.45} width={2.8} depth={2.2} height={4.1} color={night ? '#263b4c' : '#718892'} label="ЖИЛОЙ ДОМ" night={night} />
     <Building x={0.0} z={-3.7} width={3.8} depth={2.8} height={7.2} color={night ? '#2b4053' : '#8aa2aa'} label="БИЗНЕС-ЦЕНТР" night={night} />
