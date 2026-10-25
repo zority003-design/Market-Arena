@@ -57,6 +57,18 @@ export function getFirstImpression(housingId:string, ownedItems:string[], client
  const statusMismatch=client.statusSensitive && home.firstImpression<2 ? -2 : 0
  return Math.max(-5,Math.min(8,home.firstImpression+Math.min(5,itemScore)+statusMismatch))
 }
+/**
+ * Clothing affects first impression, but an expensive suit is not a substitute
+ * for a credible pitch. Status-sensitive clients may distrust a premium look
+ * when the broker's reputation has not caught up with it.
+ */
+export function getOutfitModifier(outfitId:'intern'|'classic'|'premium', client:ClientProfile, reputation:number):number {
+ if(outfitId==='intern') return client.statusSensitive ? -2 : 0
+ if(outfitId==='classic') return 4
+ const premiumBonus=client.statusSensitive ? 8 : 5
+ const statusMismatch=client.statusSensitive && reputation<35 ? 3 : 0
+ return premiumBonus-statusMismatch
+}
 export function getVideoQuality(ownedItems:string[]):number {
  return Math.min(8,ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.videoQuality ?? 0),0))
 }
