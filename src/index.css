@@ -2506,3 +2506,20 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
     min-height: 220px;
   }
 }
+
+/* Give the live caller enough vertical space for expressive eyes and visible tailoring. */
+.negotiation-client-video {
+  height: 260px;
+}
+.negotiation-client-video .client-portrait-3d {
+  height: 100%;
+  min-height: 260px;
+}
+@media (max-width: 700px) {
+  .negotiation-client-video {
+    height: 225px;
+  }
+  .negotiation-client-video .client-portrait-3d {
+    min-height: 225px;
+  }
+}
