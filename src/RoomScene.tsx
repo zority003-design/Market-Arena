@@ -119,7 +119,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       // after a click, while retaining click-and-drag as a fallback for restricted browsers.
       if (document.pointerLockElement !== element && typeof element.requestPointerLock === 'function') {
         try {
-          const request = element.requestPointerLock()
+          const request = element.requestPointerLock() as unknown as Promise<void> | void
           if (request && typeof request.catch === 'function') request.catch(() => { /* Drag fallback remains available. */ })
         } catch { /* Drag fallback remains available. */ }
       }
