@@ -95,17 +95,19 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
+      const layoutKey = ({ 'ц': 'w', 'ф': 'a', 'ы': 's', 'в': 'd' } as Record<string, string>)[key] ?? key
       const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
-      if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
-        keys.current[codeKey || key] = true
+      if ((event.code === 'KeyE' || key === 'e' || key === 'у') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
+      if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', 'ц', 'ф', 'ы', 'в', ' '].includes(key)) {
+        keys.current[codeKey || layoutKey] = true
         event.preventDefault()
       }
     }
     const up = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase()
+      const layoutKey = ({ 'ц': 'w', 'ф': 'a', 'ы': 's', 'в': 'd' } as Record<string, string>)[key] ?? key
       const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      keys.current[codeKey || key] = false
+      keys.current[codeKey || layoutKey] = false
     }
     const blur = () => { keys.current = {} }
     const element = gl.domElement
