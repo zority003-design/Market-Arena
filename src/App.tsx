@@ -859,7 +859,7 @@ export default function App() {
     if (questionSignalHits >= 2) delta += 5
     else if (questionSignalHits === 1) delta += 3
     const riskAndEvidence = ['риск', 'убыт', 'расход', 'денежный поток', 'марж', 'провер', 'сценар', 'подтверж', 'не обещ', 'огранич', 'если']
-    const recklessPromises = ['гарантирую', 'точно вырастет', 'без риска', '100%', 'удво', 'не может упасть', 'всегда раст', 'не потеряете']
+    const recklessPromises = ['гарант', 'точно вырастет', 'без риска', '100%', 'удво', 'не может упасть', 'всегда раст', 'не потеряете']
     if ((companySignals[activeCompany.ticker] ?? []).some((word) => lower.includes(word))) delta += 3
     if (riskAndEvidence.some((word) => lower.includes(word))) delta += 3
     if (['клиент', 'цель', 'горизонт', 'ликвид', 'доля', 'размер позиции', 'подходит'].some((word) => lower.includes(word))) delta += 2
