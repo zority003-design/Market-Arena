@@ -180,7 +180,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       // Wake up in place, then ease off the mattress; avoid the old long diagonal glide that felt like flying.
       const p = introProgress.current
       const t = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
-      camera.position.set(2.52 + (0.15 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (1.25 - 0.85) * t)
+      camera.position.set(2.52 + (-0.85 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (1.25 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
