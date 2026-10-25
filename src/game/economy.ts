@@ -60,6 +60,11 @@ export function getFirstImpression(housingId:string, ownedItems:string[], client
 export function getVideoQuality(ownedItems:string[]):number {
  return Math.min(8,ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.videoQuality ?? 0),0))
 }
+export function getOutfitModifier(outfit:'intern'|'classic'|'premium', client:ClientProfile):number {
+ const base={intern:0,classic:2,premium:5}[outfit]
+ // Status-conscious clients notice polished clothing more, but everyone responds to a more professional appearance.
+ return base+(client.statusSensitive && outfit!=='intern' ? 1 : 0)
+}
 export function calculateDeal(client:ClientProfile, trust:number, previousDeals=0, previouslyInvested=0) {
  const remainingBudget=Math.max(0,client.budget-previouslyInvested)
  const allocationRate=Math.min(.45,client.maxAllocation+previousDeals*.05)
