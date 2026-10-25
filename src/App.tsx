@@ -527,7 +527,7 @@ export default function App() {
     : CLIENTS.find((client) => client.id === callClientId) ?? selectedAvailableClient
   const dailyQuotaCompany = companies[(day - 1) % companies.length]
   const dailyMission = getDailyMission(day, dailyQuotaCompany.ticker)
-  const callWorkspaceOpen = tab === 'calls' || callStatus === 'active' || appWindows.some((win) => win.app === 'calls' && !win.minimized)
+  const callWorkspaceOpen = tab === 'calls' || callStatus === 'active'
   // The shift assigns the pitch. Players may research every ticker, but cannot swap the assigned product inside a call.
   const activeCompany = callWorkspaceOpen ? dailyQuotaCompany : companies.find((company) => company.ticker === selectedCompany) ?? companies[0]
   const getDisplayedPrice = (company: typeof companies[number]) => { const base = Number(company.price.replace(/[^0-9,.-]/g, '').replace(',', '.')); const moved = base * (1 + (newsImpacts[company.ticker] ?? 0) / 100); return '₽ ' + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
