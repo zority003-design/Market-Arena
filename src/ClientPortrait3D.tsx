@@ -222,14 +222,14 @@ function PortraitHead({ tier, variant, outfit, expression, speaking }: { tier: n
       {tier >= 3 && <mesh position={[0, 0.01, 0.47]} scale={[0.43, 0.28, 0.18]}><sphereGeometry args={[1, 40, 24]} /><meshStandardMaterial color={hair} map={hairTexture} bumpMap={hairTexture} bumpScale={0.05} roughness={0.94} /></mesh>}
       {tier >= 2 && <mesh position={[0, 0.79, 0.34]} scale={[0.25, 0.07, 0.22]}><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color={hair} map={hairTexture} roughness={0.92} /></mesh>}
     </group>
-    <mesh position={[-0.7, 0.02, -0.1]} rotation={[0, 0, -0.28]} scale={[0.1, 0.4, 0.12]}><capsuleGeometry args={[1, 0.6, 8, 16]} /><meshStandardMaterial color={shirt} map={fabricTexture} roughness={0.9} /></mesh>
+    <mesh position={[-0.7, 0.02, -0.1]} rotation={[0, 0, -0.28]} scale={[0.1, 0.4, 0.12]}><capsuleGeometry args={[1, 0.6, 8, 16]} /><meshStandardMaterial color={variant === 'player' && outfit !== 'intern' ? jacket : shirt} map={fabricTexture} bumpMap={fabricTexture} bumpScale={0.025} roughness={outfit === 'premium' ? 0.62 : 0.86} /></mesh>
     <mesh position={[0.7, 0.02, -0.1]} rotation={[0, 0, 0.28]} scale={[0.1, 0.4, 0.12]}><capsuleGeometry args={[1, 0.6, 8, 16]} /><meshStandardMaterial color={shirt} map={fabricTexture} roughness={0.9} /></mesh>
   </group>
 }
 
 export default function ClientPortrait3D({ tier, variant = 'client', outfit = 'intern', expression = 'neutral', speaking = false }: { tier: number; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium'; expression?: PortraitExpression; speaking?: boolean }) {
   return <div className="client-portrait-3d" aria-label={variant === 'player' ? '3D-портрет вашего персонажа в выбранной одежде' : 'Анимированный 3D-портрет клиента с мимикой'}>
-    <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.45, 5.0], fov: 38, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl, camera }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 0.98; gl.outputColorSpace = THREE.SRGBColorSpace; camera.lookAt(0, 1.12, 0) }}>
+    <Canvas dpr={[1, 2]} camera={{ position: [0, 1.45, 5.0], fov: 38, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl, camera }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.03; gl.outputColorSpace = THREE.SRGBColorSpace; camera.lookAt(0, 1.12, 0) }}>
       <ambientLight intensity={1.15} />
       <hemisphereLight args={['#d9e6f1', '#4b4039', 0.72]} />
       <directionalLight position={[-2.5, 4, 3]} intensity={2.1} color="#ffe1c4" castShadow />
