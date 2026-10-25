@@ -77,6 +77,8 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   const nearbyObject = useRef<'lamp' | 'light' | 'curtains' | 'wardrobe' | null>(null)
   const introActiveRef = useRef(introActive)
   introActiveRef.current = introActive
+  const activeRef = useRef(active)
+  activeRef.current = active
   const introProgress = useRef(0)
   const introFinished = useRef(false)
 
@@ -90,22 +92,29 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
 
   useEffect(() => {
     if (!active) { onCanInteractChange(false); onCanSleepChange(false); onCanExitCityChange(false); onNearbyObjectChange(null); nearbyObject.current = null; interactable.current = false; sleepable.current = false; exitable.current = false; keys.current = {}; return }
+    // Focus the scene as soon as the room becomes active; controls must not depend on clicking the canvas first.
+    gl.domElement.focus({ preventScroll: true })
+    const moveKeyFor = (event: KeyboardEvent) => {
+      const byCode: Record<string, string> = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'w', ArrowLeft: 'a', ArrowDown: 's', ArrowRight: 'd' }
+      const byCharacter: Record<string, string> = { w: 'w', a: 'a', s: 's', d: 'd', ц: 'w', ф: 'a', ы: 's', в: 'd', 'arrowup': 'w', 'arrowleft': 'a', 'arrowdown': 's', 'arrowright': 'd' }
+      return byCode[event.code] ?? byCharacter[event.key.toLowerCase()] ?? ''
+    }
     const down = (event: KeyboardEvent) => {
-      if (!active) return
+      if (!activeRef.current) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
-      const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
-      if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
-        keys.current[codeKey || key] = true
+      const moveKey = moveKeyFor(event)
+      if (moveKey) {
+        keys.current[moveKey] = true
         event.preventDefault()
+        return
       }
+      if ((event.code === 'KeyE' || key === 'e' || key === 'у') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
     }
     const up = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase()
-      const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      keys.current[codeKey || key] = false
+      const moveKey = moveKeyFor(event)
+      if (moveKey) keys.current[moveKey] = false
     }
     const blur = () => { keys.current = {} }
     const element = gl.domElement
@@ -139,6 +148,20 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       window.removeEventListener('pointerup', pointerUp)
     }
   }, [gl, active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, onSleepInteract, onCanSleepChange, onExitCity, onCanExitCityChange])
+
+  useEffect(() => {
+    if (!active || introActive) return
+    // Re-focus after the wake-up animation so WASD is immediately available.
+    gl.domElement.focus({ preventScroll: true })
+    keys.current = {}
+  }, [active, camera, gl, introActive])
+
+  useEffect(() => {
+    if (!introActive || !active) return
+    // Fail-safe: if the render loop pauses during the intro, never leave movement locked.
+    const timer = window.setTimeout(() => onIntroComplete(), 3600)
+    return () => window.clearTimeout(timer)
+  }, [active, introActive, onIntroComplete])
 
   useEffect(() => {
     if (!introActive) return
@@ -544,7 +567,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const sendMoveKey = (key: 'w' | 'a' | 's' | 'd', pressed: boolean) => {
     const code = ({ w: 'KeyW', a: 'KeyA', s: 'KeyS', d: 'KeyD' } as const)[key]
-    document.body.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, bubbles: true, cancelable: true }))
+    // Dispatch on window itself so the first-person capture listener always receives touch controls.
+    window.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, cancelable: true }))
   }
   const touchButton = (key: 'w' | 'a' | 's' | 'd', label: string, glyph: string) => (
     <button key={key} type="button" className={`room-touch-key room-touch-${key}`} aria-label={label}
@@ -576,6 +600,7 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
         </div>
         <span className="room-touch-caption">ДВИЖЕНИЕ</span>
       </div>}
+      {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
     </div>
   )
 }
