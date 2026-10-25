@@ -95,17 +95,19 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
+      const layoutKey = ({ 'ц': 'w', 'ф': 'a', 'ы': 's', 'в': 'd' } as Record<string, string>)[key] ?? key
       const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
-      if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
-        keys.current[codeKey || key] = true
+      if ((event.code === 'KeyE' || key === 'e' || key === 'у') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
+      if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', 'ц', 'ф', 'ы', 'в', ' '].includes(key)) {
+        keys.current[codeKey || layoutKey] = true
         event.preventDefault()
       }
     }
     const up = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase()
+      const layoutKey = ({ 'ц': 'w', 'ф': 'a', 'ы': 's', 'в': 'd' } as Record<string, string>)[key] ?? key
       const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      keys.current[codeKey || key] = false
+      keys.current[codeKey || layoutKey] = false
     }
     const blur = () => { keys.current = {} }
     const element = gl.domElement
@@ -114,22 +116,38 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       element.focus({ preventScroll: true })
       dragging.current = true
       last.current = { x: event.clientX, y: event.clientY }
+
+      // First-person mouse look should behave like a normal 3D game: lock the pointer
+      // after a click, while retaining click-and-drag as a fallback for restricted browsers.
+      if (document.pointerLockElement !== element && typeof element.requestPointerLock === 'function') {
+        try {
+          const request = element.requestPointerLock() as unknown as Promise<void> | void
+          if (request && typeof request.catch === 'function') request.catch(() => { /* Drag fallback remains available. */ })
+        } catch { /* Drag fallback remains available. */ }
+      }
     }
     const pointerMove = (event: PointerEvent) => {
-      if (!dragging.current) return
-      const dx = event.clientX - last.current.x
-      const dy = event.clientY - last.current.y
+      const locked = document.pointerLockElement === element
+      if (!locked && !dragging.current) return
+      const dx = locked ? event.movementX : event.clientX - last.current.x
+      const dy = locked ? event.movementY : event.clientY - last.current.y
       last.current = { x: event.clientX, y: event.clientY }
       yaw.current -= dx * 0.0035
       pitch.current = THREE.MathUtils.clamp(pitch.current - dy * 0.003, -1.05, 0.62)
     }
-    const pointerUp = () => { dragging.current = false }
+    const pointerUp = () => {
+      if (document.pointerLockElement !== element) dragging.current = false
+    }
+    const pointerLockChange = () => {
+      if (document.pointerLockElement !== element) dragging.current = false
+    }
     window.addEventListener('keydown', down, true)
     window.addEventListener('keyup', up, true)
     window.addEventListener('blur', blur)
     element.addEventListener('pointerdown', pointerDown)
     window.addEventListener('pointermove', pointerMove)
     window.addEventListener('pointerup', pointerUp)
+    document.addEventListener('pointerlockchange', pointerLockChange)
     return () => {
       window.removeEventListener('keydown', down, true)
       window.removeEventListener('keyup', up, true)
@@ -137,6 +155,10 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       element.removeEventListener('pointerdown', pointerDown)
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
+      document.removeEventListener('pointerlockchange', pointerLockChange)
+      if (document.pointerLockElement === element) document.exitPointerLock()
+      dragging.current = false
+      keys.current = {}
     }
   }, [gl, active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, onSleepInteract, onCanSleepChange, onExitCity, onCanExitCityChange])
 
@@ -158,7 +180,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       // Wake up in place, then ease off the mattress; avoid the old long diagonal glide that felt like flying.
       const p = introProgress.current
       const t = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
-      camera.position.set(2.52 + (1.62 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (2.18 - 0.85) * t)
+      camera.position.set(2.52 + (-0.85 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (1.25 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
@@ -273,6 +295,7 @@ function FloorBoards() {
 
 
 function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+  const wallColor = housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
@@ -296,15 +319,23 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} textureKind="plaster" />
-      <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color="#5c646d" />
+      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={wallColor} textureKind="plaster" />
+      <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color={wallColor} textureKind="plaster" />
       <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
       <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
       <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
       {/* Closed wall: the outside district is intentionally out of scope for this chapter. */}
-      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
+      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={wallColor} textureKind="plaster" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
+      {ownedItems.includes("wool-rug") && <group position={[0.1, 0.055, -0.36]}>
+        <Box position={[0, 0, 0]} size={[1.9, 0.022, 1.28]} color="#435f59" roughness={0.98} textureKind="fabric" />
+        <Box position={[0, 0.013, -0.58]} size={[1.72, 0.006, 0.025]} color="#c2a774" roughness={0.9} />
+        <Box position={[0, 0.013, 0.58]} size={[1.72, 0.006, 0.025]} color="#c2a774" roughness={0.9} />
+        <Box position={[-0.88, 0.013, 0]} size={[0.025, 0.006, 1.14]} color="#c2a774" roughness={0.9} />
+        <Box position={[0.88, 0.013, 0]} size={[0.025, 0.006, 1.14]} color="#c2a774" roughness={0.9} />
+        {[-0.45, -0.15, 0.15, 0.45].map((x) => <Box key={x} position={[x, 0.014, 0]} size={[0.018, 0.006, 0.42]} color="#719286" roughness={0.95} />)}
+      </group>}
 
       {/* Back wall details and skirting */}
       <Box position={[0, 0.14, -3.86]} size={[7.7, 0.16, 0.07]} color="#b4a18b" />
@@ -331,6 +362,15 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[candle.x, candle.y, -3.776]} size={[0.025, candle.h + 0.1, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
         <Box position={[candle.x, candle.y, -3.769]} size={[0.075, candle.h * 0.45, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
       </group>)}
+
+      {ownedItems.includes("framed-art") && <group>
+        <Box position={[2.55, 2.24, -3.83]} size={[1.14, 1.02, 0.075]} color="#5b4030" roughness={0.72} textureKind="wood" />
+        <Box position={[2.55, 2.24, -3.785]} size={[1.0, 0.88, 0.012]} color="#203b35" roughness={0.92} />
+        <mesh position={[2.37, 2.31, -3.775]}><circleGeometry args={[0.19, 32]} /><meshBasicMaterial color="#d5ba7c" /></mesh>
+        <mesh position={[2.76, 2.08, -3.773]}><circleGeometry args={[0.24, 32]} /><meshBasicMaterial color="#5c8374" /></mesh>
+        <mesh position={[2.45, 2.04, -3.768]} rotation={[0, 0, Math.PI / 8]}><coneGeometry args={[0.32, 0.55, 3]} /><meshBasicMaterial color="#88a18a" /></mesh>
+        <mesh position={[2.77, 2.1, -3.767]} rotation={[0, 0, -Math.PI / 10]}><coneGeometry args={[0.27, 0.43, 3]} /><meshBasicMaterial color="#9cad91" /></mesh>
+      </group>}
 
       {/* Window on left wall */}
       {/* Open window aperture: frame pieces leave the center transparent so the skyline is actually visible. */}
@@ -455,7 +495,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[1.42, 2.0, -3.09]} size={[0.045, 2.0, 0.05]} color="#4d5c5d" metalness={0.35} />
       </group>}
 
-      {/* More believable swivel chair: padded seat, back, armrests, five-spoke base and casters. */}
+      {/* More believable swivel chair: padded seat, back, armrests, five-spoke base and casters. */
       <Box position={[0.1, 0.52, -1.08]} size={[0.72, 0.16, 0.68]} color={ownedItems.includes("used-chair") ? "#344e4c" : "#2a3a3d"} roughness={0.72} />
       <Box position={[0.1, 0.61, -1.08]} size={[0.61, 0.055, 0.57]} color={ownedItems.includes("used-chair") ? "#47635e" : "#35494b"} roughness={0.88} />
       <Box position={[0.1, 0.93, -0.78]} size={[0.7, 0.72, 0.13]} color={ownedItems.includes("used-chair") ? "#35504c" : "#263538"} roughness={0.7} />
@@ -498,13 +538,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Keep the wall beside the door clear and uncluttered. */}
 
-      {/* Wall poster, framed market doodle */}
-      <Box position={[-1.95, 2.15, -3.84]} size={[1.15, 0.9, 0.06]} color="#2e393d" />
-      <Box position={[-1.95, 2.15, -3.8]} size={[1.03, 0.78, 0.02]} color="#182b2b" />
-      <Box position={[-2.18, 2.04, -3.78]} size={[0.04, 0.26, 0.012]} color="#3bca9b" rotation={[0, 0, 0.22]} />
-      <Box position={[-2.02, 2.14, -3.78]} size={[0.04, 0.42, 0.012]} color="#3bca9b" rotation={[0, 0, -0.15]} />
-      <Box position={[-1.86, 2.22, -3.78]} size={[0.04, 0.56, 0.012]} color="#3bca9b" rotation={[0, 0, 0.28]} />
-      <Box position={[-1.7, 2.3, -3.78]} size={[0.04, 0.34, 0.012]} color="#e2b86f" rotation={[0, 0, -0.2]} />
+      {/* Keep the market chart as the single feature on the left half of the back wall;
+          the former poster occupied the same space and made the wall look cluttered. */}
 
       {/* Small plant */}
       <Cylinder position={[-3.25, 0.24, 2.6]} radius={0.19} height={0.42} color="#8a6551" />
@@ -521,10 +556,19 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         </mesh>
       ))}
 
+      {/* Full-length mirror on the right wall, placed beside the bed.
+          The silver inset and restrained frame make it read as a mirror without a fake reflection. */}
+      <group position={[3.865, 1.55, 0.62]} rotation={[0, -Math.PI / 2, 0]}>
+        <Box position={[0, 0, 0]} size={[0.09, 1.78, 0.92]} color="#473b33" roughness={0.82} textureKind="wood" />
+        <Box position={[0.05, 0, 0]} size={[0.025, 1.62, 0.76]} color="#a8b8bd" roughness={0.22} metalness={0.68} />
+        <Box position={[0.066, 0, 0]} size={[0.008, 1.48, 0.62]} color="#c5d4d7" roughness={0.16} metalness={0.52} />
+        <Box position={[0.073, 0.48, 0]} size={[0.006, 0.012, 0.58]} color="#e4ecec" roughness={0.18} metalness={0.4} />
+      </group>
+
       {/* A full-height second-hand wardrobe with doors and brass handles. */}
       <group position={[-3.05, 0.04, -2.92]}>
-        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} textureKind="wood" /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} textureKind="wood" />
-        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} textureKind="wood" /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} textureKind="wood" />
+        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#5e4534" roughness={0.84} textureKind="wood" /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#6d4e38" roughness={0.8} textureKind="wood" />
+        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#79583f" roughness={0.82} textureKind="wood" /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#79583f" roughness={0.82} textureKind="wood" />
         <Box position={[0, 1.87, 0.37]} size={[0.96, 0.07, 0.06]} color="#a17a57" />{[-0.07, 0.07].map((x) => <Cylinder key={x} position={[x, 0.92, 0.405]} radius={0.025} height={0.12} color="#c3a46f" metalness={0.6} rotation={[Math.PI / 2, 0, 0]} />)}
         <Box position={[0, 0.19, 0.36]} size={[0.9, 0.08, 0.04]} color="#382b25" />
       </group>

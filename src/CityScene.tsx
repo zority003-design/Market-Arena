@@ -21,7 +21,7 @@ function Block({ position, size, color, roughness = 0.9, metalness = 0 }: { posi
   return <mesh position={position} castShadow receiveShadow><boxGeometry args={size} /><meshStandardMaterial color={color} roughness={roughness} metalness={metalness} /></mesh>
 }
 
-function Building({ x, z, width, depth, height, color, label, shop = false, night = false }: { x: number; z: number; width: number; depth: number; height: number; color: string; label: string; shop?: boolean; night: boolean }) {
+function Building({ x, z, width, depth, height, color, label, shop = false, night = false, showLabel = true }: { x: number; z: number; width: number; depth: number; height: number; color: string; label: string; shop?: boolean; night: boolean; showLabel?: boolean }) {
   const floors = Math.max(2, Math.floor(height / 1.15))
   const windows = Math.max(2, Math.floor(width / 0.72))
   return <group position={[x, 0, z]}>
@@ -50,7 +50,7 @@ function Building({ x, z, width, depth, height, color, label, shop = false, nigh
       <Block position={[0, 0.66, depth / 2 + 0.035]} size={[width * 0.74, 0.82, 0.07]} color="#263a38" roughness={0.4} />
       <Block position={[0, 1.25, depth / 2 + 0.09]} size={[width * 0.9, 0.13, 0.11]} color="#b58c5a" />
     </>}
-    <Text position={[0, height + 0.35, depth / 2 + 0.03]} fontSize={0.25} maxWidth={width + 1} color="#e4e9df" anchorX="center" outlineWidth={0.012} outlineColor="#182326">{label}</Text>
+    {showLabel && <Text position={[0, height + 0.35, depth / 2 + 0.03]} fontSize={0.25} maxWidth={width + 1} color="#e4e9df" anchorX="center" outlineWidth={0.012} outlineColor="#182326">{label}</Text>}
   </group>
 }
 
@@ -168,10 +168,14 @@ function District({ gameMinutes }: { gameMinutes: number }) {
 }
 
 export function CityWindowView({ night }: { night: boolean }) {
+  const labelFree = { showLabel: false }
   return <group position={[-5.72, 0.38, -1.15]} rotation={[0, Math.PI / 2, 0]} scale={0.46}>
-    <Building x={-1.65} z={-0.6} width={3.4} depth={2.6} height={5.3} color={night ? '#344b5d' : '#7d9296'} label="КАФЕ" shop night={night} />
-    <Building x={1.15} z={0.45} width={2.8} depth={2.2} height={4.1} color={night ? '#263b4c' : '#718892'} label="ЖИЛОЙ ДОМ" night={night} />
-    <Building x={0.0} z={-3.7} width={3.8} depth={2.8} height={7.2} color={night ? '#2b4053' : '#8aa2aa'} label="БИЗНЕС-ЦЕНТР" night={night} />
+    {/* A small layered city block: varied heights, warm windows and greenery, without floating building captions. */}
+    <Building x={-3.65} z={-1.05} width={2.6} depth={2.1} height={4.2} color={night ? '#344b5d' : '#8a9b9a'} label="" night={night} {...labelFree} />
+    <Building x={-1.45} z={-0.6} width={3.4} depth={2.6} height={5.3} color={night ? '#344b5d' : '#7d9296'} label="" shop night={night} {...labelFree} />
+    <Building x={1.15} z={0.45} width={2.8} depth={2.2} height={4.1} color={night ? '#263b4c' : '#718892'} label="" night={night} {...labelFree} />
+    <Building x={3.25} z={-1.25} width={2.7} depth={2.4} height={6.0} color={night ? '#2b4053' : '#91a5a6'} label="" night={night} {...labelFree} />
+    <Building x={0.0} z={-3.7} width={3.8} depth={2.8} height={7.2} color={night ? '#2b4053' : '#8aa2aa'} label="" night={night} {...labelFree} />
     <Block position={[0, 0.04, 2.5]} size={[12, 0.08, 0.8]} color="#343e43" />
     {[-3.2, -1.6, 0, 1.6, 3.2].map((x) => <Tree key={x} position={[x, 0.05, 2.0]} />)}
   </group>

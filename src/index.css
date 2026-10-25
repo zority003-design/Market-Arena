@@ -1012,7 +1012,7 @@ button:focus-visible, textarea:focus-visible {
 .os-window-controls button:hover { background: rgba(255,255,255,.09); color: white; }
 .os-window-controls button:last-child:hover { background: #a94343; }
 .os-window-maximized { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; margin: 0 !important; border-radius: 0 !important; resize: none !important; z-index: 10; }
-.os-window-minimized { height: auto !important; min-height: 170px !important; resize: none !important; } .os-window-minimized .os-window-titlebar { display: none !important; }
+.os-window-minimized { display: none !important; }
 .os-minimized-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 300px; color: #a9c1b6; }
 .os-minimized-placeholder button { padding: 9px 14px; border: 1px solid #456b5d; border-radius: 7px; color: #d8eee4; background: #1b3b30; cursor: pointer; }
 .os-shell .os-taskbar { position: absolute; z-index: 30; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 10px; height: 38px; box-sizing: border-box; padding: 0 12px; background: rgba(12,23,23,.97); border-top: 1px solid rgba(175,218,200,.13); color: #8da99c; font-size: 10px; }
@@ -2425,3 +2425,101 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .negotiation-live-quota-row { display:flex; justify-content:space-between; gap:8px; margin-top:10px; color:#9bb2a8; font-size:11px; }
 .negotiation-live-quota-row b { color:#e1f0e8; font:11px 'DM Mono',monospace; text-align:right; }
 .negotiation-live-quota > small { display:block; margin-top:9px; color:#829b90; font-size:10px; line-height:1.5; }
+
+
+/* First-session mission: keep the player's goal visible while exploring the room. */
+.career-mission-card { position: absolute; z-index: 24; top: 88px; right: clamp(12px, 2.2vw, 30px); width: min(330px, calc(100vw - 28px)); box-sizing: border-box; padding: 16px 17px 14px; border: 1px solid rgba(141, 202, 172, .24); border-radius: 12px; background: linear-gradient(145deg, rgba(12, 28, 27, .94), rgba(13, 21, 28, .91)); color: #dce9df; box-shadow: 0 14px 40px rgba(0,0,0,.28); backdrop-filter: blur(12px); pointer-events: auto; }
+.career-mission-kicker { display: block; margin-bottom: 7px; color: #83c9a8; font: 9px 'DM Mono', monospace; letter-spacing: .14em; }
+.career-mission-card > strong { display: block; margin-bottom: 10px; color: #f0f5ee; font-size: 14px; }
+.career-mission-card ol { margin: 0 0 12px; padding-left: 19px; color: #b3c5bd; font-size: 11px; line-height: 1.65; }
+.career-mission-card li { padding-left: 2px; margin: 3px 0; }
+.career-mission-card kbd { padding: 1px 5px; border: 1px solid #456d5d; border-radius: 4px; background: #17382d; color: #e0f2e7; font: 10px 'DM Mono', monospace; }
+.career-mission-progress { display: flex; flex-direction: column; gap: 4px; padding: 9px 10px; border-radius: 7px; background: rgba(112, 194, 151, .08); color: #9eb7aa; font-size: 10px; }
+.career-mission-progress strong { color: #dcefe2; font: 10px 'DM Mono', monospace; }
+.career-mission-card > small { display: block; margin-top: 9px; color: #7f9690; font-size: 9px; line-height: 1.5; }
+@media (max-width: 700px) { .career-mission-card { top: 76px; right: 10px; width: min(285px, calc(100vw - 20px)); padding: 12px; } .career-mission-card ol { font-size: 10px; } }
+
+
+/* High-clarity presentation pass: sharper 3D portraits and richer career dashboard. */
+.client-portrait-3d canvas,
+.wardrobe-3d-canvas {
+  image-rendering: auto;
+  backface-visibility: hidden;
+}
+.wardrobe-character-stage {
+  min-height: 440px;
+  border-color: rgba(121, 207, 171, .28);
+  background:
+    radial-gradient(ellipse at 50% 24%, rgba(80, 139, 117, .2), transparent 45%),
+    linear-gradient(155deg, #172b2b, #0e191e 74%);
+}
+.wardrobe-character-stage .wardrobe-3d-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 440px;
+}
+.wardrobe-stage-label {
+  bottom: 14px;
+  padding: 9px 12px;
+  border: 1px solid rgba(145, 205, 177, .16);
+  border-radius: 999px;
+  background: rgba(5, 15, 18, .78);
+  color: #cce4d7;
+  letter-spacing: .12em;
+  backdrop-filter: blur(8px);
+}
+.negotiation-video-tile.client-tile {
+  border-color: rgba(109, 211, 171, .24);
+  background: radial-gradient(ellipse at 50% 10%, rgba(87, 133, 125, .15), transparent 54%), linear-gradient(150deg, #1a292c, #0c151a);
+}
+.negotiation-client-video .client-portrait-3d {
+  min-height: 260px;
+}
+.negotiation-client-video .client-portrait-3d canvas {
+  filter: saturate(1.08) contrast(1.025);
+}
+.negotiation-video-caption small {
+  text-transform: none;
+}
+.desktop-os-next-action-widget {
+  border-color: rgba(106, 220, 172, .28);
+  background: linear-gradient(145deg, rgba(24, 67, 55, .86), rgba(9, 21, 29, .8));
+}
+.desktop-os-next-action-widget .desktop-os-widget-label,
+.desktop-os-next-action-widget .desktop-os-widget-label svg {
+  color: #80e0b3;
+}
+.desktop-os-next-action-widget > strong {
+  font-size: 17px;
+  line-height: 1.35;
+}
+.desktop-os-progress-turnover span {
+  background: linear-gradient(90deg, #7ab3e0, #a0d2f0);
+}
+@media (max-width: 700px) {
+  .wardrobe-character-stage,
+  .wardrobe-character-stage .wardrobe-3d-canvas {
+    min-height: 330px;
+  }
+  .negotiation-client-video .client-portrait-3d {
+    min-height: 220px;
+  }
+}
+
+/* Give the live caller enough vertical space for expressive eyes and visible tailoring. */
+.negotiation-client-video {
+  height: 260px;
+}
+.negotiation-client-video .client-portrait-3d {
+  height: 100%;
+  min-height: 260px;
+}
+@media (max-width: 700px) {
+  .negotiation-client-video {
+    height: 225px;
+  }
+  .negotiation-client-video .client-portrait-3d {
+    min-height: 225px;
+  }
+}

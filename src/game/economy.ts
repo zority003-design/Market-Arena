@@ -47,6 +47,9 @@ export const ROOM_ITEMS: RoomItem[] = [
  { id:'second-monitor', name:'Второй монитор', price:12000, firstImpression:0, videoQuality:0, suspicion:0, minDay:4, category:'work', description:'Удобнее сравнивать отчёт, новости и условия.' },
  { id:'chromakey-kit', name:'Хромакей-комплект', price:18000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
  { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, category:'video', description:'Профессиональный звук для сложных переговоров.' },
+ { id:'living-plant', name:'Живое растение', price:2200, firstImpression:1, videoQuality:0, suspicion:0, minDay:1, category:'comfort', description:'Добавляет зелень в комнату и делает видеокадр уютнее. Даёт +1 к первому впечатлению.' },
+ { id:'framed-art', name:'Картина в деревянной раме', price:3400, firstImpression:1, videoQuality:0, suspicion:0, minDay:2, category:'comfort', description:'Аккуратный акцент за рабочим местом. Даёт +1 к первому впечатлению.' },
+ { id:'wool-rug', name:'Шерстяной ковёр', price:4800, firstImpression:1, videoQuality:0, suspicion:0, minDay:3, category:'comfort', description:'Смягчает пустое пространство и делает комнату более обжитой. Даёт +1 к первому впечатлению.' },
 ]
 export function getAvailableClients(day:number, reputation:number):ClientProfile[] {
  return CLIENTS.filter(client => day>=client.minDay && reputation>=client.minReputation)
