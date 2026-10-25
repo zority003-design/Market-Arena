@@ -299,6 +299,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
+  const backWallColor = housingId === 'dorm' ? '#50636b' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#b4a58b'
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
@@ -319,11 +320,12 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} textureKind="plaster" />
-      <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color="#5c646d" />
-      <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
-      <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
-      <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
+      {/* The main window is cut into the back wall and faces the starting camera. */}
+      <Box position={[-2.25, 1.62, -3.98]} size={[3.5, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[3.0, 1.62, -3.98]} size={[2.0, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[0.75, 3.01, -3.98]} size={[2.5, 0.62, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[0.75, 0.55, -3.98]} size={[2.5, 1.1, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#4d5d64" textureKind="plaster" />
       {/* Closed wall: the outside district is intentionally out of scope for this chapter. */}
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
@@ -355,25 +357,29 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[candle.x, candle.y, -3.769]} size={[0.075, candle.h * 0.45, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
       </group>)}
 
-      {/* Window on left wall */}
-      {/* Open window aperture: frame pieces leave the center transparent so the skyline is actually visible. */}
-      <Box position={[-3.86, 2.05, -2.18]} size={[0.09, 1.62, 0.09]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.86, 2.05, -0.12]} size={[0.09, 1.62, 0.09]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.86, 2.82, -1.15]} size={[0.09, 0.09, 2.12]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.86, 1.28, -1.15]} size={[0.09, 0.09, 2.12]} color="#2a3946" roughness={0.35} />
-      <Box position={[-6.25, 2.05, -1.15]} size={[0.08, 3.8, 4.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182b40" : "#a9d4e4"} roughness={1} />
-      <Box position={[-3.79, 2.05, -1.15]} size={[0.018, 1.43, 1.86]} color="#9ecbe0" roughness={0.12} metalness={0.08} transparent opacity={0.055} />
-      {/* Clear window by default: rain is not a permanent weather state. */}
-      {/* The same procedural building models used by the walkable district are visible through the window. */}
-      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} />
-      <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
-      <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
-      <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -1.95 : -1.62]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -0.35 : -0.68]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
-      {[-2.05, -1.75, -1.45, -1.15, -0.85, -0.55, -0.25].map((z) => (
-        <Box key={z} position={[-3.69, 2.67, z]} size={[0.14, 0.07, 0.22]} color="#b7a58d" />
+      {/* Large skyline window: visible from the spawn point, with the city actually behind the glass. */}
+      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="back" />
+      <Box position={[-0.52, 1.9, -3.79]} size={[0.12, 1.86, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[2.02, 1.9, -3.79]} size={[0.12, 1.86, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[0.75, 2.79, -3.79]} size={[2.66, 0.12, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[0.75, 1.02, -3.79]} size={[2.66, 0.14, 0.18]} color="#7d6a56" roughness={0.66} />
+      <Box position={[0.75, 1.9, -3.82]} size={[2.38, 1.58, 0.014]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
+      <Box position={[0.75, 1.9, -3.72]} size={[0.055, 1.62, 0.075]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[0.75, 1.9, -3.72]} size={[2.42, 0.055, 0.075]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[0.75, 2.88, -3.73]} size={[2.45, 0.055, 0.09]} color="#b6a58d" roughness={0.8} />
+      {[-0.36, -0.08, 0.2, 0.48, 0.76, 1.04, 1.32, 1.6, 1.88].map((x) => (
+        <Cylinder key={'window-ring-' + x} position={[x, 2.83, -3.68]} radius={0.026} height={0.06} color="#c3a46f" metalness={0.45} rotation={[0, 0, Math.PI / 2} />
       ))}
+      <Box position={[curtainsOpen ? -0.42 : 0.0, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      <Box position={[curtainsOpen ? 1.92 : 1.5, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+
+      {/* A new illuminated broker sign makes this feel like the player's first tiny office. */}
+      <Box position={[3.0, 2.0, -3.82]} size={[1.55, 1.05, 0.075]} color="#172b2d" roughness={0.42} />
+      <Box position={[3.0, 2.0, -3.77]} size={[1.42, 0.92, 0.025]} color="#223f3d" roughness={0.5} />
+      <Box position={[3.0, 2.44, -3.74]} size={[0.84, 0.025, 0.012]} color="#45d5a2" emissive="#45d5a2" emissiveIntensity={0.55} />
+      <Text position={[3.0, 2.24, -3.73]} fontSize={0.19} color="#78e4bc" anchorX="center" anchorY="middle" outlineWidth={0.005} outlineColor="#0d201e">ARENA</Text>
+      <Text position={[3.0, 1.98, -3.73]} fontSize={0.062} color="#c3d8d0" anchorX="center" anchorY="middle">BROKER'S ROOM</Text>
+      <Text position={[3.0, 1.76, -3.73]} fontSize={0.045} color="#d8b67b" anchorX="center" anchorY="middle">KNOW THE RISK</Text>
 
       {/* A real wall light switch, close enough to interact with using E. */}
       <Box position={[-3.84, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
