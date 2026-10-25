@@ -518,13 +518,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Keep the wall beside the door clear and uncluttered. */}
 
-      {/* Wall poster, framed market doodle */}
-      <Box position={[-1.95, 2.15, -3.84]} size={[1.15, 0.9, 0.06]} color="#2e393d" />
-      <Box position={[-1.95, 2.15, -3.8]} size={[1.03, 0.78, 0.02]} color="#182b2b" />
-      <Box position={[-2.18, 2.04, -3.78]} size={[0.04, 0.26, 0.012]} color="#3bca9b" rotation={[0, 0, 0.22]} />
-      <Box position={[-2.02, 2.14, -3.78]} size={[0.04, 0.42, 0.012]} color="#3bca9b" rotation={[0, 0, -0.15]} />
-      <Box position={[-1.86, 2.22, -3.78]} size={[0.04, 0.56, 0.012]} color="#3bca9b" rotation={[0, 0, 0.28]} />
-      <Box position={[-1.7, 2.3, -3.78]} size={[0.04, 0.34, 0.012]} color="#e2b86f" rotation={[0, 0, -0.2]} />
+      {/* Keep the market chart as the single feature on the left half of the back wall;
+          the former poster occupied the same space and made the wall look cluttered. */}
 
       {/* Small plant */}
       <Cylinder position={[-3.25, 0.24, 2.6]} radius={0.19} height={0.42} color="#8a6551" />
@@ -540,6 +535,15 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
           <meshStandardMaterial color={i % 2 ? '#3d7253' : '#5b9165'} roughness={0.9} />
         </mesh>
       ))}
+
+      {/* Full-length mirror on the right wall, placed beside the bed.
+          The silver inset and restrained frame make it read as a mirror without a fake reflection. */}
+      <group position={[3.865, 1.55, 0.62]} rotation={[0, -Math.PI / 2, 0]}>
+        <Box position={[0, 0, 0]} size={[0.09, 1.78, 0.92]} color="#473b33" roughness={0.82} textureKind="wood" />
+        <Box position={[0.05, 0, 0]} size={[0.025, 1.62, 0.76]} color="#a8b8bd" roughness={0.22} metalness={0.68} />
+        <Box position={[0.066, 0, 0]} size={[0.008, 1.48, 0.62]} color="#c5d4d7" roughness={0.16} metalness={0.52} />
+        <Box position={[0.073, 0.48, 0]} size={[0.006, 0.012, 0.58]} color="#e4ecec" roughness={0.18} metalness={0.4} />
+      </group>
 
       {/* A full-height second-hand wardrobe with doors and brass handles. */}
       <group position={[-3.05, 0.04, -2.92]}>
