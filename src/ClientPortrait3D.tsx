@@ -138,7 +138,9 @@ function makeHeadGeometry() {
   return geometry
 }
 
-function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'client' | 'player'; outfit: 'intern' | 'classic' | 'premium' }) {
+type ClientMood = 'pleased' | 'neutral' | 'skeptical'
+
+function PortraitHead({ tier, variant, outfit, mood }: { tier: number; variant: 'client' | 'player'; outfit: 'intern' | 'classic' | 'premium'; mood: ClientMood }) {
   const head = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
   const mouth = useRef<THREE.Mesh>(null)
@@ -155,14 +157,18 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
     const t = clock.elapsedTime
     if (head.current) {
       head.current.rotation.y = Math.sin(t * 0.48) * 0.045
-      head.current.rotation.x = Math.sin(t * 0.72) * 0.018
+      head.current.rotation.x = Math.sin(t * 0.72) * 0.018 + (mood === 'skeptical' ? 0.035 : mood === 'pleased' ? -0.018 : 0)
       head.current.position.y = 1.1 + Math.sin(t * 1.6) * 0.008
     }
     if (eyes.current) {
       const blink = Math.max(0, 1 - Math.abs((t % 5.6) - 4.65) / 0.085)
       eyes.current.scale.y = Math.max(0.08, 1 - blink * 0.92)
     }
-    if (mouth.current) mouth.current.scale.y = 0.018 + Math.max(0, Math.sin(t * 6.2 + tier)) * 0.048
+    if (mouth.current) {
+      const restingMouth = mood === 'pleased' ? 0.028 : mood === 'skeptical' ? 0.009 : 0.018
+      const speechMovement = mood === 'skeptical' ? 0.018 : 0.038
+      mouth.current.scale.y = restingMouth + Math.max(0, Math.sin(t * 6.2 + tier)) * speechMovement
+    }
   })
 
   return <group>
@@ -185,7 +191,7 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
           <mesh scale={[0.15, 0.075, 0.055]}><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#f0e4d2" roughness={0.45} /></mesh>
           <mesh position={[0, 0, 0.048]} scale={[0.052, 0.055, 0.026]}><sphereGeometry args={[1, 24, 20]} /><meshStandardMaterial color={tier >= 3 ? '#46352b' : '#4a655e'} roughness={0.4} /></mesh>
           <mesh position={[0.012, 0.012, 0.07]}><sphereGeometry args={[0.014, 12, 10]} /><meshBasicMaterial color="#fff8e8" /></mesh>
-          <mesh position={[0, 0.125, 0.012]} rotation={[0, 0, Math.PI / 2 + side * -0.12]}><capsuleGeometry args={[0.026, 0.16, 8, 16]} /><meshStandardMaterial color={hair} map={hairTexture} bumpMap={hairTexture} bumpScale={0.04} roughness={0.92} /></mesh>
+          <mesh position={[0, 0.125, 0.012]} rotation={[0, 0, Math.PI / 2 + side * (mood === 'skeptical' ? -0.34 : mood === 'pleased' ? 0.04 : -0.12)]}><capsuleGeometry args={[0.026, 0.16, 8, 16]} /><meshStandardMaterial color={hair} map={hairTexture} bumpMap={hairTexture} bumpScale={0.04} roughness={0.92} /></mesh>
         </group>)}
       </group>
       <mesh position={[0, 0.3, 0.585]} scale={[0.075, 0.13, 0.09]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.02} roughness={0.74} /></mesh>
@@ -204,14 +210,14 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
   </group>
 }
 
-export default function ClientPortrait3D({ tier, variant = 'client', outfit = 'intern' }: { tier: number; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium' }) {
+export default function ClientPortrait3D({ tier, variant = 'client', outfit = 'intern', mood = 'neutral' }: { tier: number; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium'; mood?: ClientMood }) {
   return <div className="client-portrait-3d" aria-label="Анимированный 3D-портрет клиента">
     <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.45, 5.0], fov: 38, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl, camera }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 0.98; gl.outputColorSpace = THREE.SRGBColorSpace; camera.lookAt(0, 1.12, 0) }}>
       <ambientLight intensity={1.15} />
       <hemisphereLight args={['#d9e6f1', '#4b4039', 0.72]} />
       <directionalLight position={[-2.5, 4, 3]} intensity={2.1} color="#ffe1c4" castShadow />
       <pointLight position={[2.2, 1.4, 1.2]} intensity={0.7} color="#91c5b5" />
-      <PortraitHead tier={tier} variant={variant} outfit={outfit} />
+      <PortraitHead tier={tier} variant={variant} outfit={outfit} mood={mood} />
     </Canvas>
   </div>
 }
