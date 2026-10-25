@@ -328,6 +328,14 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={wallColor} textureKind="plaster" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
+      {ownedItems.includes("wool-rug") && <group position={[0.1, 0.055, -0.36]}>
+        <Box position={[0, 0, 0]} size={[1.9, 0.022, 1.28]} color="#435f59" roughness={0.98} textureKind="fabric" />
+        <Box position={[0, 0.013, -0.58]} size={[1.72, 0.006, 0.025]} color="#c2a774" roughness={0.9} />
+        <Box position={[0, 0.013, 0.58]} size={[1.72, 0.006, 0.025]} color="#c2a774" roughness={0.9} />
+        <Box position={[-0.88, 0.013, 0]} size={[0.025, 0.006, 1.14]} color="#c2a774" roughness={0.9} />
+        <Box position={[0.88, 0.013, 0]} size={[0.025, 0.006, 1.14]} color="#c2a774" roughness={0.9} />
+        {[-0.45, -0.15, 0.15, 0.45].map((x) => <Box key={x} position={[x, 0.014, 0]} size={[0.018, 0.006, 0.42]} color="#719286" roughness={0.95} />)}
+      </group>}
 
       {/* Back wall details and skirting */}
       <Box position={[0, 0.14, -3.86]} size={[7.7, 0.16, 0.07]} color="#b4a18b" />
@@ -354,6 +362,15 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[candle.x, candle.y, -3.776]} size={[0.025, candle.h + 0.1, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
         <Box position={[candle.x, candle.y, -3.769]} size={[0.075, candle.h * 0.45, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
       </group>)}
+
+      {ownedItems.includes("framed-art") && <group>
+        <Box position={[2.55, 2.24, -3.83]} size={[1.14, 1.02, 0.075]} color="#5b4030" roughness={0.72} textureKind="wood" />
+        <Box position={[2.55, 2.24, -3.785]} size={[1.0, 0.88, 0.012]} color="#203b35" roughness={0.92} />
+        <mesh position={[2.37, 2.31, -3.775]}><circleGeometry args={[0.19, 32]} /><meshBasicMaterial color="#d5ba7c" /></mesh>
+        <mesh position={[2.76, 2.08, -3.773]}><circleGeometry args={[0.24, 32]} /><meshBasicMaterial color="#5c8374" /></mesh>
+        <mesh position={[2.45, 2.04, -3.768]} rotation={[0, 0, Math.PI / 8]}><coneGeometry args={[0.32, 0.55, 3]} /><meshBasicMaterial color="#88a18a" /></mesh>
+        <mesh position={[2.77, 2.1, -3.767]} rotation={[0, 0, -Math.PI / 10]}><coneGeometry args={[0.27, 0.43, 3]} /><meshBasicMaterial color="#9cad91" /></mesh>
+      </group>}
 
       {/* Window on left wall */}
       {/* Open window aperture: frame pieces leave the center transparent so the skyline is actually visible. */}
@@ -478,7 +495,22 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[1.42, 2.0, -3.09]} size={[0.045, 2.0, 0.05]} color="#4d5c5d" metalness={0.35} />
       </group>}
 
-      {/* More believable swivel chair: padded seat, back, armrests, five-spoke base and casters. */}
+      {ownedItems.includes("living-plant") && <group position={[-3.2, 0.05, 1.18]}>
+        <Cylinder position={[0, 0.18, 0]} radius={0.19} height={0.32} color="#996c52" roughness={0.9} />
+        <Cylinder position={[0, 0.345, 0]} radius={0.15} height={0.025} color="#302c24" roughness={1} />
+        <Cylinder position={[0, 0.59, 0]} radius={0.025} height={0.48} color="#56714a" roughness={1} />
+        {Array.from({ length: 7 }, (_, i) => {
+          const angle = i * Math.PI * 2 / 7
+          const height = 0.58 + (i % 3) * 0.13
+          return <mesh key={i} position={[Math.cos(angle) * (0.14 + (i % 2) * 0.06), height, Math.sin(angle) * (0.14 + (i % 2) * 0.06)]} rotation={[0.25 + (i % 2) * 0.18, angle, (i % 2 ? -0.45 : 0.42)]} castShadow>
+            <dodecahedronGeometry args={[0.19 + (i % 3) * 0.025, 1]} />
+            <meshStandardMaterial color={i % 2 ? "#466d4d" : "#65855b"} roughness={0.94} flatShading />
+          </mesh>
+        })}
+        <pointLight position={[0, 0.8, 0.14]} intensity={0.12} distance={1.4} color="#a7d18a" />
+      </group>}
+
+      {/* More believable swivel chair: padded seat, back, armrests, five-spoke base and casters. */
       <Box position={[0.1, 0.52, -1.08]} size={[0.72, 0.16, 0.68]} color={ownedItems.includes("used-chair") ? "#344e4c" : "#2a3a3d"} roughness={0.72} />
       <Box position={[0.1, 0.61, -1.08]} size={[0.61, 0.055, 0.57]} color={ownedItems.includes("used-chair") ? "#47635e" : "#35494b"} roughness={0.88} />
       <Box position={[0.1, 0.93, -0.78]} size={[0.7, 0.72, 0.13]} color={ownedItems.includes("used-chair") ? "#35504c" : "#263538"} roughness={0.7} />
