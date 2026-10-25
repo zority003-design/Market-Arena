@@ -2487,3 +2487,12 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 @media (max-width: 700px) {
   .room-keyboard-hint { right: 12px; bottom: 14px; max-width: calc(100vw - 190px); font-size: 8px; padding: 8px 9px; }
 }
+
+
+/* Keep the movement fallback clear of the temporary HUD and interaction prompt. */
+.room-touch-controls { bottom: 104px; }
+.room-keyboard-hint { top: 90px; bottom: auto; }
+@media (max-width: 700px) {
+  .room-touch-controls { bottom: 108px; }
+  .room-keyboard-hint { display: none; }
+}
