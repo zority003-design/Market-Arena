@@ -13,7 +13,7 @@ import RoomScene from './RoomScene'
 import CityScene from './CityScene'
 import ClientPortrait3D from './ClientPortrait3D'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -704,18 +704,19 @@ export default function App() {
     setClientLastContactDay((items) => ({ ...items, [activeClient.id]: day }))
     const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0) + cityBonus
     const roomBonus = getFirstImpression(housingId, ownedItems, activeClient)
+    const outfitBonus = getOutfitModifier(selectedOutfit, activeClient)
     const relationshipBonus = Math.min(15, (clientDealCounts[activeClient.id] ?? 0) * 6)
     const videoBonus = videoEnabled ? 2 + Math.min(3, getVideoQuality(ownedItems)) : 0
     const backgroundBonus = videoEnabled ? getBackgroundModifier(videoBackground, ownedItems, activeClient) : 0
     const newsFitBonus = (newsImpacts[assignedCompany.ticker] ?? 0) > 0 ? 2 : (newsImpacts[assignedCompany.ticker] ?? 0) < 0 ? -2 : 0
     const companyFitBonus = (assignedCompany.risk === 'Очень высокий' ? -5 : assignedCompany.risk === 'Высокий' ? -2 : assignedCompany.positive ? 3 : -3) + newsFitBonus
-    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + relationshipBonus + videoBonus + backgroundBonus + companyFitBonus)))
+    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + outfitBonus + relationshipBonus + videoBonus + backgroundBonus + companyFitBonus)))
     setPatience(activeClient.patience)
     setTimeLeft(75)
     setLastPenaltySecond(75)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
+    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCityBonus(0)
