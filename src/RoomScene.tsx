@@ -495,20 +495,20 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[1.42, 2.0, -3.09]} size={[0.045, 2.0, 0.05]} color="#4d5c5d" metalness={0.35} />
       </group>}
 
-      {ownedItems.includes("living-plant") && <group position={[-3.2, 0.05, 1.18]}>
-        <Cylinder position={[0, 0.18, 0]} radius={0.19} height={0.32} color="#996c52" roughness={0.9} />
-        <Cylinder position={[0, 0.345, 0]} radius={0.15} height={0.025} color="#302c24" roughness={1} />
-        <Cylinder position={[0, 0.59, 0]} radius={0.025} height={0.48} color="#56714a" roughness={1} />
-        {Array.from({ length: 7 }, (_, i) => {
-          const angle = i * Math.PI * 2 / 7
-          const height = 0.58 + (i % 3) * 0.13
-          return <mesh key={i} position={[Math.cos(angle) * (0.14 + (i % 2) * 0.06), height, Math.sin(angle) * (0.14 + (i % 2) * 0.06)]} rotation={[0.25 + (i % 2) * 0.18, angle, (i % 2 ? -0.45 : 0.42)]} castShadow>
-            <dodecahedronGeometry args={[0.19 + (i % 3) * 0.025, 1]} />
-            <meshStandardMaterial color={i % 2 ? "#466d4d" : "#65855b"} roughness={0.94} flatShading />
-          </mesh>
-        })}
-        <pointLight position={[0, 0.8, 0.14]} intensity={0.12} distance={1.4} color="#a7d18a" />
-      </group>}
+      {ownedItems.includes("living-plant") && (
+        <group position={[-3.2, 0.05, 1.18]}>
+          <Cylinder position={[0, 0.18, 0]} radius={0.19} height={0.32} color="#996c52" roughness={0.9} />
+          <Cylinder position={[0, 0.345, 0]} radius={0.15} height={0.025} color="#302c24" roughness={1} />
+          <Cylinder position={[0, 0.59, 0]} radius={0.025} height={0.48} color="#56714a" roughness={1} />
+          {Array.from({ length: 7 }, (_, i) => (
+            <mesh key={i} position={[Math.cos(i * Math.PI * 2 / 7) * (0.14 + (i % 2) * 0.06), 0.58 + (i % 3) * 0.13, Math.sin(i * Math.PI * 2 / 7) * (0.14 + (i % 2) * 0.06)]} rotation={[0.25 + (i % 2) * 0.18, i * Math.PI * 2 / 7, i % 2 ? -0.45 : 0.42]} castShadow>
+              <dodecahedronGeometry args={[0.19 + (i % 3) * 0.025, 1]} />
+              <meshStandardMaterial color={i % 2 ? "#466d4d" : "#65855b"} roughness={0.94} flatShading />
+            </mesh>
+          ))}
+          <pointLight position={[0, 0.8, 0.14]} intensity={0.12} distance={1.4} color="#a7d18a" />
+        </group>
+      )}
 
       {/* More believable swivel chair: padded seat, back, armrests, five-spoke base and casters. */
       <Box position={[0.1, 0.52, -1.08]} size={[0.72, 0.16, 0.68]} color={ownedItems.includes("used-chair") ? "#344e4c" : "#2a3a3d"} roughness={0.72} />
