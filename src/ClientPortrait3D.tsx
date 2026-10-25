@@ -138,9 +138,12 @@ function makeHeadGeometry() {
   return geometry
 }
 
-function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'client' | 'player'; outfit: 'intern' | 'classic' | 'premium' }) {
+type ClientMood = 'skeptical' | 'neutral' | 'interested' | 'angry' | 'happy'
+
+function PortraitHead({ tier, variant, outfit, mood }: { tier: number; variant: 'client' | 'player'; outfit: 'intern' | 'classic' | 'premium'; mood: ClientMood }) {
   const head = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
+  const brows = useRef<THREE.Group>(null)
   const mouth = useRef<THREE.Mesh>(null)
   const skin = variant === 'player' ? '#b68e72' : tier >= 4 ? '#8f7767' : tier === 3 ? '#b99a83' : tier === 2 ? '#c8ad95' : '#bda18a'
   const hair = variant === 'player' ? '#1d272b' : tier >= 4 ? '#38231f' : tier === 3 ? '#222426' : tier === 2 ? '#60412e' : '#33241f'
@@ -154,15 +157,27 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
     if (head.current) {
+      const moodTilt = mood === 'skeptical' ? -0.065 : mood === 'angry' ? 0.035 : mood === 'happy' ? 0.025 : 0
+      const moodLean = mood === 'skeptical' ? 0.035 : mood === 'angry' ? 0.07 : mood === 'interested' ? -0.045 : 0
       head.current.rotation.y = Math.sin(t * 0.48) * 0.045
-      head.current.rotation.x = Math.sin(t * 0.72) * 0.018
-      head.current.position.y = 1.1 + Math.sin(t * 1.6) * 0.008
+      head.current.rotation.x = Math.sin(t * 0.72) * 0.018 + moodLean
+      head.current.rotation.z = Math.sin(t * 0.42) * 0.012 + moodTilt
+      head.current.position.y = 1.1 + Math.sin(t * (mood === 'angry' ? 2.2 : 1.6)) * (mood === 'angry' ? 0.013 : 0.008)
     }
     if (eyes.current) {
       const blink = Math.max(0, 1 - Math.abs((t % 5.6) - 4.65) / 0.085)
-      eyes.current.scale.y = Math.max(0.08, 1 - blink * 0.92)
+      const nervousBlink = mood === 'skeptical' || mood === 'angry' ? 1.35 : mood === 'interested' ? 0.82 : 1
+      eyes.current.scale.y = Math.max(0.08, 1 - blink * 0.92 * nervousBlink)
     }
-    if (mouth.current) mouth.current.scale.y = 0.018 + Math.max(0, Math.sin(t * 6.2 + tier)) * 0.048
+    if (brows.current) {
+      brows.current.rotation.z = mood === 'skeptical' ? 0.10 : mood === 'angry' ? -0.09 : mood === 'happy' ? 0.025 : 0
+      brows.current.position.y = mood === 'interested' ? 0.018 : mood === 'angry' ? -0.018 : 0
+    }
+    if (mouth.current) {
+      const speaking = Math.max(0, Math.sin(t * (mood === 'angry' ? 7.8 : 6.2) + tier))
+      const expression = mood === 'happy' ? 0.035 : mood === 'angry' ? 0.012 : mood === 'skeptical' ? 0.008 : 0.018
+      mouth.current.scale.y = expression + speaking * (mood === 'happy' ? 0.035 : 0.048)
+    }
   })
 
   return <group>
@@ -185,7 +200,7 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
           <mesh scale={[0.15, 0.075, 0.055]}><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#f0e4d2" roughness={0.45} /></mesh>
           <mesh position={[0, 0, 0.048]} scale={[0.052, 0.055, 0.026]}><sphereGeometry args={[1, 24, 20]} /><meshStandardMaterial color={tier >= 3 ? '#46352b' : '#4a655e'} roughness={0.4} /></mesh>
           <mesh position={[0.012, 0.012, 0.07]}><sphereGeometry args={[0.014, 12, 10]} /><meshBasicMaterial color="#fff8e8" /></mesh>
-          <mesh position={[0, 0.125, 0.012]} rotation={[0, 0, Math.PI / 2 + side * -0.12]}><capsuleGeometry args={[0.026, 0.16, 8, 16]} /><meshStandardMaterial color={hair} map={hairTexture} bumpMap={hairTexture} bumpScale={0.04} roughness={0.92} /></mesh>
+
         </group>)}
       </group>
       <mesh position={[0, 0.3, 0.585]} scale={[0.075, 0.13, 0.09]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.02} roughness={0.74} /></mesh>
@@ -193,6 +208,10 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
       <mesh position={[0, 0.255, 0.67]} scale={[0.068, 0.052, 0.052]} castShadow><sphereGeometry args={[1, 28, 20]} /><meshStandardMaterial color={skin} map={skinTexture} roughness={0.72} /></mesh>
       {[-1, 1].map(side => <group key={'nostril-' + side} position={[side * 0.037, 0.235, 0.703]}><mesh scale={[0.014, 0.009, 0.008]}><sphereGeometry args={[1, 16, 12]} /><meshStandardMaterial color="#78564b" roughness={0.95} /></mesh></group>)}
       {[-1, 1].map(side => <mesh key={'cheek-' + side} position={[side * 0.36, 0.27, 0.43]} scale={[0.17, 0.12, 0.06]}><sphereGeometry args={[1, 24, 18]} /><meshStandardMaterial color={skin} map={skinTexture} bumpMap={skinTexture} bumpScale={0.012} roughness={0.86} /></mesh>)}
+      <group ref={brows}>
+        <mesh position={[-0.255, 0.685, 0.525]} rotation={[0, 0, 0.08]} scale={[0.15, 0.027, 0.035]}><capsuleGeometry args={[1, 0.12, 8, 16]} /><meshStandardMaterial color={hair} roughness={0.9} /></mesh>
+        <mesh position={[0.255, 0.685, 0.525]} rotation={[0, 0, -0.08]} scale={[0.15, 0.027, 0.035]}><capsuleGeometry args={[1, 0.12, 8, 16]} /><meshStandardMaterial color={hair} roughness={0.9} /></mesh>
+      </group>
       <mesh position={[0, 0.195, 0.66]} scale={[0.092, 0.018, 0.028]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#d8a49a" roughness={0.78} /></mesh>
       <mesh position={[0, 0.16, 0.665]} scale={[0.105, 0.018, 0.026]} castShadow><sphereGeometry args={[1, 32, 20]} /><meshStandardMaterial color="#a8796c" roughness={0.75} /></mesh>
       <mesh ref={mouth} position={[0, 0.125, 0.688]} scale={[0.085, 0.018, 0.02]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#713d37" roughness={0.85} /></mesh>
@@ -204,14 +223,14 @@ function PortraitHead({ tier, variant, outfit }: { tier: number; variant: 'clien
   </group>
 }
 
-export default function ClientPortrait3D({ tier, variant = 'client', outfit = 'intern' }: { tier: number; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium' }) {
-  return <div className="client-portrait-3d" aria-label="Анимированный 3D-портрет клиента">
+export default function ClientPortrait3D({ tier, variant = 'client', outfit = 'intern', mood = 'neutral' }: { tier: number; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium'; mood?: ClientMood }) {
+  return <div className={'client-portrait-3d mood-' + mood} aria-label={'Анимированный 3D-портрет клиента: ' + mood}>
     <Canvas dpr={[1, 1.6]} camera={{ position: [0, 1.45, 5.0], fov: 38, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl, camera }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 0.98; gl.outputColorSpace = THREE.SRGBColorSpace; camera.lookAt(0, 1.12, 0) }}>
       <ambientLight intensity={1.15} />
       <hemisphereLight args={['#d9e6f1', '#4b4039', 0.72]} />
       <directionalLight position={[-2.5, 4, 3]} intensity={2.1} color="#ffe1c4" castShadow />
       <pointLight position={[2.2, 1.4, 1.2]} intensity={0.7} color="#91c5b5" />
-      <PortraitHead tier={tier} variant={variant} outfit={outfit} />
+      <PortraitHead tier={tier} variant={variant} outfit={outfit} mood={mood} />
     </Canvas>
   </div>
 }

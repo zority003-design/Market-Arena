@@ -77,6 +77,8 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   const nearbyObject = useRef<'lamp' | 'light' | 'curtains' | 'wardrobe' | null>(null)
   const introActiveRef = useRef(introActive)
   introActiveRef.current = introActive
+  const activeRef = useRef(active)
+  activeRef.current = active
   const introProgress = useRef(0)
   const introFinished = useRef(false)
 
@@ -90,22 +92,29 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
 
   useEffect(() => {
     if (!active) { onCanInteractChange(false); onCanSleepChange(false); onCanExitCityChange(false); onNearbyObjectChange(null); nearbyObject.current = null; interactable.current = false; sleepable.current = false; exitable.current = false; keys.current = {}; return }
+    // Focus the scene as soon as the room becomes active; controls must not depend on clicking the canvas first.
+    gl.domElement.focus({ preventScroll: true })
+    const moveKeyFor = (event: KeyboardEvent) => {
+      const byCode: Record<string, string> = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'w', ArrowLeft: 'a', ArrowDown: 's', ArrowRight: 'd' }
+      const byCharacter: Record<string, string> = { w: 'w', a: 'a', s: 's', d: 'd', ц: 'w', ф: 'a', ы: 's', в: 'd', 'arrowup': 'w', 'arrowleft': 'a', 'arrowdown': 's', 'arrowright': 'd' }
+      return byCode[event.code] ?? byCharacter[event.key.toLowerCase()] ?? ''
+    }
     const down = (event: KeyboardEvent) => {
-      if (!active) return
+      if (!activeRef.current) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
       const key = event.key.toLowerCase()
-      const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      if ((event.code === 'KeyE' || key === 'e') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
-      if (codeKey || ['w', 'a', 's', 'd', 'arrowup', 'arrowleft', 'arrowdown', 'arrowright', ' '].includes(key)) {
-        keys.current[codeKey || key] = true
+      const moveKey = moveKeyFor(event)
+      if (moveKey) {
+        keys.current[moveKey] = true
         event.preventDefault()
+        return
       }
+      if ((event.code === 'KeyE' || key === 'e' || key === 'у') && !introActiveRef.current) { event.preventDefault(); if (sleepable.current) { onSleepInteract(); return } if (nearbyObject.current) { onInteractObject(nearbyObject.current); return } if (interactable.current) { onInteract(); return } }
     }
     const up = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase()
-      const codeKey = ({ KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'arrowup', ArrowLeft: 'arrowleft', ArrowDown: 'arrowdown', ArrowRight: 'arrowright' } as Record<string, string>)[event.code] ?? ''
-      keys.current[codeKey || key] = false
+      const moveKey = moveKeyFor(event)
+      if (moveKey) keys.current[moveKey] = false
     }
     const blur = () => { keys.current = {} }
     const element = gl.domElement
@@ -141,6 +150,20 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   }, [gl, active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, onSleepInteract, onCanSleepChange, onExitCity, onCanExitCityChange])
 
   useEffect(() => {
+    if (!active || introActive) return
+    // Re-focus after the wake-up animation so WASD is immediately available.
+    gl.domElement.focus({ preventScroll: true })
+    keys.current = {}
+  }, [active, camera, gl, introActive])
+
+  useEffect(() => {
+    if (!introActive || !active) return
+    // Fail-safe: if the render loop pauses during the intro, never leave movement locked.
+    const timer = window.setTimeout(() => onIntroComplete(), 3600)
+    return () => window.clearTimeout(timer)
+  }, [active, introActive, onIntroComplete])
+
+  useEffect(() => {
     if (!introActive) return
     camera.position.set(2.52, 0.76, 0.85)
     yaw.current = 0.1
@@ -158,7 +181,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       // Wake up in place, then ease off the mattress; avoid the old long diagonal glide that felt like flying.
       const p = introProgress.current
       const t = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
-      camera.position.set(2.52 + (1.62 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (2.18 - 0.85) * t)
+      camera.position.set(2.52 + (0.12 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (2.65 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
@@ -276,6 +299,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
+  const backWallColor = housingId === 'dorm' ? '#50636b' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#b4a58b'
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
@@ -296,11 +320,12 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} textureKind="plaster" />
-      <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color="#5c646d" />
-      <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
-      <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
-      <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
+      {/* The main window is cut into the back wall and faces the starting camera. */}
+      <Box position={[-2.25, 1.62, -3.98]} size={[3.5, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[3.0, 1.62, -3.98]} size={[2.0, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[0.75, 3.01, -3.98]} size={[2.5, 0.62, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[0.75, 0.55, -3.98]} size={[2.5, 1.1, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#4d5d64" textureKind="plaster" />
       {/* Closed wall: the outside district is intentionally out of scope for this chapter. */}
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
@@ -332,25 +357,29 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[candle.x, candle.y, -3.769]} size={[0.075, candle.h * 0.45, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
       </group>)}
 
-      {/* Window on left wall */}
-      {/* Open window aperture: frame pieces leave the center transparent so the skyline is actually visible. */}
-      <Box position={[-3.86, 2.05, -2.18]} size={[0.09, 1.62, 0.09]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.86, 2.05, -0.12]} size={[0.09, 1.62, 0.09]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.86, 2.82, -1.15]} size={[0.09, 0.09, 2.12]} color="#2a3946" roughness={0.35} />
-      <Box position={[-3.86, 1.28, -1.15]} size={[0.09, 0.09, 2.12]} color="#2a3946" roughness={0.35} />
-      <Box position={[-6.25, 2.05, -1.15]} size={[0.08, 3.8, 4.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182b40" : "#a9d4e4"} roughness={1} />
-      <Box position={[-3.79, 2.05, -1.15]} size={[0.018, 1.43, 1.86]} color="#9ecbe0" roughness={0.12} metalness={0.08} transparent opacity={0.055} />
-      {/* Clear window by default: rain is not a permanent weather state. */}
-      {/* The same procedural building models used by the walkable district are visible through the window. */}
-      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} />
-      <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 1.48, 0.055]} color="#e0d5c2" />
-      <Box position={[-3.75, 2.05, -1.15]} size={[0.06, 0.055, 1.9]} color="#e0d5c2" />
-      <Box position={[-3.73, 2.72, -1.15]} size={[0.12, 0.12, 2.18]} color="#6b5144" />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -1.95 : -1.62]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
-      <Box position={[-3.72, 2.04, curtainsOpen ? -0.35 : -0.68]} size={[0.075, 1.34, curtainsOpen ? 0.26 : 0.62]} color="#70545a" roughness={0.96} textureKind="fabric" />
-      {[-2.05, -1.75, -1.45, -1.15, -0.85, -0.55, -0.25].map((z) => (
-        <Box key={z} position={[-3.69, 2.67, z]} size={[0.14, 0.07, 0.22]} color="#b7a58d" />
+      {/* Large skyline window: visible from the spawn point, with the city actually behind the glass. */}
+      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="back" />
+      <Box position={[-0.52, 1.9, -3.79]} size={[0.12, 1.86, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[2.02, 1.9, -3.79]} size={[0.12, 1.86, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[0.75, 2.79, -3.79]} size={[2.66, 0.12, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[0.75, 1.02, -3.79]} size={[2.66, 0.14, 0.18]} color="#7d6a56" roughness={0.66} />
+      <Box position={[0.75, 1.9, -3.82]} size={[2.38, 1.58, 0.014]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
+      <Box position={[0.75, 1.9, -3.72]} size={[0.055, 1.62, 0.075]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[0.75, 1.9, -3.72]} size={[2.42, 0.055, 0.075]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[0.75, 2.88, -3.73]} size={[2.45, 0.055, 0.09]} color="#b6a58d" roughness={0.8} />
+      {[-0.36, -0.08, 0.2, 0.48, 0.76, 1.04, 1.32, 1.6, 1.88].map((x) => (
+        <Cylinder key={'window-ring-' + x} position={[x, 2.83, -3.68]} radius={0.026} height={0.06} color="#c3a46f" metalness={0.45} rotation={[0, 0, Math.PI / 2]} />
       ))}
+      <Box position={[curtainsOpen ? -0.42 : 0.0, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      <Box position={[curtainsOpen ? 1.92 : 1.5, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+
+      {/* A new illuminated broker sign makes this feel like the player's first tiny office. */}
+      <Box position={[3.0, 2.0, -3.82]} size={[1.55, 1.05, 0.075]} color="#172b2d" roughness={0.42} />
+      <Box position={[3.0, 2.0, -3.77]} size={[1.42, 0.92, 0.025]} color="#223f3d" roughness={0.5} />
+      <Box position={[3.0, 2.44, -3.74]} size={[0.84, 0.025, 0.012]} color="#45d5a2" emissive="#45d5a2" emissiveIntensity={0.55} />
+      <Text position={[3.0, 2.24, -3.73]} fontSize={0.19} color="#78e4bc" anchorX="center" anchorY="middle" outlineWidth={0.005} outlineColor="#0d201e">ARENA</Text>
+      <Text position={[3.0, 1.98, -3.73]} fontSize={0.062} color="#c3d8d0" anchorX="center" anchorY="middle">BROKER'S ROOM</Text>
+      <Text position={[3.0, 1.76, -3.73]} fontSize={0.045} color="#d8b67b" anchorX="center" anchorY="middle">KNOW THE RISK</Text>
 
       {/* A real wall light switch, close enough to interact with using E. */}
       <Box position={[-3.84, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
@@ -544,7 +573,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const sendMoveKey = (key: 'w' | 'a' | 's' | 'd', pressed: boolean) => {
     const code = ({ w: 'KeyW', a: 'KeyA', s: 'KeyS', d: 'KeyD' } as const)[key]
-    document.body.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, bubbles: true, cancelable: true }))
+    // Dispatch on window itself so the first-person capture listener always receives touch controls.
+    window.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, cancelable: true }))
   }
   const touchButton = (key: 'w' | 'a' | 's' | 'd', label: string, glyph: string) => (
     <button key={key} type="button" className={`room-touch-key room-touch-${key}`} aria-label={label}
@@ -576,6 +606,7 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
         </div>
         <span className="room-touch-caption">ДВИЖЕНИЕ</span>
       </div>}
+      {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
     </div>
   )
 }

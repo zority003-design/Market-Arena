@@ -13,7 +13,7 @@ import RoomScene from './RoomScene'
 import CityScene from './CityScene'
 import ClientPortrait3D from './ClientPortrait3D'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -35,6 +35,14 @@ const companies = [
   { ticker: 'DUST', name: 'Пыль и прибыль', sector: 'Услуги', price: '₽ 210,80', change: '+0,26%', positive: true, cap: '₽ 12,6 млрд', revenue: '240 ИУ', profit: '+21 ИУ', risk: 'Низкий', description: 'Оказывает услуги по обслуживанию коммерческих зданий и автоматизации уборки. Рост умеренный, зато контракты долгосрочные и бизнес уже приносит прибыль.', advantages: 'Прибыльная модель; долгосрочные контракты; сравнительно низкий риск.', risks: 'Невысокие темпы роста; давление на зарплаты и себестоимость услуг.' },
   { ticker: 'BTRAN', name: 'Банан Транс', sector: 'Топливо и сеть АЗС', price: '₽ 176,40', change: '+1,18%', positive: true, cap: '₽ 18,9 млрд', revenue: '380 ИУ', profit: '+29 ИУ', risk: 'Средний', description: 'Крупная городская сеть автозаправок: топливо, магазины у кассы, мойки и зарядные станции. Сильный денежный поток зависит от закупочных цен, трафика и маржи на литр.', advantages: 'Широкая сеть АЗС; повторяющийся спрос; дополнительные продажи в магазинах и сервисах.', risks: 'Колебания оптовых цен; расходы на содержание станций; конкуренция и переход части клиентов на электромобили.' },
 ]
+
+const COMPANY_BANTER: Record<string, string> = {
+  KOTL: '«Я слышал, ваши роботы уже доставляют посылки. Надеюсь, прибыль они тоже умеют доставлять — желательно не только в презентациях».',
+  OGUR: '«Соки я люблю. Особенно когда в отчёте прибыль не разбавлена водой».',
+  TAPK: '«Умные тапочки? Главное, чтобы после обновления они не начали ходить от инвесторов сами».',
+  DUST: '«Уборка — бизнес стабильный. Пыль, в отличие от инвесторов, возвращается регулярно».',
+  BTRAN: '«Бензин дорожает, кофе остывает, а инвестор всё ещё хочет гарантированную доходность. С чего начнём?»',
+}
 
 function getStockQuestions(company: typeof companies[number]) {
   const scenarios: Record<string, { prompts: string[]; hints: string[]; choices: [string, string, string][] }> = {
@@ -177,7 +185,7 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -232,8 +240,9 @@ function RoomItemIllustration({ id }: { id: string }) {
 }
 
 function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
-  const jacket = outfit === 'premium' ? '#1b2d38' : outfit === 'classic' ? '#34485d' : '#496b60'
+  const jacket = outfit === 'premium' ? '#1b2d38' : outfit === 'classic' ? '#34485d' : '#6c897e'
   const shirt = outfit === 'intern' ? '#6c897e' : '#e8e2d6'
+  const armColor = outfit === 'intern' ? shirt : jacket
   const trousers = outfit === 'premium' ? '#202b33' : outfit === 'classic' ? '#303943' : '#303b42'
   const skin = '#bda18a'
   const hair = outfit === 'premium' ? '#211e1c' : '#35271f'
@@ -274,10 +283,10 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
       <mesh position={[0, 0.43, 0]} scale={[0.94, 1, 0.94]} castShadow><capsuleGeometry args={[0.092, 0.55, 12, 24]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
       <mesh position={[0, 0.075, 0.075]} rotation={[Math.PI / 2, 0, 0]} scale={[1.2, 0.8, 1]} castShadow><capsuleGeometry args={[0.072, 0.14, 8, 18]} /><meshStandardMaterial color="#20262a" roughness={0.82} /></mesh>
     </group>)}
-    <mesh position={[0, 1.17, 0]} scale={[1, 1.03, 0.92]} castShadow><capsuleGeometry args={[0.255, 0.43, 16, 32]} /><meshStandardMaterial color={jacket} roughness={0.86} /></mesh>
+    <mesh position={[0, 1.17, 0]} scale={[1, 1.03, 0.92]} castShadow><capsuleGeometry args={[0.255, 0.43, 16, 32]} /><meshStandardMaterial color={outfit === 'intern' ? shirt : jacket} roughness={0.86} /></mesh>
     <mesh position={[0, 0.99, 0.224]} scale={[0.105, 0.3, 0.045]} castShadow><capsuleGeometry args={[0.1, 0.22, 12, 24]} /><meshStandardMaterial color={shirt} roughness={0.88} /></mesh>
     {[-1, 1].map((side) => <group key={side} position={[side * 0.245, 1.4, 0]}>
-      <mesh position={[side * 0.105, -0.24, 0]} rotation={[0, 0, side * -0.19]} castShadow><capsuleGeometry args={[0.078, 0.43, 14, 28]} /><meshStandardMaterial color={jacket} roughness={0.9} /></mesh>
+      <mesh position={[side * 0.105, -0.24, 0]} rotation={[0, 0, side * -0.19]} castShadow><capsuleGeometry args={[0.078, 0.43, 14, 28]} /><meshStandardMaterial color={armColor} roughness={0.9} /></mesh>
       <mesh position={[side * 0.16, -0.51, 0.01]} rotation={[0, 0, side * -0.13]} castShadow><capsuleGeometry args={[0.054, 0.13, 12, 22]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
     </group>)}
     <mesh position={[0, 1.59, 0]} castShadow><cylinderGeometry args={[0.065, 0.078, 0.19, 24]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
@@ -292,7 +301,16 @@ function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
     </group>)}
     <mesh position={[0, 1.928, 0.184]} scale={[0.012, 0.03, 0.015]}><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
     <mesh position={[0, 1.874, 0.174]} scale={[0.026, 0.006, 0.006]}><sphereGeometry args={[1, 20, 12]} /><meshStandardMaterial color="#8b5146" roughness={0.92} /></mesh>
+    {outfit === 'intern' && <>
+      <mesh position={[-0.14, 1.27, 0.205]} rotation={[0, 0, -0.08]}><boxGeometry args={[0.09, 0.075, 0.02]} /><meshStandardMaterial color="#d8c69a" roughness={0.78} /></mesh>
+      <mesh position={[-0.14, 1.27, 0.219]}><sphereGeometry args={[0.014, 12, 10]} /><meshStandardMaterial color="#334e48" roughness={0.85} /></mesh>
+    </>}
     {outfit !== 'intern' && <>
+      <mesh position={[-0.105, 1.335, 0.258]} rotation={[0, 0, -0.34]}><boxGeometry args={[0.075, 0.33, 0.024]} /><meshStandardMaterial color={outfit === 'premium' ? '#293d49' : '#435b70'} roughness={0.84} /></mesh>
+      <mesh position={[0.105, 1.335, 0.258]} rotation={[0, 0, 0.34]}><boxGeometry args={[0.075, 0.33, 0.024]} /><meshStandardMaterial color={outfit === 'premium' ? '#293d49' : '#435b70'} roughness={0.84} /></mesh>
+      {[1.26, 1.17, 1.08].map((y) => <mesh key={y} position={[0.015, y, 0.276]}><sphereGeometry args={[outfit === 'premium' ? 0.013 : 0.01, 12, 10]} /><meshStandardMaterial color={outfit === 'premium' ? '#c9a867' : '#1b2d38'} metalness={outfit === 'premium' ? 0.45 : 0.1} roughness={0.55} /></mesh>)}
+      <mesh position={[0.16, 1.2, 0.253]}><boxGeometry args={[0.09, 0.082, 0.025]} /><meshStandardMaterial color={outfit === 'premium' ? '#263a46' : '#293c50'} roughness={0.85} /></mesh>
+      {outfit === 'premium' && <mesh position={[0.16, 1.235, 0.271]} rotation={[0, 0, 0.13]}><boxGeometry args={[0.038, 0.05, 0.012]} /><meshStandardMaterial color="#c8a464" roughness={0.7} /></mesh>}
       <mesh position={[-0.045, 1.46, 0.221]} rotation={[0, 0, -0.2]}><boxGeometry args={[0.07, 0.15, 0.018]} /><meshStandardMaterial color="#f0eadf" roughness={0.9} /></mesh>
       <mesh position={[0.045, 1.46, 0.221]} rotation={[0, 0, 0.2]}><boxGeometry args={[0.07, 0.15, 0.018]} /><meshStandardMaterial color="#f0eadf" roughness={0.9} /></mesh>
       <mesh position={[0, 1.29, 0.265]}><coneGeometry args={[0.027, 0.14, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b69a62' : '#243d52'} roughness={0.75} /></mesh>
@@ -360,6 +378,7 @@ export default function App() {
   const [clientInvested, setClientInvested] = useState<Record<string, number>>(saved.clientInvested ?? {})
   const [dailyLeadIds, setDailyLeadIds] = useState<string[]>(saved.dailyLeadIds ?? getDailyLeadIds(day, reputation, saved.clientLastContactDay ?? {}, saved.clientDealCounts ?? {}, saved.clientInvested ?? {}))
   const [callClientId, setCallClientId] = useState(saved.callClientId ?? 'alex-vorontsov')
+  const [callCompanyTicker, setCallCompanyTicker] = useState(saved.callCompanyTicker ?? '')
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [videoSwitchEffectUsed, setVideoSwitchEffectUsed] = useState(false)
   const [videoBackground, setVideoBackground] = useState<VideoBackground>(saved.videoBackground ?? 'real')
@@ -418,8 +437,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
 
   useEffect(() => {
     if (!controlsVisible) return
@@ -524,7 +543,9 @@ export default function App() {
   const activeClient = callStatus === 'idle'
     ? selectedAvailableClient
     : CLIENTS.find((client) => client.id === callClientId) ?? selectedAvailableClient
-  const activeCompany = companies.find((company) => company.ticker === selectedCompany) ?? companies[0]
+  const activeCompany = callStatus === 'idle'
+    ? (companies.find((company) => company.ticker === selectedCompany) ?? companies[0])
+    : (companies.find((company) => company.ticker === callCompanyTicker) ?? companies.find((company) => company.ticker === selectedCompany) ?? companies[0])
   const getDisplayedPrice = (company: typeof companies[number]) => { const base = Number(company.price.replace(/[^0-9,.-]/g, '').replace(',', '.')); const moved = base * (1 + (newsImpacts[company.ticker] ?? 0) / 100); return '₽ ' + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
   const getDisplayedChange = (company: typeof companies[number]) => { const base = Number(company.change.replace('%', '').replace(/[−–]/g, '-').replace(',', '.')); const moved = base + (newsImpacts[company.ticker] ?? 0); return (moved > 0 ? '+' : '') + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' }
   const marketIndexImpact = Object.values(newsImpacts).reduce((total, impact) => total + impact, 0) / 4
@@ -623,6 +644,7 @@ export default function App() {
     setVideoEnabled(true)
     setVideoSwitchEffectUsed(false)
     setSelectedCompany('KOTL')
+    setCallCompanyTicker('')
     setNewsImpacts({})
     setToast('')
     setLastPenaltySecond(60)
@@ -679,27 +701,32 @@ export default function App() {
     const dailyCallLimit = reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2
     if (callsToday >= dailyCallLimit) { setToast('На сегодня лимит звонков исчерпан. Восстановись и продолжи завтра.'); return }
     if (!availableClients.some((client) => client.id === activeClient.id)) { setToast('Этот лид сейчас недоступен. Выбери клиента из списка актуальных предложений.'); return }
+    const assignedCompany = dailyQuotaCompany
+    const assignedQuestions = getStockQuestions(assignedCompany)
+    setCallCompanyTicker(assignedCompany.ticker)
+    setSelectedCompany(assignedCompany.ticker)
     setCallsToday((count) => count + 1)
     setQuestionIndex(0)
-    setChoiceOrders(activeQuestions.map((question) => question.choices.map((_, index) => index).sort(() => Math.random() - 0.5)))
+    setChoiceOrders(assignedQuestions.map((question) => question.choices.map((_, index) => index).sort(() => Math.random() - 0.5)))
     lastTimerBeep.current = 0
     setVideoSwitchEffectUsed(false)
     setCallClientId(activeClient.id)
     setClientLastContactDay((items) => ({ ...items, [activeClient.id]: day }))
     const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0) + cityBonus
     const roomBonus = getFirstImpression(housingId, ownedItems, activeClient)
+    const outfitBonus = getOutfitModifier(selectedOutfit, activeClient)
     const relationshipBonus = Math.min(15, (clientDealCounts[activeClient.id] ?? 0) * 6)
     const videoBonus = videoEnabled ? 2 + Math.min(3, getVideoQuality(ownedItems)) : 0
     const backgroundBonus = videoEnabled ? getBackgroundModifier(videoBackground, ownedItems, activeClient) : 0
-    const newsFitBonus = (newsImpacts[activeCompany.ticker] ?? 0) > 0 ? 2 : (newsImpacts[activeCompany.ticker] ?? 0) < 0 ? -2 : 0
-    const companyFitBonus = (activeCompany.risk === 'Очень высокий' ? -5 : activeCompany.risk === 'Высокий' ? -2 : activeCompany.positive ? 3 : -3) + newsFitBonus
-    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + relationshipBonus + videoBonus + backgroundBonus + companyFitBonus)))
+    const newsFitBonus = (newsImpacts[assignedCompany.ticker] ?? 0) > 0 ? 2 : (newsImpacts[assignedCompany.ticker] ?? 0) < 0 ? -2 : 0
+    const companyFitBonus = (assignedCompany.risk === 'Очень высокий' ? -5 : assignedCompany.risk === 'Высокий' ? -2 : assignedCompany.positive ? 3 : -3) + newsFitBonus
+    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + outfitBonus + relationshipBonus + videoBonus + backgroundBonus + companyFitBonus)))
     setPatience(activeClient.patience)
     setTimeLeft(75)
     setLastPenaltySecond(75)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'system', text: 'Твоё предложение: акция «' + activeCompany.name + '» (' + activeCompany.sector + ', риск: ' + activeCompany.risk.toLowerCase() + ').' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
+    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCityBonus(0)
@@ -761,7 +788,12 @@ export default function App() {
     const nextPatience = Math.max(0, patience - 4)
     setTrust(nextTrust)
     setPatience(nextPatience)
-    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
+    const clientReaction = delta >= 7
+      ? ['«Хорошо. Это хотя бы звучит как разговор о бизнесе, а не трейлер к блокбастеру».', '«Уже лучше. Продолжайте, только без фокусов с гарантированной доходностью».', '«Ладно, вы назвали конкретный риск. Я начинаю подозревать, что вы читали отчёт».'][questionIndex % 3]
+      : delta <= -8
+        ? ['«Гарантированная прибыль? Отлично. А где здесь кнопка, чтобы сообщить об этом центральному банку?»', '«Слишком гладко. Даже мои тапочки столько не обещают».', '«Вы сейчас продаёте акцию или пытаетесь выиграть конкурс по уверенности?»'][questionIndex % 3]
+        : ['«Пока звучит расплывчато. Давайте ближе к цифрам».', '«Записал. Но на мой вопрос вы ответили примерно как автоответчик банка».', '«Неплохо обошли вопрос. Теперь попробуем ответить на него»'][questionIndex % 3]
+    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), { from: 'client' as const, text: clientReaction }, ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
     setFreeAnswer('')
     if (questionIndex >= activeQuestions.length - 1) {
       resolveCall(nextTrust, nextPatience)
@@ -778,12 +810,62 @@ export default function App() {
     if (!text || callStatus !== 'active') return
     const lower = text.toLowerCase()
     let delta = 0
-    const positiveWords = ['риск', 'убыт', 'долг', 'денеж', 'сценар', 'гарант', 'не обещ', 'прибыл', 'контракт', 'выруч', 'зависит', 'провер']
-    const riskyWords = ['гарантирую', 'точно вырастет', 'без риска', '100%', 'удво', 'не может упасть', 'всегда раст']
-    if (positiveWords.some((word) => lower.includes(word))) delta += 5
-    if (riskyWords.some((word) => lower.includes(word))) delta -= 13
+    const companySignals: Record<string, string[]> = {
+      KOTL: ['контракт', 'заказ', 'робот', 'сервис', 'масштаб', 'денеж', 'убыт', 'поставк', 'марж'],
+      OGUR: ['сырь', 'упаков', 'марж', 'дистрибу', 'полк', 'прибыл', 'повторн', 'конкур'],
+      TAPK: ['возврат', 'обновлен', 'качест', 'гарант', 'датчик', 'приложен', 'подтверж', 'убыт', 'денеж'],
+      DUST: ['контракт', 'зарплат', 'себестоим', 'денеж', 'марж', 'уборк', 'окупаем', 'индексац'],
+      BTRAN: ['оптов', 'топлив', 'марж', 'трафик', 'заряд', 'станц', 'магазин', 'денеж', 'окупаем'],
+    }
+    const questionSignals: Record<string, string[][]> = {
+      KOTL: [
+        ['рост', 'заказ', 'убыт', 'расход', 'денеж', 'прибыл', 'марж'],
+        ['контракт', 'подпис', 'отказ', 'срыв', 'сценар', 'подтверж', 'огранич'],
+        ['марж', 'денеж', 'постав', 'метрик', 'критер', 'прибыл', 'убыт'],
+        ['сервис', 'ремонт', 'батар', 'обслужив', 'расход', 'жизненного цикла'],
+        ['конкур', 'дешев', 'патент', 'себестоим', 'удерж', 'повторн'],
+      ],
+      OGUR: [
+        ['прибыл', 'дистрибу', 'канал', 'рост', 'марж', 'полк', 'темп'],
+        ['сырь', 'упаков', 'себестоим', 'марж', 'поставщик', 'цен', 'спрос'],
+        ['доходн', 'дивид', 'горизонт', 'риск', 'гарант', 'прибыл'],
+        ['полк', 'регион', 'торгов', 'сеть', 'зависим', 'продаж'],
+        ['повторн', 'марж', 'промо', 'списан', 'реклам', 'продаж'],
+      ],
+      TAPK: [
+        ['возврат', 'убыт', 'денеж', 'качест', 'марж', 'паден', 'позици'],
+        ['возврат', 'статист', 'обновлен', 'гарант', 'расход', 'подтверж'],
+        ['возврат', 'денеж', 'условие', 'выход', 'лимит', 'убыт', 'метрик'],
+        ['bluetooth', 'телефон', 'приложен', 'автоном', 'возврат', 'функц'],
+        ['повторн', 'себестоим', 'датчик', 'поддерж', 'возврат', 'пользователь'],
+      ],
+      DUST: [
+        ['денежный поток', 'контракт', 'рост', 'прибыл', 'цен', 'темп', 'доход'],
+        ['зарплат', 'себестоим', 'марж', 'индексац', 'контракт', 'расход'],
+        ['критер', 'денежный поток', 'марж', 'цен', 'альтернатив', 'выход', 'риск'],
+        ['скид', 'расход', 'прибыл', 'объём', 'контракт', 'себестоим'],
+        ['робот', 'автоматиз', 'стоимость', 'окупаем', 'экономи', 'сервис'],
+      ],
+      BTRAN: [
+        ['марж', 'топлив', 'магазин', 'мойк', 'заряд', 'средний чек', 'прибыл'],
+        ['оптов', 'закуп', 'марж', 'цен', 'трафик', 'сценар', 'контракт'],
+        ['окупаем', 'долг', 'денежный поток', 'станци', 'свободный', 'недозагруз'],
+        ['кофе', 'магазин', 'марж', 'средний чек', 'повтор'],
+        ['электромоб', 'заряд', 'стоимость', 'подключен', 'окупаем', 'локац', 'трафик'],
+      ],
+    }
+    const activeQuestionSignals = questionSignals[activeCompany.ticker]?.[questionIndex] ?? []
+    const questionSignalHits = activeQuestionSignals.filter((word) => lower.includes(word)).length
+    if (questionSignalHits >= 2) delta += 5
+    else if (questionSignalHits === 1) delta += 3
+    const riskAndEvidence = ['риск', 'убыт', 'расход', 'денежный поток', 'марж', 'провер', 'сценар', 'подтверж', 'не обещ', 'огранич', 'если']
+    const recklessPromises = ['гарант', 'точно вырастет', 'без риска', '100%', 'удво', 'не может упасть', 'всегда раст', 'не потеряете']
+    if ((companySignals[activeCompany.ticker] ?? []).some((word) => lower.includes(word))) delta += 3
+    if (riskAndEvidence.some((word) => lower.includes(word))) delta += 3
+    if (['клиент', 'цель', 'горизонт', 'ликвид', 'доля', 'размер позиции', 'подходит'].some((word) => lower.includes(word))) delta += 2
+    if (recklessPromises.some((word) => lower.includes(word))) delta -= 15
     if (text.length < 18) delta -= 2
-    if (text.length > 280) delta -= 2
+    if (text.length > 320) delta -= 2
     if (delta === 0) delta = -1
     answerQuestion(text, Math.max(-15, Math.min(8, delta)))
   }
@@ -1136,7 +1218,7 @@ export default function App() {
                 <div className="calls-page">
                   <div className="page-heading"><div><div className="eyebrow">ОТДЕЛ ПРОДАЖ · ЛИНИЯ 01</div><h2>Клиенты и звонки</h2><p>Слушай клиента, выбери точный ответ и закрой сделку без пустых обещаний. Репутация открывает клиентов крупнее, а деньги улучшают жильё и рабочее место.</p></div><div className={callStatus === 'active' ? 'call-live-badge active' : 'call-live-badge'}><span className="live-dot" /> {callStatus === 'active' ? 'ЗВОНОК ИДЁТ' : 'ЛИНИЯ СВОБОДНА'}</div></div>
                   {callStatus === 'idle' && <div className="precall-briefing">
-                    <div className="call-planning-section"><div className="call-planning-heading"><span className="eyebrow">ШАГ 1 · ВЫБЕРИ КЛИЕНТА</span><strong>Кому сегодня предложим инвестицию?</strong><small>В первый день доступны два клиента. Новые лиды открываются с ростом репутации и прогрессом карьеры.</small></div><div className="call-client-picker">{CLIENTS.map((client) => { const unlocked = availableClients.some((candidate) => candidate.id === client.id); return <button key={client.id} disabled={!unlocked} className={'call-client-option' + (selectedClientId === client.id ? ' selected' : '') + (!unlocked ? ' locked' : '')} onClick={() => setSelectedClientId(client.id)}><span className="call-client-avatar">{unlocked ? client.initials : '🔒'}</span><span className="call-client-option-copy"><strong>{client.name}</strong><small>{unlocked ? client.profession + ' · уровень ' + client.tier : 'Пока недоступен'}</small><em>{unlocked ? 'Капитал до ' + client.budget.toLocaleString('ru-RU') + ' ₽' : 'Развивай карьеру'}</em></span></button>})}</div><div className="call-planning-heading stock-planning-heading"><span className="eyebrow">ШАГ 2 · ВЫБЕРИ АКЦИЮ</span><strong>Что предложим клиенту?</strong><small>Выбор бумаги влияет на первое впечатление и риск сделки. Изучи карточку в приложении «Биржа».</small></div><div className="call-stock-picker">{companies.map((company) => <button key={company.ticker} className={'call-stock-option' + (selectedCompany === company.ticker ? ' selected' : '')} onClick={() => setSelectedCompany(company.ticker)}><span className={'company-logo ' + company.ticker.toLowerCase()}>{company.ticker.slice(0, 2)}</span><span><strong>{company.name}</strong><small>{company.sector} · риск {company.risk.toLowerCase()}</small></span><em className={company.positive ? 'positive' : 'negative'}>{company.change}</em></button>)}</div></div><div className="briefing-copy"><span className="eyebrow">ЗАЧЕМ НУЖЕН ЗВОНОК</span><strong>Ты не продаёшь акцию вслепую — ты помогаешь принять решение</strong><p>У {activeClient.name} есть собственные цели и отношение к риску. Выбранная акция — лишь предложение: объясни, как она может помочь, что может пойти не так и в каких случаях лучше отказаться от сделки.</p><div className="call-goal-list"><span>1. Разобраться в бизнесе</span><span>2. Проверить свежие новости</span><span>3. Обсудить риски с клиентом</span></div><small>Подготовка к рынку и новостям добавляет +4 к начальному доверию за каждый изученный раздел.</small></div>
+                    <div className="call-planning-section"><div className="call-planning-heading"><span className="eyebrow">ШАГ 1 · ВЫБЕРИ КЛИЕНТА</span><strong>Кому сегодня предложим инвестицию?</strong><small>В первый день доступны два клиента. Новые лиды открываются с ростом репутации и прогрессом карьеры.</small></div><div className="call-client-picker">{CLIENTS.map((client) => { const unlocked = availableClients.some((candidate) => candidate.id === client.id); return <button key={client.id} disabled={!unlocked} className={'call-client-option' + (selectedClientId === client.id ? ' selected' : '') + (!unlocked ? ' locked' : '')} onClick={() => setSelectedClientId(client.id)}><span className="call-client-avatar">{unlocked ? client.initials : '🔒'}</span><span className="call-client-option-copy"><strong>{client.name}</strong><small>{unlocked ? client.profession + ' · уровень ' + client.tier : 'Пока недоступен'}</small><em>{unlocked ? 'Капитал до ' + client.budget.toLocaleString('ru-RU') + ' ₽' : 'Развивай карьеру'}</em></span></button>})}</div><div className="call-planning-heading stock-planning-heading"><span className="eyebrow">ШАГ 2 · ПОРУЧЕНИЕ ДНЯ</span><strong>Сегодня продаём {dailyQuotaCompany.name} ({dailyQuotaCompany.ticker})</strong><small>Акцию назначил руководитель. Твоя задача — разобраться в бизнесе, подобрать аргументы для клиента и честно ответить на вопросы о слабых местах.</small></div><div className="mission-stock-brief"><div className="mission-stock-top"><span className={'company-logo ' + dailyQuotaCompany.ticker.toLowerCase()}>{dailyQuotaCompany.ticker.slice(0, 2)}</span><div><strong>{dailyQuotaCompany.name}</strong><small>{dailyQuotaCompany.sector} · цена {getDisplayedPrice(dailyQuotaCompany)}</small></div><em className={dailyQuotaCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(dailyQuotaCompany)}</em></div><p>{dailyQuotaCompany.description}</p><div className="mission-stock-columns"><section><small>ЧТО МОЖНО ПРОДАТЬ</small><p>{dailyQuotaCompany.advantages}</p></section><section><small>ЧТО КЛИЕНТ МОЖЕТ ОСПОРИТЬ</small><p>{dailyQuotaCompany.risks}</p></section></div><div className="mission-stock-actions"><span>План: {dailyQuotaShares} акций · оборот {dailyQuotaAmount.toLocaleString('ru-RU')} ₽</span><button className="secondary-action" onClick={() => { setSelectedCompany(dailyQuotaCompany.ticker); setTab('market') }}>Изучить отчёт <ChevronRight size={14} /></button></div></div></div><div className="briefing-copy"><span className="eyebrow">ЗАЧЕМ НУЖЕН ЗВОНОК</span><strong>Ты не продаёшь акцию вслепую — ты помогаешь принять решение</strong><p>У {activeClient.name} есть собственные цели и отношение к риску. Назначенная акция — часть задания: объясни, кому она может подойти, что может пойти не так и когда разумнее отказаться от сделки.</p><div className="call-goal-list"><span>1. Разобраться в бизнесе</span><span>2. Проверить свежие новости</span><span>3. Обсудить риски с клиентом</span></div><small>Подготовка к рынку и новостям добавляет +4 к начальному доверию за каждый изученный раздел.</small></div>
                     <div className="briefing-actions">
                       <button className={marketReviewed ? 'briefing-action complete' : 'briefing-action'} onClick={() => setTab('market')}><TrendingUp size={15} /><span><strong>Отчёт компании</strong><small>{marketReviewed ? 'Изучено · +4 доверия' : 'Финансы и риски'}</small></span><span className="briefing-check">{marketReviewed ? '✓' : '↗'}</span></button>
                       <button className={newsReviewed ? 'briefing-action complete' : 'briefing-action'} onClick={() => setTab('news')}><Newspaper size={15} /><span><strong>Новости рынка</strong><small>{newsReviewed ? 'Изучено · +4 доверия' : 'Катализаторы и угрозы'}</small></span><span className="briefing-check">{newsReviewed ? '✓' : '↗'}</span></button>
@@ -1146,15 +1228,15 @@ export default function App() {
                   {callStatus === 'idle' && <div className="background-selector"><div className="background-selector-copy"><span className="eyebrow">ТВОЙ ОБРАЗ В КАДРЕ</span><p>Фон влияет на первое впечатление. Виртуальный офис может насторожить опытного клиента, если качество маски слабое.</p></div><div className="background-options"><button className={videoBackground === 'real' ? 'selected' : ''} onClick={() => setVideoBackground('real')}>Реальная комната</button><button disabled={!ownedItems.includes('neutral-backdrop') && !ownedItems.includes('chromakey-kit')} className={videoBackground === 'neutral' ? 'selected' : ''} onClick={() => setVideoBackground('neutral')}>Нейтральный фон</button><button disabled={!ownedItems.includes('chromakey-kit')} className={videoBackground === 'luxury' ? 'selected' : ''} onClick={() => setVideoBackground('luxury')}>Премиум-офис</button></div><small>{videoBackground === 'luxury' ? 'Виртуальный офис: бонус статуса, но опытный клиент может заметить подмену.' : videoBackground === 'neutral' ? 'Нейтральный фон: небольшой бонус без притворства, что это реальное жильё.' : 'Показываешь свою комнату без дополнительных эффектов.'}</small></div>}
                   {callStatus === 'idle' && availableClients.length > 0 && callsToday < (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) && <div className="incoming-call"><div className="incoming-visual"><div className="client-avatar"><span>{activeClient.initials}</span><i /></div><div className="incoming-wave"><span /><span /><span /><span /><span /><span /><span /></div></div><div className="incoming-copy"><span className="eyebrow">{activeClient.source.toUpperCase()} · УРОВЕНЬ {activeClient.tier}</span><h3>{activeClient.name}</h3><p>{activeClient.age} лет · {activeClient.profession}</p><div className="client-tags"><span><ShieldAlert size={13} /> {activeClient.temperament}</span><span><CircleDollarSign size={13} /> Капитал {activeClient.budget.toLocaleString('ru-RU')} ₽</span><span><Activity size={13} /> Опыт: {activeClient.experience.toLowerCase()}</span></div><blockquote>{activeClient.quote}</blockquote><button className="primary-action" onClick={() => startCall()}><Video size={16} /> Принять звонок и начать разговор <ChevronRight size={16} /></button></div></div>}
                   {callStatus === 'idle' && (availableClients.length === 0 || callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2)) && <div className="no-leads-card"><Users size={25} /><h3>{callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) ? 'На сегодня звонки закончились' : 'Свободных клиентов пока нет'}</h3><p>{callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) ? 'Лимит на сегодня: ' + callsToday + ' звонка. Заверши день, чтобы восстановить рабочее время.' : 'Дождись повторного контакта или развивай репутацию, чтобы открыть новые предложения.'}</p><button className="primary-action" onClick={endDay}>Завершить день <ChevronRight size={15} /></button></div>}
-                  {callStatus === 'active' && activeQuestion && <><div className="call-purpose-strip"><div><span className="eyebrow">С КЕМ ТЫ ГОВОРИШЬ</span><strong>{activeClient.name} · {activeClient.profession}</strong><p>Клиент хочет понять, подходит ли ему акция «{activeCompany.name}». Твоя задача — объяснить выгоду, назвать риски и не обещать гарантированную прибыль.</p></div><div><span className="eyebrow">ТВОЯ БУМАГА</span><strong>{activeCompany.ticker} · риск {activeCompany.risk.toLowerCase()}</strong><p>{activeCompany.description}</p></div></div><div className="call-workspace immersive-call-workspace"><div className="client-panel"><div className="client-panel-top"><div className="client-avatar large"><span>{activeClient.initials}</span><i /></div><div><span className="eyebrow">КЛИЕНТ · ВИДЕОСВЯЗЬ</span><h3>{activeClient.name}</h3><p>{activeClient.temperament} инвестор · {activeClient.age} лет</p></div><button className="hangup" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={16} /></button></div><div className="client-video-stage"><div className="client-video-feed"><ClientPortrait3D tier={activeClient.tier} /><span className="video-nameplate">{activeClient.name}</span><span className="video-live-indicator"><i /> СВЯЗЬ СТАБИЛЬНА</span></div><div className="self-video-column"><SelfCameraPreview enabled={videoEnabled} background={videoBackground} outfit={selectedOutfit} /></div><div className="video-side-info"><span className="eyebrow">ВИДЕОЗВОНОК</span><strong>{videoEnabled ? 'Камера включена' : 'Только аудио'}</strong><small>Качество оборудования: {getVideoQuality(ownedItems)}/8</small><button className="video-toggle" onClick={toggleVideo}><Video size={14} /> {videoEnabled ? 'Отключить видео' : 'Включить видео'}</button></div></div><div className="client-meters"><div className="meter-label"><span>Доверие</span><strong>{trust}% <small>{trustLabel}</small></strong></div><div className="trust-track"><span style={{ width: trust + '%' }} /></div><div className="meter-label"><span>Терпение</span><strong>{patience}%</strong></div><div className="patience-track"><span style={{ width: patience + '%' }} /></div></div><div className="call-stock-offer"><span>ТВОЁ ПРЕДЛОЖЕНИЕ</span><strong>{activeCompany.name}</strong><small>{activeCompany.sector} · {getDisplayedPrice(activeCompany)} · изменение {getDisplayedChange(activeCompany)} · риск {activeCompany.risk.toLowerCase()}</small><p>{activeCompany.description}</p><div className="call-stock-offer-columns"><span><b>Плюс:</b> {activeCompany.advantages}</span><span><b>Риск:</b> {activeCompany.risks}</span></div></div><div className="client-goal"><small>ЦЕЛЬ КЛИЕНТА</small><strong>{activeClient.goal}</strong><p>{activeClient.temperament}. {activeClient.experience}. Подбирай аргументы под его задачу.</p></div><div className="conversation-log">{conversation.slice(-2).map((entry, i) => <div key={i} className={'log-line ' + entry.from}><span>{entry.from === 'you' ? 'ТЫ' : entry.from === 'system' ? 'СИСТЕМА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}</div></div><div className="answer-panel"><div className="answer-heading"><span className="eyebrow">{NEGOTIATION_STAGES[Math.min(questionIndex, NEGOTIATION_STAGES.length - 1)]} · ВОПРОС {questionIndex + 1} ИЗ {activeQuestions.length}</span><div className="answer-controls"><span className="answer-shortcut-hint">1–4 / A–D · быстрый ответ</span><div className={'timer-pill ' + (timeLeft <= 4 ? 'urgent' : '')}><Clock3 size={15} /><strong>{timeLeft.toFixed(1)}с</strong></div></div></div><h3>{activeQuestion.title}</h3><p className="question-hint"><Sparkles size={14} /> {activeQuestion.hint}</p><div className="answer-options">{displayedChoices.map((choice, i) => <button className="answer-option" key={choice.label} onClick={() => answerQuestion(choice.label, choice.delta)}><span className="option-letter">{String.fromCharCode(65 + i)}</span><span>{choice.label}</span><ChevronRight size={16} /></button>)}</div><div className="free-answer"><label htmlFor="free-answer">СВОЙ ОТВЕТ</label><textarea id="free-answer" placeholder="Напиши, что ответил бы клиенту… (например: «Гарантий нет, давайте сначала разберём риски») " value={freeAnswer} onChange={(event) => setFreeAnswer(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendFreeAnswer() } }} /><div className="free-answer-footer"><span>Enter — отправить · Shift + Enter — новая строка</span><button disabled={!freeAnswer.trim()} onClick={sendFreeAnswer}>Ответить <ArrowUpRight size={14} /></button></div></div><div className="timer-warning"><Clock3 size={14} /> Чем дольше думаешь, тем быстрее падает терпение. После таймера клиент может уйти.</div></div></div></>}
-                  {(callStatus === 'won' || callStatus === 'lost') && <div className="call-result"><div className={callStatus === 'won' ? 'result-icon success' : 'result-icon failure'}>{callStatus === 'won' ? <Check size={28} /> : <X size={28} />}</div><span className="eyebrow">ИТОГ ПЕРЕГОВОРОВ</span><h3>{callStatus === 'won' ? 'Сделка закрыта.' : 'Переговоры не завершились сделкой.'}</h3><p>{lastResult}</p><div className="result-stats"><div><small>ДОВЕРИЕ</small><strong>{trust}/100</strong></div><div><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></div><div><small>ЗАКРЫТО СДЕЛОК</small><strong>{deals}</strong></div></div><div className="result-actions"><button className="secondary-action" onClick={() => setCallStatus('idle')}>Вернуться к клиентам</button><button className="primary-action" onClick={() => { setCallStatus('idle'); setTab('overview') }}>К обзору дня <ChevronRight size={16} /></button></div></div>}
+                  {callStatus === 'active' && activeQuestion && <><div className="call-purpose-strip"><div><span className="eyebrow">С КЕМ ТЫ ГОВОРИШЬ</span><strong>{activeClient.name} · {activeClient.profession}</strong><p>Клиент хочет понять, подходит ли ему акция «{activeCompany.name}». Твоя задача — объяснить выгоду, назвать риски и не обещать гарантированную прибыль.</p></div><div><span className="eyebrow">ТВОЯ БУМАГА</span><strong>{activeCompany.ticker} · риск {activeCompany.risk.toLowerCase()}</strong><p>{activeCompany.description}</p></div></div><div className="call-workspace immersive-call-workspace"><div className="client-panel"><div className="client-panel-top"><div className="client-avatar large"><span>{activeClient.initials}</span><i /></div><div><span className="eyebrow">КЛИЕНТ · ВИДЕОСВЯЗЬ</span><h3>{activeClient.name}</h3><p>{activeClient.temperament} инвестор · {activeClient.age} лет</p></div><button className="hangup" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={16} /></button></div><div className="client-video-stage"><div className="client-video-feed"><ClientPortrait3D tier={activeClient.tier} mood={trust >= 70 ? 'interested' : trust >= 45 ? 'neutral' : 'skeptical'} /><span className="video-nameplate">{activeClient.name}</span><span className="video-live-indicator"><i /> СВЯЗЬ СТАБИЛЬНА</span></div><div className="self-video-column"><SelfCameraPreview enabled={videoEnabled} background={videoBackground} outfit={selectedOutfit} /></div><div className="video-side-info"><span className="eyebrow">ВИДЕОЗВОНОК</span><strong>{videoEnabled ? 'Камера включена' : 'Только аудио'}</strong><small>Качество оборудования: {getVideoQuality(ownedItems)}/8</small><button className="video-toggle" onClick={toggleVideo}><Video size={14} /> {videoEnabled ? 'Отключить видео' : 'Включить видео'}</button></div></div><div className="client-meters"><div className="meter-label"><span>Доверие</span><strong>{trust}% <small>{trustLabel}</small></strong></div><div className="trust-track"><span style={{ width: trust + '%' }} /></div><div className="meter-label"><span>Терпение</span><strong>{patience}%</strong></div><div className="patience-track"><span style={{ width: patience + '%' }} /></div></div><div className="call-stock-offer"><span>ТВОЁ ПРЕДЛОЖЕНИЕ</span><strong>{activeCompany.name}</strong><small>{activeCompany.sector} · {getDisplayedPrice(activeCompany)} · изменение {getDisplayedChange(activeCompany)} · риск {activeCompany.risk.toLowerCase()}</small><p>{activeCompany.description}</p><div className="call-stock-offer-columns"><span><b>Плюс:</b> {activeCompany.advantages}</span><span><b>Риск:</b> {activeCompany.risks}</span></div></div><div className="client-goal"><small>ЦЕЛЬ КЛИЕНТА</small><strong>{activeClient.goal}</strong><p>{activeClient.temperament}. {activeClient.experience}. Подбирай аргументы под его задачу.</p></div><div className="conversation-log">{conversation.slice(-2).map((entry, i) => <div key={i} className={'log-line ' + entry.from}><span>{entry.from === 'you' ? 'ТЫ' : entry.from === 'system' ? 'СИСТЕМА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}</div></div><div className="answer-panel"><div className="answer-heading"><span className="eyebrow">{NEGOTIATION_STAGES[Math.min(questionIndex, NEGOTIATION_STAGES.length - 1)]} · ВОПРОС {questionIndex + 1} ИЗ {activeQuestions.length}</span><div className="answer-controls"><span className="answer-shortcut-hint">1–4 / A–D · быстрый ответ</span><div className={'timer-pill ' + (timeLeft <= 4 ? 'urgent' : '')}><Clock3 size={15} /><strong>{timeLeft.toFixed(1)}с</strong></div></div></div><h3>{activeQuestion.title}</h3><p className="question-hint"><Sparkles size={14} /> {activeQuestion.hint}</p><div className="answer-options">{displayedChoices.map((choice, i) => <button className="answer-option" key={choice.label} onClick={() => answerQuestion(choice.label, choice.delta)}><span className="option-letter">{String.fromCharCode(65 + i)}</span><span>{choice.label}</span><ChevronRight size={16} /></button>)}</div><div className="free-answer"><label htmlFor="free-answer">СВОЙ ОТВЕТ</label><textarea id="free-answer" placeholder="Напиши, что ответил бы клиенту… (например: «Гарантий нет, давайте сначала разберём риски») " value={freeAnswer} onChange={(event) => setFreeAnswer(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendFreeAnswer() } }} /><div className="free-answer-footer"><span>Enter — отправить · Shift + Enter — новая строка</span><button disabled={!freeAnswer.trim()} onClick={sendFreeAnswer}>Ответить <ArrowUpRight size={14} /></button></div></div><div className="timer-warning"><Clock3 size={14} /> Чем дольше думаешь, тем быстрее падает терпение. После таймера клиент может уйти.</div></div></div></>}
+                  {(callStatus === 'won' || callStatus === 'lost') && <div className="call-result"><div className={callStatus === 'won' ? 'result-icon success' : 'result-icon failure'}>{callStatus === 'won' ? <Check size={28} /> : <X size={28} />}</div><div className="result-client-reaction"><ClientPortrait3D tier={activeClient.tier} mood={callStatus === 'won' ? 'happy' : 'angry'} /></div><span className="eyebrow">ИТОГ ПЕРЕГОВОРОВ</span><h3>{callStatus === 'won' ? 'Сделка закрыта.' : 'Переговоры не завершились сделкой.'}</h3><p>{lastResult}</p><div className="result-stats"><div><small>ДОВЕРИЕ</small><strong>{trust}/100</strong></div><div><small>РЕПУТАЦИЯ</small><strong>{reputation}/100</strong></div><div><small>ЗАКРЫТО СДЕЛОК</small><strong>{deals}</strong></div></div><div className="result-actions"><button className="secondary-action" onClick={() => setCallStatus('idle')}>Вернуться к клиентам</button><button className="primary-action" onClick={() => { setCallStatus('idle'); setTab('overview') }}>К обзору дня <ChevronRight size={16} /></button></div></div>}
                 </div>
               )}
             </section>
             <aside className="terminal-right-rail">
               <div className="rail-title"><span>РАБОЧИЙ СТОЛ</span><button aria-label="Уведомления"><Bell size={15} /></button></div>
               <div className="rail-widget time-widget"><span className="rail-icon"><Clock3 size={16} /></span><small>ВРЕМЯ</small><strong>{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</strong><em>День {day} · рабочая смена</em></div>
-              <div className="rail-widget"><div className="rail-widget-heading"><span className="rail-icon gold"><Zap size={16} /></span><span><small>ЗАДАЧА ДНЯ</small><strong>Первая сделка</strong></span></div><div className="task-progress"><span style={{ width: deals > 0 ? '100%' : '0%' }} /></div><div className="rail-caption">{deals > 0 ? 'Выполнено — отлично!' : 'Осталось закрыть 1 сделку'}</div></div>
+              <div className="rail-widget"><div className="rail-widget-heading"><span className="rail-icon gold"><Zap size={16} /></span><span><small>ОБЯЗАТЕЛЬНОЕ ПОРУЧЕНИЕ</small><strong>{dailyQuotaCompany.ticker} · план смены</strong></span></div><div className="task-progress"><span style={{ width: Math.min(100, Math.min(dailySalesShares / dailyQuotaShares, dailySalesAmount / Math.max(1, dailyQuotaAmount)) * 100) + '%' }} /></div><div className="rail-caption">{dailySalesShares >= dailyQuotaShares && dailySalesAmount >= dailyQuotaAmount ? 'План выполнен — премия заработана.' : 'Продай ' + dailyQuotaShares + ' акций и набери оборот ' + dailyQuotaAmount.toLocaleString('ru-RU') + ' ₽.'}</div></div>
               <div className="rail-widget mini-news"><div className="rail-widget-heading"><span className="rail-icon green"><Newspaper size={16} /></span><span><small>ВАЖНОЕ</small><strong>Новости рынка</strong></span></div><p>«Котолёт» ведёт переговоры о крупном контракте.</p><button onClick={() => setTab('news')}>Читать ленту <ChevronRight size={13} /></button></div>
               <div className="rail-widget contact-widget"><div className="rail-widget-heading"><span className="rail-icon blue"><MessageCircle size={16} /></span><span><small>НАСТАВНИК</small><strong>Виктор Петрович</strong></span></div><p>«Не продавай то, чего сам не понимаешь. Особенно если оно летает на батарейках».</p></div>
               <div className="rail-footer"><span><span className="live-dot" /> Все системы работают</span><small>BUILD 0.8.0 · DEMO</small></div>
@@ -1180,11 +1262,8 @@ export default function App() {
                     {callStatus === 'idle' && <div className="negotiation-setup">
                       <section className="negotiation-setup-card">
                         <span className="negotiation-section-label">01 / ЧТО ПРОДАЁМ</span>
-                        <label className="negotiation-field-label" htmlFor="negotiation-company">Инвестиционный продукт</label>
-                        <select id="negotiation-company" className="negotiation-company-select" value={selectedCompany} onChange={(event) => setSelectedCompany(event.target.value)}>
-                          {companies.map((company) => <option key={company.ticker} value={company.ticker}>{company.name} · {company.ticker}</option>)}
-                        </select>
-                        <div className="negotiation-product-card"><div className="negotiation-product-top"><span>{activeCompany.ticker}</span><span className={activeCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(activeCompany)}</span></div><strong>{activeCompany.name}</strong><p>{activeCompany.description}</p><div className="negotiation-product-metrics"><span><small>ТЕКУЩАЯ ЦЕНА</small><b>{getDisplayedPrice(activeCompany)}</b></span><span><small>РИСК</small><b>{activeCompany.risk}</b></span></div></div>
+                        <label className="negotiation-field-label">Поручение руководителя · акцию менять нельзя</label>
+                        <div className="negotiation-product-card"><div className="negotiation-product-top"><span>{dailyQuotaCompany.ticker}</span><span className={dailyQuotaCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(dailyQuotaCompany)}</span></div><strong>{dailyQuotaCompany.name}</strong><p>{dailyQuotaCompany.description}</p><div className="negotiation-product-metrics"><span><small>ТЕКУЩАЯ ЦЕНА</small><b>{getDisplayedPrice(dailyQuotaCompany)}</b></span><span><small>РИСК</small><b>{dailyQuotaCompany.risk}</b></span></div><div className="mission-stock-columns"><section><small>ПЛЮСЫ</small><p>{dailyQuotaCompany.advantages}</p></section><section><small>МИНУСЫ</small><p>{dailyQuotaCompany.risks}</p></section></div></div>
                         <div className="negotiation-brief"><strong>Твоя задача</strong><p>Объяснить идею честно, раскрыть риски и помочь клиенту решить, подходит ли ему продукт. Не обещай гарантированную доходность.</p></div>
                       </section>
                       <section className="negotiation-setup-card">
@@ -1198,7 +1277,7 @@ export default function App() {
                     {callStatus === 'active' && <div className="negotiation-live">
                       <div className="negotiation-call-column">
                         <div className="negotiation-video-grid">
-                          <div className="negotiation-video-tile client-tile"><div className="negotiation-video-label"><span>СОБЕСЕДНИК</span><span>● LIVE</span></div><div className="negotiation-client-video"><ClientPortrait3D tier={activeClient.tier}/></div><div className="negotiation-video-caption"><strong>{activeClient.name}</strong><small>{activeClient.profession}</small></div></div>
+                          <div className="negotiation-video-tile client-tile"><div className="negotiation-video-label"><span>СОБЕСЕДНИК</span><span>● LIVE</span></div><div className="negotiation-client-video"><ClientPortrait3D tier={activeClient.tier} mood={trust >= 70 ? 'interested' : trust >= 45 ? 'neutral' : 'skeptical'}/></div><div className="negotiation-video-caption"><strong>{activeClient.name}</strong><small>{activeClient.profession}</small></div></div>
                           <div className="negotiation-video-tile self-tile"><div className="negotiation-video-label"><span>ВАШ КАДР</span><span>● ЛОКАЛЬНО</span></div><div className="negotiation-self-video"><ClientPortrait3D tier={0} variant="player" outfit={selectedOutfit}/><span>ВЫ</span></div><div className="negotiation-video-caption"><strong>Ваш брокер</strong><small>Камера персонажа</small></div></div>
                         </div>
                         <div className="negotiation-current-question"><div><span className="negotiation-section-label">ВОПРОС КЛИЕНТА · ЭТАП {Math.min(questionIndex + 1, activeQuestions.length)} ИЗ {activeQuestions.length}</span><strong>{activeQuestion?.title ?? 'Обсудите условия сделки'}</strong><p className="negotiation-tactic">{activeQuestion?.hint ?? 'Уточни потребности, проверь риски и не обещай гарантированную доходность.'}</p></div><span className="negotiation-timer">{timeLeft}<small>СЕК</small></span></div>

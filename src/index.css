@@ -1978,7 +1978,7 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 
 .room-scene-root { position: absolute; inset: 0; width: 100%; height: 100%; }
 .room-scene-root > canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-.room-touch-controls { display: none; position: absolute; z-index: 12; left: max(18px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 154px; pointer-events: none; user-select: none; }
+.room-touch-controls { display: block; position: absolute; z-index: 12; left: max(18px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 154px; pointer-events: none; user-select: none; }
 .room-touch-dpad { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .room-touch-middle { display: flex; align-items: center; gap: 5px; }
 .room-touch-key { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 1px solid rgba(180,225,205,.36); border-radius: 13px; color: #e1f4e9; background: rgba(10,22,25,.72); box-shadow: 0 5px 18px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.06); backdrop-filter: blur(8px); font-size: 23px; line-height: 1; touch-action: none; pointer-events: auto; }
@@ -2425,3 +2425,74 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .negotiation-live-quota-row { display:flex; justify-content:space-between; gap:8px; margin-top:10px; color:#9bb2a8; font-size:11px; }
 .negotiation-live-quota-row b { color:#e1f0e8; font:11px 'DM Mono',monospace; text-align:right; }
 .negotiation-live-quota > small { display:block; margin-top:9px; color:#829b90; font-size:10px; line-height:1.5; }
+
+
+/* Mission-first negotiation brief */
+.mission-stock-brief {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid rgba(105, 220, 178, .22);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(23, 54, 49, .72), rgba(15, 24, 31, .92));
+  color: #e9f1ee;
+}
+.mission-stock-top { display: flex; align-items: center; gap: 12px; }
+.mission-stock-top > div { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+.mission-stock-top strong { font-size: 15px; }
+.mission-stock-top small { color: #9fb5ad; font-size: 11px; }
+.mission-stock-top > em { font: 600 12px 'DM Mono', monospace; font-style: normal; }
+.mission-stock-brief > p { margin: 13px 0; color: #bfcec8; font-size: 12px; line-height: 1.65; }
+.mission-stock-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mission-stock-columns section { min-width: 0; padding: 12px; border: 1px solid rgba(255, 255, 255, .07); border-radius: 10px; background: rgba(255, 255, 255, .025); }
+.mission-stock-columns small { color: #8fc9b2; font-size: 9px; font-weight: 800; letter-spacing: .09em; }
+.mission-stock-columns section:last-child small { color: #e2b27f; }
+.mission-stock-columns p { margin: 7px 0 0; color: #b6c5bf; font-size: 11px; line-height: 1.55; }
+.mission-stock-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .08); }
+.mission-stock-actions > span { color: #9eafa9; font-size: 10px; line-height: 1.5; }
+.mission-stock-actions .secondary-action { flex: 0 0 auto; }
+.result-client-reaction { width: 112px; height: 126px; margin: 4px auto 12px; overflow: hidden; border-radius: 12px; background: radial-gradient(ellipse at 50% 90%, rgba(79, 146, 124, .22), transparent 70%); }
+.result-client-reaction .client-portrait-3d { width: 112px; height: 126px; min-height: 0; }
+.client-portrait-3d.mood-angry canvas { filter: saturate(.85); }
+.client-portrait-3d.mood-happy canvas { filter: saturate(1.12); }
+@media (max-width: 720px) {
+  .mission-stock-columns { grid-template-columns: 1fr; }
+  .mission-stock-actions { align-items: flex-start; flex-direction: column; }
+  .mission-stock-actions .secondary-action { width: 100%; }
+}
+
+
+/* Visible movement affordances are also shown on desktop as a fallback for keyboard-focus issues. */
+.room-keyboard-hint {
+  position: absolute;
+  z-index: 11;
+  right: 22px;
+  bottom: 22px;
+  max-width: min(570px, calc(100vw - 220px));
+  padding: 10px 14px;
+  border: 1px solid rgba(176, 216, 200, .18);
+  border-radius: 10px;
+  color: rgba(225, 239, 231, .86);
+  background: rgba(8, 17, 21, .66);
+  box-shadow: 0 8px 28px rgba(0,0,0,.2);
+  backdrop-filter: blur(12px);
+  font: 10px 'DM Mono', monospace;
+  letter-spacing: .015em;
+  line-height: 1.5;
+  pointer-events: none;
+}
+.room-keyboard-hint span { margin: 0 5px; color: #5bd9a7; }
+.room-touch-caption { text-shadow: 0 2px 8px rgba(0,0,0,.65); }
+.room-touch-key { user-select: none; -webkit-user-select: none; }
+.room-scene-root > canvas:focus { outline: none; }
+@media (max-width: 700px) {
+  .room-keyboard-hint { right: 12px; bottom: 14px; max-width: calc(100vw - 190px); font-size: 8px; padding: 8px 9px; }
+}
+
+
+/* Keep the movement fallback clear of the temporary HUD and interaction prompt. */
+.room-touch-controls { bottom: 104px; }
+.room-keyboard-hint { top: 90px; bottom: auto; }
+@media (max-width: 700px) {
+  .room-touch-controls { bottom: 108px; }
+  .room-keyboard-hint { display: none; }
+}
