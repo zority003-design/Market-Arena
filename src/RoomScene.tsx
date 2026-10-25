@@ -114,22 +114,38 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       element.focus({ preventScroll: true })
       dragging.current = true
       last.current = { x: event.clientX, y: event.clientY }
+
+      // First-person mouse look should behave like a normal 3D game: lock the pointer
+      // after a click, while retaining click-and-drag as a fallback for restricted browsers.
+      if (document.pointerLockElement !== element && typeof element.requestPointerLock === 'function') {
+        try {
+          const request = element.requestPointerLock()
+          if (request && typeof request.catch === 'function') request.catch(() => { /* Drag fallback remains available. */ })
+        } catch { /* Drag fallback remains available. */ }
+      }
     }
     const pointerMove = (event: PointerEvent) => {
-      if (!dragging.current) return
-      const dx = event.clientX - last.current.x
-      const dy = event.clientY - last.current.y
+      const locked = document.pointerLockElement === element
+      if (!locked && !dragging.current) return
+      const dx = locked ? event.movementX : event.clientX - last.current.x
+      const dy = locked ? event.movementY : event.clientY - last.current.y
       last.current = { x: event.clientX, y: event.clientY }
       yaw.current -= dx * 0.0035
       pitch.current = THREE.MathUtils.clamp(pitch.current - dy * 0.003, -1.05, 0.62)
     }
-    const pointerUp = () => { dragging.current = false }
+    const pointerUp = () => {
+      if (document.pointerLockElement !== element) dragging.current = false
+    }
+    const pointerLockChange = () => {
+      if (document.pointerLockElement !== element) dragging.current = false
+    }
     window.addEventListener('keydown', down, true)
     window.addEventListener('keyup', up, true)
     window.addEventListener('blur', blur)
     element.addEventListener('pointerdown', pointerDown)
     window.addEventListener('pointermove', pointerMove)
     window.addEventListener('pointerup', pointerUp)
+    document.addEventListener('pointerlockchange', pointerLockChange)
     return () => {
       window.removeEventListener('keydown', down, true)
       window.removeEventListener('keyup', up, true)
@@ -137,6 +153,10 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       element.removeEventListener('pointerdown', pointerDown)
       window.removeEventListener('pointermove', pointerMove)
       window.removeEventListener('pointerup', pointerUp)
+      document.removeEventListener('pointerlockchange', pointerLockChange)
+      if (document.pointerLockElement === element) document.exitPointerLock()
+      dragging.current = false
+      keys.current = {}
     }
   }, [gl, active, onInteract, onCanInteractChange, onInteractObject, onNearbyObjectChange, onSleepInteract, onCanSleepChange, onExitCity, onCanExitCityChange])
 
