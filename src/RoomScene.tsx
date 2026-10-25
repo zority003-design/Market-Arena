@@ -178,7 +178,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
       // Wake up in place, then ease off the mattress; avoid the old long diagonal glide that felt like flying.
       const p = introProgress.current
       const t = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
-      camera.position.set(2.52 + (1.35 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (2.18 - 0.85) * t)
+      camera.position.set(2.52 + (0.15 - 2.52) * t, 0.76 + (1.66 - 0.76) * t + Math.sin(p * Math.PI) * 0.025, 0.85 + (1.25 - 0.85) * t)
       pitch.current = 0.12 * (1 - t) - 0.04 * t
       yaw.current = 0.1 * (1 - t)
       camera.rotation.set(pitch.current, yaw.current, 0)
@@ -293,6 +293,7 @@ function FloorBoards() {
 
 
 function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+  const wallColor = housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"
   const screenRef = useRef<THREE.Mesh>(null!)
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
@@ -316,13 +317,13 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={housingId === "dorm" ? "#68717a" : housingId === "shared-flat" ? "#817c74" : housingId === "studio" ? "#a09b8e" : housingId === "city-apartment" ? "#b4b0a6" : "#c2b7a5"} textureKind="plaster" />
-      <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color="#5c646d" />
+      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={wallColor} textureKind="plaster" />
+      <Box position={[-3.98, 0.62, 0]} size={[0.18, 1.24, 8]} color={wallColor} textureKind="plaster" />
       <Box position={[-3.98, 3.09, 0]} size={[0.18, 0.46, 8]} color="#5c646d" />
       <Box position={[-3.98, 1.66, -3.09]} size={[0.18, 3.32, 1.82]} color="#5c646d" />
       <Box position={[-3.98, 1.66, 1.94]} size={[0.18, 3.32, 4.12]} color="#5c646d" />
       {/* Closed wall: the outside district is intentionally out of scope for this chapter. */}
-      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
+      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={wallColor} textureKind="plaster" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
 
@@ -547,8 +548,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* A full-height second-hand wardrobe with doors and brass handles. */}
       <group position={[-3.05, 0.04, -2.92]}>
-        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#49382e" roughness={0.9} textureKind="wood" /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#74523d" roughness={0.78} textureKind="wood" />
-        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#876247" roughness={0.8} textureKind="wood" /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#6e4d39" roughness={0.8} textureKind="wood" />
+        <Box position={[0, 0.92, 0]} size={[1.0, 1.88, 0.68]} color="#5e4534" roughness={0.84} textureKind="wood" /><Box position={[0, 0.92, 0.355]} size={[0.92, 1.78, 0.035]} color="#6d4e38" roughness={0.8} textureKind="wood" />
+        <Box position={[-0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#79583f" roughness={0.82} textureKind="wood" /><Box position={[0.225, 0.92, 0.378]} size={[0.43, 1.7, 0.025]} color="#79583f" roughness={0.82} textureKind="wood" />
         <Box position={[0, 1.87, 0.37]} size={[0.96, 0.07, 0.06]} color="#a17a57" />{[-0.07, 0.07].map((x) => <Cylinder key={x} position={[x, 0.92, 0.405]} radius={0.025} height={0.12} color="#c3a46f" metalness={0.6} rotation={[Math.PI / 2, 0, 0]} />)}
         <Box position={[0, 0.19, 0.36]} size={[0.9, 0.08, 0.04]} color="#382b25" />
       </group>
