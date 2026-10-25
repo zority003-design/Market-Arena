@@ -956,6 +956,18 @@ export default function App() {
       {panel === 'room' && (
         <>
           {controlsVisible && <div className="control-hint control-hint-temporary"><div className="key-cluster"><kbd>W</kbd><div><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div></div><span>ПЕРЕДВИЖЕНИЕ</span><i /><div className="mouse-hint"><span className="mouse-icon" /></div><span>КЛИК + МЫШЬ</span></div>}
+          {day === 1 && !dayEnded && <aside className="career-mission-card" aria-label="Цель первой смены">
+            <span className="career-mission-kicker">ТВОЯ ПЕРВАЯ СМЕНА</span>
+            <strong>Построй карьеру брокера</strong>
+            <ol>
+              <li>Подойди к компьютеру и нажми <kbd>E</kbd>.</li>
+              <li>Изучи котировки и новости рынка.</li>
+              <li>Открой видеозвонки и помоги клиенту выбрать акции.</li>
+              <li>Выполни план продаж и заверши рабочий день.</li>
+            </ol>
+            <div className="career-mission-progress"><span>План дня</span><strong>{dailySalesShares}/{dailyQuotaShares} акций · {dailySalesAmount.toLocaleString('ru-RU')}/{dailyQuotaAmount.toLocaleString('ru-RU')} ₽</strong></div>
+            <small>Управляй риском и репутацией: не обещай клиентам гарантированную прибыль.</small>
+          </aside>}
           {canSleep && dayEnded ? <button className="interact-card proximity-interact sleep-interact" onClick={sleepNow}><span className="enter-key">E</span><span className="interact-copy"><strong>Лечь спать</strong><em>Отдохнуть и начать новый день</em></span><ChevronRight size={17} /></button> : nearbyRoomObject ? <button className="interact-card proximity-interact" onClick={() => interactWithRoomObject(nearbyRoomObject)}><span className="enter-key">E</span><span className="interact-copy"><strong>{nearbyRoomObject === 'lamp' ? `Настольная лампа · ${deskLampOn ? 'выключить' : 'включить'}` : nearbyRoomObject === 'light' ? `Освещение комнаты · ${roomLightOn ? 'выключить' : 'включить'}` : nearbyRoomObject === 'curtains' ? `Шторы · ${curtainsOpen ? 'закрыть' : 'открыть'}` : 'Открыть шкаф и гардероб'}</strong><em>{nearbyRoomObject === 'wardrobe' ? 'Одежда и внешний вид персонажа' : 'Нажми E, чтобы взаимодействовать'}</em></span><ChevronRight size={17} /></button> : canInteractWithComputer && <button className="interact-card proximity-interact" onClick={openComputer}><span className="enter-key">E</span><span className="interact-copy"><strong>Сесть за компьютер</strong><em>Нажми E, чтобы начать работу</em></span><ChevronRight size={17} /></button>}
         </>
       )}
