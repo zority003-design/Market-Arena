@@ -284,3 +284,71 @@
 .arena-os-business-copy small{min-height:25px;color:#71869d;font-size:10px;line-height:1.45}
 .arena-os-business-copy button{width:100%;margin-top:auto}
 @media(max-width:760px){.arena-os-business-grid{grid-template-columns:1fr}.arena-os-business-summary{grid-template-columns:1fr}.arena-os-business-copy p{min-height:0}}
+
+
+/* Contrast/accessibility pass: enforce readable text on the light app canvas. */
+.arena-os-window { color: #203449; background: #f5f8fc; }
+.arena-os-window-content { color: #203449; background: #f5f8fc; }
+.arena-os-window-content h1,
+.arena-os-window-content h2,
+.arena-os-window-content h3,
+.arena-os-window-content h4,
+.arena-os-window-content strong,
+.arena-os-window-content b { color: #172f48; }
+.arena-os-window-content p,
+.arena-os-window-content li,
+.arena-os-window-content label,
+.arena-os-window-content small,
+.arena-os-window-content time,
+.arena-os-window-content .arena-os-page-heading p,
+.arena-os-window-content .arena-os-argument-panel > small,
+.arena-os-window-content .arena-os-business-copy p,
+.arena-os-window-content .arena-os-housing-copy p { color: #40566c; }
+.arena-os-window-content .arena-os-kicker { color: #17669a; }
+.arena-os-window-content input,
+.arena-os-window-content textarea,
+.arena-os-window-content select {
+  color: #172f48;
+  background: #ffffff;
+  border-color: #9aafc4;
+  caret-color: #146f9c;
+}
+.arena-os-window-content input::placeholder,
+.arena-os-window-content textarea::placeholder { color: #586f84; opacity: 1; }
+.arena-os-window-content input:focus-visible,
+.arena-os-window-content textarea:focus-visible,
+.arena-os-window-content button:focus-visible {
+  outline: 2px solid #138b78;
+  outline-offset: 2px;
+}
+.arena-os-dialogue { background: #f8fbff; border-color: #b8cadc; }
+.arena-os-dialogue-log { background: #f8fbff; }
+.arena-os-dialogue-log p { color: #253d53; }
+.arena-os-chat-bubble { border: 1px solid #d2deea; }
+.arena-os-chat-bubble.client-line { color: #20384e; background: #ffffff; }
+.arena-os-chat-bubble.player-line { color: #124a78; background: #e2f1ff; border-color: #b2d4f0; }
+.arena-os-chat-bubble.system-line { color: #155c42; background: #e1f6eb; border-color: #b7e2ca; }
+.arena-os-chat-bubble small,
+.arena-os-chat-bubble time { color: #536b80; }
+.arena-os-response-actions > span { color: #243e55; }
+.arena-os-response-actions button { color: #174d7c; background: #e8f3ff; border-color: #a8c9e8; }
+.arena-os-response-actions button.bad { color: #8d2633; background: #fff0f1; border-color: #e8b8be; }
+.arena-os-free-text textarea { min-height: 64px; resize: vertical; font: inherit; font-size: 13px; line-height: 1.45; }
+.arena-os-free-text button[type="submit"] { color: #ffffff; background: #155f9e; border-color: #155f9e; }
+.arena-os-free-text button:disabled { color: #52677b; background: #e4eaf0; border-color: #c6d0da; opacity: 1; }
+.arena-os-window-content .arena-os-stock-picker-grid button { color: #173d60; background: #ffffff; border-color: #b8cbdc; }
+.arena-os-window-content .arena-os-stock-picker-grid button small { color: #405b73; }
+.arena-os-window-content .arena-os-all-clients small,
+.arena-os-window-content .arena-os-all-clients p,
+.arena-os-window-content .arena-os-all-clients span { color: #40566c; }
+.arena-os-window-content .arena-os-housing-copy small,
+.arena-os-window-content .arena-os-business-copy small { color: #465d73; }
+.arena-os-window-content .arena-os-business-summary small { color: #40566c; }
+.arena-os-window-content .arena-os-business-effect { color: #205c43; }
+.arena-os-window-content .arena-os-call-metrics span,
+.arena-os-window-content .arena-os-call-metrics small { color: #40566c; }
+.arena-os-window-content .arena-os-dialogue-log .player-line { color: #124a78; }
+.arena-os-window-content .arena-os-dialogue-log .system-line { color: #155c42; }
+@media (prefers-reduced-motion: reduce) {
+  .arena-os-v2 *, .arena-os-v2 *::before, .arena-os-v2 *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

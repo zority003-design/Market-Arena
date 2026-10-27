@@ -397,6 +397,17 @@ export default function App() {
   const [day, setDay] = useState(saved.day ?? 1)
   const [deals, setDeals] = useState(saved.deals ?? 0)
   const [callsToday, setCallsToday] = useState(saved.callsToday ?? 0)
+  const introCallStorageKey = `na-vse-kotirovki-intro-call-received-slot-${activeSaveSlot}`
+  const [introCallReceived, setIntroCallReceived] = useState(() => {
+    try { return localStorage.getItem(introCallStorageKey) === 'true' } catch { return false }
+  })
+  const updateIntroCallReceived = useCallback((value: boolean) => {
+    setIntroCallReceived(value)
+    try {
+      if (value) localStorage.setItem(introCallStorageKey, 'true')
+      else localStorage.removeItem(introCallStorageKey)
+    } catch { /* The introductory call still works when storage is unavailable. */ }
+  }, [introCallStorageKey])
   const [housingId, setHousingId] = useState(saved.housingId ?? STARTING_HOUSING_ID)
   const previousHousingId = useRef(housingId)
   const [businessUpgrades, setBusinessUpgrades] = useState<string[]>(saved.businessUpgrades ?? [])
@@ -681,6 +692,7 @@ export default function App() {
   function startNewGame() { setConfirmNewCareer(true) }
 
   function confirmStartNewGame() {
+    updateIntroCallReceived(false)
     setCareerSessionId((value) => value + 1)
     window.setTimeout(() => playSound('alarm'), 900)
     try { localStorage.removeItem(getSaveKey(activeSaveSlot)); if (activeSaveSlot === 1) localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
@@ -1164,7 +1176,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
@@ -1181,7 +1193,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
       {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
