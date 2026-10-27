@@ -251,20 +251,16 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     <WindowBuilding x={-5.4} z={-2.4} width={3.1} depth={2.6} height={5.2} color={night ? '#394b53' : '#a0aaa5'} night={night} />
     <WindowBuilding x={-1.5} z={-4.2} width={2.4} depth={2.2} height={7.4} color={night ? '#2c404d' : '#7f9298'} night={night} />
     <WindowBuilding x={3.2} z={-3.3} width={3.3} depth={2.5} height={6.2} color={night ? '#334653' : '#8e9f9e'} night={night} />
-    {/* Ground plane, sidewalk, road markings and planted strips. */}
+    {/* A quiet paved courtyard replaces the accidental road visible through the room window. */}
     <Block position={[0, -.12, 1.4]} size={[25, .22, 12]} color={rainy ? '#586363' : '#747c75'} roughness={.98} />
-    <Block position={[0, -.005, 3.25]} size={[25, .08, 2.7]} color={rainy ? '#343e43' : '#3e484b'} roughness={.96} />
-    <Block position={[0, .04, 1.82]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
-    <Block position={[0, .04, 4.67]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
-    {[-9,-6,-3,0,3,6,9].map((x) => <Block key={'road-dash-' + x} position={[x, .045, 3.25]} size={[1.05, .012, .055]} color="#d5d0b7" roughness={.85} />)}
-    {Array.from({ length: 5 }, (_, i) => <WindowCar key={'car-' + i} index={i} />)}
-    {[-9.2, -5.6, 5.4, 9.3].map((x, i) => <group key={'street-light-' + i} position={[x, 0, 1.55]}>
-      <Block position={[0, 1.65, 0]} size={[.055, 3.3, .055]} color="#343d40" metalness={.42} roughness={.55} />
-      <Block position={[.24, 3.22, 0]} size={[.5, .055, .08]} color="#d0d1c3" roughness={.35} />
-      {night && <pointLight position={[.23, 3.1, 0]} intensity={.38} distance={3} color="#f3d8a1" />}
+    <Block position={[0, -.005, 3.15]} size={[25, .045, 2.4]} color={rainy ? '#59686a' : '#858b80'} roughness={.98} />
+    {Array.from({ length: 12 }, (_, i) => <Block key={'courtyard-seam-' + i} position={[-11.5 + i * 2.1, .021, 3.15]} size={[.025, .006, 2.25]} color="#6e7975" roughness={.98} />)}
+    {[-9.2, -5.6, 5.4, 9.3].map((x, i) => <group key={'courtyard-light-' + i} position={[x, 0, 1.55]}>
+      <Block position={[0, 1.25, 0]} size={[.055, 2.5, .055} color="#343d40" metalness={.42} roughness={.55} />
+      <Block position={[.24, 2.45, 0]} size={[.5, .055, .08]} color="#d0d1c3" roughness={.35} />
+      {night && <pointLight position={[.23, 2.35, 0]} intensity={.3} distance={2.5} color="#f3d8a1" />}
     </group>)}
     {rainy && <WindowRain />}
-    {rainy && <Block position={[0, .075, 3.25]} size={[25, .006, 2.7]} color="#627e88" transparent opacity={.13} roughness={.15} />}
   </group>
 }
 
