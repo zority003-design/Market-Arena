@@ -12,7 +12,7 @@ import ClientPortrait3D from './ClientPortrait3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PlayerModel3D from './PlayerModel3D'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, settleDailyFinances, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -23,8 +23,8 @@ const NEGOTIATION_STAGES = ['ОТКРЫТИЕ', 'ПРОДУКТ И СПРОС', 
 
 const OUTFITS: { id: OutfitId; name: string; price: number; description: string }[] = [
   { id: 'intern', name: 'Стажёр', price: 0, description: 'Футболка, тёмные брюки и удобная обувь.' },
-  { id: 'classic', name: 'Классический брокер', price: 4500, description: 'Рубашка, аккуратный пиджак и деловой силуэт.' },
-  { id: 'premium', name: 'Премиальный костюм', price: 12500, description: 'Тёмный костюм, светлая рубашка и золотистые детали.' },
+  { id: 'classic', name: 'Классический брокер', price: 3500, description: 'Рубашка, аккуратный пиджак и деловой силуэт.' },
+  { id: 'premium', name: 'Премиальный костюм', price: 9500, description: 'Тёмный костюм, светлая рубашка и золотистые детали.' },
 ]
 
 const companies = [
@@ -864,7 +864,7 @@ export default function App() {
     const targetAmount = 8000 + day * 4000
     const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
     const reward = success ? 1000 + day * 250 : 0
-    const penalty = success ? 0 : 750
+    const penalty = success ? 0 : 400
     if (success) { setCash((value) => value + reward); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
     else { setReputation((value) => Math.max(0, value - 3)); setFirmCapital((value) => Math.max(0, value - penalty)); setToast('План не выполнен: репутация −3, фирма потеряла ' + penalty.toLocaleString('ru-RU') + ' ₽.') }
     setShiftReport({ success, ticker: shiftTargetCompany.ticker, company: shiftTargetCompany.name, shares: dailySalesShares, targetShares, amount: dailySalesAmount, targetAmount, reward, penalty })
@@ -895,16 +895,12 @@ export default function App() {
       setCityLocation('office')
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
       const dailyCosts = currentHousing.dailyCost
-      const available = cash + DAILY_SALARY
-      const paidCosts = Math.min(available, dailyCosts)
-      const shortfall = dailyCosts - paidCosts
-      const remainder = available - paidCosts
-      const debtPayment = Math.min(debt, remainder)
-      setCash(remainder - debtPayment)
-      setDebt(Math.max(0, debt - debtPayment) + shortfall)
-      const debtNote = shortfall > 0
-        ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
-        : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
+      const finances = settleDailyFinances(cash, debt, dailyCosts, DAILY_SALARY)
+      setCash(finances.cash)
+      setDebt(finances.debt)
+      const debtNote = finances.shortfall > 0
+        ? ' Просрочка по расходам: +' + finances.shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
+        : finances.debtPaid > 0 ? ' Погашено долга: ' + finances.debtPaid.toLocaleString('ru-RU') + ' ₽.' : ''
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
