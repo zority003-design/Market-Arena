@@ -14,7 +14,7 @@ import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -846,7 +846,17 @@ export default function App() {
     const dailyCallLimit = reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2
     if (callsToday >= dailyCallLimit) { setToast('На сегодня лимит звонков исчерпан. Восстановись и продолжи завтра.'); return }
     if (!availableClients.some((client) => client.id === activeClient.id)) { setToast('Этот лид сейчас недоступен. Выбери клиента из списка актуальных предложений.'); return }
-    const assignedCompany = dailyQuotaCompany
+    const assignedCompany = companies.find((company) => company.ticker === selectedCompany) ?? dailyQuotaCompany
+    const fit = getClientStockFit(activeClient.id, assignedCompany.ticker)
+    if (!fit.suitable) {
+      setCallCompanyTicker(assignedCompany.ticker); setSelectedCompany(assignedCompany.ticker); setCallClientId(activeClient.id)
+      setCallsToday((count) => count + 1); setClientLastContactDay((items) => ({ ...items, [activeClient.id]: day }))
+      setTrust(Math.max(0, activeClient.baseTrust - 12)); setPatience(Math.max(0, activeClient.patience - 18))
+      setReputation((value) => Math.max(0, value - 2))
+      setLastResult('Сделка сорвана до переговоров: ' + assignedCompany.name + ' не соответствует цели клиента. ' + fit.reason + ' Доверие −12, репутация фирмы −2, бонус не начислен. Восстанови доверие на подходящей акции.')
+      setConversation([{ from: 'system', text: 'Проверка продукта: ' + assignedCompany.name + ' (' + assignedCompany.ticker + ') не подходит под запрос «' + activeClient.goal + '».' }, { from: 'client', text: '«Вы даже не сопоставили продукт с моей задачей? ' + fit.reason + ' Я прекращаю разговор. Сначала разберитесь, что мне нужно, потом звоните».' }, { from: 'system', text: 'Ошибка подбора: доверие −12, репутация −2. Это штраф за противоречие запросу, а не случайность.' }])
+      setCallStatus('lost'); if (!embedded) setTab('calls'); setWindowMinimized(false); setWindowMaximized(!embedded); playSound('decline'); return
+    }
     const assignedQuestions = getStockQuestions(assignedCompany)
     setCallCompanyTicker(assignedCompany.ticker)
     setSelectedCompany(assignedCompany.ticker)
@@ -861,17 +871,19 @@ export default function App() {
     const roomBonus = getFirstImpression(housingId, ownedItems, activeClient)
     const outfitBonus = getOutfitModifier(selectedOutfit, activeClient)
     const relationshipBonus = Math.min(15, (clientDealCounts[activeClient.id] ?? 0) * 6)
+    const reputationBonus = Math.min(8, Math.floor(reputation / 15))
+    const businessTrustBonus = BUSINESS_UPGRADES.filter((upgrade) => businessUpgrades.includes(upgrade.id)).reduce((sum, upgrade) => sum + upgrade.trustBonus, 0)
     const videoBonus = videoEnabled ? 2 + Math.min(3, getVideoQuality(ownedItems)) : 0
     const backgroundBonus = videoEnabled ? getBackgroundModifier(videoBackground, ownedItems, activeClient) : 0
     const newsFitBonus = (newsImpacts[assignedCompany.ticker] ?? 0) > 0 ? 2 : (newsImpacts[assignedCompany.ticker] ?? 0) < 0 ? -2 : 0
     const companyFitBonus = (assignedCompany.risk === 'Очень высокий' ? -5 : assignedCompany.risk === 'Высокий' ? -2 : assignedCompany.positive ? 3 : -3) + newsFitBonus
-    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + outfitBonus + relationshipBonus + videoBonus + backgroundBonus + companyFitBonus)))
+    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + outfitBonus + relationshipBonus + reputationBonus + businessTrustBonus + videoBonus + backgroundBonus + companyFitBonus)))
     setPatience(activeClient.patience)
     setTimeLeft(75)
     setLastPenaltySecond(75)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : [])])
+    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : []), ...(reputationBonus > 0 ? [{ from: 'system' as const, text: 'Репутация прошлых сделок добавила +' + reputationBonus + ' к начальному доверию.' }] : []), ...(businessTrustBonus > 0 ? [{ from: 'system' as const, text: 'Бизнес-инструменты помогли подготовиться: +' + businessTrustBonus + ' к начальному доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCityBonus(0)
@@ -886,7 +898,7 @@ export default function App() {
   }
 
   function resolveCall(nextTrust: number, nextPatience: number) {
-    const threshold = 58 + activeClient.tier * 2
+    const threshold = getClientTrustRequirement(activeClient)
     const success = nextTrust >= threshold && nextPatience > 20
     const prepXp = marketReviewed && newsReviewed ? 10 : 0
     const earnedXp = 25 + prepXp + (success ? 35 : 0)
@@ -908,7 +920,7 @@ export default function App() {
         setDailySalesAmount((value) => value + payout.ticket)
         setDailySalesShares((value) => value + soldShares)
       }
-      setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.')
+      setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. ТВОЙ личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; комиссия фирмы: ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после выплаты бонуса фирме остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.' + (deals === 0 ? ' ПЕРВАЯ СДЕЛКА! Деньги на балансе — твой заработок, а не вся сумма клиентского капитала. Следующий разумный шаг: гарнитура за 4 500 ₽ улучшит звук и добавит стартового доверия; лампа за 1 200 ₽ улучшит свет; дополнительный стол нужен, когда появится сотрудник. Не нанимай работника до устойчивого потока сделок: его чистый доход начисляется каждый игровой день, но цена найма сразу списывается с твоего баланса.' : ' Чем выше доверие клиента, тем больше шанс закрыть крупную сделку и получить бонус.')
       const quotaNote = activeCompany.ticker === quotaTargetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + quotaTargetCompany.ticker + '.' : ' Внимание: дневной план по ' + quotaTargetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' + quotaNote }])
     } else {
@@ -933,31 +945,37 @@ export default function App() {
   function answerQuestion(text: string, delta: number) {
     if (callStatus !== 'active') return
     const backgroundCaught = videoEnabled && videoBackground === 'luxury' && activeClient.statusSensitive && getVideoQuality(ownedItems) < 4 && questionIndex === 0
-    const nextTrust = Math.max(0, Math.min(100, trust + delta - (backgroundCaught ? 7 : 0)))
-    const patienceCost = delta >= 7 ? 2 : delta <= -8 ? 9 : delta < 0 ? 6 : 4
+    const appliedDelta = Math.max(-15, Math.min(10, delta - (backgroundCaught ? 7 : 0)))
+    const nextTrust = Math.max(0, Math.min(100, trust + appliedDelta))
+    const patienceCost = appliedDelta >= 7 ? 2 : appliedDelta <= -8 ? 9 : appliedDelta < 0 ? 6 : 4
     const nextPatience = Math.max(0, patience - patienceCost)
-    setTrust(nextTrust)
-    setPatience(nextPatience)
-    const clientReaction = delta >= 7
-      ? activeClient.tier >= 3
-        ? ['«Это уже предметно. Но покажите, где расчёт перестанет работать».', '«Вы отделили факт от предположения — это хороший знак. Что может сорвать сценарий?»', '«Аргумент принимаю предварительно. Мне нужны критерии, по которым мы признаем ошибку».'][questionIndex % 3]
-        : ['«Хорошо, вы связали идею с моим запросом. Продолжайте».', '«Так понятнее. Особенно то, что вы не обещаете доходность».', '«Наконец-то конкретика: теперь можно обсуждать условия, а не лозунги».'][questionIndex % 3]
-      : delta <= -8
-        ? activeClient.temperament === 'Скептичный' || activeClient.temperament === 'Очень требовательная'
-          ? ['«Вы отвечаете слишком уверенно и не показываете, на чём основан вывод. Пока не убеждён».', '«Вы обошли риск стороной. Это как раз то, чего я опасался».', '«Если у вас нет доказательств, громкие обещания только ухудшают ситуацию».'][questionIndex % 3]
-          : ['«Это звучит как обещание, а не анализ. Чем вы можете его подтвердить?»', '«Вы не ответили на главный вопрос. Я начинаю сомневаться в рекомендации».', '«С таким объяснением я не готов рисковать своими деньгами».'][questionIndex % 3]
-        : ['«Я услышал ответ, но пока не понимаю, как он связан с моей задачей».', '«Давайте без общих слов. Что именно может пойти не так?»', '«Вы назвали тезис, но не показали, что он значит для моего капитала».'][questionIndex % 3]
-    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), { from: 'client' as const, text: clientReaction }, ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
-    playSound('murmur')
-    setFreeAnswer('')
-    if (questionIndex >= activeQuestions.length - 1) {
-      resolveCall(nextTrust, nextPatience)
-    } else {
-      setQuestionIndex((value) => value + 1)
-      const nextTime = 75
-      setTimeLeft(nextTime)
-      setLastPenaltySecond(nextTime)
+    setTrust(nextTrust); setPatience(nextPatience)
+    const lower = text.toLowerCase()
+    const reckless = /гарантир|без риска|точно выраст|не может упасть|удво|100% доход/.test(lower)
+    const evidence = /риск|убыт|марж|денеж|контракт|возврат|сценар|подтверж|провер|если|огранич|критер|дивиденд|прибыл/.test(lower)
+    const clientTone = activeClient.temperament.toLowerCase()
+    const strong = ['«Вот теперь разговор предметный. Я вижу не только красивую сторону, но и то, что может сломать идею».','«Хорошо: вы не пытаетесь продать мне единственный правильный ответ. Продолжайте».','«Запишу это в заметки. Наконец-то аргумент, который можно проверить, а не повесить в рамке».','«Это звучит разумнее презентации директора. Но я всё ещё оставляю за собой право передумать».','«Ладно, вы хотя бы знаете, где у этой истории слабое место. Это уже редкость на рынке».']
+    const weak = ['«Вы сейчас продаёте мне уверенность в собственном голосе. А цифры где?»','«Это ответ из рекламной брошюры. Я спрашивал про свои деньги, а не про вашу мотивацию».','«Подождите. Вы пропустили самое неприятное место — именно поэтому я и спросил».','«С таким объяснением я пока не подпишусь. Даже коту с реактивным двигателем нужен тормоз».','«Слишком гладко. Когда брокер не называет риск, обычно риск называет его сам».']
+    const mixed = ['«Часть ответа полезна, но я пока не понял, как это связано с моей задачей».','«Допустим. А теперь переведите это с брокерского на человеческий и покажите, что проверять».','«Не провал, но и не продажа века. Давайте отделим факт от надежды».','«Я услышал аргумент. Пока поставлю ему оценку “интересно, но не трогать без перчаток”».','«Вы на верном пути, но мне не хватает условия, при котором вы признаете ошибку».']
+    const tickerReplies: Record<string, string[]> = {
+      KOTL:['«У роботов хотя бы есть маршрут. У вашей идеи теперь тоже появился критерий проверки».','«Если контракт не подпишут, хочу услышать план Б, а не мяуканье финансового директора».','«Рост выручки — хорошо. Покажите, когда он перестанет быть дорогим хобби».'],
+      OGUR:['«Хорошо, что вы не обещаете, будто огурцы спасут портфель от всех бед».','«Прибыль — приятно. Теперь выясним, сколько останется после упаковки и скидок».','«Убедительнее сока из презентации. Но маржу всё равно проверим».'],
+      TAPK:['«Ставка на умные тапочки — смело. Убедимся, что они не возвращаются умнее покупателя».','«Обновление — не чудо. Покажите статистику возвратов, прежде чем я вложу деньги в обувной Wi‑Fi».','«Хорошо, что у идеи появился стоп-кран. Тапочки без тормозов нам не нужны».'],
+      DUST:['«Стабильный контракт звучит скучно. Зато скучные цифры переживают громкие презентации».','«Уборка уборкой, но зарплаты сами себя не оплачивают. Маржу проверим отдельно».','«Наконец-то идея, которой не обязательно лететь на Луну, чтобы заработать».'],
+      BTRAN:['«Кофе на заправке может быть крепким, но тезис должен быть крепче».','«Считайте экономику одной станции, а не количество банановых вывесок».','«Трафик, маржа и окупаемость — вот бензин для этой идеи. Слоганы машину не заведут».'],
     }
+    const seed = (activeClient.id + activeCompany.ticker + questionIndex + text).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
+    let clientReaction = appliedDelta >= 7 ? strong[(seed + questionIndex) % strong.length] : appliedDelta <= -8 ? weak[(seed + questionIndex) % weak.length] : mixed[(seed + questionIndex) % mixed.length]
+    const companyReplies = tickerReplies[activeCompany.ticker] ?? []
+    if (companyReplies.length && questionIndex % 2 === 0 && appliedDelta >= 3) clientReaction = companyReplies[(seed + questionIndex) % companyReplies.length]
+    if (reckless) clientReaction = '«Вы только что назвали риск гарантированным нулём. Для меня это не уверенность, а красный флаг. На этом рекомендацию прекращаем».'
+    if (clientTone.includes('занят') || clientTone.includes('прямолин')) clientReaction = clientReaction.replace('«', '«Коротко: ')
+    if (clientTone.includes('дотош') || clientTone.includes('аналит')) clientReaction += ' «И занесите допущение в расчёт, чтобы потом не делать вид, будто мы его не обсуждали».'
+    if (clientTone.includes('импульсив') || clientTone.includes('азарт')) clientReaction += ' «Не дайте мне увлечься красивой историей: напомните лимит риска».'
+    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне: доверие −7. Для дорогого клиента фальшивый статус без качественной камеры выглядит подозрительно.' }] : []), { from: 'system' as const, text: 'Разбор ответа: доверие ' + (appliedDelta > 0 ? '+' : '') + appliedDelta + ' (' + trust + ' → ' + nextTrust + '); терпение −' + patienceCost + ' (' + patience + ' → ' + nextPatience + '). ' + (reckless ? 'Необоснованное обещание — критическая ошибка.' : evidence ? 'Ты затронул факты или риски — это помогает обосновать рекомендацию.' : 'В ответе мало проверяемых фактов: привяжи аргумент к цели клиента.') }, { from: 'client' as const, text: clientReaction }])
+    playSound('murmur'); setFreeAnswer('')
+    if (questionIndex >= activeQuestions.length - 1) resolveCall(nextTrust, nextPatience)
+    else { setQuestionIndex((value) => value + 1); setTimeLeft(75); setLastPenaltySecond(75) }
   }
 
   function sendFreeAnswer() {
@@ -1032,7 +1050,7 @@ export default function App() {
     if (cash < item.price) { setToast('Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽.'); return }
     setCash((value) => value - item.price)
     setOwnedItems((items) => [...items, itemId])
-    setToast('Куплено: ' + item.name + '. Предмет добавлен в инвентарь комнаты.')
+    setToast('Куплено: ' + item.name + '. Предмет появился в комнате. Его бонус к первому впечатлению и качеству связи будет применяться автоматически.')
   }
 
   function moveToHousing(homeId: string) {
