@@ -82,10 +82,10 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
     {[1.36, 1.22, 1.08].map(y => <mesh key={y} position={[0.07, y, 0.304]}><sphereGeometry args={[0.022, 10, 8]}/><meshStandardMaterial color={palette.accent} metalness={0.55} roughness={0.35}/></mesh>)}
     <mesh position={[-0.29, 1.47, 0.24]} rotation={[0, 0, 0.03]}><boxGeometry args={[0.105, 0.045, 0.018]}/><meshStandardMaterial color={palette.accent} roughness={0.4}/></mesh>
     {/* Arms, cuffs and hands */}
-    <CapsuleLimb start={[-0.4, 1.66, 0]} end={pose === 'seated' ? [-0.43, 1.45, 0.42] : [-0.43, 1.02, 0.11]} radius={0.13} color={jacket}/>
-    <CapsuleLimb start={[0.4, 1.66, 0]} end={pose === 'seated' ? [0.43, 1.45, 0.42] : [0.43, 1.02, 0.11]} radius={0.13} color={jacket}/>
-    <mesh position={pose === 'seated' ? [-0.43, 1.44, 0.43] : [-0.43, 0.98, 0.13]} scale={[0.105, 0.14, 0.09]} castShadow><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.skin} roughness={0.8}/></mesh>
-    <mesh position={pose === 'seated' ? [0.43, 1.44, 0.43] : [0.43, 0.98, 0.13]} scale={[0.105, 0.14, 0.09]} castShadow><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.skin} roughness={0.8}/></mesh>
+    <CapsuleLimb start={[-0.4, 1.66, 0]} end={pose === 'seated' ? [-0.43, 1.57, 0.42] : [-0.43, 1.02, 0.11]} radius={0.13} color={jacket}/>
+    <CapsuleLimb start={[0.4, 1.66, 0]} end={pose === 'seated' ? [0.43, 1.57, 0.42] : [0.43, 1.02, 0.11]} radius={0.13} color={jacket}/>
+    <mesh position={pose === 'seated' ? [-0.43, 1.56, 0.43] : [-0.43, 0.98, 0.13]} scale={[0.105, 0.14, 0.09]} castShadow><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.skin} roughness={0.8}/></mesh>
+    <mesh position={pose === 'seated' ? [0.43, 1.56, 0.43] : [0.43, 0.98, 0.13]} scale={[0.105, 0.14, 0.09]} castShadow><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.skin} roughness={0.8}/></mesh>
     <mesh position={[-0.41, 1.12, 0.055]} scale={[0.13, 0.08, 0.12]}><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.shirt}/></mesh>
     <mesh position={[0.41, 1.12, 0.055]} scale={[0.13, 0.08, 0.12]}><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.shirt}/></mesh>
     {/* Neck and expressive head */}
