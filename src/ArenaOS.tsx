@@ -5,7 +5,7 @@ import {
   PhoneCall, Search, ShieldCheck, ShoppingBag, Sparkles, Users,
   Video, Wallet, X
 } from 'lucide-react'
-import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, getBusinessDailyNetIncome, getBusinessPayoutCap, getFirstImpression, getStaffDailyNetIncome, type ClientProfile } from './game/economy'
+import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, getBusinessDailyNetIncome, getBusinessPayoutCap, getFirstImpression, getStaffDailyNetIncome, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, type ClientProfile } from './game/economy'
 import ClientAvatar2D from './ClientAvatar2D'
 import BrokerAvatar3D from './BrokerAvatar3D'
 import { playSound } from './audio'
@@ -37,6 +37,7 @@ type Props = {
   selectedOutfit: OutfitId; setSelectedOutfit: (v: OutfitId) => void
   ownedOutfits: OutfitId[]; setOwnedOutfits: Dispatch<SetStateAction<OutfitId[]>>
   ownedItems: string[]; setOwnedItems: Dispatch<SetStateAction<string[]>>
+  clientTrustScores: Record<string, number>; setClientTrustScores: Dispatch<SetStateAction<Record<string, number>>>
   onClose: () => void
   initialApp?: AppId
   sessionId?: number
@@ -174,14 +175,20 @@ const RESPONSE_BANK: Record<string, {label:string;text:string}[]> = {
 function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
   const bank = RESPONSE_BANK[stock.ticker] ?? RESPONSE_BANK.OGUR
   const offset = (turn * 2) % bank.length
-  const options = [0,1,2].map(index => bank[(offset + index) % bank.length])
-  if (client.temperament.includes('Нетерпелив') || client.temperament.includes('Занятая')) {
-    options[0] = {...options[0], label: 'Коротко и по делу: ' + options[0].label}
-  } else if (client.temperament.includes('Холодно') || client.temperament.includes('требователь')) {
-    options[0] = {...options[0], label: 'Сначала доказательства: ' + options[0].label}
-  } else if (client.temperament.includes('Импульсив') || client.temperament.includes('азарт')) {
-    options[0] = {...options[0], label: 'Без FOMO: ' + options[0].label}
-  }
+  const angle = [
+    { prefix: 'Проверка цифр: ', suffix: ' На ближайшем отчёте сверю тезис с денежным потоком и маржой.' },
+    { prefix: 'План Б: ', suffix: ' Если условие не выполнится, пересмотрю позицию, а не буду усреднять убыток.' },
+    { prefix: 'Без презентационного дыма: ', suffix: ' Сначала проверю факт, затем определю размер позиции.' },
+    { prefix: 'Условия выхода: ', suffix: ' Заранее назову показатель, при котором откажусь от идеи.' },
+    { prefix: 'Вопрос к директору: ', suffix: ' Сравню эту версию с альтернативой и ценой ошибки.' },
+  ][turn % 5]
+  const options = [0,1,2].map(index => {
+    const base = bank[(turn * 3 + index) % bank.length]
+    const temperamentPrefix = client.temperament.includes('Нетерпелив') || client.temperament.includes('Занятая') ? 'Коротко и по делу: ' :
+      client.temperament.includes('Холодно') || client.temperament.includes('требователь') ? 'Сначала доказательства: ' :
+      client.temperament.includes('Импульсив') || client.temperament.includes('азарт') ? 'Без FOMO: ' : ''
+    return { label: angle.prefix + temperamentPrefix + base.label, text: base.text + angle.suffix + ' С учётом задачи клиента «' + client.goal.toLowerCase() + '».' }
+  })
   return options
 }
 
@@ -224,7 +231,7 @@ export default function ArenaOS(props: Props) {
   const dailyCallLimit = (props.reputation >= 60 ? 4 : props.reputation >= 35 ? 3 : 2) + (props.businessUpgrades.includes('lead-network') ? 1 : 0) + (props.businessUpgrades.includes('client-crm') ? 1 : 0)
   const outfitBonus = OUTFITS.find(o=>o.id===props.selectedOutfit)?.bonus ?? 0
   const qualityPenalty = ((props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic'))?0:8) + (props.ownedItems.includes('hd-camera')?0:5) + (props.ownedItems.includes('neutral-backdrop')?0:3)
-  const chance = Math.max(5,Math.min(92,Math.round(30 + trust*.48 + props.reputation*.12 + equipmentBonus + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.tier >= 2 ? 4 : 0) - Math.max(0,client.tier-1)*9)))
+  const chance = Math.max(5,Math.min(92,Math.round(30 + trust*.48 + props.reputation*.12 + equipmentBonus + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 4 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.22)))
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-last-app',activeApp) } catch {} },[activeApp])
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-contacts',JSON.stringify(newContacts)) } catch {} },[newContacts])
   useEffect(()=>{ setWindowMinimized(false) },[activeApp])
@@ -253,7 +260,8 @@ export default function ArenaOS(props: Props) {
     props.setCallsToday(value => value + 1)
     setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
-    const starterTrust = Math.max(12,Math.min(72,selected.baseTrust - Math.max(0,selected.tier-1)*5 - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
+    const relationshipTrustBase = props.clientTrustScores[selected.id] ?? selected.baseTrust
+    const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
     setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
     if (!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) && (selected.tier >= 2 || Math.random() < 0.45)) lines.push('Клиент: «Звук немного глухой. Надеюсь, финансовые расчёты у вас звучат убедительнее микрофона».')
@@ -263,17 +271,27 @@ export default function ArenaOS(props: Props) {
     setCallLog(lines); setMessage(''); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
   }
   const chooseStock = (stock:Stock) => {
+    const fit = getClientStockFit(client.id, stock.ticker)
     setActiveStock(stock); setStockPicker(false); setDialogueTurn(0)
-    const suitable = (client.tier <= 1 && stock.risk === 'Низкий') || (client.tier >= 3 && stock.risk === 'Высокий') || (client.tier === 2 && stock.risk === 'Средний')
-    setCallLog(prev=>[...prev, 'Ты: «Я предлагаю рассмотреть акцию '+stock.name+' ('+stock.ticker+'). '+stock.upside+' При этом важно учитывать и обратную сторону: '+stock.downside+'»', client.name+': «'+(suitable?'Хорошо, расскажите, почему вы считаете эту компанию подходящей именно мне.':'Почему вы решили, что эта акция подходит под мои цели и отношение к риску? Объясните свой выбор.')+'»'])
-    setTrust(v=>Math.max(0,Math.min(100,v+(suitable?4:-3))))
+    if (!fit.suitable) {
+      setTrust(Math.max(0, trust - 12))
+      props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, (scores[client.id] ?? client.baseTrust) - 12) }))
+      props.setReputation(value => Math.max(0, value - 2))
+      setLastChance(0); setCallState('lost')
+      setCallLog(prev => [...prev, 'Ты: «Я предлагаю рассмотреть ' + stock.name + ' (' + stock.ticker + ')».', client.name + ': «Вы даже не сопоставили продукт с моей задачей? ' + fit.reason + ' На этом разговор окончен».', 'Сделка сорвана до обсуждения условий: доверие −12, репутация −2, бонус не начислен.'])
+      setNotice('Акция не подходит клиенту. Доверие −12, репутация −2. В следующий раз сверяй тип акции с его целью.')
+      return
+    }
+    setCallLog(prev=>[...prev, 'Ты: «Я предлагаю рассмотреть акцию '+stock.name+' ('+stock.ticker+'). '+stock.upside+' При этом важно учитывать и обратную сторону: '+stock.downside+'»', client.name+': «'+fit.reason+' Расскажите, как вы ограничите риск и какой факт заставит вас изменить рекомендацию».'])
+    setTrust(v=>Math.max(0,Math.min(100,v+4)))
+    props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.min(100, (scores[client.id] ?? client.baseTrust) + 4) }))
   }
   const respond = (kind:'benefit'|'risk'|'absurd'|'free', custom='') => {
     if(callState!=='active') return
     const text = custom.trim()
     let delta = 0; let reply = ''
     if(kind==='free') {
-      const evaluation = evaluateFreeReply(text, client, activeStock)
+      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn)
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
@@ -286,12 +304,12 @@ export default function ArenaOS(props: Props) {
     }
     const newTrust = Math.max(0,Math.min(100,trust+delta))
     const newPatience = Math.max(0,patience-(kind==='risk'?3:kind==='free'?4:5))
-    setTrust(newTrust); setPatience(newPatience); setCallLog(prev=>[...prev,'Ты: '+(kind==='free'?text:kind==='benefit'?'Объясняешь потенциальную выгоду':kind==='risk'?'Честно раскрываешь риски':'Отвечаешь невпопад'),client.name+': '+reply])
+    setTrust(newTrust); setPatience(newPatience); props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, Math.min(100, (scores[client.id] ?? client.baseTrust) + delta)) })); setCallLog(prev=>[...prev,'Ты: '+(kind==='free'?text:kind==='benefit'?'Объясняешь потенциальную выгоду':kind==='risk'?'Честно раскрываешь риски':'Отвечаешь невпопад'),client.name+': '+reply])
     setMessage('')
     if(kind==='free') setDialogueTurn(turn=>turn+1)
-    const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,client.tier-1)*9)))
+    const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
     setLastChance(newChance)
-    if(newTrust>=72 && Math.random()*100<newChance) {
+    if(newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
       const payout = Math.min(getBusinessPayoutCap(props.businessUpgrades),Math.max(350,Math.round(client.ticket*(client.commissionRate+client.bonusRate*.25))))
       let firstSuccessfulDeal = false
       try {
@@ -304,7 +322,7 @@ export default function ArenaOS(props: Props) {
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,...(client.id==='alex-vorontsov'?['pavel-smirnov']:client.id==='maria-sokolova'?['natalia-orlova']:client.id==='pavel-smirnov'?['maksim-sobolev']:['igor-melnikov'])])))
       setCallState('won'); setCompleted(v=>v+1)
       setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия: '+money(payout)+'. Клиент: «Ой, это здорово! Мне понравилось, как вы работали: вы не только рассказали о перспективах, но и не стали скрывать риски. Как мне теперь к вам обращаться — как называется ваша брокерская фирма? Я сохраню контакт и порекомендую вас знакомым».'])
-    } else if(newTrust>=72 && newChance<100) {
+    } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
       setCallLog(prev=>[...prev,client.name+': «Аргументы звучат убедительно, но я пока не готов принять решение. Мне нужно проверить детали».'])
     } else if(newTrust<=8 || newPatience<=8) {
       setCallState('lost'); props.setReputation(v=>Math.max(0,v-2)); props.setXp(v=>v+5)
