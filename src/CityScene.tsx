@@ -186,6 +186,23 @@ function WindowBuilding({ x, z, width, depth, height, color, night }: { x: numbe
   </group>
 }
 
+function WindowCar({ index }: { index: number }) {
+  const car = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (!car.current) return
+    const direction = index % 2 === 0 ? 1 : -1
+    const travel = clock.elapsedTime * direction * .72 + index * 4.8 - 10
+    car.current.position.x = ((travel + 12) % 24 + 24) % 24 - 12
+  })
+  return <group ref={car} position={[0, .13, index % 2 ? 2.65 : 3.82]}>
+    <Block position={[0, .18, 0]} size={[1.28, .34, .62]} color={['#6b7779','#8a5b4d','#435c61','#b6a67e','#42514b'][index]} roughness={.55} metalness={.18} />
+    <Block position={[0, .4, -.035]} size={[.72, .24, .48]} color="#6c8b92" roughness={.28} metalness={.08} />
+    <Block position={[-.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
+    <Block position={[.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
+    {[-1,1].map(side => <mesh key={side} position={[side * .38, -.015, .31]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.12,.12,.06,14]} /><meshStandardMaterial color="#20272a" roughness={.85} /></mesh>)}
+  </group>
+}
+
 function WindowRain() {
   const rain = useRef<THREE.Group>(null)
   useFrame(({ clock }) => {
@@ -217,6 +234,10 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     {/* Sky, haze and distant skyline create real depth instead of a flat wall of boxes. */}
     <Block position={[0, 4.5, -17]} size={[34, 18, .4]} color={night ? '#182a3b' : rainy ? '#82969e' : overcast ? '#a6b3b4' : '#b8d3db'} roughness={1} />
     {!night && !overcast && <mesh position={[7.8, 8.2, -16.65]}><sphereGeometry args={[.75, 20, 16]} /><meshBasicMaterial color="#f4d9a0" /></mesh>}
+    {night && <group>
+      <mesh position={[7.8, 8.2, -16.65]}><sphereGeometry args={[.56, 20, 16]} /><meshBasicMaterial color="#d9e3df" /></mesh>
+      {Array.from({ length: 18 }, (_, i) => <mesh key={'star-' + i} position={[-10 + (i * 31 % 190) / 10, 5.2 + (i * 17 % 47) / 10, -16.6]}><sphereGeometry args={[.025 + (i % 3) * .008, 8, 6]} /><meshBasicMaterial color="#e5eee8" transparent opacity={.65} /></mesh>)}
+    </group>}
     {[-7, -1.5, 4.2, 9.2].map((x, i) => <group key={'cloud-' + i} position={[x, 6.4 + (i % 2) * 1.1, -15.7 - (i % 2)]}>
       <mesh position={[-.5, 0, 0]} scale={[1.2, .34, .12]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
       <mesh position={[.12, .16, 0]} scale={[.7, .42, .13]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
@@ -236,11 +257,7 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     <Block position={[0, .04, 1.82]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
     <Block position={[0, .04, 4.67]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
     {[-9,-6,-3,0,3,6,9].map((x) => <Block key={'road-dash-' + x} position={[x, .045, 3.25]} size={[1.05, .012, .055]} color="#d5d0b7" roughness={.85} />)}
-    {[-9,-4,1,6,11].map((x, i) => <group key={'car-' + i} position={[x, .13, i % 2 ? 2.65 : 3.82]}>
-      <Block position={[0, .18, 0]} size={[1.28, .34, .62]} color={['#6b7779','#8a5b4d','#435c61','#b6a67e','#42514b'][i]} roughness={.55} metalness={.18} />
-      <Block position={[0, .4, -.035]} size={[.72, .24, .48]} color="#6c8b92" roughness={.28} metalness={.08} />
-      {[-1,1].map(side => <mesh key={side} position={[side * .38, -.015, .31]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.12,.12,.06,14]} /><meshStandardMaterial color="#20272a" roughness={.85} /></mesh>)}
-    </group>)}
+    {Array.from({ length: 5 }, (_, i) => <WindowCar key={'car-' + i} index={i} />)}
     {[-9.2, -5.6, 5.4, 9.3].map((x, i) => <group key={'street-light-' + i} position={[x, 0, 1.55]}>
       <Block position={[0, 1.65, 0]} size={[.055, 3.3, .055]} color="#343d40" metalness={.42} roughness={.55} />
       <Block position={[.24, 3.22, 0]} size={[.5, .055, .08]} color="#d0d1c3" roughness={.35} />
