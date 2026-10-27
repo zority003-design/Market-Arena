@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
 import {
   Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays, MapPin,
   Check, ChevronRight, CircleDollarSign, Clock3, Headphones,
