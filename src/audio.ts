@@ -29,6 +29,7 @@ let lastStepAt = 0
 const musicTracks = ['/audio/Endless%20Solitude.mp3', '/audio/Market%20Pulse.mp3']
 let musicAudio: HTMLAudioElement | null = null
 let nextMusicIndex = 0
+let musicUnlockInstalled = false
 
 function playProjectTrack() {
   if (!musicAudio || !settings.music || settings.paused) return
