@@ -435,7 +435,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {[-0.72, -0.36, 0, 0.36, 0.72].map((offset) => <Box key={'rug-line-' + offset} position={[0.15 + offset, 0.089, 0.52]} size={[0.025, 0.006, 1.78]} color="#50685f" roughness={1} />)}
 
       {/* Side-window city view: the skyline is now to the left of the desk, not behind the monitor. */}
-      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" />
+      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" gameMinutes={gameMinutes} />
       <Box position={[-3.79, 1.9, -2.3]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
       <Box position={[-3.79, 1.9, 0.0]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
       <Box position={[-3.79, 2.82, -1.15]} size={[0.16, 0.12, 2.45]} color="#293b43" roughness={0.38} metalness={0.18} />
