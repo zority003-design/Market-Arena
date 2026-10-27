@@ -824,8 +824,8 @@ export default function App() {
     const shiftTargetCompany = companies[(day - 1) % companies.length]
     const { targetShares, targetAmount } = getDailyQuota(day)
     const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
-    const reward = success ? 700 + day * 100 : 0
-    const penalty = success ? 0 : 400
+    const reward = success ? 1000 + day * 250 : 0
+    const penalty = success ? 0 : 750
     if (success) { setCash((value) => value + reward); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
     else { setReputation((value) => Math.max(0, value - 3)); setFirmCapital((value) => Math.max(0, value - penalty)); setToast('План не выполнен: репутация −3, фирма потеряла ' + penalty.toLocaleString('ru-RU') + ' ₽.') }
     setShiftReport({ success, ticker: shiftTargetCompany.ticker, company: shiftTargetCompany.name, shares: dailySalesShares, targetShares, amount: dailySalesAmount, targetAmount, reward, penalty })
