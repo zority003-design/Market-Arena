@@ -323,8 +323,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* The back wall is now uninterrupted; the window belongs on the left wall. */}
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
-      <Box position={[-3.98, 1.62, -2.85]} size={[0.18, 3.4, 2.3]} color="#4d5d64" textureKind="plaster" />
-      <Box position={[-3.98, 1.62, 2.55]} size={[0.18, 3.4, 2.9]} color="#4d5d64" textureKind="plaster" />
+      <Box position={[-3.98, 1.62, -3.15]} size={[0.18, 3.4, 1.7]} color="#4d5d64" textureKind="plaster" />
+      <Box position={[-3.98, 1.62, 2.0]} size={[0.18, 3.4, 4.0]} color="#4d5d64" textureKind="plaster" />
       <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color="#4d5d64" textureKind="plaster" />
       <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color="#4d5d64" textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
@@ -354,7 +354,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <mesh position={[-2.39, 2.06, -3.742]}><sphereGeometry args={[0.045, 20, 16]} /><meshStandardMaterial color="#35433d" /></mesh>
       <mesh position={[-2.11, 2.06, -3.742]}><sphereGeometry args={[0.045, 20, 16]} /><meshStandardMaterial color="#35433d" /></mesh>
       <mesh position={[-2.25, 1.94, -3.735]}><sphereGeometry args={[0.045, 16, 12]} /><meshStandardMaterial color="#bb8278" /></mesh>
-      <mesh position={[-2.25, 1.87, -3.735]}><sphereGeometry args={[0.13, 24, 12]} scale={[1, 0.25, 1]} /><meshStandardMaterial color="#f8efe1" /></mesh>
+      <mesh position={[-2.25, 1.87, -3.735]} scale={[1, 0.25, 1]}><sphereGeometry args={[0.13, 24, 12]} /><meshStandardMaterial color="#f8efe1" /></mesh>
       {[-1, 1].map((side) => <group key={'kitten-whiskers-' + side}>
         <Box position={[-2.25 + side * 0.24, 1.96, -3.736]} size={[0.22, 0.012, 0.006]} color="#88705d" />
         <Box position={[-2.25 + side * 0.25, 1.89, -3.736]} size={[0.19, 0.012, 0.006]} color="#88705d" />
