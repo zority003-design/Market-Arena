@@ -166,3 +166,31 @@
 .arena-os-economy-next>strong{color:#1b5e9d;font-size:19px}
 .arena-os-economy-next .arena-os-secondary{margin-top:auto}
 @media(max-width:760px){.arena-os-economy-roadmap{grid-template-columns:1fr}.arena-os-economy-next .arena-os-secondary{margin-top:10px}.arena-os-career-track>div:first-child{flex-wrap:wrap}}
+
+
+/* High-contrast messenger: blue work surface, white cards, dark readable text */
+.arena-os-dialogue{background:#09264a!important;border:1px solid #174875!important;border-radius:12px!important;padding:12px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.arena-os-dialogue-log{background:#0d3159!important;border:1px solid #28547b!important;border-radius:9px!important;padding:14px!important;gap:12px!important}
+.arena-os-chat-bubble{background:#fff!important;color:#172b42!important;border:1px solid #c9d8e8!important;box-shadow:0 3px 10px rgba(0,0,0,.12)!important}
+.arena-os-chat-bubble p{color:#172b42!important;font-size:13px!important;line-height:1.6!important}
+.arena-os-chat-bubble small,.arena-os-chat-bubble time{color:#526982!important}
+.arena-os-chat-bubble.player-line{background:#dcecff!important;border-color:#8eb8e8!important;color:#142f4f!important}
+.arena-os-chat-bubble.player-line p{color:#142f4f!important}
+.arena-os-chat-bubble.system-line{background:#fff2ce!important;border-color:#e5c76b!important;color:#493b1b!important}
+.arena-os-chat-bubble.system-line p{color:#493b1b!important}
+.arena-os-chat-row{align-items:flex-end!important}
+.arena-os-chat-avatar{background:#e1efff!important;color:#174a7d!important;border:1px solid #a9c9eb!important}
+.arena-os-argument-panel{background:#f5f9ff!important;border:1px solid #b8cee6!important;border-radius:10px!important;padding:14px!important;color:#173657!important}
+.arena-os-argument-panel p,.arena-os-argument-panel strong{color:#173657!important}
+.arena-os-response-actions{background:#e5effb!important;border:1px solid #c4d8ed!important;border-radius:8px!important;padding:10px!important}
+.arena-os-response-actions>span{color:#24496d!important;font-weight:750!important}
+.arena-os-response-actions button{background:#fff!important;color:#174b7d!important;border:1px solid #b6cde5!important}
+.arena-os-free-text{background:#09264a!important;border:1px solid #1b4b77!important;border-radius:9px!important;padding:10px!important}
+.arena-os-free-text textarea{background:#fff!important;color:#152c45!important;border:1px solid #b9cde2!important;border-radius:7px!important;padding:11px!important;font-size:13px!important;line-height:1.5!important;caret-color:#1268b5!important}
+.arena-os-free-text textarea::placeholder{color:#667b91!important;opacity:1!important}
+.arena-os-argument-panel>small{display:block;color:#24496d!important;line-height:1.55!important;margin-top:10px!important}
+.arena-os-stock-picker{background:#f4f8ff!important;color:#173657!important;border:1px solid #c4d8ed!important;border-radius:9px!important;padding:12px!important}
+.arena-os-stock-picker> b{color:#173657!important}
+.arena-os-stock-picker-grid button{background:#fff!important;color:#173657!important;border:1px solid #c4d8ed!important}
+.arena-os-stock-picker-grid button small{color:#526982!important}
+.arena-os-window.minimized{display:none!important}
