@@ -255,9 +255,9 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     <WindowBuilding x={-5.4} z={-2.4} width={3.1} depth={2.6} height={5.2} color={night ? '#394b53' : '#a0aaa5'} night={night} />
     <WindowBuilding x={-1.5} z={-4.2} width={2.4} depth={2.2} height={7.4} color={night ? '#2c404d' : '#7f9298'} night={night} />
     <WindowBuilding x={3.2} z={-3.3} width={3.3} depth={2.5} height={6.2} color={night ? '#334653' : '#8e9f9e'} night={night} />
-    {/* Garden outside the window: no road markings and no moving cars. */}
-    <Block position={[0, -.12, 1.4]} size={[25, .22, 12]} color={rainy ? '#3d5149' : '#536f4e'} roughness={1} />
-    {Array.from({ length: 16 }, (_, i) => <Block key={'garden-patch-' + i} position={[-11.2 + i * 1.48, -.005, 0.75 + (i % 3) * 1.05]} size={[0.82, .045, .68]} color={i % 2 ? '#657b55' : '#748761'} roughness={1} />)}
+    {/* Narrow garden strip outside the side window. Keep its depth shallow: the window group is rotated, so a deep ground plane would extend through the room. */}
+    <Block position={[0, -.12, 0.9]} size={[25, .22, 1.15]} color={rainy ? '#3d5149' : '#536f4e'} roughness={1} />
+    {Array.from({ length: 16 }, (_, i) => <Block key={'garden-patch-' + i} position={[-11.2 + i * 1.48, -.005, 0.9 + (i % 3) * .12]} size={[0.82, .045, .22]} color={i % 2 ? '#657b55' : '#748761'} roughness={1} />)}
     {[-9.2, -5.6, 5.4, 9.3].map((x, i) => <group key={'street-light-' + i} position={[x, 0, 1.55]}>
       <Block position={[0, 1.65, 0]} size={[.055, 3.3, .055]} color="#343d40" metalness={.42} roughness={.55} />
       <Block position={[.24, 3.22, 0]} size={[.5, .055, .08]} color="#d0d1c3" roughness={.35} />
