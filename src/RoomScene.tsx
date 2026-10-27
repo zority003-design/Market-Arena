@@ -360,6 +360,26 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-2.25, 2.0, -3.785]} size={[1.48, 1.34, 0.018]} color="#e7d6b8" roughness={0.85} />
       <mesh position={[-2.25, 2.0, -3.768]}><planeGeometry args={[1.39, 1.26]} /><meshBasicMaterial map={kittenArtTexture} toneMapped={false} /></mesh>
 
+      {/* A compact floating shelf, a few books and a framed certificate make the wall feel inhabited. */}
+      <Box position={[1.35, 2.55, -3.82]} size={[1.75, 0.09, 0.26]} color="#604632" textureKind="wood" roughness={0.72} />
+      <Box position={[0.68, 2.43, -3.83]} size={[0.07, 0.22, 0.1]} color="#4d3a2c" />
+      <Box position={[2.02, 2.43, -3.83]} size={[0.07, 0.22, 0.1]} color="#4d3a2c" />
+      {[
+        { x: 0.82, h: 0.31, color: "#9a5748" },
+        { x: 0.94, h: 0.36, color: "#d0b879" },
+        { x: 1.06, h: 0.28, color: "#527b6b" },
+        { x: 1.18, h: 0.33, color: "#40586a" },
+      ].map((book) => <Box key={book.x} position={[book.x, 2.75 + book.h / 2, -3.82]} size={[0.095, book.h, 0.15]} color={book.color} roughness={0.9} />)}
+      <Box position={[1.72, 2.79, -3.81]} size={[0.34, 0.42, 0.055]} color="#8c7354" />
+      <Box position={[1.72, 2.79, -3.775]} size={[0.27, 0.35, 0.018]} color="#e9dfc9" />
+      <Box position={[1.72, 2.82, -3.76]} size={[0.16, 0.018, 0.008]} color="#6b9b82" />
+      <Box position={[1.72, 2.77, -3.76]} size={[0.11, 0.012, 0.008]} color="#b9a77d" />
+
+      {/* Soft woven rug adds texture to the centre of the room. */}
+      <Box position={[0.15, 0.067, 0.52]} size={[2.35, 0.025, 2.05]} color="#596f67" roughness={1} textureKind="fabric" />
+      <Box position={[0.15, 0.082, 0.52]} size={[2.18, 0.009, 1.88]} color="#9a8a70" roughness={1} />
+      {[-0.72, -0.36, 0, 0.36, 0.72].map((offset) => <Box key={'rug-line-' + offset} position={[0.15 + offset, 0.089, 0.52]} size={[0.025, 0.006, 1.78]} color="#50685f" roughness={1} />)}
+
       {/* Side-window city view: the skyline is now to the left of the desk, not behind the monitor. */}
       <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" />
       <Box position={[-3.79, 1.9, -2.3]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
