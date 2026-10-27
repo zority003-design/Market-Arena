@@ -11,15 +11,15 @@ const compiled = ts.transpileModule(source, {
 const economy = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'))
 const {
   CLIENTS, HOUSING, ROOM_ITEMS, calculateDeal, getAvailableClients, getBackgroundModifier,
-  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, BUSINESS_ASSETS, getBusinessDailyNetIncome,
+  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, BUSINESS_ASSETS, getBusinessDailyNetIncome, BROKER_HIRES, getStaffDailyNetIncome,
 } = economy
 
 test('career starts with a viable, known baseline', () => {
   assert.equal(economy.STARTING_CASH, 22000)
   assert.equal(economy.STARTING_FIRM_CAPITAL, 25000)
-  assert.equal(HOUSING[0].id, economy.STARTING_HOUSING_ID)
-  // Housing is purchased once; dailyCost is legacy metadata and must not be charged during end-of-day processing.
-  assert.equal(HOUSING[0].id, 'dorm')
+  assert.equal(economy.STARTING_HOUSING_ID, 'studio')
+  assert.equal(HOUSING.find(home => home.id === economy.STARTING_HOUSING_ID)?.id, 'studio')
+  // New careers begin in a small private apartment; dailyCost remains legacy metadata and is not charged.
 })
 
 test('brokerage empire assets create a clear staged income progression', () => {
@@ -130,4 +130,12 @@ test('lead count expands only at the intended reputation thresholds', () => {
   assert.ok(getDailyLeadIds(1, 0).length <= 2)
   assert.ok(getDailyLeadIds(10, 35).length <= 3)
   assert.ok(getDailyLeadIds(20, 60).length <= 4)
+})
+
+test('staff hiring has transparent net daily income and supports five office roles', () => {
+  assert.equal(getStaffDailyNetIncome([]), 0)
+  assert.deepEqual(BROKER_HIRES.map(employee => employee.dailyRevenue - employee.dailySalary), [700, 1500, 2500, 4500, 6000])
+  assert.equal(getStaffDailyNetIncome(['junior-broker']), 700)
+  assert.equal(getStaffDailyNetIncome(['junior-broker', 'broker-specialist']), 2200)
+  assert.equal(BROKER_HIRES.length, 5)
 })
