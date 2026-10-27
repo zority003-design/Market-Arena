@@ -344,6 +344,7 @@ export default function App() {
   const [roomItemDetailsId, setRoomItemDetailsId] = useState<string | null>(null)
   const finishIntro = useCallback(() => setIntroActive(false), [])
   useEffect(() => { try { localStorage.setItem('na-vse-kotirovki-outfit', selectedOutfit); localStorage.setItem('na-vse-kotirovki-owned-outfits', JSON.stringify(ownedOutfits)) } catch { /* Outfit preferences are optional if storage is unavailable. */ } }, [selectedOutfit, ownedOutfits])
+  useEffect(() => { if (!ownedOutfits.includes(selectedOutfit)) setSelectedOutfit('intern') }, [ownedOutfits, selectedOutfit])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [menuSettings, setMenuSettings] = useState(false)
