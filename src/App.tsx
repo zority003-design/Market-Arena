@@ -395,9 +395,10 @@ export default function App() {
     setWindowMinimized(false)
   }, [tab, callStatus])
 
-  // In-game clock: two minutes pass in the world every real minute; pausing freezes it.
+  // In-game time advances only while a career is actually being played.
+  // The main menu must not consume game time, and pause freezes the world clock.
   useEffect(() => {
-    if (pauseOpen) return
+    if (mainMenu || pauseOpen) return
     const clock = window.setInterval(() => setGameMinutes((value) => (value + 2) % (24 * 60)), 60000)
     return () => window.clearInterval(clock)
   }, [mainMenu, pauseOpen])
@@ -429,11 +430,13 @@ export default function App() {
 
 
 
+  // A paused game must freeze negotiation timers too; otherwise the player can
+  // lose a call while reading the pause menu.
   useEffect(() => {
-    if (callStatus !== 'active') return
+    if (callStatus !== 'active' || pauseOpen) return
     const timer = window.setInterval(() => setTimeLeft((value) => Math.max(0, Math.round((value - 0.1) * 10) / 10)), 100)
     return () => window.clearInterval(timer)
-  }, [callStatus, questionIndex])
+  }, [callStatus, questionIndex, pauseOpen])
 
   useEffect(() => {
     if (callStatus !== 'active') { lastCallTickSecond.current = -1; return }
