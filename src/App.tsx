@@ -927,7 +927,7 @@ export default function App() {
     if (cash < home.price) { setToast('Не хватает ' + (home.price - cash).toLocaleString('ru-RU') + ' ₽ на переезд и депозит.'); return }
     setCash((value) => value - home.price)
     setHousingId(home.id)
-    setToast('Переезд завершён: ' + home.name + '. Ежедневные расходы теперь ' + home.dailyCost.toLocaleString('ru-RU') + ' ₽.')
+    setToast('Покупка жилья завершена: ' + home.name + '. Оплата разовая, регулярных расходов нет.')
   }
 
   function travelToCity(location: string) {
