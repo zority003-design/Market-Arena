@@ -11,6 +11,7 @@ import CityScene from './CityScene'
 import ClientAvatar2D from './ClientAvatar2D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
+import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -1125,7 +1126,8 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && (
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" cash={cash} setCash={setCash} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
             <button className="back-button" onClick={() => setPanel('room')}><ArrowLeft size={16} /> В комнату</button>
@@ -1141,7 +1143,8 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && (
+      {panel === 'computer' && <ArenaOS cash={cash} setCash={setCash} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
             <button className="back-button" onClick={() => { setPanel('room'); setCallStatus('idle'); setPauseOpen(false) }}><ArrowLeft size={16} /> В комнату</button>
