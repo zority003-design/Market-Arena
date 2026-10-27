@@ -166,3 +166,26 @@
 .arena-os-economy-next>strong{color:#1b5e9d;font-size:19px}
 .arena-os-economy-next .arena-os-secondary{margin-top:auto}
 @media(max-width:760px){.arena-os-economy-roadmap{grid-template-columns:1fr}.arena-os-economy-next .arena-os-secondary{margin-top:10px}.arena-os-career-track>div:first-child{flex-wrap:wrap}}
+
+/* Three isolated career save slots */
+.career-save-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.career-save-slot{display:flex;min-height:136px;flex-direction:column;align-items:flex-start;gap:7px;padding:14px;text-align:left;border:1px solid rgba(150,180,205,.25);border-radius:12px;background:#101e2b;color:#edf5fb;cursor:pointer;transition:border-color .16s,background .16s,transform .16s}
+.career-save-slot:hover{border-color:#62c89a;transform:translateY(-1px)}
+.career-save-slot.selected{border-color:#62c89a;background:#142d2a;box-shadow:inset 0 0 0 1px rgba(98,200,154,.25)}
+.career-slot-number{font-size:10px;font-weight:800;letter-spacing:.13em;color:#8fa6ba}
+.career-save-slot strong{font-size:13px;color:#fff}
+.career-save-slot small{font-size:11px;line-height:1.45;color:#c3d0dc}
+.career-slot-action{margin-top:auto;font-size:9px;font-weight:900;letter-spacing:.1em;color:#73d8a9}
+.arena-os-dialogue-log{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:#526b83 transparent}
+.arena-os-chat-bubble,.arena-os-response-actions button,.arena-os-free-text textarea{color:#eaf2f8}
+.arena-os-chat-bubble p{color:#f0f5fa}
+.arena-os-response-actions button{background:#1b2d3d;border:1px solid #3c5368}
+.arena-os-response-actions button:hover{background:#24443d;border-color:#4b9a7b}
+.arena-os-free-text textarea{background:#0d1823;border:1px solid #43586a;color:#f5f8fb}
+.arena-os-free-text textarea::placeholder{color:#aab8c6}
+.arena-os-volume-panel{position:absolute;right:12px;bottom:48px;width:230px;padding:14px;border:1px solid #42566b;border-radius:10px;background:#101c29;color:#eef5fb;box-shadow:0 12px 34px rgba(0,0,0,.4);z-index:80;display:flex;flex-direction:column;gap:9px}
+.arena-os-volume-panel label{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#c8d5e1}
+.arena-os-volume-panel input{width:100%;accent-color:#65c99b}
+.arena-os-volume-panel small{font-size:10px;line-height:1.4;color:#a8b8c7}
+.arena-os-volume-toggle{font-size:14px!important;min-width:30px!important}
+@media(max-width:650px){.career-save-slots{grid-template-columns:1fr}.career-save-slot{min-height:96px}.arena-os-volume-panel{right:5px;width:min(230px,calc(100vw - 24px))}}
