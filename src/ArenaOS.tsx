@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { CLIENTS, type ClientProfile } from './game/economy'
 import ClientAvatar2D from './ClientAvatar2D'
+import PixelAvatar from './PixelAvatar'
 import { playSound } from './audio'
 
 type OutfitId = 'intern' | 'classic' | 'premium'
