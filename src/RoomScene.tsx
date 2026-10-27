@@ -388,7 +388,11 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
-      <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
+      <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#5b4434" roughness={0.82} textureKind="wood" />
+      {/* Warm wooden ceiling boards with visible seams, matching the floor instead of a flat dark slab. */}
+      {Array.from({ length: 16 }, (_, i) => <Box key={'ceiling-board-' + i} position={[-3.64 + i * 0.485, 3.255, 0]} size={[0.455, 0.035, 7.76]} color={woodPalette[(i + 2) % woodPalette.length]} roughness={0.78} textureKind="wood" />)}
+      <Box position={[0, 3.225, -3.72]} size={[7.7, 0.055, 0.12]} color="#5b4030" roughness={0.72} textureKind="wood" />
+      <Box position={[0, 3.225, 3.72]} size={[7.7, 0.055, 0.12]} color="#5b4030" roughness={0.72} textureKind="wood" />
       {/* The back wall is now uninterrupted; the window belongs on the left wall. */}
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
