@@ -370,14 +370,14 @@ export default function App() {
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [activeSaveSlot, setActiveSaveSlot] = useState(() => getActiveSaveSlot())
-  const saveSlotSummaries = useMemo(() => [1, 2, 3].map((slot) => {
+  const saveSlotSummaries = [1, 2, 3].map((slot) => {
     try {
       const raw = localStorage.getItem(getSaveKey(slot)) || (slot === 1 ? localStorage.getItem('na-vse-kotirovki-save-v1') : null)
       if (!raw) return { slot, exists: false, day: 0, cash: 0 }
       const data = JSON.parse(raw) as { day?: number; cash?: number }
       return { slot, exists: true, day: data.day ?? 1, cash: data.cash ?? 0 }
     } catch { return { slot, exists: false, day: 0, cash: 0 } }
-  }), [activeSaveSlot])
+  })
   const [menuSettings, setMenuSettings] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-reduced-motion') === 'true' } catch { return false } })
   const [soundEnabled, setSoundEnabled] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-sound') !== 'false' } catch { return true } })
