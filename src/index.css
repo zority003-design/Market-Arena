@@ -3086,3 +3086,14 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 /* Smooth the shared wardrobe sprite slightly inside video calls: retain the same outfit silhouette, reduce the hard Minecraft-like pixel treatment. */
 .self-view-pixel-avatar { image-rendering:auto !important; shape-rendering:geometricPrecision !important; filter:drop-shadow(0 8px 10px rgba(0,0,0,.26)); }
 .negotiation-self-video .client-avatar-2d { image-rendering:auto; shape-rendering:geometricPrecision; }
+
+
+/* ARENA OS control centre: live, usable system controls on the desktop. */
+.desktop-os-control-widget { border-color:rgba(91,205,176,.24); background:linear-gradient(145deg,rgba(18,49,52,.94),rgba(10,25,33,.94)); }
+.desktop-os-control-row { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; color:#b5cbd7; font-size:12px; }
+.desktop-os-control-row b { color:#8de6c4; font:12px 'DM Mono',monospace; }
+.desktop-os-volume-range { display:block; width:100%; height:24px; margin:5px 0 3px; accent-color:#5fe0b1; cursor:pointer; }
+.desktop-os-control-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
+.desktop-os-widget .desktop-os-control-actions button { flex:1 1 auto; justify-content:center; margin:0; padding:8px 9px; border:1px solid rgba(119,220,187,.22); border-radius:7px; background:rgba(76,181,145,.09); color:#c4f6e2; font-size:11px; }
+.desktop-os-widget .desktop-os-control-actions button:hover { background:rgba(76,181,145,.2); border-color:rgba(119,220,187,.44); }
+.desktop-os-control-widget input:focus-visible { outline:2px solid #9de8c4; outline-offset:3px; }
