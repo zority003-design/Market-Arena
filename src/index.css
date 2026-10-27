@@ -3082,3 +3082,7 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   box-shadow:none;
   text-shadow:none;
 }
+
+/* Smooth the shared wardrobe sprite slightly inside video calls: retain the same outfit silhouette, reduce the hard Minecraft-like pixel treatment. */
+.self-view-pixel-avatar { image-rendering:auto !important; shape-rendering:geometricPrecision !important; filter:drop-shadow(0 8px 10px rgba(0,0,0,.26)); }
+.negotiation-self-video .client-avatar-2d { image-rendering:auto; shape-rendering:geometricPrecision; }
