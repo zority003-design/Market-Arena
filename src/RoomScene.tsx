@@ -306,7 +306,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
-  const backWallColor = housingId === 'dorm' ? '#50636b' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#b4a58b'
+  const backWallColor = housingId === 'dorm' ? '#3d6175' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#b4a58b'
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
@@ -346,6 +346,10 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={backWallColor} textureKind="plaster" />
+      {/* Opposite wall: the old scene was missing the entire +Z side, exposing the room like a cutaway. */}
+      <Box position={[0, 1.58, 3.98]} size={[8, 3.56, 0.28]} color={backWallColor} roughness={0.92} textureKind="plaster" />
+      {/* Plain uninterrupted blue-gray wall opposite the bed; decorative seams removed at the user's request. */}
+      <Box position={[0, 0.16, 3.80]} size={[7.76, 0.22, 0.08]} color="#344c59" roughness={0.9} textureKind="wood" />
 
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
@@ -596,9 +600,9 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
         shadows
         dpr={[1, 1.6]}
         camera={{ position: [0, 1.66, 3.12], fov: 64, near: 0.1, far: 40 }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
         onCreated={({ gl }) => {
-          gl.setClearColor('#101922')
+          gl.setClearColor('#101922', 0)
           gl.toneMapping = THREE.ACESFilmicToneMapping
           gl.toneMappingExposure = 1.12
         }}

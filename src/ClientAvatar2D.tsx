@@ -1,42 +1,43 @@
 type Mood = 'skeptical' | 'neutral' | 'interested' | 'angry' | 'happy'
-type Props = { tier: number; mood?: Mood; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium'; className?: string }
+type Props = { tier: number; mood?: Mood; variant?: 'client' | 'player'; outfit?: 'intern' | 'classic' | 'premium'; className?: string; identity?: string }
 
 const skinTones = ['#d5a07d', '#efc5a1', '#b87959', '#dfb18d', '#9a624a', '#c88d6b']
 const hairTones = ['#30221d', '#594033', '#8a5b35', '#17191c', '#b38a55', '#49342d']
 const jackets = ['#3b5664', '#d6ddd6', '#365c4e', '#69493e', '#45516d', '#29313a']
+const pixelSeed = (value: string) => Array.from(value).reduce((n, char) => (n * 31 + char.charCodeAt(0)) >>> 0, 7)
 
-/** One shared, smooth 2D character style for both sides of every call. Framed as a deliberate bust portrait so limbs are never awkwardly clipped. */
-export default function ClientAvatar2D({ tier, mood = 'neutral', variant = 'client', outfit = 'intern', className = '' }: Props) {
-  const seed = Math.abs(Math.floor(tier))
+/** Chunky 2D pixel portrait. Client identity changes face, hair and jacket palette so the CRM feels like a cast, not one repeated illustration. */
+export default function ClientAvatar2D({ tier, mood = 'neutral', variant = 'client', outfit = 'intern', className = '', identity = '' }: Props) {
+  const seed = pixelSeed(identity || String(Math.abs(Math.floor(tier))))
   const skin = variant === 'player' ? '#c9916d' : skinTones[seed % skinTones.length]
-  const hair = variant === 'player' ? '#30221d' : hairTones[(seed * 3 + 1) % hairTones.length]
-  const jacket = variant === 'player' ? (outfit === 'premium' ? '#172c39' : outfit === 'classic' ? '#344b61' : '#477967') : jackets[(seed + 2) % jackets.length]
+  const hair = variant === 'player' ? '#30221d' : hairTones[(seed >>> 3) % hairTones.length]
+  const jacket = variant === 'player' ? (outfit === 'premium' ? '#172c39' : outfit === 'classic' ? '#344b61' : '#477967') : jackets[(seed >>> 5) % jackets.length]
   const shirt = variant === 'player' && outfit === 'intern' ? '#d0b99a' : '#e9e5d9'
   const tie = variant === 'player' && outfit === 'premium' ? '#bd9656' : variant === 'player' ? '#536d85' : (seed % 2 ? '#b58b54' : '#547789')
+  const hairStyle = (seed >>> 7) % 3
   const happy = mood === 'happy' || mood === 'interested'
-  const leftBrow = mood === 'skeptical' ? 'M64 82 Q73 75 82 81' : mood === 'angry' ? 'M64 77 Q73 84 82 81' : 'M64 80 Q73 77 82 80'
-  const rightBrow = mood === 'skeptical' ? 'M99 81 Q108 75 117 82' : mood === 'angry' ? 'M99 81 Q108 84 117 77' : 'M99 80 Q108 77 117 80'
-  return <svg className={'client-avatar-2d ' + className} viewBox="0 0 180 210" role="img" aria-label={variant === 'player' ? 'Ваш 2D-персонаж' : '2D-портрет клиента'} preserveAspectRatio="xMidYMid meet">
-    <defs>
-      <linearGradient id={'skin-'+variant+'-'+seed} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={skin}/><stop offset="1" stopColor="#8e5d48"/></linearGradient>
-      <linearGradient id={'jacket-'+variant+'-'+seed} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={jacket}/><stop offset="1" stopColor={variant === 'player' && outfit === 'premium' ? '#0d1c27' : '#18262e'}/></linearGradient>
-    </defs>
-    <ellipse cx="90" cy="201" rx="54" ry="6" fill="#071016" opacity=".24"/>
-    <path d="M22 208 Q26 155 58 145 L76 137 H104 L122 145 Q154 155 158 208Z" fill={'url(#jacket-'+variant+'-'+seed+')'}/>
-    <path d="M72 143 L90 165 L108 143 L112 208 H68Z" fill={shirt}/>
-    <path d="M84 158 L96 158 L103 195 L90 207 L77 195Z" fill={tie}/>
-    {variant === 'player' && outfit === 'premium' && <path d="M44 159 L60 148 L70 155 L59 178Z M136 159 L120 148 L110 155 L121 178Z" fill="#bd9656" opacity=".95"/>}
-    <path d="M71 135 L109 135 L106 158 Q90 173 74 158Z" fill={'url(#skin-'+variant+'-'+seed+')'}/>
-    <path d="M52 58 Q53 23 90 24 Q128 24 129 61 L125 104 Q119 135 91 140 Q62 136 55 105Z" fill={'url(#skin-'+variant+'-'+seed+')'}/>
-    <path d={variant === 'player' && outfit === 'premium' ? 'M49 75 Q37 30 71 15 Q106 1 129 29 Q141 45 131 79 L123 55 Q104 54 91 38 Q75 58 53 61Z' : 'M50 73 Q38 31 70 16 Q105 2 128 29 Q140 45 130 78 L122 57 Q103 56 91 39 Q76 58 54 60Z'} fill={hair}/>
-    <path d="M55 58 Q64 39 82 35 Q96 48 121 48 L128 64 Q111 62 98 56 Q78 66 55 65Z" fill={hair}/>
-    <path d={leftBrow} stroke="#49332a" strokeWidth="3.2" strokeLinecap="round" fill="none"/>
-    <path d={rightBrow} stroke="#49332a" strokeWidth="3.2" strokeLinecap="round" fill="none"/>
-    <ellipse cx="74" cy="88" rx="5" ry="6" fill="#f5eee5"/><ellipse cx="107" cy="88" rx="5" ry="6" fill="#f5eee5"/>
-    <circle cx="75" cy="89" r="2.8" fill="#29363a"/><circle cx="106" cy="89" r="2.8" fill="#29363a"/>
-    <path d="M90 91 L86 105 Q90 109 95 105" fill="none" stroke="#a86f54" strokeWidth="2.5" strokeLinecap="round"/>
-    {happy ? <path d="M77 116 Q90 130 104 116" fill="none" stroke="#7e3e38" strokeWidth="3.5" strokeLinecap="round"/> : <path d={mood === 'angry' ? 'M78 121 Q90 112 103 121' : 'M79 119 Q90 122 102 119'} fill="none" stroke="#7e3e38" strokeWidth="3.5" strokeLinecap="round"/>}
-    <path d="M53 87 Q46 90 53 101 M128 87 Q135 90 128 101" fill="none" stroke={skin} strokeWidth="8" strokeLinecap="round"/>
-    <path d="M38 177 L57 156 M142 177 L123 156" stroke="#ffffff" strokeOpacity=".13" strokeWidth="5" strokeLinecap="round"/>
+  return <svg className={'client-avatar-2d pixel-client-avatar ' + className} viewBox="0 0 180 210" role="img" aria-label={variant === 'player' ? 'Ваш пиксельный 2D-персонаж' : 'Пиксельный портрет клиента'} preserveAspectRatio="xMidYMid meet" shapeRendering="crispEdges">
+    <rect x="24" y="198" width="132" height="8" fill="#071016" opacity=".22"/>
+    <rect x="26" y="164" width="16" height="44" fill="#172630"/><rect x="138" y="164" width="16" height="44" fill="#172630"/>
+    <rect x="38" y="148" width="104" height="60" fill={jacket}/><rect x="54" y="154" width="72" height="54" fill={jacket}/>
+    <rect x="72" y="140" width="36" height="28" fill={skin}/>
+    <rect x="70" y="151" width="40" height="57" fill={shirt}/>
+    <rect x="84" y="157" width="12" height="9" fill={tie}/><rect x="80" y="166" width="20" height="23" fill={tie}/><rect x="84" y="189" width="12" height="15" fill={tie}/>
+    {variant === 'player' && outfit === 'premium' && <><rect x="40" y="157" width="12" height="35" fill="#bd9656"/><rect x="128" y="157" width="12" height="35" fill="#bd9656"/></>}
+    <rect x="50" y="49" width="80" height="83" fill={skin}/><rect x="58" y="37" width="64" height="104" fill={skin}/>
+    <rect x="42" y="44" width="16" height="47" fill={hair}/><rect x="58" y="28" width="64" height="18" fill={hair}/><rect x="74" y="20" width="32" height="10" fill={hair}/><rect x="122" y="43" width="16" height="44" fill={hair}/>
+    {hairStyle === 0 && <><rect x="42" y="36" width="20" height="20" fill={hair}/><rect x="58" y="20" width="32" height="16" fill={hair}/></>}
+    {hairStyle === 1 && <><rect x="58" y="20" width="64" height="10" fill={hair}/><rect x="106" y="30" width="24" height="12" fill={hair}/></>}
+    {hairStyle === 2 && <><rect x="42" y="44" width="16" height="42" fill={hair}/><rect x="58" y="28" width="64" height="10" fill={hair}/><rect x="122" y="43" width="16" height="25" fill={hair}/></>}
+    <rect x="42" y="76" width="8" height="20" fill={skin}/><rect x="130" y="76" width="8" height="20" fill={skin}/>
+    <rect x="60" y="77" width="20" height="5" fill="#49332a"/><rect x="100" y="77" width="20" height="5" fill="#49332a"/>
+    {mood === 'skeptical' && <><rect x="60" y="72" width="20" height="5" fill="#49332a"/><rect x="100" y="77" width="20" height="5" fill="#49332a"/></>}
+    {mood === 'angry' && <><rect x="60" y="82" width="20" height="5" fill="#49332a"/><rect x="100" y="82" width="20" height="5" fill="#49332a"/></>}
+    <rect x="64" y="88" width="12" height="12" fill="#f5eee5"/><rect x="104" y="88" width="12" height="12" fill="#f5eee5"/>
+    <rect x={68 + (seed % 3)} y="92" width="6" height="7" fill="#29363a"/><rect x={108 + ((seed >>> 2) % 3)} y="92" width="6" height="7" fill="#29363a"/>
+    <rect x="86" y="100" width="8" height="12" fill="#a86f54"/><rect x="82" y="109" width="12" height="4" fill="#a86f54"/>
+    {happy ? <><rect x="72" y="120" width="36" height="5" fill="#7e3e38"/><rect x="78" y="125" width="24" height="5" fill="#7e3e38"/><rect x="82" y="120" width="16" height="5" fill="#f2d4c3"/></> : mood === 'angry' ? <><rect x="76" y="122" width="28" height="5" fill="#7e3e38"/><rect x="82" y="117" width="16" height="5" fill="#7e3e38"/></> : <rect x="78" y="121" width="24" height="5" fill="#7e3e38"/>}
+    <rect x="42" y="153" width="12" height="28" fill={jacket}/><rect x="126" y="153" width="12" height="28" fill={jacket}/>
+    <rect x="48" y="153" width="7" height="7" fill="#ffffff" opacity=".18"/><rect x="125" y="153" width="7" height="7" fill="#ffffff" opacity=".18"/>
   </svg>
 }

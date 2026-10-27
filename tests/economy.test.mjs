@@ -15,15 +15,15 @@ const {
 } = economy
 
 test('career starts with a viable, known baseline', () => {
-  assert.equal(economy.STARTING_CASH, 18500)
+  assert.equal(economy.STARTING_CASH, 22000)
   assert.equal(economy.STARTING_FIRM_CAPITAL, 25000)
   assert.equal(HOUSING[0].id, economy.STARTING_HOUSING_ID)
-  assert.equal(HOUSING[0].dailyCost, 650)
-  assert.equal(economy.DAILY_SALARY - HOUSING[0].dailyCost, 250)
+  // Housing is purchased once; dailyCost is legacy metadata and must not be charged during end-of-day processing.
+  assert.equal(HOUSING[0].id, 'dorm')
 })
 
 test('client unlocks respect both day and reputation gates', () => {
-  assert.deepEqual(getAvailableClients(1, 0).map(c => c.id), ['alex-vorontsov', 'maria-sokolova'])
+  assert.deepEqual(getAvailableClients(1, 0).map(c => c.id), ['alex-vorontsov', 'maria-sokolova', 'pavel-smirnov', 'natalia-orlova'])
   assert.ok(!getAvailableClients(5, 24).some(c => c.id === 'igor-melnikov'))
   assert.ok(getAvailableClients(5, 25).some(c => c.id === 'igor-melnikov'))
   assert.ok(!getAvailableClients(15, 70).some(c => c.id === 'diana-volkova'))

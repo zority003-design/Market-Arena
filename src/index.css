@@ -1976,7 +1976,7 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .os-start-search input::placeholder { color:#809d90; opacity:1; }
 .os-start-empty { padding:22px 8px; color:#8ca99a; font-size:11px; text-align:center; }
 
-.room-scene-root { position: absolute; inset: 0; width: 100%; height: 100%; }
+.room-scene-root { position: absolute; inset: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 52% 28%, #334956 0%, #1d2d37 50%, #111a22 100%); }
 .room-scene-root > canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .room-touch-controls { display: block; position: absolute; z-index: 12; left: max(18px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 154px; pointer-events: none; user-select: none; }
 .room-touch-dpad { display: flex; flex-direction: column; align-items: center; gap: 5px; }
@@ -3151,3 +3151,110 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .hud-pause-button,.os-pause-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; }
 .hud-pause-button > svg,.os-pause-button > svg { flex:none; stroke-linecap:round; }
 @media(max-width:760px) { .desktop-os-welcome { grid-template-columns:1fr; margin:12px 12px 6px; padding:18px 16px; } .desktop-os-primary-action { justify-self:start; } .desktop-os-step-track { gap:5px; } .desktop-os-step-track span { font-size:9px; } .desktop-rebuilt-topline { padding:14px 12px; } }
+
+
+/* ARENA OS — Windows-inspired desktop shell refresh */
+.computer-overlay.os-shell {
+  padding: 0;
+  gap: 0;
+  background:
+    radial-gradient(ellipse at 78% 23%, rgba(87, 190, 255, .78) 0, rgba(28, 112, 220, .25) 22%, transparent 45%),
+    radial-gradient(ellipse at 23% 77%, rgba(40, 107, 232, .8) 0, transparent 42%),
+    linear-gradient(135deg, #061d4d 0%, #0756a6 42%, #06336f 72%, #04163c 100%);
+  backdrop-filter: none;
+}
+.computer-overlay.os-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .62;
+  background:
+    linear-gradient(145deg, transparent 0 42%, rgba(89, 192, 255, .18) 42.2% 42.8%, transparent 43%),
+    radial-gradient(ellipse at 55% 45%, rgba(111, 204, 255, .2), transparent 34%);
+}
+.computer-overlay.os-shell > * { position: relative; z-index: 1; }
+.computer-overlay.os-shell .computer-topbar {
+  min-height: 48px;
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.18);
+  background: rgba(4, 24, 59, .56);
+  backdrop-filter: blur(22px);
+}
+.computer-overlay.os-shell .back-button,
+.computer-overlay.os-shell .os-pause-button {
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 6px;
+  background: rgba(255,255,255,.1);
+  color: #f5f9ff;
+}
+.computer-overlay.os-shell .os-topbar-center { color: #d6eaff; }
+.computer-overlay.os-shell .os-status-dot { background: #62e6a6; box-shadow: 0 0 9px #62e6a6; }
+.computer-overlay.os-shell .terminal-body {
+  margin: 14px;
+  border: 1px solid rgba(255,255,255,.26);
+  border-radius: 12px;
+  background: rgba(7, 22, 51, .83);
+  box-shadow: 0 28px 80px rgba(0, 8, 28, .48), inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter: blur(18px);
+}
+.computer-overlay.os-shell .terminal-sidebar {
+  border-right: 1px solid rgba(179, 211, 255, .17);
+  background: linear-gradient(180deg, rgba(12, 43, 91, .98), rgba(6, 26, 61, .98));
+}
+.computer-overlay.os-shell .side-link {
+  color: #c1d8f8;
+  border-radius: 6px;
+}
+.computer-overlay.os-shell .side-link:hover { color: white; background: rgba(255,255,255,.09); }
+.computer-overlay.os-shell .side-link.active {
+  color: white;
+  border-color: rgba(143, 199, 255, .3);
+  background: linear-gradient(90deg, rgba(62, 147, 255, .34), rgba(48, 115, 220, .12));
+  box-shadow: inset 3px 0 #78bdff;
+}
+.computer-overlay.os-shell .side-link.active svg { color: #8dccff; }
+.computer-overlay.os-shell .side-section-label,
+.computer-overlay.os-shell .account-row,
+.computer-overlay.os-shell .terminal-title small { color: #94b7e4; }
+.computer-overlay.os-shell .profile-card { border-bottom-color: rgba(179, 211, 255, .17); }
+.computer-overlay.os-shell .avatar {
+  border-color: rgba(130, 197, 255, .48);
+  background: linear-gradient(140deg, #2367b4, #142e5c);
+  color: #e2f3ff;
+}
+.computer-overlay.os-shell .terminal-content {
+  background: #edf4ff;
+  color: #15243c;
+}
+.computer-overlay.os-shell .terminal-content .eyebrow { color: #426b9c; }
+.computer-overlay.os-shell .os-window-titlebar {
+  background: linear-gradient(180deg, #f9fbff, #dce9fb);
+  border-bottom: 1px solid #b9cde9;
+  color: #16365d;
+}
+.computer-overlay.os-shell .os-window-app-icon {
+  background: #d6e7ff;
+  color: #145ab0;
+}
+.computer-overlay.os-shell .end-day-button {
+  border-color: rgba(255, 164, 164, .3);
+  background: rgba(255, 120, 120, .09);
+  color: #ffc1c1;
+}
+@media (max-width: 900px) {
+  .computer-overlay.os-shell .terminal-body { margin: 8px; }
+}
+
+
+/* Keep the career confirmation genuinely centered in the viewport. */
+.menu-modal-backdrop {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.confirm-career-modal {
+  margin: auto;
+  transform: none;
+}
+.version-watermark { display: none; }

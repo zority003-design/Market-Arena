@@ -11,6 +11,7 @@ import CityScene from './CityScene'
 import ClientAvatar2D from './ClientAvatar2D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
+import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -926,7 +927,7 @@ export default function App() {
     if (cash < home.price) { setToast('Не хватает ' + (home.price - cash).toLocaleString('ru-RU') + ' ₽ на переезд и депозит.'); return }
     setCash((value) => value - home.price)
     setHousingId(home.id)
-    setToast('Переезд завершён: ' + home.name + '. Ежедневные расходы теперь ' + home.dailyCost.toLocaleString('ru-RU') + ' ₽.')
+    setToast('Покупка жилья завершена: ' + home.name + '. Оплата разовая, регулярных расходов нет.')
   }
 
   function travelToCity(location: string) {
@@ -982,21 +983,13 @@ export default function App() {
       setCityBonus(0)
       setCityLocation('office')
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
-      const dailyCosts = currentHousing.dailyCost
+      // Housing is a one-time purchase. There are no daily rent or maintenance deductions.
       const available = cash + DAILY_SALARY
-      const paidCosts = Math.min(available, dailyCosts)
-      const shortfall = dailyCosts - paidCosts
-      const remainder = available - paidCosts
-      const debtPayment = Math.min(debt, remainder)
-      setCash(remainder - debtPayment)
-      setDebt(Math.max(0, debt - debtPayment) + shortfall)
-      const debtNote = shortfall > 0
-        ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
-        : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
+      setCash(available)
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
-      setToast('Доброе утро! День ' + nextDay + '. Оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, расходы −' + dailyCosts.toLocaleString('ru-RU') + ' ₽.' + debtNote)
+      setToast('Доброе утро! День ' + nextDay + '. Оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽. Жильё и оборудование не требуют регулярной оплаты.')
       window.setTimeout(() => setToast(''), 5200)
       setPanel('room')
       setCallStatus('idle')
@@ -1125,7 +1118,8 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && (
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" cash={cash} setCash={setCash} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
             <button className="back-button" onClick={() => setPanel('room')}><ArrowLeft size={16} /> В комнату</button>
@@ -1141,7 +1135,8 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && (
+      {panel === 'computer' && <ArenaOS cash={cash} setCash={setCash} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
             <button className="back-button" onClick={() => { setPanel('room'); setCallStatus('idle'); setPauseOpen(false) }}><ArrowLeft size={16} /> В комнату</button>
