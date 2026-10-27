@@ -34,6 +34,13 @@ test('client temperament changes dialogue wording for the same factual answer', 
   assert.ok(cautious.delta > 0)
 })
 
+test('same answer receives a distinct contextual follow-up on later dialogue turns', () => {
+  const answer = 'Выручка растёт на 12%, но долг и возвраты остаются риском. Если квартальный отчёт не подтвердит рост, ограничим позицию и пересмотрим тезис.'
+  const firstTurn = dialogue.evaluateFreeReply(answer, client('Осторожный'), stock, 0)
+  const secondTurn = dialogue.evaluateFreeReply(answer, client('Осторожный'), stock, 1)
+  assert.notEqual(firstTurn.reply, secondTurn.reply)
+})
+
 test('unsupported promises remain a strong negative regardless of client personality', () => {
   const result = dialogue.evaluateFreeReply('Гарантирую, что акция точно вырастет без риска на 100%.', client('Любознательная'), stock)
   assert.equal(result.delta, -16)
