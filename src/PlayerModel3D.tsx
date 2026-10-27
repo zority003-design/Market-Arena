@@ -18,7 +18,7 @@ function BrokerModel({ outfit }: { outfit: Outfit }) {
       rig.current.rotation.y = Math.sin(t * 0.36) * 0.035
     }
   })
-  return <group ref={rig} position={[0, -1.25, 0]}>
+  return <group ref={rig} position={[0, -0.15, 0]}>
     {/* Newly modeled full-body broker: separate torso, limbs, face, hairstyle and tailoring. */}
     <mesh position={[0,1.55,0]} scale={[0.46,0.57,0.27]}><capsuleGeometry args={[0.42,0.42,8,20]}/><meshStandardMaterial color={colors.jacket} roughness={0.82}/></mesh>
     <mesh position={[0,1.62,0.276]} scale={[0.18,0.43,0.025]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color={colors.shirt} roughness={0.85}/></mesh>
@@ -59,7 +59,7 @@ function BrokerModel({ outfit }: { outfit: Outfit }) {
 
 export default function PlayerModel3D({ outfit }: { outfit: Outfit }) {
   return <div className="player-model-3d" aria-label="Новая полнофигурная 3D-модель брокера">
-    <Canvas dpr={[1,1.5]} camera={{position:[0,1.35,5.2],fov:34,near:0.1,far:30}} gl={{alpha:true,antialias:true,powerPreference:'low-power'}} onCreated={({gl,camera})=>{gl.setClearColor(0x000000,0);gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.05;gl.outputColorSpace=THREE.SRGBColorSpace;camera.lookAt(0,1.15,0)}}>
+    <Canvas dpr={[1,1.5]} camera={{position:[0,1.35,6],fov:30,near:0.1,far:30}} gl={{alpha:true,antialias:true,powerPreference:'low-power'}} onCreated={({gl,camera})=>{gl.setClearColor(0x000000,0);gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.05;gl.outputColorSpace=THREE.SRGBColorSpace;camera.lookAt(0,1.22,0)}}>
       <ambientLight intensity={1.2}/>
       <hemisphereLight args={['#e0e8f2','#38312d',0.75]}/>
       <directionalLight position={[-3,4,4]} intensity={2.1} color="#ffe0c5"/>
