@@ -50,6 +50,8 @@ export const BROKER_HIRES: BrokerHire[] = [
  { id: 'junior-broker', name: 'Младший брокер', price: 7500, dailyRevenue: 1900, dailySalary: 1200, minDay: 1, minReputation: 0, description: 'Недорогой сотрудник: ведёт простые заявки и приносит около 700 ₽ чистыми в день.' },
  { id: 'broker-specialist', name: 'Брокер-специалист', price: 26000, dailyRevenue: 4300, dailySalary: 2800, minDay: 4, minReputation: 20, description: 'Самостоятельно закрывает больше обращений и приносит около 1 500 ₽ чистыми в день.' },
  { id: 'senior-broker', name: 'Старший брокер', price: 62000, dailyRevenue: 8200, dailySalary: 5700, minDay: 8, minReputation: 40, description: 'Дорогой специалист с высокой выручкой: около 2 500 ₽ чистыми за день.' },
+ { id: 'relationship-broker', name: 'Менеджер по клиентам', price: 95000, dailyRevenue: 13500, dailySalary: 9000, minDay: 11, minReputation: 50, description: 'Ведёт постоянных клиентов и повторные обращения; приносит около 4 500 ₽ чистыми в день.' },
+ { id: 'team-lead', name: 'Руководитель группы', price: 150000, dailyRevenue: 20000, dailySalary: 14000, minDay: 15, minReputation: 65, description: 'Опытный сотрудник, который помогает вести крупные сделки и приносит около 6 000 ₽ чистыми в день.' },
 ]
 export function getStaffDailyNetIncome(ownedEmployeeIds: string[]): number {
  return BROKER_HIRES.filter(employee => ownedEmployeeIds.includes(employee.id)).reduce((sum, employee) => sum + employee.dailyRevenue - employee.dailySalary, 0)
