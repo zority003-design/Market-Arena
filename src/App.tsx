@@ -1094,7 +1094,7 @@ export default function App() {
                       <button onClick={() => openAppWindow('news')}><span className="desktop-shortcut-icon shortcut-news"><Newspaper size={21} /></span><strong>Новости</strong><small>Рынок и компании</small></button>
                       <button onClick={() => openAppWindow('calls')}><span className="desktop-shortcut-icon shortcut-calls"><Video size={21} /></span><strong>Видеозвонки</strong><small>Связь с клиентами</small></button>
                       <button onClick={() => openAppWindow('clients')}><span className="desktop-shortcut-icon shortcut-clients"><Users size={21} /></span><strong>Клиенты</strong><small>CRM и лиды</small></button>
-                      <button onClick={() => openAppWindow('shop')}><span className="desktop-shortcut-icon shortcut-shop"><ShoppingBag size={21} /></span><strong>Оборудование</strong><small>Магазин</small></button>
+                      <button onClick={() => openAppWindow('shop')}><span className="desktop-shortcut-icon shortcut-shop"><ShoppingBag size={21} /></span><strong>Магазин</strong><small>Жильё · техника · гардероб</small></button>
                       <button onClick={() => openAppWindow('housing')}><span className="desktop-shortcut-icon shortcut-housing"><House size={21} /></span><strong>Жильё</strong><small>Недвижимость</small></button>
                     </div>
                     <aside className="desktop-rebuilt-widgets">
