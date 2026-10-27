@@ -44,6 +44,16 @@ export const BUSINESS_ASSETS: BusinessAsset[] = [
 export function getBusinessDailyNetIncome(ownedAssetIds: string[]): number {
  return BUSINESS_ASSETS.filter(asset => ownedAssetIds.includes(asset.id)).reduce((sum, asset) => sum + asset.dailyRevenue - asset.dailyCost, 0)
 }
+
+export type BrokerHire = { id: string; name: string; price: number; dailyRevenue: number; dailySalary: number; minDay: number; minReputation: number; description: string }
+export const BROKER_HIRES: BrokerHire[] = [
+ { id: 'junior-broker', name: 'Младший брокер', price: 7500, dailyRevenue: 1900, dailySalary: 1200, minDay: 1, minReputation: 0, description: 'Недорогой сотрудник: ведёт простые заявки и приносит около 700 ₽ чистыми в день.' },
+ { id: 'broker-specialist', name: 'Брокер-специалист', price: 26000, dailyRevenue: 4300, dailySalary: 2800, minDay: 4, minReputation: 20, description: 'Самостоятельно закрывает больше обращений и приносит около 1 500 ₽ чистыми в день.' },
+ { id: 'senior-broker', name: 'Старший брокер', price: 62000, dailyRevenue: 8200, dailySalary: 5700, minDay: 8, minReputation: 40, description: 'Дорогой специалист с высокой выручкой: около 2 500 ₽ чистыми за день.' },
+]
+export function getStaffDailyNetIncome(ownedEmployeeIds: string[]): number {
+ return BROKER_HIRES.filter(employee => ownedEmployeeIds.includes(employee.id)).reduce((sum, employee) => sum + employee.dailyRevenue - employee.dailySalary, 0)
+}
 export function getBusinessPayoutCap(ownedUpgradeIds: string[]): number {
  return Math.max(900, ...BUSINESS_UPGRADES.filter(upgrade => ownedUpgradeIds.includes(upgrade.id)).map(upgrade => upgrade.payoutCap))
 }
