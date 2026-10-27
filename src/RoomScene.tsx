@@ -7,6 +7,24 @@ import { CityWindowView } from './CityScene'
 
 type RoomTextureKind = 'wood' | 'fabric' | 'plaster'
 
+function makeKittenArtTexture() {
+ const canvas=document.createElement('canvas'); canvas.width=512; canvas.height=512
+ const ctx=canvas.getContext('2d'); if(!ctx) return new THREE.CanvasTexture(canvas)
+ const bg=ctx.createLinearGradient(0,0,512,512); bg.addColorStop(0,'#f4e7cf'); bg.addColorStop(1,'#d7c4a6'); ctx.fillStyle=bg; ctx.fillRect(0,0,512,512)
+ ctx.fillStyle='#b9c8b3'; ctx.beginPath(); ctx.roundRect(52,42,408,420,150); ctx.fill(); ctx.fillStyle='#e7d9be'; ctx.beginPath(); ctx.roundRect(76,66,360,372,130); ctx.fill()
+ ctx.fillStyle='#b7835d'; ctx.beginPath(); ctx.moveTo(151,202); ctx.lineTo(164,106); ctx.lineTo(235,161); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(278,161); ctx.lineTo(350,106); ctx.lineTo(362,202); ctx.closePath(); ctx.fill()
+ ctx.fillStyle='#e5b7a0'; ctx.beginPath(); ctx.moveTo(170,174); ctx.lineTo(174,130); ctx.lineTo(212,164); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(300,164); ctx.lineTo(338,130); ctx.lineTo(342,174); ctx.closePath(); ctx.fill()
+ ctx.fillStyle='#c9956d'; ctx.beginPath(); ctx.ellipse(256,248,119,113,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#f1dfc6'; ctx.beginPath(); ctx.ellipse(256,283,80,62,0,0,Math.PI*2); ctx.fill()
+ ctx.fillStyle='#35483e'; ctx.beginPath(); ctx.ellipse(218,239,10,15,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(294,239,10,15,0,0,Math.PI*2); ctx.fill()
+ ctx.fillStyle='#fff6e6'; ctx.beginPath(); ctx.arc(221,234,3.5,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(297,234,3.5,0,Math.PI*2); ctx.fill()
+ ctx.fillStyle='#9b6556'; ctx.beginPath(); ctx.moveTo(246,270); ctx.lineTo(266,270); ctx.lineTo(256,282); ctx.closePath(); ctx.fill()
+ ctx.strokeStyle='#7e5749'; ctx.lineWidth=3; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(256,282); ctx.quadraticCurveTo(243,298,230,287); ctx.moveTo(256,282); ctx.quadraticCurveTo(269,298,282,287); ctx.stroke()
+ ctx.strokeStyle='#8d6b54'; ctx.lineWidth=2; for(const side of [-1,1]) for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(220+side*28,280+i*10);ctx.lineTo(160+side*12,267+i*19);ctx.stroke()}
+ ctx.fillStyle='#6f927b'; ctx.beginPath(); ctx.moveTo(174,350); ctx.quadraticCurveTo(256,402,338,350); ctx.lineTo(360,438); ctx.lineTo(152,438); ctx.closePath(); ctx.fill()
+ ctx.fillStyle='#f4e7cf'; ctx.font='600 24px Georgia, serif'; ctx.textAlign='center'; ctx.fillText('МАЛЕНЬКИЙ НАЧАЛЬНИК',256,476)
+ const texture=new THREE.CanvasTexture(canvas); texture.colorSpace=THREE.SRGBColorSpace; texture.anisotropy=4; return texture
+}
+
 function makeRoomTexture(kind: RoomTextureKind) {
   const canvas = document.createElement('canvas')
   canvas.width = 256
@@ -297,6 +315,7 @@ function FloorBoards() {
 
 function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
+  const kittenArtTexture = useMemo(() => makeKittenArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
   const backWallColor = housingId === 'dorm' ? '#50636b' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#b4a58b'
@@ -323,11 +342,11 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* The back wall is now uninterrupted; the window belongs on the left wall. */}
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
-      <Box position={[-3.98, 1.62, -3.15]} size={[0.18, 3.4, 1.7]} color="#4d5d64" textureKind="plaster" />
-      <Box position={[-3.98, 1.62, 2.0]} size={[0.18, 3.4, 4.0]} color="#4d5d64" textureKind="plaster" />
-      <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color="#4d5d64" textureKind="plaster" />
-      <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color="#4d5d64" textureKind="plaster" />
-      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
+      <Box position={[-3.98, 1.62, -3.15]} size={[0.18, 3.4, 1.7]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 1.62, 2.0]} size={[0.18, 3.4, 4.0]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color={backWallColor} textureKind="plaster" />
+      <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={backWallColor} textureKind="plaster" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
 
@@ -336,30 +355,10 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#9b8a78" />
       <Box position={[3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#8b7a6b" />
 
-      {/* A cozy framed kitten illustration replaces the ugly stock-chart wall art. */}
-      <Box position={[-2.25, 2.0, -3.84]} size={[1.55, 1.42, 0.07]} color="#5a4638" roughness={0.68} />
-      <Box position={[-2.25, 2.0, -3.795]} size={[1.39, 1.26, 0.018]} color="#f2e5cc" roughness={0.92} />
-      <mesh position={[-2.25, 1.99, -3.775]} castShadow>
-        <circleGeometry args={[0.42, 48]} />
-        <meshStandardMaterial color="#d8b28b" roughness={0.95} />
-      </mesh>
-      <mesh position={[-2.48, 2.31, -3.77]} rotation={[0, 0, -0.24]} castShadow>
-        <coneGeometry args={[0.19, 0.42, 3]} />
-        <meshStandardMaterial color="#d8b28b" roughness={0.95} />
-      </mesh>
-      <mesh position={[-2.02, 2.31, -3.77]} rotation={[0, 0, 0.24]} castShadow>
-        <coneGeometry args={[0.19, 0.42, 3]} />
-        <meshStandardMaterial color="#d8b28b" roughness={0.95} />
-      </mesh>
-      <mesh position={[-2.39, 2.06, -3.742]}><sphereGeometry args={[0.045, 20, 16]} /><meshStandardMaterial color="#35433d" /></mesh>
-      <mesh position={[-2.11, 2.06, -3.742]}><sphereGeometry args={[0.045, 20, 16]} /><meshStandardMaterial color="#35433d" /></mesh>
-      <mesh position={[-2.25, 1.94, -3.735]}><sphereGeometry args={[0.045, 16, 12]} /><meshStandardMaterial color="#bb8278" /></mesh>
-      <mesh position={[-2.25, 1.87, -3.735]} scale={[1, 0.25, 1]}><sphereGeometry args={[0.13, 24, 12]} /><meshStandardMaterial color="#f8efe1" /></mesh>
-      {[-1, 1].map((side) => <group key={'kitten-whiskers-' + side}>
-        <Box position={[-2.25 + side * 0.24, 1.96, -3.736]} size={[0.22, 0.012, 0.006]} color="#88705d" />
-        <Box position={[-2.25 + side * 0.25, 1.89, -3.736]} size={[0.19, 0.012, 0.006]} color="#88705d" />
-      </group>)}
-      <Text position={[-2.25, 1.53, -3.76]} fontSize={0.095} color="#6b5a48" anchorX="center" anchorY="middle">маленький начальник</Text>
+      {/* One clean framed illustration; old chart meshes are removed completely. */}
+      <Box position={[-2.25, 2.0, -3.84]} size={[1.62, 1.48, 0.09]} color="#493a30" roughness={0.52} />
+      <Box position={[-2.25, 2.0, -3.785]} size={[1.48, 1.34, 0.018]} color="#e7d6b8" roughness={0.85} />
+      <mesh position={[-2.25, 2.0, -3.768]}><planeGeometry args={[1.39, 1.26]} /><meshBasicMaterial map={kittenArtTexture} toneMapped={false} /></mesh>
 
       {/* Side-window city view: the skyline is now to the left of the desk, not behind the monitor. */}
       <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" />
@@ -527,14 +526,6 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Keep the wall beside the door clear and uncluttered. */}
 
-      {/* Wall poster, framed market doodle */}
-      <Box position={[-1.95, 2.15, -3.84]} size={[1.15, 0.9, 0.06]} color="#2e393d" />
-      <Box position={[-1.95, 2.15, -3.8]} size={[1.03, 0.78, 0.02]} color="#182b2b" />
-      <Box position={[-2.18, 2.04, -3.78]} size={[0.04, 0.26, 0.012]} color="#3bca9b" rotation={[0, 0, 0.22]} />
-      <Box position={[-2.02, 2.14, -3.78]} size={[0.04, 0.42, 0.012]} color="#3bca9b" rotation={[0, 0, -0.15]} />
-      <Box position={[-1.86, 2.22, -3.78]} size={[0.04, 0.56, 0.012]} color="#3bca9b" rotation={[0, 0, 0.28]} />
-      <Box position={[-1.7, 2.3, -3.78]} size={[0.04, 0.34, 0.012]} color="#e2b86f" rotation={[0, 0, -0.2]} />
-
       {/* Small plant */}
       <Cylinder position={[-3.25, 0.24, 2.6]} radius={0.19} height={0.42} color="#8a6551" />
       {[
@@ -571,18 +562,6 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 }
 
 export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
-  const sendMoveKey = (key: 'w' | 'a' | 's' | 'd', pressed: boolean) => {
-    const code = ({ w: 'KeyW', a: 'KeyA', s: 'KeyS', d: 'KeyD' } as const)[key]
-    // Dispatch on window itself so the first-person capture listener always receives touch controls.
-    window.dispatchEvent(new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, cancelable: true }))
-  }
-  const touchButton = (key: 'w' | 'a' | 's' | 'd', label: string, glyph: string) => (
-    <button key={key} type="button" className={`room-touch-key room-touch-${key}`} aria-label={label}
-      onPointerDown={(event) => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); sendMoveKey(key, true) }}
-      onPointerUp={() => sendMoveKey(key, false)}
-      onPointerCancel={() => sendMoveKey(key, false)}
-      onLostPointerCapture={() => sendMoveKey(key, false)}>{glyph}</button>
-  )
   return (
     <div className="room-scene-root">
       <Canvas
@@ -599,13 +578,6 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
       >
         <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </Canvas>
-      {active && !introActive && <div className="room-touch-controls" aria-label="Управление персонажем">
-        <div className="room-touch-dpad">
-          {touchButton('w', 'Идти вперёд', '↑')}
-          <div className="room-touch-middle">{touchButton('a', 'Идти влево', '←')}{touchButton('s', 'Идти назад', '↓')}{touchButton('d', 'Идти вправо', '→')}</div>
-        </div>
-        <span className="room-touch-caption">ДВИЖЕНИЕ</span>
-      </div>}
       {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
     </div>
   )
