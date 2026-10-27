@@ -32,7 +32,7 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
     delta = concrete ? 13 : 10
     const proof = stock ? stock.catalyst : 'квартальные отчёты и денежный поток'
     const failure = stock ? stock.redFlags : 'ухудшение выручки и рост долга'
-    reply = client.tier >= 3 || temperament.includes('скептич') || temperament.includes('аналит')
+    reply = client.statusSensitive || temperament.includes('скептич') || temperament.includes('аналит')
       ? `«Это уже похоже на управляемое решение. Для ${stock ? stock.name : 'этой идеи'} проверяем ${proof.toLowerCase()} и заранее отказываемся от тезиса, если проявится ${failure.toLowerCase()}. Какой показатель смотрим первым и с какой периодичностью?»`
       : `«Хорошо: есть причина для роста, неприятный сценарий и план, а не молитва котировке. Договорились: проверяем ${proof.toLowerCase()}, а если проявится ${failure.toLowerCase()} — пересматриваем позицию. Какой срок контроля ставим?»`
   } else if (hasRisk && hasUpside) {
