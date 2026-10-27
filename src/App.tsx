@@ -1031,15 +1031,13 @@ export default function App() {
       setCityBonus(0)
       setCityLocation('office')
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
-      const housingBill = currentHousing.dailyCost
       const businessNetIncome = getBusinessDailyNetIncome(ownedBusinessAssets)
-       const available = cash + DAILY_SALARY + businessNetIncome - housingBill
+      const available = cash + DAILY_SALARY + businessNetIncome
       setCash(Math.max(0, available))
-      if (available < 0) { const shortfall = Math.abs(available); setDebt((value) => value + shortfall); setReputation((value) => Math.max(0, value - 1)); setToast('Не хватило денег на жильё: долг +' + shortfall.toLocaleString('ru-RU') + ' ₽, репутация −1.') }
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
-      if (available >= 0) setToast('Доброе утро! День ' + nextDay + '. Оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, бизнес +' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, жильё −' + housingBill.toLocaleString('ru-RU') + ' ₽.')
+      setToast('Доброе утро! День ' + nextDay + '. Оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, чистый доход фирмы +' + businessNetIncome.toLocaleString('ru-RU') + ' ₽. Жильё оплачено при покупке — ежедневной аренды нет.')
       window.setTimeout(() => setToast(''), 5200)
       setPanel('room')
       setCallStatus('idle')
@@ -1302,9 +1300,9 @@ export default function App() {
               {!windowMinimized && tab === 'housing' && (
                 <div className="housing-page">
                   <div className="page-heading"><div><div className="eyebrow">ОБРАЗ ЖИЗНИ · ЖИЛЬЁ</div><h2>Следующий адрес — твой выбор</h2><p>Больше приватности и статуса, но и постоянные расходы. Не переезжай, если после депозита не останется резерва.</p></div><div className="market-status"><House size={14} /> {currentHousing.name.toUpperCase()}</div></div>
-                  <div className="current-home-banner"><div className="home-symbol"><House size={28} /></div><div><span className="eyebrow">ТЕКУЩЕЕ ЖИЛЬЁ</span><h3>{currentHousing.name}</h3><p>{currentHousing.description}</p></div><div className="home-cost"><small>РАСХОДЫ / ДЕНЬ</small><strong>{currentHousing.dailyCost.toLocaleString('ru-RU')} ₽</strong></div></div>
+                  <div className="current-home-banner"><div className="home-symbol"><House size={28} /></div><div><span className="eyebrow">ТЕКУЩЕЕ ЖИЛЬЁ</span><h3>{currentHousing.name}</h3><p>{currentHousing.description}</p></div><div className="home-cost"><small>ОПЛАТА</small><strong>Разовая покупка</strong></div></div>
                   <div className="housing-list">{HOUSING.map((home, index) => { const current = home.id === housingId; const locked = day < home.minDay || reputation < home.minReputation; return <article className={current ? 'housing-option current' : 'housing-option'} key={home.id}><div className="housing-rank">0{index + 1}</div><div className="housing-option-main"><span className="eyebrow">УРОВЕНЬ ЖИЛЬЯ {index}</span><h3>{home.name}</h3><p>{home.description}</p><div className="housing-effects"><span>Первое впечатление {home.firstImpression > 0 ? '+' : ''}{home.firstImpression}</span><span>Комфорт +{home.comfort}</span></div></div><div className="housing-option-buy"><strong>{home.price === 0 ? 'Стартовое' : home.price.toLocaleString('ru-RU') + ' ₽'}</strong><small>{home.dailyCost.toLocaleString('ru-RU')} ₽ / день</small><button disabled={current || locked || cash < home.price} className={current ? 'secondary-action' : 'primary-action'} onClick={() => moveToHousing(home.id)}>{current ? 'Текущее жильё' : locked ? 'Пока закрыто' : cash < home.price ? 'Нужно накопить' : 'Переехать'}</button></div></article> })}</div>
-                  <div className="bottom-note"><Wallet size={16} /><span>Оклад за рабочий день — {DAILY_SALARY.toLocaleString('ru-RU')} ₽. Перед переездом сравни его с ежедневными расходами: дорогой адрес может съесть весь доход.</span></div>
+                  <div className="bottom-note"><Wallet size={16} /><span>Оклад за рабочий день — {DAILY_SALARY.toLocaleString('ru-RU')} ₽. Жильё покупается один раз; дальше выбирай, вкладывать деньги в комфорт или расширение фирмы.</span></div>
                 </div>
               )}
 
