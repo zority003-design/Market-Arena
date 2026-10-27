@@ -400,6 +400,46 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
 
+      {/* Housing-specific furnishings: each address has its own visual identity, not just a different wall tint. */}
+      {housingId === 'dorm' && <group>
+        <Box position={[3.38, 0.09, -2.55]} size={[0.72, 0.08, 0.92]} color="#35434a" textureKind="fabric" />
+        <Box position={[3.38, 0.5, -2.92]} size={[0.62, 0.72, 0.06]} color="#6d8791" textureKind="fabric" />
+        <Box position={[3.38, 0.16, -2.55]} size={[0.62, 0.16, 0.72]} color="#7e8e95" textureKind="fabric" />
+      </group>}
+      {housingId === 'shared-flat' && <group>
+        <Box position={[3.28, 0.11, -2.55]} size={[0.94, 0.1, 1.1]} color="#665143" textureKind="wood" />
+        <Box position={[3.28, 0.43, -2.95]} size={[0.88, 0.58, 0.12]} color="#718b7e" textureKind="fabric" />
+        <Box position={[3.28, 0.24, -2.52]} size={[0.88, 0.22, 0.72]} color="#91a79a" textureKind="fabric" />
+        <Cylinder position={[3.28, 0.58, -2.46]} radius={0.17} height={0.28} color="#b47f4e" />
+        <mesh position={[3.28, 0.91, -2.46]}><sphereGeometry args={[0.28, 12, 10]} /><meshStandardMaterial color="#54825d" roughness={0.9} /></mesh>
+      </group>}
+      {housingId === 'studio' && <group>
+        <Box position={[3.28, 0.11, -2.55]} size={[1.05, 0.1, 1.15]} color="#5a473a" textureKind="wood" />
+        <Box position={[3.28, 0.47, -2.98]} size={[0.98, 0.64, 0.12]} color="#405b59" textureKind="fabric" />
+        <Box position={[3.28, 0.25, -2.53]} size={[0.98, 0.24, 0.76]} color="#648681" textureKind="fabric" />
+        <Box position={[3.26, 0.88, -3.72]} size={[1.05, 0.66, 0.06]} color="#c4b18d" />
+        <Box position={[3.26, 0.88, -3.67]} size={[0.88, 0.5, 0.035]} color="#42675f" />
+      </group>}
+      {housingId === 'city-apartment' && <group>
+        <Box position={[3.25, 0.1, -2.5]} size={[1.18, 0.12, 1.2]} color="#715944" textureKind="wood" />
+        <Box position={[3.25, 0.48, -2.95]} size={[1.1, 0.68, 0.14]} color="#384c55" textureKind="fabric" />
+        <Box position={[3.25, 0.25, -2.5]} size={[1.1, 0.25, 0.78]} color="#607984" textureKind="fabric" />
+        <Box position={[3.26, 0.92, -3.72]} size={[1.2, 0.76, 0.06]} color="#c8b18d" />
+        <Box position={[3.26, 0.92, -3.67]} size={[1.02, 0.58, 0.035]} color="#6d7d75" />
+        <Cylinder position={[2.35, 0.38, -2.65]} radius={0.24} height={0.58} color="#8b6446" />
+        <mesh position={[2.35, 0.92, -2.65]}><sphereGeometry args={[0.48, 14, 12]} /><meshStandardMaterial color="#3e7854" roughness={0.92} /></mesh>
+      </group>}
+      {housingId === 'premium-apartment' && <group>
+        <Box position={[3.2, 0.1, -2.45]} size={[1.35, 0.14, 1.3]} color="#735438" textureKind="wood" />
+        <Box position={[3.2, 0.5, -2.94]} size={[1.27, 0.74, 0.16]} color="#2f4c47" textureKind="fabric" />
+        <Box position={[3.2, 0.27, -2.45]} size={[1.27, 0.28, 0.82]} color="#4d7167" textureKind="fabric" />
+        <Box position={[3.2, 0.99, -3.72]} size={[1.38, 0.86, 0.07]} color="#b79b69" metalness={0.2} />
+        <Box position={[3.2, 0.99, -3.66]} size={[1.2, 0.68, 0.04]} color="#273e3c" />
+        <Box position={[2.1, 0.12, -2.7]} size={[0.42, 0.08, 0.42]} color="#b89a67" textureKind="wood" />
+        <Cylinder position={[2.1, 0.44, -2.7]} radius={0.16} height={0.56} color="#a77e51" />
+        <mesh position={[2.1, 0.92, -2.7]}><sphereGeometry args={[0.48, 14, 12]} /><meshStandardMaterial color="#497d5a" roughness={0.9} /></mesh>
+      </group>}
+
       {/* Warm wood skirting, consistent around the room. */}
       <Box position={[0, 0.14, -3.86]} size={[7.76, 0.17, 0.09]} color="#624a38" roughness={0.74} textureKind="wood" />
       {/* Split the window-wall trim around the opening so it cannot create a pale stripe across the glass. */}

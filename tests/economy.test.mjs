@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import ts from 'typescript'
 
-// Test the real TypeScript module without adding a runtime test dependency.
 const source = await readFile(new URL('../src/game/economy.ts', import.meta.url), 'utf8')
 const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
@@ -11,15 +10,38 @@ const compiled = ts.transpileModule(source, {
 const economy = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'))
 const {
   CLIENTS, HOUSING, ROOM_ITEMS, calculateDeal, getAvailableClients, getBackgroundModifier,
-  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality,
+  getDailyLeadIds, getDailyQuota, getFirstImpression, getOutfitModifier, getVideoQuality, settleDailyFinances,
 } = economy
 
-test('career starts with a viable, known baseline', () => {
+test('career starts with a viable baseline and housing tiers have sustainable cost progression', () => {
   assert.equal(economy.STARTING_CASH, 18500)
   assert.equal(economy.STARTING_FIRM_CAPITAL, 25000)
+  assert.equal(economy.DAILY_SALARY, 1200)
   assert.equal(HOUSING[0].id, economy.STARTING_HOUSING_ID)
-  assert.equal(HOUSING[0].dailyCost, 650)
-  assert.equal(economy.DAILY_SALARY - HOUSING[0].dailyCost, 250)
+  assert.equal(HOUSING[0].dailyCost, 500)
+  assert.equal(economy.DAILY_SALARY - HOUSING[0].dailyCost, 700)
+  assert.deepEqual(HOUSING.map(h => h.dailyCost), [500, 800, 1400, 2300, 3800])
+  assert.deepEqual(HOUSING.map(h => h.price), [0, 14000, 45000, 125000, 320000])
+  assert.ok(HOUSING.every((h, i, all) => i === 0 || (h.price > all[i-1].price && h.dailyCost > all[i-1].dailyCost)))
+})
+
+test('housing comfort improves first impression, especially when moving up tiers', () => {
+  const cautious = CLIENTS.find(client => client.id === 'alex-vorontsov')
+  const demanding = CLIENTS.find(client => client.id === 'igor-melnikov')
+  assert.ok(cautious && demanding)
+  const dormTrust = getFirstImpression('dorm', [], cautious)
+  const studioTrust = getFirstImpression('studio', [], cautious)
+  const premiumTrust = getFirstImpression('premium-apartment', [], cautious)
+  assert.ok(studioTrust > dormTrust)
+  assert.ok(premiumTrust > studioTrust)
+  assert.ok(getFirstImpression('premium-apartment', [], demanding) >= getFirstImpression('dorm', [], demanding))
+})
+
+test('daily settlement pays costs, then debt, and never creates negative cash', () => {
+  assert.deepEqual(settleDailyFinances(1000, 500, 500), {cash:1200,debt:0,salaryPaid:1200,costsPaid:500,debtPaid:500,shortfall:0})
+  assert.deepEqual(settleDailyFinances(0, 0, 3800), {cash:0,debt:2600,salaryPaid:1200,costsPaid:1200,debtPaid:0,shortfall:2600})
+  assert.deepEqual(settleDailyFinances(-500, -20, -10), {cash:1200,debt:0,salaryPaid:1200,costsPaid:0,debtPaid:0,shortfall:0})
+  assert.deepEqual(settleDailyFinances(1000, 3000, 500), {cash:0,debt:1300,salaryPaid:1200,costsPaid:500,debtPaid:1700,shortfall:0})
 })
 
 test('client unlocks respect both day and reputation gates', () => {
@@ -39,6 +61,7 @@ test('deal amount never exceeds remaining client budget or allocation cap', () =
         assert.ok(result.ticket <= Math.max(0, client.budget - previouslyInvested), client.id)
         assert.ok(result.ticket <= Math.floor(client.budget * Math.min(.45, client.maxAllocation + previousDeals * .05)), client.id)
         assert.ok(result.firmRevenue >= 0 && result.playerBonus >= 0, client.id)
+        assert.ok(result.firmRevenue >= result.playerBonus, client.id + ' must not lose money on the commission split')
       }
     }
   }
@@ -66,8 +89,7 @@ test('high trust improves only the player bonus multiplier', () => {
 
 test('room impression is bounded and ignores unknown item IDs', () => {
   const sensitive = CLIENTS.find(c => c.statusSensitive)
-  const home = HOUSING.find(h => h.id === 'dorm')
-  assert.ok(sensitive && home)
+  assert.ok(sensitive)
   assert.equal(getFirstImpression('dorm', [], sensitive), -4)
   assert.equal(getFirstImpression('not-a-home', ['unknown-item'], CLIENTS[0]), -2)
   assert.ok(getFirstImpression('premium-apartment', ROOM_ITEMS.map(i => i.id), CLIENTS[0]) <= 8)
@@ -103,15 +125,14 @@ test('background choices cannot grant a virtual-office bonus without chromakey',
   assert.equal(getBackgroundModifier('luxury', ['chromakey-kit'], sensitive), 4)
 })
 
-test('daily lead list respects cooldown, deal limit, exhausted budget and reputation', () => {
+test('daily leads return after one day and respect deal limit and exhausted budget', () => {
   const lastContact = { 'alex-vorontsov': 9, 'maria-sokolova': 8 }
   const dealCounts = { 'igor-melnikov': 3 }
   const invested = { 'maria-sokolova': 85000 }
   const leads = getDailyLeadIds(10, 25, lastContact, dealCounts, invested)
-  assert.ok(leads.length <= 2)
-  assert.ok(!leads.includes('alex-vorontsov')) // only one day since contact
-  assert.ok(!leads.includes('igor-melnikov')) // deal limit reached
-  assert.ok(!leads.includes('maria-sokolova')) // client budget exhausted
+  assert.ok(leads.includes('alex-vorontsov'))
+  assert.ok(!leads.includes('igor-melnikov'))
+  assert.ok(!leads.includes('maria-sokolova'))
   assert.equal(new Set(leads).size, leads.length)
 })
 
@@ -119,4 +140,11 @@ test('lead count expands only at the intended reputation thresholds', () => {
   assert.ok(getDailyLeadIds(1, 0).length <= 2)
   assert.ok(getDailyLeadIds(10, 35).length <= 3)
   assert.ok(getDailyLeadIds(20, 60).length <= 4)
+})
+
+test('daily quota ramps gradually and uses the same helper for UI and shift settlement', () => {
+  assert.deepEqual(getDailyQuota(1), {targetShares:28,targetAmount:14000})
+  assert.deepEqual(getDailyQuota(2), {targetShares:36,targetAmount:20000})
+  assert.deepEqual(getDailyQuota(16), {targetShares:148,targetAmount:104000})
+  assert.deepEqual(getDailyQuota(0), getDailyQuota(1))
 })
