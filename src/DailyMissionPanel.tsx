@@ -1,5 +1,3 @@
-import React from 'react'
-
 type MissionCompany = {
   ticker: string
   name: string
