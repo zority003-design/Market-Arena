@@ -25,6 +25,18 @@ test('career starts with a viable baseline and housing tiers have sustainable co
   assert.ok(HOUSING.every((h, i, all) => i === 0 || (h.price > all[i-1].price && h.dailyCost > all[i-1].dailyCost)))
 })
 
+test('housing comfort improves first impression, especially when moving up tiers', () => {
+  const cautious = CLIENTS.find(client => client.id === 'alex-vorontsov')
+  const demanding = CLIENTS.find(client => client.id === 'igor-melnikov')
+  assert.ok(cautious && demanding)
+  const dormTrust = getFirstImpression('dorm', [], cautious)
+  const studioTrust = getFirstImpression('studio', [], cautious)
+  const premiumTrust = getFirstImpression('premium-apartment', [], cautious)
+  assert.ok(studioTrust > dormTrust)
+  assert.ok(premiumTrust > studioTrust)
+  assert.ok(getFirstImpression('premium-apartment', [], demanding) >= getFirstImpression('dorm', [], demanding))
+})
+
 test('daily settlement pays costs, then debt, and never creates negative cash', () => {
   assert.deepEqual(settleDailyFinances(1000, 500, 500), {cash:1200,debt:0,salaryPaid:1200,costsPaid:500,debtPaid:500,shortfall:0})
   assert.deepEqual(settleDailyFinances(0, 0, 3800), {cash:0,debt:2600,salaryPaid:1200,costsPaid:1200,debtPaid:0,shortfall:2600})
