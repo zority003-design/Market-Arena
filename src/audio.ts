@@ -32,7 +32,7 @@ let nextMusicIndex = 0
 let musicUnlockInstalled = false
 
 function playProjectTrack() {
-  if (!musicAudio || !settings.music || settings.paused) return
+  if (!musicAudio || !settings.music) return
   musicAudio.src = musicTracks[nextMusicIndex]
   musicAudio.currentTime = 0
   musicAudio.volume = Math.max(0, Math.min(1, settings.musicVolume))
@@ -40,12 +40,12 @@ function playProjectTrack() {
 }
 
 function startProjectMusic() {
-  if (typeof window === 'undefined' || !settings.music || settings.paused) return
+  if (typeof window === 'undefined' || !settings.music) return
   if (!musicAudio) {
     musicAudio = new Audio()
     musicAudio.preload = 'auto'
     musicAudio.addEventListener('ended', () => {
-      if (!settings.music || settings.paused) return
+      if (!settings.music) return
       nextMusicIndex = (nextMusicIndex + 1) % musicTracks.length
       playProjectTrack()
     })
@@ -63,7 +63,7 @@ function installMusicUnlock() {
   if (typeof window === 'undefined' || musicUnlockInstalled) return
   musicUnlockInstalled = true
   const unlock = () => {
-    if (settings.music && !settings.paused) startProjectMusic()
+    if (settings.music) startProjectMusic()
     window.removeEventListener('pointerdown', unlock, true)
     window.removeEventListener('keydown', unlock, true)
   }
@@ -73,7 +73,7 @@ function installMusicUnlock() {
 
 function updateMusic() {
   if (typeof window === 'undefined') return
-  if (settings.music && !settings.paused) {
+  if (settings.music) {
     startProjectMusic()
     if (musicAudio) {
       musicAudio.volume = Math.max(0, Math.min(1, settings.musicVolume))
