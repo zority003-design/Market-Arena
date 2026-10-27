@@ -85,7 +85,13 @@ export default function ArenaOS(props: Props) {
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-last-app',activeApp) } catch {} },[activeApp])
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-contacts',JSON.stringify(newContacts)) } catch {} },[newContacts])
   useEffect(()=>{ setWindowMinimized(false) },[activeApp])
-  useEffect(()=>{ if(incoming) playSound('notification') },[incoming])
+  useEffect(()=>{
+    if (props.initialApp === 'wardrobe') return
+    try { if (localStorage.getItem('arena-os-v2-first-call') === 'accepted') return } catch { /* allow tutorial without storage */ }
+    const timer = window.setTimeout(() => setIncoming(true), 3000)
+    return () => window.clearTimeout(timer)
+  },[props.initialApp])
+  useEffect(()=>{ if(incoming) playSound('ring') },[incoming])
   const startCall = (id=clientId) => {
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
     setClientId(selected.id); setActiveStock(null); setStockPicker(true); setCallState('active')
