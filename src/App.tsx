@@ -1055,8 +1055,8 @@ export default function App() {
                         <span className={dailySalesShares >= 25 + day * 10 && dailySalesAmount >= 8000 + day * 4000 ? 'is-done' : ''}><b>{dailySalesShares >= 25 + day * 10 && dailySalesAmount >= 8000 + day * 4000 ? '✓' : '4'}</b>Выполнить план</span>
                       </div>
                       <div className="desktop-task-actions">
-                        <button onClick={() => { if (!marketReviewed) setTab('market'); else if (!newsReviewed) setTab('news'); else if (callsToday === 0) { if (callStatus === 'active') setTab('calls'); else startCall() } else setTab('market') }}>
-                          {!marketReviewed ? 'Открыть биржу' : !newsReviewed ? 'Открыть новости' : callsToday === 0 ? (callStatus === 'active' ? 'Вернуться к звонку' : 'Начать звонок') : 'К плану продаж'} <ArrowRight size={14} />
+                        <button onClick={() => { if (!marketReviewed) setTab('market'); else if (!newsReviewed) setTab('news'); else if (callsToday === 0) { if (callStatus === 'active') setTab('calls'); else startCall() } else if (dailySalesShares < 25 + day * 10 || dailySalesAmount < 8000 + day * 4000) setTab('market'); else endDay() }}>
+                          {!marketReviewed ? 'Открыть биржу' : !newsReviewed ? 'Открыть новости' : callsToday === 0 ? (callStatus === 'active' ? 'Вернуться к звонку' : 'Начать звонок') : dailySalesShares < 25 + day * 10 || dailySalesAmount < 8000 + day * 4000 ? 'К плану продаж' : 'Завершить смену'} <ArrowRight size={14} />
                         </button>
                         <button disabled={callsToday >= (reputation >= 60 ? 4 : reputation >= 35 ? 3 : 2) || availableClients.length === 0} onClick={() => { if (callStatus === 'active') setTab('calls'); else startCall() }}><Phone size={14} /> {callStatus === 'active' ? 'Вернуться к клиенту' : 'Позвонить клиенту'}</button>
                       </div>
