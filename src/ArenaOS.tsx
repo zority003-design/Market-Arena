@@ -315,6 +315,19 @@ export default function ArenaOS(props: Props) {
     props.setOwnedBusinessAssets(value => [...value, id])
     setNotice('Приобретено: ' + asset.name + '. Чистый доход ' + money(asset.dailyRevenue - asset.dailyCost) + ' начислится после следующего сна.')
   }
+  const hireBroker = (id:string) => {
+    const employee = BROKER_HIRES.find(item => item.id === id)
+    if (!employee || props.ownedEmployees.includes(id)) return
+    const officeOpen = props.ownedBusinessAssets.some(assetId => ['broker-team','city-agency','national-network'].includes(assetId))
+    const capacity = officeOpen ? 5 : 1
+    if (!officeOpen && !props.ownedItems.includes('second-desk')) { setNotice('Сначала купи второй рабочий стол для квартиры.'); return }
+    if (props.ownedEmployees.length >= capacity) { setNotice(officeOpen ? 'В этом офисе уже заняты все 5 рабочих мест.' : 'В квартире помещается только один дополнительный брокер. Купи офис, чтобы расширить команду до пяти сотрудников.'); return }
+    if (props.day < employee.minDay || props.reputation < employee.minReputation) { setNotice('Для найма нужны день ' + employee.minDay + ' и репутация ' + employee.minReputation + '.'); return }
+    if (props.cash < employee.price) { setNotice('Не хватает ' + money(employee.price - props.cash) + ' на найм.'); return }
+    props.setCash(value => value - employee.price)
+    props.setOwnedEmployees(value => [...value, id])
+    setNotice('В команду принят сотрудник: ' + employee.name + '. Зарплата автоматически вычитается из его выручки; фирме начисляется только чистый остаток +' + money(employee.dailyRevenue - employee.dailySalary) + '.')
+  }
   const buyGear = (id:string,price:number) => {
     if(props.ownedItems.includes(id)) { setNotice('Уже куплено.'); return }
     if(props.cash<price) { setNotice('Не хватает денег.'); return }
