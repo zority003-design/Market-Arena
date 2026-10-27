@@ -258,3 +258,29 @@
 .arena-os-housing-copy small{min-height:28px;color:#73869b;font-size:10px;line-height:1.45}
 .arena-os-housing-copy button{width:100%;margin-top:auto}
 @media(max-width:760px){.arena-os-housing-grid{grid-template-columns:1fr}.arena-os-housing-art{height:82px}}
+
+
+.arena-os-app-icon.business{background:linear-gradient(145deg,#b5a2ff,#6650c8)}
+.arena-os-business-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.arena-os-business-summary>div{display:grid;gap:6px;padding:13px 15px;border:1px solid #d0e0f2;border-radius:9px;background:linear-gradient(145deg,#fff,#f1f7ff)}
+.arena-os-business-summary small{font-size:9px;font-weight:800;letter-spacing:.08em;color:#7187a0}
+.arena-os-business-summary b{font-size:18px;color:#1c416b}
+.arena-os-business-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.arena-os-business-card{display:flex;flex-direction:column;overflow:hidden;border:1px solid #d2e0f0;border-radius:10px;background:#fff;box-shadow:0 4px 12px rgba(30,70,112,.045)}
+.arena-os-business-card.owned{border-color:#a5d9c0;background:linear-gradient(145deg,#fff,#f0fbf5)}
+.arena-os-business-icon{height:88px;display:flex;align-items:center;justify-content:center;gap:12px;color:#286eae;background:linear-gradient(135deg,#e7f2ff,#c4ddfb)}
+.arena-os-business-card:nth-child(2) .arena-os-business-icon{color:#7c5eae;background:linear-gradient(135deg,#f1eaff,#d9caf6)}
+.arena-os-business-card:nth-child(3) .arena-os-business-icon{color:#247a68;background:linear-gradient(135deg,#e2f7ef,#b8e5d5)}
+.arena-os-business-card:nth-child(4) .arena-os-business-icon{color:#87612d;background:linear-gradient(135deg,#fff0d8,#f0d2a1)}
+.arena-os-business-icon svg{width:30px;height:30px}
+.arena-os-business-icon span{font-size:10px;font-weight:850;letter-spacing:.13em}
+.arena-os-business-copy{display:flex;flex:1;flex-direction:column;gap:10px;padding:15px}
+.arena-os-business-copy h3{margin:0;color:#1b3b5d;font-size:16px}
+.arena-os-business-copy p{margin:0;color:#5f7690;font-size:11px;line-height:1.6;min-height:52px}
+.arena-os-business-effect{display:flex;align-items:flex-start;gap:7px;padding:9px;border-radius:7px;background:#edf8f2;color:#287451;font-size:10px;line-height:1.5}
+.arena-os-business-effect svg{flex:none;margin-top:1px}
+.arena-os-business-cap{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #e2eaf3;color:#637b94;font-size:10px}
+.arena-os-business-cap b{color:#234b75;font-size:12px;white-space:nowrap}
+.arena-os-business-copy small{min-height:25px;color:#71869d;font-size:10px;line-height:1.45}
+.arena-os-business-copy button{width:100%;margin-top:auto}
+@media(max-width:760px){.arena-os-business-grid{grid-template-columns:1fr}.arena-os-business-summary{grid-template-columns:1fr}.arena-os-business-copy p{min-height:0}}

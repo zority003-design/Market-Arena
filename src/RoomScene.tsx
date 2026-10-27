@@ -281,7 +281,8 @@ function Cylinder({ position, radius, height, color, metalness = 0, roughness = 
 
 const woodPalette = ['#73523d', '#805c43', '#674936', '#896447', '#76543d']
 
-function FloorBoards() {
+function FloorBoards({ housingId }: { housingId: string }) {
+  const palette = housingId === 'dorm' ? ['#514b46', '#5b534b', '#46423f', '#655b52'] : housingId === 'premium-apartment' ? ['#c9b99c', '#bca987', '#d7c9ad', '#ad9977'] : woodPalette
   const boards = useMemo(() => Array.from({ length: 20 }, (_, row) => {
     const widths = row % 2 ? [2.35, 2.55, 2.9] : [1.9, 2.7, 3.2]
     let cursor = -3.9
@@ -292,7 +293,7 @@ function FloorBoards() {
         key: row + '-' + col,
         position: [x, 0.056, -3.705 + row * 0.39] as [number, number, number],
         size: [width - 0.025, 0.022, 0.365] as [number, number, number],
-        color: woodPalette[(row * 3 + col * 2) % woodPalette.length],
+        color: palette[(row * 3 + col * 2) % palette.length],
       }
     })
   }).flat(), [])
@@ -306,7 +307,9 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
-  const backWallColor = housingId === 'dorm' ? '#3d6175' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#b4a58b'
+  const backWallColor = housingId === 'dorm' ? '#425566' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#d8d7d1'
+  const panoramicWindow = housingId === 'premium-apartment'
+  const dormRoom = housingId === 'dorm'
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
@@ -335,24 +338,24 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Front wall opposite the desk: deliberately overlaps the floor edge to seal the exterior slit. */}
       <Box position={[0, 1.57, -3.98]} size={[8, 3.54, 0.28]} color={backWallColor} roughness={0.92} textureKind="plaster" />
       {/* Rear wall uses the same plaster texture as the side walls, with warm timber wainscoting and clear panel seams. */}
-      <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color="#806044" roughness={0.9} textureKind="wood" />
-      {Array.from({ length: 15 }, (_, i) => <Box key={'rear-wall-panel-' + i} position={[-3.72 + i * 0.53, 0.55, -3.825]} size={[0.025, 0.58, 0.025]} color="#4e3b2d" roughness={0.88} textureKind="wood" />)}
-      <Box position={[0, 0.91, -3.82]} size={[7.78, 0.045, 0.045]} color="#c09a6a" roughness={0.65} textureKind="wood" />
-      <Box position={[0, 1.24, -3.82]} size={[7.78, 0.035, 0.045]} color="#c09a6a" roughness={0.65} textureKind="wood" />
-      {[-3.72, -1.85, 0, 1.85, 3.72].map((x, i) => <Box key={'rear-wall-upper-trim-' + i} position={[x, 1.72, -3.865]} size={[0.045, 1.45, 0.045]} color="#8b765e" roughness={0.9} textureKind="wood" />)}
+      <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color={panoramicWindow ? "#d1c7b3" : "#806044"} roughness={0.9} textureKind="wood" />
+      {Array.from({ length: 15 }, (_, i) => <Box key={'rear-wall-panel-' + i} position={[-3.72 + i * 0.53, 0.55, -3.825]} size={[0.025, 0.58, 0.025]} color={panoramicWindow ? "#b8a16c" : "#4e3b2d"} roughness={0.88} textureKind="wood" />)}
+      <Box position={[0, 0.91, -3.82]} size={[7.78, 0.045, 0.045]} color={panoramicWindow ? "#b8a16c" : "#c09a6a"} roughness={0.65} textureKind="wood" />
+      <Box position={[0, 1.24, -3.82]} size={[7.78, 0.035, 0.045]} color={panoramicWindow ? "#b8a16c" : "#c09a6a"} roughness={0.65} textureKind="wood" />
+      {[-3.72, -1.85, 0, 1.85, 3.72].map((x, i) => <Box key={'rear-wall-upper-trim-' + i} position={[x, 1.72, -3.865]} size={[0.045, 1.45, 0.045]} color={panoramicWindow ? "#c8b990" : "#8b765e"} roughness={0.9} textureKind="wood" />)}
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
-      <Box position={[-3.98, 1.62, -3.15]} size={[0.18, 3.4, 1.7]} color={backWallColor} textureKind="plaster" />
-      <Box position={[-3.98, 1.62, 2.0]} size={[0.18, 3.4, 4.0]} color={backWallColor} textureKind="plaster" />
-      <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color={backWallColor} textureKind="plaster" />
-      <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 1.62, panoramicWindow ? -3.45 : -3.15]} size={[0.18, 3.4, panoramicWindow ? 0.9 : 1.7]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 1.62, panoramicWindow ? 2.3 : 2.0]} size={[0.18, 3.4, panoramicWindow ? 3.4 : 4.0]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, panoramicWindow ? 3.5 : 2.3]} color={backWallColor} textureKind="plaster" />
+      <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, panoramicWindow ? 3.5 : 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={backWallColor} textureKind="plaster" />
       {/* Opposite wall: the old scene was missing the entire +Z side, exposing the room like a cutaway. */}
       <Box position={[0, 1.58, 3.98]} size={[8, 3.56, 0.28]} color={backWallColor} roughness={0.92} textureKind="plaster" />
       {/* Plain uninterrupted blue-gray wall opposite the bed; decorative seams removed at the user's request. */}
       <Box position={[0, 0.16, 3.80]} size={[7.76, 0.22, 0.08]} color="#344c59" roughness={0.9} textureKind="wood" />
 
-      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
-      <FloorBoards />
+      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : housingId === "premium-apartment" ? "#b7a98f" : "#75644f"} roughness={0.98} textureKind="wood" />
+      <FloorBoards housingId={housingId} />
 
       {/* Warm wood skirting, consistent around the room. */}
       <Box position={[0, 0.14, -3.86]} size={[7.76, 0.17, 0.09]} color="#624a38" roughness={0.74} textureKind="wood" />
@@ -393,17 +396,19 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Side-window city view: the skyline is now to the left of the desk, not behind the monitor. */}
       <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" gameMinutes={gameMinutes} />
-      <Box position={[-3.79, 1.9, -2.3]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
-      <Box position={[-3.79, 1.9, 0.0]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
-      <Box position={[-3.79, 2.82, -1.15]} size={[0.16, 0.12, 2.45]} color="#293b43" roughness={0.38} metalness={0.18} />
-      <Box position={[-3.79, 0.98, -1.15]} size={[0.18, 0.14, 2.45]} color="#7d6a56" roughness={0.66} />
-      <Box position={[-3.82, 1.9, -1.15]} size={[0.014, 1.62, 2.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.62, 0.055]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.055, 2.35]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.58, 0.045]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.045, 2.32]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[-3.7, 1.92, curtainsOpen ? -2.16 : -1.725]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
-      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.79, 1.9, panoramicWindow ? -3.0 : -2.3]} size={[0.16, 1.9, 0.12]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
+      <Box position={[-3.79, 1.9, panoramicWindow ? -1.2 : 0.0]} size={[0.16, 1.9, 0.12]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
+      {panoramicWindow && <Box position={[-3.79, 1.9, 0.6]} size={[0.16, 1.9, 0.12]} color="#b8b6ad" roughness={0.38} metalness={0.18} />}
+      {panoramicWindow && <Box position={[-3.78, 1.9, -1.2]} size={[0.08, 1.78, 3.52]} color="#b5b5ae" roughness={0.28} metalness={0.32} transparent opacity={0.13} />}
+      <Box position={[-3.79, 2.82, -1.15]} size={[0.16, 0.12, panoramicWindow ? 3.62 : 2.45]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
+      <Box position={[-3.79, 0.98, -1.15]} size={[0.18, 0.14, panoramicWindow ? 3.62 : 2.45]} color={housingId === 'premium-apartment' ? "#c4bca8" : "#7d6a56"} roughness={0.66} />
+      <Box position={[-3.82, 1.9, -1.15]} size={[0.014, 1.62, panoramicWindow ? 3.45 : 2.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.62, 0.055]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.055, panoramicWindow ? 3.52 : 2.35]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.58, 0.045]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.045, panoramicWindow ? 3.5 : 2.32]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
+      {!panoramicWindow && <><Box position={[-3.7, 1.92, curtainsOpen ? -2.16 : -1.725]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" /></>}
 
       {/* Small lived-in details: plant, books and framed personal photo. */}
       <Box position={[-3.72, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
@@ -546,6 +551,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Removed misplaced floor props to keep the entry path clear. */}
 
+      {!dormRoom && <>
       {/* Bed aligned to the room axis: headboard and pillows at the window end, clear footboard at the opposite end. */}
       <Box position={[2.55, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" textureKind="wood" />
       <Box position={[2.55, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} textureKind="fabric" />
@@ -554,9 +560,45 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[2.55, 0.72, -0.53]} size={[1.92, 0.72, 0.12]} color="#5b4436" />
       <Box position={[2.55, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
       {[-0.72, 0.72].map((x) => [-1.32, 1.32].map((z) => <Box key={x + ":" + z} position={[2.55 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
-
+      </>}
+      {dormRoom && <group>
+        {/* Shared dormitory bunk: cheap steel frame and two thin mattresses. */}
+        <Box position={[2.55,0.34,0.95]} size={[1.82,0.18,2.92]} color="#303a42" metalness={0.48} roughness={0.58}/>
+        <Box position={[2.55,0.52,0.95]} size={[1.72,0.16,2.82]} color="#a8b4bc" textureKind="fabric"/>
+        <Box position={[2.55,1.38,0.95]} size={[1.82,0.14,2.92]} color="#303a42" metalness={0.48} roughness={0.58}/>
+        <Box position={[2.55,1.54,0.95]} size={[1.72,0.14,2.82]} color="#b4c0c7" textureKind="fabric"/>
+        <Box position={[2.55,1.82,-0.51]} size={[1.82,0.58,0.09]} color="#39464f" metalness={0.45}/>
+        <Box position={[2.55,0.72,-0.51]} size={[1.82,0.34,0.09]} color="#39464f" metalness={0.45}/>
+        {[-0.82,0.82].map(x=>[-0.48,2.38].map(z=><Box key={x+':'+z} position={[2.55+x,0.79,0.95+z]} size={[0.055,1.45,0.055]} color="#3b4850" metalness={0.55}/>))}
+        <Box position={[1.55,0.82,0.62]} size={[0.08,1.38,0.08]} color="#56636c" metalness={0.5}/>
+        {Array.from({length:5},(_,i)=><Box key={'bunk-rung-'+i} position={[1.55,0.3+i*0.24,0.62]} size={[0.08,0.045,0.34]} color="#77858c" metalness={0.6}/>) }
+        <Box position={[2.55,1.65,1.65]} size={[0.82,0.11,0.42]} color="#d5dce0" textureKind="fabric"/>
+      </group>}
       {/* Keep the wall beside the door clear and uncluttered. */}
 
+      {panoramicWindow && <group>
+        {/* Premium fit-out: cove lighting, brass trim, low designer sofa and glass coffee table. */}
+        <Box position={[0,3.0,0]} size={[7.45,0.035,7.45]} color="#d5c7a5" metalness={0.22} roughness={0.35}/>
+        <Box position={[0,2.96,0]} size={[7.25,0.025,7.25]} color="#f5e8c9" emissive="#f3d9a0" emissiveIntensity={0.16} roughness={0.35}/>
+        <Box position={[-1.65,0.34,1.42]} size={[1.85,0.42,0.72]} color="#d5d0c5" roughness={0.74} textureKind="fabric"/>
+        <Box position={[-1.65,0.68,1.73]} size={[1.85,0.48,0.16]} color="#c3bdae" roughness={0.74} textureKind="fabric"/>
+        <Box position={[-2.48,0.52,1.39]} size={[0.14,0.38,0.7]} color="#b8ad98" roughness={0.72}/>
+        <Box position={[-0.82,0.52,1.39]} size={[0.14,0.38,0.7]} color="#b8ad98" roughness={0.72}/>
+        <Box position={[-1.65,0.18,0.63]} size={[1.22,0.08,0.58]} color="#b8b7b0" metalness={0.28} roughness={0.22} transparent opacity={0.82}/>
+        <Cylinder position={[-2.08,0.09,0.45]} radius={0.035} height={0.16} color="#bca16c" metalness={0.7}/>
+        <Cylinder position={[-1.22,0.09,0.45]} radius={0.035} height={0.16} color="#bca16c" metalness={0.7}/>
+        <Box position={[0.15,2.65,-3.76]} size={[1.85,0.06,0.06]} color="#c9ad70" metalness={0.62}/>
+      </group>}
+      {dormRoom && <group>
+        {/* Dormitory clutter is intentionally modest and inexpensive. */}
+        <Box position={[-2.35,1.5,-3.78]} size={[0.72,0.62,0.035]} color="#8b9ba4" roughness={0.9}/>
+        <Box position={[-2.35,1.5,-3.75]} size={[0.6,0.5,0.02]} color="#d6d2c5" roughness={0.9}/>
+        <Box position={[-2.35,1.62,-3.73]} size={[0.42,0.018,0.01]} color="#b66c53"/>
+        <Box position={[-2.35,1.5,-3.73]} size={[0.36,0.018,0.01]} color="#557a90"/>
+        <Box position={[-2.35,1.38,-3.73]} size={[0.46,0.018,0.01]} color="#65836a"/>
+        <Box position={[-1.65,0.24,2.7]} size={[0.55,0.44,0.55]} color="#7a858a" roughness={0.98}/>
+        <Box position={[-1.65,0.48,2.7]} size={[0.48,0.035,0.48]} color="#9da7ad" roughness={0.98}/>
+      </group>}
       {/* Small plant */}
       <Cylinder position={[-3.25, 0.24, 2.6]} radius={0.19} height={0.42} color="#8a6551" />
       {[
