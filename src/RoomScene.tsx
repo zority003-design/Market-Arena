@@ -600,9 +600,9 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
         shadows
         dpr={[1, 1.6]}
         camera={{ position: [0, 1.66, 3.12], fov: 64, near: 0.1, far: 40 }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
         onCreated={({ gl }) => {
-          gl.setClearColor('#101922')
+          gl.setClearColor('#101922', 0)
           gl.toneMapping = THREE.ACESFilmicToneMapping
           gl.toneMappingExposure = 1.12
         }}
