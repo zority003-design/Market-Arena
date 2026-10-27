@@ -457,7 +457,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.58, 0.045]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.045, 2.32]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
       <Box position={[-3.7, 1.92, curtainsOpen ? -2.16 : -1.725]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
-      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
 
       {/* Small lived-in details: plant, books and framed personal photo. */}
       <Box position={[-3.72, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
