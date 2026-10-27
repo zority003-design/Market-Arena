@@ -281,7 +281,13 @@ export default function ArenaOS(props: Props) {
     if (!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) && (selected.statusSensitive || Math.random() < 0.45)) lines.push('Клиент: «Звук немного глухой. Надеюсь, финансовые расчёты у вас звучат убедительнее микрофона».')
     if (!props.ownedItems.includes('hd-camera') && (selected.budget >= 300000 || Math.random() < 0.4)) lines.push('Клиент: «Картинка мыльная. Для небольшой суммы переживу, но с крупным капиталом хотелось бы видеть, с кем обсуждаю деньги».')
     if (!props.ownedItems.includes('neutral-backdrop') && (selected.statusSensitive || Math.random() < 0.25)) lines.push('Клиент оглядывает комнату: «Обстановка домашняя. Для первого разговора сойдёт, но для серьёзной суммы я ожидал бы офис посолиднее».')
-    lines.push(selected.quote)
+    if (activeStock) {
+      const selectedFit = getClientStockFit(selected.id, activeStock.ticker)
+      lines.push('Ты: «Предлагаю ' + activeStock.name + ' (' + activeStock.ticker + '). ' + activeStock.upside + ' При этом риск такой: ' + activeStock.downside + '»')
+      lines.push(selected.name + ': «' + selectedFit.reason + ' Покажите, как ограничить риск и при каком условии вы измените рекомендацию».')
+    } else {
+      lines.push(selected.quote)
+    }
     setCallLog(lines); setMessage(''); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
   }
   const chooseStock = (stock:Stock) => {
