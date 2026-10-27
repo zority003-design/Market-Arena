@@ -983,17 +983,9 @@ export default function App() {
       setCityBonus(0)
       setCityLocation('office')
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
-      const dailyCosts = currentHousing.dailyCost
+      // Housing is a one-time purchase. There are no daily rent or maintenance deductions.
       const available = cash + DAILY_SALARY
-      const paidCosts = Math.min(available, dailyCosts)
-      const shortfall = dailyCosts - paidCosts
-      const remainder = available - paidCosts
-      const debtPayment = Math.min(debt, remainder)
-      setCash(remainder - debtPayment)
-      setDebt(Math.max(0, debt - debtPayment) + shortfall)
-      const debtNote = shortfall > 0
-        ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
-        : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
+      setCash(available)
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
