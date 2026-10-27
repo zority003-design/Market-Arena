@@ -1,8 +1,10 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'sleep'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep' | 'typing' | 'murmur'
 
 type AudioSettings = {
   enabled: boolean
   ambience: boolean
+  music: boolean
+  musicVolume: number
   voice: boolean
   curtainsOpen: boolean
   inRoom: boolean
@@ -19,10 +21,49 @@ let rainGain: GainNode | null = null
 let noiseSource: AudioBufferSourceNode | null = null
 let rainSource: AudioBufferSourceNode | null = null
 let settings: AudioSettings = {
-  enabled: true, ambience: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
+  enabled: true, ambience: true, music: true, musicVolume: 0.42, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
+let musicPlayer: HTMLAudioElement | null = null
+let musicTrackIndex = 0
+const MUSIC_TRACKS = ['/audio/Endless%20Solitude.mp3', '/audio/Market%20Pulse.mp3']
+
+// Browsers often block background audio until the first real user gesture.
+// Retry playback from that gesture instead of silently leaving the soundtrack stopped.
+let musicUnlockInstalled = false
+function installMusicUnlock() {
+  if (typeof window === 'undefined' || musicUnlockInstalled) return
+  musicUnlockInstalled = true
+  const unlock = () => {
+    updateMusic()
+    window.removeEventListener('pointerdown', unlock, true)
+    window.removeEventListener('keydown', unlock, true)
+  }
+  window.addEventListener('pointerdown', unlock, true)
+  window.addEventListener('keydown', unlock, true)
+}
+
+function updateMusic() {
+  if (typeof window === 'undefined') return
+  const shouldPlay = settings.music && !settings.paused
+  if (!musicPlayer) {
+    musicPlayer = new Audio()
+    musicPlayer.loop = false
+    musicPlayer.preload = 'auto'
+    musicPlayer.addEventListener('ended', () => {
+      musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACKS.length
+      if (musicPlayer) {
+        musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
+        if (settings.music && !settings.paused) void musicPlayer.play().catch(() => {})
+      }
+    })
+    musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
+  }
+  musicPlayer.volume = Math.max(0, Math.min(1, settings.musicVolume))
+  if (shouldPlay) void musicPlayer.play().catch(() => {})
+  else musicPlayer.pause()
+}
 
 function ensureAudio() {
   if (typeof window === 'undefined') return null
@@ -98,11 +139,14 @@ function updateAmbience() {
   ambienceGain.gain.setTargetAtTime(audible ? curtainFactor * 0.12 * nightFactor : 0, ctx.currentTime, 0.8)
   rainGain.gain.setTargetAtTime(0, ctx.currentTime, 0.8)
   master.gain.setTargetAtTime(settings.enabled ? 0.68 * Math.max(0, Math.min(1, settings.volume)) : 0, ctx.currentTime, 0.05)
+  updateMusic()
 }
 
 export function configureAudio(next: Partial<AudioSettings>) {
+  installMusicUnlock()
   settings = { ...settings, ...next }
   updateAmbience()
+  updateMusic()
 }
 
 function tone(frequency: number, duration: number, type: OscillatorType, volume: number, endFrequency?: number) {
@@ -122,8 +166,10 @@ function tone(frequency: number, duration: number, type: OscillatorType, volume:
   oscillator.stop(ctx.currentTime + duration + 0.03)
 }
 
-export function playSound(kind: SoundKind) {
+export function playSound(kind: SoundKind, intensity = 1) {
+  installMusicUnlock()
   const ctx = ensureAudio()
+  updateMusic()
   if (!ctx || !settings.enabled) return
   switch (kind) {
     case 'ui':
@@ -161,7 +207,7 @@ export function playSound(kind: SoundKind) {
       tone(1420, 0.018, 'sine', 0.014, 1250)
       break
     case 'countdown':
-      tone(1180, 0.075, 'sine', 0.09, 980)
+      tone(1180, 0.075, 'sine', 0.09 * Math.max(1, intensity), 980)
       break
     case 'lamp':
       tone(130, 0.045, 'square', 0.035, 85)
@@ -169,9 +215,25 @@ export function playSound(kind: SoundKind) {
     case 'curtain':
       tone(180, 0.13, 'sawtooth', 0.025, 95)
       break
+    case 'wardrobe':
+      tone(210, 0.16, 'triangle', 0.045, 130)
+      window.setTimeout(() => tone(360, 0.09, 'sine', 0.025, 280), 100)
+      break
     case 'sleep':
       tone(330, 0.22, 'sine', 0.05, 220)
       break
+    case 'typing': {
+      const frequency = 720 + Math.random() * 620
+      tone(frequency, 0.018 + Math.random() * 0.012, 'square', 0.012, frequency * 0.78)
+      break
+    }
+    case 'murmur': {
+      // Soft, non-verbal voice-like background texture: deliberately quiet and short.
+      const base = 115 + Math.random() * 65
+      tone(base, 0.22, 'triangle', 0.012, base * (0.88 + Math.random() * 0.16))
+      window.setTimeout(() => tone(base * (1.15 + Math.random() * 0.18), 0.16, 'triangle', 0.009, base * 0.92), 110)
+      break
+    }
   }
 }
 

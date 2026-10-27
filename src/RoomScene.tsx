@@ -388,9 +388,17 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
-      <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      {/* The back wall is now uninterrupted; the window belongs on the left wall. */}
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      {/* Solid backing slab intentionally removed: the visible underside is made from timber planks, not a dark flat plane. */}
+      {Array.from({ length: 16 }, (_, i) => <Box key={'ceiling-board-' + i} position={[-3.64 + i * 0.485, 3.34, 0]} size={[0.47, 0.085, 7.98]} color={woodPalette[(i + 2) % woodPalette.length]} roughness={0.78} textureKind="wood" />)}
+      {[-2.65, 0, 2.65].map((z, i) => <Box key={'ceiling-beam-' + i} position={[0, 3.235, z]} size={[7.9, 0.17, 0.2]} color={i === 1 ? '#704c31' : '#815b3d'} roughness={0.82} textureKind="wood" />)}
+      {/* The rear wall has a contrasting finish and visible wood panelling so it cannot disappear into the background. */}
+      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} roughness={0.92} textureKind="plaster" />
+      {/* Rear wall uses the same plaster texture as the side walls, with warm timber wainscoting and clear panel seams. */}
+      <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color="#806044" roughness={0.9} textureKind="wood" />
+      {Array.from({ length: 15 }, (_, i) => <Box key={'rear-wall-panel-' + i} position={[-3.72 + i * 0.53, 0.55, -3.825]} size={[0.025, 0.58, 0.025]} color="#4e3b2d" roughness={0.88} textureKind="wood" />)}
+      <Box position={[0, 0.91, -3.82]} size={[7.78, 0.045, 0.045]} color="#c09a6a" roughness={0.65} textureKind="wood" />
+      <Box position={[0, 1.24, -3.82]} size={[7.78, 0.035, 0.045]} color="#c09a6a" roughness={0.65} textureKind="wood" />
+      {[-3.72, -1.85, 0, 1.85, 3.72].map((x, i) => <Box key={'rear-wall-upper-trim-' + i} position={[x, 1.72, -3.865]} size={[0.045, 1.45, 0.045]} color="#8b765e" roughness={0.9} textureKind="wood" />)}
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
       <Box position={[-3.98, 1.62, -3.15]} size={[0.18, 3.4, 1.7]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 1.62, 2.0]} size={[0.18, 3.4, 4.0]} color={backWallColor} textureKind="plaster" />
@@ -448,8 +456,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.055, 2.35]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.58, 0.045]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.045, 2.32]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[-3.7, 1.92, curtainsOpen ? -2.16 : -1.725]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#3f6868" roughness={0.96} textureKind="fabric" />
-      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.7, 1.92, curtainsOpen ? -2.16 : -1.725]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
 
       {/* Small lived-in details: plant, books and framed personal photo. */}
       <Box position={[-3.72, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />

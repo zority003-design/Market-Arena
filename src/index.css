@@ -2987,3 +2987,36 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .desktop-shortcut-icon { width: 36px; height: 36px; }
   .desktop-rebuilt-shortcuts strong { font-size: 9px; }
 }
+
+
+/* Taskbar controls for independent app windows, including minimized-window recovery. */
+.os-taskbar { min-width: 0; overflow: hidden; gap: 6px; }
+.os-taskbar .os-taskbar-window {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 112px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-color: rgba(155, 190, 220, .16);
+  background: rgba(85, 123, 153, .12);
+}
+.os-taskbar .os-taskbar-window.minimized {
+  opacity: .68;
+  border-bottom: 2px solid #7daee0;
+}
+.os-taskbar .os-taskbar-window:hover,
+.os-taskbar .os-taskbar-window:focus-visible {
+  background: rgba(110, 174, 230, .2);
+  border-color: rgba(143, 194, 244, .48);
+}
+.os-floating-window { min-width: 0; }
+.os-floating-content { min-width: 0; overscroll-behavior: contain; }
+@media (max-width: 560px) {
+  .os-taskbar { gap: 3px; padding: 0 5px; }
+  .os-taskbar .taskbar-start { min-width: 0 !important; padding: 6px !important; }
+  .os-taskbar .taskbar-start strong { display: none; }
+  .os-taskbar .os-taskbar-window { max-width: 70px; padding: 6px !important; font-size: 9px; }
+  .os-taskbar-weather span { display: none; }
+  .os-taskbar-clock { min-width: 39px; font-size: 10px; }
+}
