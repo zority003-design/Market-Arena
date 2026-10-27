@@ -351,8 +351,6 @@ export default function ArenaOS(props: Props) {
   const currentBusinessNetIncome = getBusinessDailyNetIncome(props.ownedBusinessAssets)
   const currentStaffNetIncome = getStaffDailyNetIncome(props.ownedEmployees)
   const staffCapacity = props.ownedBusinessAssets.some(id => ['broker-team','city-agency','national-network'].includes(id)) ? 5 : 1
-  const currentStaffNetIncome = getStaffDailyNetIncome(props.ownedEmployees)
-  const staffCapacity = props.ownedBusinessAssets.some(id => ['broker-team','city-agency','national-network'].includes(id)) ? 5 : 1
   const nextUpgrade = GEAR.find(item=>!props.ownedItems.includes(item.id))
   const title = nav.find(n=>n.id===activeApp)?.label ?? 'Рабочий стол'
   return <div className="arena-os-v2">
