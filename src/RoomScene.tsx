@@ -438,7 +438,6 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {showStaffDesks && Array.from({ length: Math.max(1, Math.min(3, ownedEmployees.length || 1)) }, (_, index) => {
         const z = -2.55 + index * 2.0
         const employeeId = ownedEmployees[index]
-        const jacket = ['#25445a', '#354b3d', '#493a50'][index % 3]
         return <group key={'staff-workstation-' + index}>
           <Box position={[2.48, 0.88, z]} size={[1.28, 0.12, 0.76]} color="#5d4636" roughness={0.55} textureKind="wood" />
           {[-0.52, 0.52].flatMap((dx) => [-0.27, 0.27].map((dz) => <Box key={dx + '-' + dz} position={[2.48 + dx, 0.44, z + dz]} size={[0.055, 0.78, 0.055]} color="#38434a" metalness={0.62} />))}
