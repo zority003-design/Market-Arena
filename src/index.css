@@ -2500,8 +2500,8 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 
 /* Market-Arena visual refresh: cleaner room HUD, richer shop cards and character studio. */
 .control-hint-temporary,
-.room-keyboard-hint,
-.room-touch-controls { display: none !important; }
+.room-keyboard-hint { display: none !important; }
+/* Keep the mobile touch pad available; only remove the desktop keyboard diagram. */
 
 .wardrobe-overlay .wardrobe-screen { max-width: 1480px; margin: 0 auto; width: 100%; }
 .wardrobe-overlay .page-heading { align-items: flex-end; padding: 8px 2px 18px; border-bottom: 1px solid rgba(183,208,214,.12); }
