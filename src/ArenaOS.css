@@ -368,3 +368,53 @@
 @media(max-width:560px) { .arena-os-asset-finances span,.arena-os-asset-finances strong { align-items:flex-start; flex-direction:column; gap:3px; } }
 
 .arena-os-firm-naming{display:grid;gap:12px;margin:16px 0;padding:20px;border:1px solid #9dc7ed;border-radius:10px;background:linear-gradient(145deg,#f4faff,#e6f3ff);color:#173b60}.arena-os-firm-naming h3{margin:0;font-size:20px}.arena-os-firm-naming p{margin:0;color:#4d6681;font-size:12px;line-height:1.6}.arena-os-firm-naming input{width:100%;padding:12px;border:1px solid #b8cfe5;border-radius:7px;background:#fff;color:#183b60;font:inherit}.arena-os-firm-naming button{justify-self:start}.arena-os-firm-banner{margin:16px 0;padding:16px;border:1px solid #a6d8bd;border-radius:9px;background:#edfff4;color:#176b47}.arena-os-firm-banner strong{display:block;margin-top:7px;font-size:22px}.arena-os-firm-banner p{margin:6px 0 0;font-size:12px}.arena-os-response-actions{display:grid;grid-template-columns:1fr;gap:8px}.arena-os-response-actions button{text-align:left;white-space:normal;font-size:12px;line-height:1.55;padding:12px;color:#183b60;background:#f2f7fd}.arena-os-response-actions button:hover{border-color:#4e9de7;background:#e5f2ff}.arena-os-staff-section{margin-top:24px;padding-top:20px;border-top:1px solid #d5e3f2}.arena-os-staff-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.arena-os-staff-summary>div{padding:12px;border:1px solid #d4e1f0;border-radius:8px;background:#fff}.arena-os-staff-summary small{display:block;font-size:9px;color:#657d98}.arena-os-staff-summary b{display:block;margin-top:6px;font-size:16px;color:#173b62}.arena-os-staff-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.arena-os-staff-grid article{display:grid;grid-template-columns:78px minmax(0,1fr);gap:12px;padding:14px;border:1px solid #d4e1f0;border-radius:10px;background:#fff}.arena-os-staff-grid article.owned{border-color:#8ac9a8;background:#f4fff8}.arena-os-staff-avatar{width:78px;height:90px;overflow:hidden;border-radius:7px;background:#e6f2ff}.arena-os-staff-avatar svg{width:100%;height:100%}.arena-os-staff-copy h3{margin:0 0 5px;font-size:14px;color:#19395e}.arena-os-staff-copy p{margin:0 0 8px;font-size:11px;line-height:1.5;color:#5b7188}.arena-os-staff-copy small{display:block;margin:8px 0;color:#6b8098;font-size:10px}.arena-os-staff-copy button{width:100%;font-size:11px}.arena-os-home-avatar .client-avatar-2d{height:150px;width:132px}.arena-os-video-tile .client-avatar-2d{height:180px;width:auto;max-width:95%}
+
+/* 3D character viewport and polished broker terminal */
+.broker-avatar-3d{width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;border-radius:inherit}
+.broker-avatar-3d canvas{display:block;width:100%!important;height:100%!important;outline:none}
+.broker-avatar-3d.compact{min-height:0}
+.arena-os-home-avatar{position:relative;width:196px;height:220px;border-radius:18px;background:radial-gradient(ellipse at 50% 25%,#f7fbff 0,#d6e8f8 58%,#b6d0e7 100%);border:1px solid rgba(255,255,255,.88);box-shadow:0 18px 34px rgba(24,63,98,.15),inset 0 1px rgba(255,255,255,.9);overflow:hidden}
+.arena-os-home-avatar .broker-avatar-3d{height:100%;width:100%}
+.arena-os-avatar-caption{position:absolute;bottom:8px;left:8px;right:8px;text-align:center;font-size:8px;letter-spacing:.12em;font-weight:850;color:#365a77;text-shadow:0 1px 0 rgba(255,255,255,.8);pointer-events:none}
+.arena-os-video-tile{background:radial-gradient(circle at 50% 15%,#f5faff 0,#c8deef 58%,#9dbbd4 100%);border-color:#b7cddd;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 8px 20px rgba(26,57,88,.08)}
+.arena-os-video-tile>.broker-avatar-3d{position:absolute;inset:0 0 0;width:100%;height:100%;padding-top:15px;box-sizing:border-box}
+.arena-os-video-tile>.broker-avatar-3d canvas{width:100%!important;height:100%!important}
+.arena-os-video-tile.self{background:radial-gradient(circle at 50% 18%,#f8fbff,#d6e7f7 70%,#bed4e7)}
+.arena-os-video-tile.self>small{position:relative;z-index:3;padding:5px 8px 8px;border-radius:6px;background:rgba(247,251,255,.82);color:#3f5f7b}
+.arena-os-outfit-preview{height:218px;background:radial-gradient(circle at 50% 20%,#fbfdff,#d8e8f5 65%,#c4d9e9);box-shadow:inset 0 1px rgba(255,255,255,.9)}
+.arena-os-outfit-preview .broker-avatar-3d{height:100%;width:100%}
+.arena-os-outfit-grid article{border-color:#d5e2ec;border-radius:14px;box-shadow:0 6px 20px rgba(24,57,88,.045);transition:transform .18s,box-shadow .18s,border-color .18s}
+.arena-os-outfit-grid article:hover{transform:translateY(-3px);box-shadow:0 15px 32px rgba(24,57,88,.1);border-color:#9bbdd8}
+.arena-os-outfit-grid article.equipped{border-color:#50b59a;box-shadow:0 0 0 2px rgba(80,181,154,.16),0 12px 26px rgba(24,57,88,.08)}
+.arena-os-staff-grid article{grid-template-columns:118px minmax(0,1fr);border-radius:13px;border-color:#d3e0eb;box-shadow:0 5px 18px rgba(24,57,88,.045);transition:transform .18s,box-shadow .18s}
+.arena-os-staff-grid article:hover{transform:translateY(-2px);box-shadow:0 13px 27px rgba(24,57,88,.09)}
+.arena-os-staff-grid article.owned{border-color:#7fc7a8;background:linear-gradient(145deg,#f5fff9,#edf9f3)}
+.arena-os-staff-avatar{width:118px;height:164px;border-radius:10px;background:radial-gradient(circle at 50% 18%,#f9fcff,#d7e7f5 65%,#b8d1e3);box-shadow:inset 0 1px rgba(255,255,255,.85)}
+.arena-os-staff-avatar .broker-avatar-3d{height:100%;width:100%}
+.arena-os-staff-copy h3{font-size:15px;letter-spacing:-.02em}
+.arena-os-staff-copy p{font-size:12px;line-height:1.6}
+.arena-os-v2{background:radial-gradient(ellipse at 76% 8%,rgba(65,128,159,.32),transparent 35%),radial-gradient(ellipse at 8% 100%,rgba(36,82,105,.36),transparent 44%),linear-gradient(135deg,#101a24 0%,#1b2c38 52%,#101b25 100%)}
+.arena-os-topbar{height:54px;background:linear-gradient(100deg,rgba(8,25,40,.94),rgba(20,48,66,.92));border-bottom-color:rgba(161,209,226,.23);box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.arena-os-mark{background:linear-gradient(145deg,#b2f3dd,#42c5a1);color:#103f3c;box-shadow:0 4px 15px rgba(66,197,161,.22)}
+.arena-os-window{border:1px solid rgba(226,241,250,.7);border-radius:14px;background:#f3f7fb;box-shadow:0 30px 85px rgba(0,7,20,.5),0 0 0 1px rgba(255,255,255,.13)}
+.arena-os-window-title{height:44px;background:linear-gradient(180deg,#ffffff,#edf4f8);border-bottom-color:#d1e0e8}
+.arena-os-window-content{scrollbar-color:#b5cbd9 transparent;scrollbar-width:thin}
+.arena-os-window-content::-webkit-scrollbar{width:9px}
+.arena-os-window-content::-webkit-scrollbar-thumb{background:#b5cbd9;border:2px solid #f3f7fb;border-radius:10px}
+.arena-os-kicker{color:#247f78;letter-spacing:.16em}
+.arena-os-welcome h1,.arena-os-page-heading h1{color:#122b3e;letter-spacing:-.055em}
+.arena-os-stat-grid article,.arena-os-stock-card,.arena-os-quick-grid button{border-color:#d7e3eb;border-radius:12px;box-shadow:0 5px 18px rgba(25,57,79,.035)}
+.arena-os-primary{background:linear-gradient(135deg,#2b9b87,#167467);border-color:#167467;box-shadow:0 6px 16px rgba(22,116,103,.2)}
+.arena-os-primary:hover{filter:brightness(1.07);box-shadow:0 9px 20px rgba(22,116,103,.25)}
+.arena-os-secondary{color:#236b64;border-color:#b9d9d3;background:linear-gradient(135deg,#f4fbf9,#e5f4f0)}
+.arena-os-response-actions{display:grid;grid-template-columns:1fr;gap:9px}
+.arena-os-response-actions button{min-height:62px;text-align:left;white-space:normal;font-size:12px;line-height:1.6;padding:13px 15px;border:1px solid #d1e0e9;border-radius:9px;color:#264a5f;background:linear-gradient(140deg,#fff,#f3f8fb);box-shadow:0 2px 7px rgba(20,50,70,.025)}
+.arena-os-response-actions button:hover{border-color:#7bbeb2;background:linear-gradient(140deg,#f7fffc,#eaf8f4)}
+.arena-os-dialogue{border-radius:13px;border-color:#d2e0e8;box-shadow:0 8px 24px rgba(25,57,79,.04)}
+.arena-os-dialogue-log p{border-radius:10px;font-size:12px;line-height:1.65;padding:11px 13px}
+.arena-os-dialogue-log p.player-line{background:linear-gradient(135deg,#dff5ee,#d9eee9);color:#15584f;border:1px solid #c0e6dc}
+.arena-os-dialogue-log p:not(.player-line):not(.system-line){background:#fff;border:1px solid #e0e9ef;color:#405a6d}
+.arena-os-staff-summary>div{border-color:#d5e2eb;border-radius:10px;box-shadow:0 4px 14px rgba(24,57,88,.035)}
+.arena-os-empire-goal{border-color:#b6dcd0;border-radius:13px;background:linear-gradient(135deg,#e8f8f2,#f7fbff);box-shadow:0 7px 22px rgba(23,101,81,.05)}
+@media(max-width:850px){.arena-os-staff-grid{grid-template-columns:1fr}.arena-os-staff-grid article{grid-template-columns:100px minmax(0,1fr)}.arena-os-staff-avatar{width:100px;height:145px}.arena-os-home-avatar{width:150px;height:190px}.arena-os-outfit-preview{height:190px}}
+@media(max-width:560px){.arena-os-home-avatar{width:90px;height:125px;border-radius:12px}.arena-os-home-avatar .broker-avatar-3d{height:100%}.arena-os-avatar-caption{font-size:6px}.arena-os-staff-grid article{grid-template-columns:82px minmax(0,1fr);padding:10px;gap:10px}.arena-os-staff-avatar{width:82px;height:124px}.arena-os-staff-copy p{font-size:10px}.arena-os-staff-summary{grid-template-columns:1fr}.arena-os-outfit-preview{height:190px}}
