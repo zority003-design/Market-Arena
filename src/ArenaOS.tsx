@@ -5,7 +5,7 @@ import {
   PhoneCall, Search, ShieldCheck, ShoppingBag, Sparkles, Users,
   Video, Wallet, X
 } from 'lucide-react'
-import { BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, getBusinessDailyNetIncome, getBusinessPayoutCap, getFirstImpression, type ClientProfile } from './game/economy'
+import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, getBusinessDailyNetIncome, getBusinessPayoutCap, getFirstImpression, getStaffDailyNetIncome, type ClientProfile } from './game/economy'
 import ClientAvatar2D from './ClientAvatar2D'
 import PixelAvatar from './PixelAvatar'
 import { playSound } from './audio'
@@ -30,6 +30,8 @@ type Props = {
   callsToday: number; setCallsToday: Dispatch<SetStateAction<number>>
   businessUpgrades: string[]; setBusinessUpgrades: Dispatch<SetStateAction<string[]>>
   ownedBusinessAssets: string[]; setOwnedBusinessAssets: Dispatch<SetStateAction<string[]>>
+  ownedEmployees: string[]; setOwnedEmployees: Dispatch<SetStateAction<string[]>>
+  companyName: string; setCompanyName: Dispatch<SetStateAction<string>>
   housingId: string; setHousingId: Dispatch<SetStateAction<string>>
   selectedOutfit: OutfitId; setSelectedOutfit: (v: OutfitId) => void
   ownedOutfits: OutfitId[]; setOwnedOutfits: Dispatch<SetStateAction<OutfitId[]>>
@@ -64,7 +66,8 @@ const GEAR = [
   {id:'mic',name:'USB-микрофон',price:4200,desc:'Чёткая речь вместо звука из вентиляционной шахты.',bonus:5,icon:'mic'},
   {id:'camera',name:'HD-веб-камера',price:6900,desc:'Лучшее изображение и меньше жалоб на картинку.',bonus:5,icon:'camera'},
   {id:'backdrop',name:'Нейтральный фон',price:3200,desc:'Убирает визуальный хаос за спиной брокера.',bonus:3,icon:'background'},
-  {id:'lamp',name:'Настольный свет',price:1800,desc:'Лицо видно, даже если переговоры затянулись до ночи.',bonus:2,icon:'light'}
+  {id:'lamp',name:'Настольный свет',price:1800,desc:'Лицо видно, даже если переговоры затянулись до ночи.',bonus:2,icon:'light'},
+  {id:'second-desk',name:'Второй рабочий стол',price:4500,desc:'Оборудуй место в квартире для первого нанятого брокера. В большом офисе рабочие места уже входят в помещение.',bonus:0,icon:'desk'}
 ]
 const money = (n:number) => Math.round(n).toLocaleString('ru-RU') + ' ₽'
 
@@ -162,6 +165,7 @@ export default function ArenaOS(props: Props) {
   const [stockPicker,setStockPicker] = useState(false)
   const [callLog,setCallLog] = useState<string[]>([])
   const [message,setMessage] = useState('')
+  const [companyNameDraft,setCompanyNameDraft] = useState('')
   const dialogueLogRef = useRef<HTMLDivElement | null>(null)
   const [soundPanelOpen, setSoundPanelOpen] = useState(false)
   const [clockNow, setClockNow] = useState(() => new Date())
