@@ -2,7 +2,7 @@ import './ArenaOS.css'
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import {
   Activity, TrendingUp, Check, ChevronRight, Clock3, House, Laptop, Mic,
-  Newspaper, PhoneCall, Search, ShieldCheck, ShoppingBag, Sparkles, Users,
+  PhoneCall, Search, ShieldCheck, ShoppingBag, Sparkles, Users,
   Video, Wallet, X
 } from 'lucide-react'
 import { CLIENTS, type ClientProfile } from './game/economy'
