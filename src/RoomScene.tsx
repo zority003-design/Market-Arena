@@ -396,7 +396,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[0, 3.22, 0]} size={[7.98, 0.2, 7.98]} color="#f2f0e9" roughness={0.97} />
       <Box position={[0, 3.105, 0]} size={[7.84, 0.035, 7.84]} color="#dedbd2" roughness={0.9} />
       <Box position={[0, 3.082, 0]} size={[7.72, 0.025, 7.72]} color="#fbfaf5" roughness={0.92} />
-      {[-2.55, 0, 2.55].flatMap((x) => [-2.55, 0, 2.55].map((z) => <group key={'ceiling-downlight-' + x + '-' + z} position={[x, 3.055, z]}><Cylinder position={[0, 0, 0]} radius={0.16} height={0.025} color="#d5d1c7" metalness={0.12} roughness={0.6} /><Cylinder position={[0, -0.016, 0]} radius={0.105} height={0.012} color="#fff7df" emissive="#fff0c2" emissiveIntensity={0.8} roughness={0.3} /></group>))}
+      {[-2.55, 0, 2.55].flatMap((x) => [-2.55, 0, 2.55].map((z) => <group key={'ceiling-downlight-' + x + '-' + z} position={[x, 3.055, z]}><Cylinder position={[0, 0, 0]} radius={0.16} height={0.025} color="#d5d1c7" metalness={0.12} roughness={0.6} /><Cylinder position={[0, -0.016, 0]} radius={0.105} height={0.012} color="#fff7df" roughness={0.3} /></group>))}
       {[-3.78, 3.78].map((x) => <Box key={'ceiling-perimeter-' + x} position={[x, 3.095, 0]} size={[0.055, 0.08, 7.76]} color="#c9c5ba" roughness={0.84} />)}
       {/* Front wall opposite the desk: deliberately overlaps the floor edge to seal the exterior slit. */}
       <Box position={[0, 1.57, -3.94]} size={[8, 3.54, 0.26]} color={backWallColor} roughness={0.92} textureKind="plaster" />
