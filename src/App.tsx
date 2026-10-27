@@ -369,7 +369,7 @@ export default function App() {
   useEffect(() => { try { localStorage.setItem('na-vse-kotirovki-outfit', selectedOutfit); localStorage.setItem('na-vse-kotirovki-owned-outfits', JSON.stringify(ownedOutfits)) } catch { /* Outfit preferences are optional if storage is unavailable. */ } }, [selectedOutfit, ownedOutfits])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
-  const [activeSaveSlot, setActiveSaveSlot] = useState(() => getActiveSaveSlot())
+  const [activeSaveSlot] = useState(() => getActiveSaveSlot())
   const saveSlotSummaries = [1, 2, 3].map((slot) => {
     try {
       const raw = localStorage.getItem(getSaveKey(slot)) || (slot === 1 ? localStorage.getItem('na-vse-kotirovki-save-v1') : null)
