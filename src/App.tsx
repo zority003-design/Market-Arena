@@ -499,18 +499,27 @@ export default function App() {
   const activeQuestions = getStockQuestions(activeCompany)
   const activeQuestion = activeQuestions[questionIndex]
   function openAppWindow(app: 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing') {
-    // Each launch creates a real independent window, just like a desktop OS.
-    setAppWindows((items) => [...items, {
-      id: nextAppWindowId,
-      app,
-      x: 24 + ((items.length * 38) % 250),
-      y: 22 + ((items.length * 28) % 150),
-      width: app === 'calls' ? 760 : 460,
-      height: app === 'calls' ? 700 : 520,
-      minimized: false,
-      maximized: false,
-    }])
-    setNextAppWindowId((id) => id + 1)
+    // Reopen an existing app when possible; a minimized app should never become lost.
+    const existing = appWindows.find((item) => item.app === app)
+    if (existing) {
+      setAppWindows((items) => [...items.filter((item) => item.id !== existing.id), { ...existing, minimized: false }])
+    } else {
+      const viewportWidth = typeof window === 'undefined' ? 1280 : window.innerWidth
+      const viewportHeight = typeof window === 'undefined' ? 800 : window.innerHeight
+      const width = Math.min(app === 'calls' ? 760 : 460, Math.max(280, viewportWidth - 32))
+      const height = Math.min(app === 'calls' ? 700 : 520, Math.max(240, viewportHeight - 128))
+      setAppWindows((items) => [...items, {
+        id: nextAppWindowId,
+        app,
+        x: Math.max(8, Math.min(24 + ((items.length * 38) % 250), viewportWidth - width - 16)),
+        y: Math.max(8, Math.min(22 + ((items.length * 28) % 150), viewportHeight - height - 72)),
+        width,
+        height,
+        minimized: false,
+        maximized: false,
+      }])
+      setNextAppWindowId((id) => id + 1)
+    }
     setStartMenuOpen(false)
     setStartSearch('')
   }
@@ -1291,7 +1300,7 @@ export default function App() {
             {startSearch.trim() && !['обзор дня','биржа','новости','видеозвонки','клиенты','магазин','жильё'].some(name => name.includes(startSearch.trim().toLowerCase())) && <div className="os-start-empty">Ничего не найдено</div>}
             <div className="os-start-footer"><span><span className="os-start-status" /> Система готова</span><button onClick={() => { setStartMenuOpen(false); setPauseOpen(true) }}><Power size={15} /> Питание</button></div>
           </div>}
-          <div className="os-taskbar"><button className={startMenuOpen ? 'taskbar-start active' : 'taskbar-start'} onClick={() => setStartMenuOpen(value => !value)}><span className="start-windows-mark">▦</span> <strong>Пуск</strong></button><span className="os-taskbar-separator" />{tab !== 'overview' && <button className="os-taskbar-app" onClick={() => setWindowMinimized((value) => !value)}>{tab === 'market' ? 'Биржа' : tab === 'news' ? 'Новости' : tab === 'calls' ? 'Видеозвонки' : tab === 'clients' ? 'Клиенты' : tab === 'shop' ? 'Магазин' : tab === 'city' ? 'Город' : 'Недвижимость'}</button>}<span className="os-taskbar-spacer" /><span className="os-taskbar-weather">☁ <span>Переменная облачность</span></span><span className="os-taskbar-clock">{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}<small>ДЕНЬ {day}</small></span></div>
+          <div className="os-taskbar"><button className={startMenuOpen ? 'taskbar-start active' : 'taskbar-start'} onClick={() => setStartMenuOpen(value => !value)}><span className="start-windows-mark">▦</span> <strong>Пуск</strong></button><span className="os-taskbar-separator" />{tab !== 'overview' && <button className="os-taskbar-app" onClick={() => setWindowMinimized((value) => !value)}>{tab === 'market' ? 'Биржа' : tab === 'news' ? 'Новости' : tab === 'calls' ? 'Видеозвонки' : tab === 'clients' ? 'Клиенты' : tab === 'shop' ? 'Магазин' : tab === 'city' ? 'Город' : 'Недвижимость'}</button>}{appWindows.map((win) => { const labels = { overview: 'Обзор', market: 'Биржа', news: 'Новости', calls: 'Звонки', clients: 'Клиенты', shop: 'Магазин', housing: 'Жильё' }; return <button key={win.id} className={'os-taskbar-app os-taskbar-window' + (win.minimized ? ' minimized' : '')} title={win.minimized ? 'Восстановить: ' + labels[win.app] : 'Переключиться: ' + labels[win.app]} onClick={() => { if (win.minimized) setAppWindows((items) => [...items.filter((item) => item.id !== win.id), { ...win, minimized: false }]); else setAppWindows((items) => [...items.filter((item) => item.id !== win.id), win]) }}>{labels[win.app]}</button> })}<span className="os-taskbar-spacer" /><span className="os-taskbar-weather">☁ <span>Переменная облачность</span></span><span className="os-taskbar-clock">{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}<small>ДЕНЬ {day}</small></span></div>
         </div>
       )}
 
