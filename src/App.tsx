@@ -325,11 +325,11 @@ export default function App() {
   const [questionIndex, setQuestionIndex] = useState(0)
   const [trust, setTrust] = useState(48)
   const [patience, setPatience] = useState(74)
-  const [timeLeft, setTimeLeft] = useState(60)
+  const [timeLeft, setTimeLeft] = useState(75)
   const lastTimerBeep = useRef(0)
   const lastCallTickSecond = useRef(-1)
   const [choiceOrders, setChoiceOrders] = useState<number[][]>([])
-  const [lastPenaltySecond, setLastPenaltySecond] = useState(25)
+  const [lastPenaltySecond, setLastPenaltySecond] = useState(75)
   const [freeAnswer, setFreeAnswer] = useState('')
   const [conversation, setConversation] = useState<{ from: 'client' | 'you' | 'system'; text: string }[]>([])
   const [lastResult, setLastResult] = useState('')
@@ -592,8 +592,8 @@ export default function App() {
     setQuestionIndex(0)
     setTrust(48)
     setPatience(74)
-    setTimeLeft(60)
-    setLastPenaltySecond(60)
+    setTimeLeft(75)
+    setLastPenaltySecond(75)
     setGameMinutes(7 * 60)
     setPauseOpen(false)
     setDayEnded(false)
@@ -728,14 +728,19 @@ export default function App() {
     if (callStatus !== 'active') return
     const backgroundCaught = videoEnabled && videoBackground === 'luxury' && activeClient.statusSensitive && getVideoQuality(ownedItems) < 4 && questionIndex === 0
     const nextTrust = Math.max(0, Math.min(100, trust + delta - (backgroundCaught ? 7 : 0)))
-    const nextPatience = Math.max(0, patience - 4)
+    const patienceCost = delta >= 7 ? 2 : delta <= -8 ? 9 : delta < 0 ? 6 : 4
+    const nextPatience = Math.max(0, patience - patienceCost)
     setTrust(nextTrust)
     setPatience(nextPatience)
     const clientReaction = delta >= 7
-      ? ['«Хорошо. Это хотя бы звучит как разговор о бизнесе, а не трейлер к блокбастеру».', '«Уже лучше. Продолжайте, только без фокусов с гарантированной доходностью».', '«Ладно, вы назвали конкретный риск. Я начинаю подозревать, что вы читали отчёт».'][questionIndex % 3]
+      ? activeClient.tier >= 3
+        ? ['«Это уже предметно. Но покажите, где расчёт перестанет работать».', '«Вы отделили факт от предположения — это хороший знак. Что может сорвать сценарий?»', '«Аргумент принимаю предварительно. Мне нужны критерии, по которым мы признаем ошибку».'][questionIndex % 3]
+        : ['«Хорошо, вы связали идею с моим запросом. Продолжайте».', '«Так понятнее. Особенно то, что вы не обещаете доходность».', '«Наконец-то конкретика: теперь можно обсуждать условия, а не лозунги».'][questionIndex % 3]
       : delta <= -8
-        ? ['«Гарантированная прибыль? Отлично. А где здесь кнопка, чтобы сообщить об этом центральному банку?»', '«Слишком гладко. Даже мои тапочки столько не обещают».', '«Вы сейчас продаёте акцию или пытаетесь выиграть конкурс по уверенности?»'][questionIndex % 3]
-        : ['«Пока звучит расплывчато. Давайте ближе к цифрам».', '«Записал. Но на мой вопрос вы ответили примерно как автоответчик банка».', '«Неплохо обошли вопрос. Теперь попробуем ответить на него»'][questionIndex % 3]
+        ? activeClient.temperament === 'Скептичный' || activeClient.temperament === 'Очень требовательная'
+          ? ['«Вы отвечаете слишком уверенно и не показываете, на чём основан вывод. Пока не убеждён».', '«Вы обошли риск стороной. Это как раз то, чего я опасался».', '«Если у вас нет доказательств, громкие обещания только ухудшают ситуацию».'][questionIndex % 3]
+          : ['«Это звучит как обещание, а не анализ. Чем вы можете его подтвердить?»', '«Вы не ответили на главный вопрос. Я начинаю сомневаться в рекомендации».', '«С таким объяснением я не готов рисковать своими деньгами».'][questionIndex % 3]
+        : ['«Я услышал ответ, но пока не понимаю, как он связан с моей задачей».', '«Давайте без общих слов. Что именно может пойти не так?»', '«Вы назвали тезис, но не показали, что он значит для моего капитала».'][questionIndex % 3]
     setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), { from: 'client' as const, text: clientReaction }, ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
     setFreeAnswer('')
     if (questionIndex >= activeQuestions.length - 1) {
@@ -1237,7 +1242,10 @@ export default function App() {
                           <div className="negotiation-video-tile client-tile"><div className="negotiation-video-label"><span>СОБЕСЕДНИК</span><span>● LIVE</span></div><div className="negotiation-client-video"><ClientPortrait3D tier={activeClient.tier} mood={trust >= 70 ? 'interested' : trust >= 45 ? 'neutral' : 'skeptical'}/></div><div className="negotiation-video-caption"><strong>{activeClient.name}</strong><small>{activeClient.profession}</small></div></div>
                           <div className="negotiation-video-tile self-tile"><div className="negotiation-video-label"><span>ВАШ КАДР</span><span>● ЛОКАЛЬНО</span></div><div className="negotiation-self-video"><ClientPortrait3D tier={0} variant="player" outfit={selectedOutfit}/><span>ВЫ</span></div><div className="negotiation-video-caption"><strong>Ваш брокер</strong><small>Камера персонажа</small></div></div>
                         </div>
-                        <div className="negotiation-current-question"><div><span className="negotiation-section-label">ВОПРОС КЛИЕНТА · ЭТАП {Math.min(questionIndex + 1, activeQuestions.length)} ИЗ {activeQuestions.length}</span><strong>{activeQuestion?.title ?? 'Обсудите условия сделки'}</strong><p className="negotiation-tactic">{activeQuestion?.hint ?? 'Уточни потребности, проверь риски и не обещай гарантированную доходность.'}</p></div><span className={'negotiation-timer ' + (timeLeft <= 15 ? 'urgent' : timeLeft <= 30 ? 'warning' : '')} style={{ '--timer-progress': (Math.max(0, Math.min(60, timeLeft)) / 60 * 100) + '%' } as React.CSSProperties}><span className="negotiation-timer-value">{Math.ceil(timeLeft)}</span><small>СЕК</small></span></div>
+                        <div className="negotiation-conversation-log" aria-label="Последние реплики переговоров">
+                           {conversation.slice(-3).map((entry, index) => <div key={conversation.length - 3 + index} className={'negotiation-dialogue-line ' + entry.from}><span>{entry.from === 'you' ? 'ВЫ' : entry.from === 'system' ? 'ЗАМЕТКА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}
+                         </div>
+                         <div className="negotiation-current-question"><div><span className="negotiation-section-label">ВОПРОС КЛИЕНТА · ЭТАП {Math.min(questionIndex + 1, activeQuestions.length)} ИЗ {activeQuestions.length}</span><strong>{activeQuestion?.title ?? 'Обсудите условия сделки'}</strong><p className="negotiation-tactic">{activeQuestion?.hint ?? 'Уточни потребности, проверь риски и не обещай гарантированную доходность.'}</p></div><span className={'negotiation-timer ' + (timeLeft <= 15 ? 'urgent' : timeLeft <= 30 ? 'warning' : '')} style={{ '--timer-progress': (Math.max(0, Math.min(75, timeLeft)) / 75 * 100) + '%' } as React.CSSProperties}><span className="negotiation-timer-value">{Math.ceil(timeLeft)}</span><small>СЕК</small></span></div>
                         <div className="negotiation-answers"><div className="negotiation-answer-heading"><strong>Как ответить?</strong><small>Выбери вариант · клавиши 1–3</small></div>{displayedChoices.map((choice, choiceIndex) => <button key={choiceIndex} className="negotiation-answer" onClick={() => answerQuestion(choice.label, choice.delta)}><kbd>{choiceIndex + 1}</kbd><span>{choice.label}</span></button>)}</div>
                         <div className="negotiation-call-controls"><span><i className="negotiation-live-dot"/> Соединение стабильно</span><button className="os-call-end" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={14}/> Завершить звонок</button></div>
                       </div>
