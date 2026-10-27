@@ -21,6 +21,15 @@ type RoomObject = 'lamp' | 'light' | 'curtains' | 'wardrobe'
 type OutfitId = 'intern' | 'classic' | 'premium'
 const NEGOTIATION_STAGES = ['ОТКРЫТИЕ', 'ПРОДУКТ И СПРОС', 'РИСКИ И ВОЗРАЖЕНИЯ', 'ЭКОНОМИКА БИЗНЕСА', 'ФИНАЛЬНЫЕ УСЛОВИЯ']
 
+function shuffledIndexes(length: number): number[] {
+  const indexes = Array.from({ length }, (_, index) => index)
+  for (let index = indexes.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    ;[indexes[index], indexes[swapIndex]] = [indexes[swapIndex], indexes[index]]
+  }
+  return indexes
+}
+
 const OUTFITS: { id: OutfitId; name: string; price: number; description: string }[] = [
   { id: 'intern', name: 'Стажёр', price: 0, description: 'Футболка, тёмные брюки и удобная обувь.' },
   { id: 'classic', name: 'Классический брокер', price: 4500, description: 'Рубашка, аккуратный пиджак и деловой силуэт.' },
@@ -720,7 +729,7 @@ export default function App() {
     setSelectedCompany(assignedCompany.ticker)
     setCallsToday((count) => count + 1)
     setQuestionIndex(0)
-    setChoiceOrders(assignedQuestions.map((question) => question.choices.map((_, index) => index).sort(() => Math.random() - 0.5)))
+    setChoiceOrders(assignedQuestions.map((question) => shuffledIndexes(question.choices.length)))
     lastTimerBeep.current = 0
     setVideoSwitchEffectUsed(false)
     setCallClientId(activeClient.id)
