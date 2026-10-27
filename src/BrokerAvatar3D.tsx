@@ -50,7 +50,7 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
       root.current.position.y = Math.sin(clock.elapsedTime * 1.25) * 0.018
     }
   })
-  return <group ref={root} position={[0, -1.08, 0]}>
+  return <group ref={root} position={[0, -1.0, 0]}>
     {/* Shoes and tailored trousers */}
     <RoundedBox position={[-0.19, 0.13, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
     <RoundedBox position={[0.19, 0.13, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
@@ -107,14 +107,14 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
 
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
-    <Canvas camera={{ position: [0, 0.22, 6.6], fov: 28, near: 0.1, far: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+    <Canvas camera={{ position: [0, compact ? 0.35 : 0.28, compact ? 7.8 : 6.9], fov: compact ? 32 : 30, near: 0.1, far: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
       <color attach="background" args={['#e9f0f7']} />
       <ambientLight intensity={1.55} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.5]} />
       <directionalLight position={[-3, 5, 4]} intensity={2.5} castShadow />
       <directionalLight position={[3, 2, -2]} intensity={1.1} color="#9fc7ff" />
       <BrokerModel identity={identity} outfit={outfit} />
-      <ContactShadows position={[0, -0.96, 0]} opacity={0.3} scale={2.6} blur={2.2} far={3.2} />
+      <ContactShadows position={[0, -0.93, 0]} opacity={0.3} scale={2.6} blur={2.2} far={3.2} />
     </Canvas>
   </div>
 }
