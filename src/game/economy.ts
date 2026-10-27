@@ -26,7 +26,7 @@ export type RoomItem = {
   category: 'comfort' | 'video' | 'background' | 'work'
 }
 export const DAILY_SALARY = 1100
-export const STARTING_CASH = 22000
+export const STARTING_CASH = 6500
 export const STARTING_FIRM_CAPITAL = 25000
 export const STARTING_HOUSING_ID = 'studio'
 export const BUSINESS_UPGRADES: BusinessUpgrade[] = [
@@ -61,7 +61,7 @@ export function getBusinessPayoutCap(ownedUpgradeIds: string[]): number {
 }
 
 export const CLIENTS: ClientProfile[] = [
- { id:'alex-vorontsov', name:'Алексей Воронцов', initials:'АВ', age:34, profession:'Владелец небольшой студии дизайна', tier:0, budget:50000, ticket:12000, maxAllocation:.25, baseTrust:43, patience:74, experience:'Новичок', temperament:'Осторожный', goal:'Сохранить накопления и разобраться в инвестициях', quote:'«Хочу попробовать инвестировать, но мне уже обещали золотые горы. Чем вы отличаетесь?»', source:'Входящий звонок', minDay:1, minReputation:0, commissionRate:.03, bonusRate:.018, statusSensitive:false },
+ { id:'alex-vorontsov', name:'Алексей Воронцов', initials:'АВ', age:34, profession:'Владелец небольшой студии дизайна', tier:0, budget:50000, ticket:12000, maxAllocation:.25, baseTrust:43, patience:74, experience:'Новичок', temperament:'Осторожный', goal:'Начать с небольшой суммы, понять риск и проверить, как растущая компания выходит к прибыли', quote:'«Хочу попробовать инвестировать, но мне уже обещали золотые горы. Чем вы отличаетесь?»', source:'Входящий звонок', minDay:1, minReputation:0, commissionRate:.03, bonusRate:.018, statusSensitive:false },
  { id:'maria-sokolova', name:'Мария Соколова', initials:'МС', age:29, profession:'UX-дизайнер на удалёнке', tier:0, budget:85000, ticket:18000, maxAllocation:.3, baseTrust:39, patience:65, experience:'Небольшой опыт', temperament:'Любознательная', goal:'Начать инвестировать регулярно', quote:'«Объясните человеческим языком: почему эта компания должна расти?»', source:'Рекомендация знакомого', minDay:1, minReputation:0, commissionRate:.03, bonusRate:.018, statusSensitive:false },
  { id:'igor-melnikov', name:'Игорь Мельников', initials:'ИМ', age:41, profession:'Руководитель отдела продаж', tier:1, budget:240000, ticket:42000, maxAllocation:.25, baseTrust:35, patience:60, experience:'Средний', temperament:'Требовательный', goal:'Доходность выше вклада с резервом на непредвиденные расходы', quote:'«Покажите цифры и скажите, в каком сценарии я потеряю деньги»', source:'Каталог потенциальных клиентов', minDay:3, minReputation:25, commissionRate:.027, bonusRate:.016, statusSensitive:true },
  { id:'elena-borisova', name:'Елена Борисова', initials:'ЕБ', age:46, profession:'Совладелица сети кофеен', tier:2, budget:1200000, ticket:180000, maxAllocation:.2, baseTrust:31, patience:56, experience:'Продвинутый', temperament:'Деловая', goal:'Диверсифицировать капитал, не замораживая деньги бизнеса', quote:'«У меня нет времени на презентацию. Какие риски и как быстро выйти из позиции?»', source:'Профессиональное знакомство', minDay:6, minReputation:40, commissionRate:.024, bonusRate:.014, statusSensitive:true },
@@ -98,6 +98,7 @@ export const ROOM_ITEMS: RoomItem[] = [
  { id:'hd-camera', name:'HD-веб-камера', price:7500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Более чёткая картинка на видеозвонке.' },
  { id:'neutral-backdrop', name:'Нейтральный фон', price:8000, firstImpression:2, videoQuality:1, suspicion:0, minDay:3, category:'background', description:'Аккуратная обстановка без показной роскоши.' },
  { id:'chromakey-kit', name:'Хромакей-комплект', price:18000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, minLevel:3, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
+ { id:'partner-desk', name:'Дополнительный рабочий стол', price:9500, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'work', description:'Отдельное место для сотрудника или подготовки отчётов. Стол физически появится справа от твоего рабочего места; аккуратная рабочая зона немного повышает первое впечатление.' },
  { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, minLevel:4, category:'video', description:'Профессиональный звук для сложных переговоров.' },
 ]
 export function getAvailableClients(day:number, reputation:number):ClientProfile[] {
@@ -153,4 +154,53 @@ export function getDailyLeadIds(
  const offset=(day*3+Math.floor(reputation/10))%eligible.length
  const rotated=[...eligible.slice(offset),...eligible.slice(0,offset)]
  return rotated.slice(0,limit).map(client=>client.id)
+}
+
+
+export const STOCK_PROFILES: Record<string, { label: string; color: string; description: string; risk: string }> = {
+ KOTL: { label: 'Рост', color: '#3b82f6', description: 'Рост выручки и будущая прибыль; сейчас компания убыточна.', risk: 'Высокий' },
+ KTLT: { label: 'Рост', color: '#3b82f6', description: 'Доставка дронами и роботами; важно подтвердить заказы и путь к прибыли.', risk: 'Высокий' },
+ OGUR: { label: 'Прибыль и повторные продажи', color: '#16a34a', description: 'Действующая прибыль и понятный спрос; следи за маржой.', risk: 'Средний' },
+ SBRX: { label: 'Устойчивый бизнес', color: '#16a34a', description: 'Регулярная выручка и цифровые сервисы; рост может замедлиться.', risk: 'Средний' },
+ TAPK: { label: 'Спекулятивное восстановление', color: '#dc4b5b', description: 'Ставка на исправление продукта; возвраты и убытки могут продолжиться.', risk: 'Очень высокий' },
+ GROV: { label: 'Рискованный рост', color: '#dc4b5b', description: 'Онлайн-торговля растёт, но скидки и доставка съедают прибыль.', risk: 'Высокий' },
+ BYTE: { label: 'Ставка на запуск', color: '#9333ea', description: 'Потенциал нового продукта без подтверждённых продаж.', risk: 'Высокий' },
+ DUST: { label: 'Защитная', color: '#0d9488', description: 'Долгосрочные контракты и денежный поток; потенциал роста спокойнее.', risk: 'Низкий' },
+ MEDX: { label: 'Защитная', color: '#0d9488', description: 'Устойчивый спрос на медуслуги, но расширение требует капитала.', risk: 'Низкий' },
+ GRID: { label: 'Инфраструктура', color: '#0d9488', description: 'Регулируемый спрос; тарифы и капзатраты ограничивают рост.', risk: 'Низкий' },
+ BTRAN: { label: 'Денежный поток', color: '#d97706', description: 'Сеть АЗС и дополнительные сервисы; важны маржа, трафик и окупаемость.', risk: 'Средний' },
+ NEFT: { label: 'Циклический денежный поток', color: '#d97706', description: 'Экспорт и добыча зависят от сырьевых цен, курса и логистики.', risk: 'Средний' },
+ LOGI: { label: 'Операционный бизнес', color: '#d97706', description: 'Контракты и доставка; расходы на топливо и зарплаты давят на маржу.', risk: 'Средний' },
+}
+const CLIENT_STOCK_FIT: Record<string, string[]> = {
+ 'alex-vorontsov': ['KOTL','OGUR','DUST'], 'maria-sokolova': ['KOTL','OGUR','BTRAN'],
+ 'igor-melnikov': ['OGUR','DUST','BTRAN'], 'elena-borisova': ['OGUR','DUST','BTRAN'],
+ 'sergey-romanov': ['KOTL','OGUR','DUST','BTRAN'], 'diana-volkova': ['OGUR','DUST','BTRAN'],
+ 'pavel-smirnov': ['KOTL','OGUR','DUST'], 'natalia-orlova': ['OGUR','DUST','BTRAN'],
+ 'timur-garipov': ['KOTL','OGUR','BTRAN'], 'olga-belova': ['OGUR','DUST','BTRAN'],
+ 'roman-kiselev': ['OGUR','DUST','BTRAN'], 'irina-zueva': ['OGUR','DUST','BTRAN'],
+ 'andrey-morozov': ['KOTL','OGUR','BTRAN'], 'svetlana-krylova': ['OGUR','DUST','BTRAN'],
+ 'viktor-lebedev': ['OGUR','DUST','BTRAN'], 'alina-fedorova': ['KOTL','TAPK','BTRAN'],
+ 'maksim-sobolev': ['OGUR','DUST'], 'ekaterina-mironova': ['KOTL','OGUR','DUST','BTRAN'],
+ 'boris-zhukov': ['OGUR','DUST'], 'yaroslav-nikitin': ['KOTL','TAPK'],
+}
+const CLIENT_TRUST_REQUIREMENTS: Record<string, number> = {
+ 'alex-vorontsov': 48, 'maria-sokolova': 50, 'igor-melnikov': 58, 'elena-borisova': 65,
+ 'sergey-romanov': 70, 'diana-volkova': 76, 'pavel-smirnov': 48, 'natalia-orlova': 52,
+ 'timur-garipov': 56, 'olga-belova': 58, 'roman-kiselev': 58, 'irina-zueva': 64,
+ 'andrey-morozov': 65, 'svetlana-krylova': 68, 'viktor-lebedev': 72, 'alina-fedorova': 60,
+ 'maksim-sobolev': 54, 'ekaterina-mironova': 76, 'boris-zhukov': 55, 'yaroslav-nikitin': 52,
+}
+export function getClientStockFit(clientId: string, ticker: string): { suitable: boolean; reason: string } {
+ const canonicalTicker = ({ KTLT: 'KOTL', SBRX: 'OGUR', NEFT: 'BTRAN', MEDX: 'DUST', GRID: 'DUST', LOGI: 'BTRAN', GROV: 'TAPK', BYTE: 'TAPK' } as Record<string, string>)[ticker] ?? ticker
+ const suitableTickers = CLIENT_STOCK_FIT[clientId]
+ if (!STOCK_PROFILES[ticker] && !STOCK_PROFILES[canonicalTicker]) return { suitable: false, reason: 'Эта акция отсутствует в каталоге.' }
+ if (!suitableTickers) return { suitable: canonicalTicker !== 'TAPK', reason: canonicalTicker === 'TAPK' ? 'Слишком высокий риск без подтверждённого спроса.' : 'Сначала уточни цель клиента и допустимый риск.' }
+ if (suitableTickers.includes(canonicalTicker)) return { suitable: true, reason: 'Тип акции соответствует цели клиента и его отношению к риску.' }
+ if (canonicalTicker === 'TAPK') return { suitable: false, reason: 'Спекулятивное восстановление не подходит клиенту, который ценит предсказуемость.' }
+ if (canonicalTicker === 'KOTL') return { suitable: false, reason: 'Это акция роста с текущим убытком, а клиенту важнее стабильность и сохранность капитала.' }
+ return { suitable: false, reason: 'Профиль дохода и риска акции не совпадает с задачей клиента.' }
+}
+export function getClientTrustRequirement(client: ClientProfile): number {
+ return CLIENT_TRUST_REQUIREMENTS[client.id] ?? (client.statusSensitive ? 66 : 52)
 }

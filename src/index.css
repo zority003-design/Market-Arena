@@ -3266,3 +3266,29 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .in-game-self-view>.broker-avatar-3d{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 .in-game-self-view>.broker-avatar-3d canvas{width:100%!important;height:100%!important}
 .in-game-self-view .broker-avatar-3d+small{z-index:8}
+
+
+/* Full-body broker framing: keep shoes, legs and torso connected and visible in every video tile. */
+.negotiation-self-video { position:relative; overflow:hidden; isolation:isolate; }
+.negotiation-self-video .negotiation-self-broker { position:absolute; inset:0; width:100%; height:100%; z-index:1; }
+.negotiation-self-video .negotiation-self-broker canvas { display:block; width:100%!important; height:100%!important; }
+.negotiation-self-video > span { position:absolute; z-index:5; }
+.wardrobe-character-stage .wardrobe-player-avatar { overflow:visible; }
+.wardrobe-character-stage .wardrobe-player-avatar canvas { display:block; width:100%!important; height:100%!important; }
+
+/* Stock choice is explicit and color-coded; suitability is based on this client's actual brief. */
+.negotiation-stock-picker { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; margin:10px 0 13px; }
+.negotiation-stock-option { min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:10px 9px; border:1px solid #c9d5e2; border-top:3px solid var(--stock-accent,#3b82f6); border-radius:10px; background:#f8fbff; color:#173047; text-align:left; cursor:pointer; transition:transform .15s,border-color .15s,box-shadow .15s; }
+.negotiation-stock-option:hover { transform:translateY(-2px); box-shadow:0 5px 16px rgba(16,42,66,.12); }
+.negotiation-stock-option.selected { border-color:var(--stock-accent,#3b82f6); box-shadow:0 0 0 2px color-mix(in srgb,var(--stock-accent,#3b82f6) 22%,transparent); background:#fff; }
+.negotiation-stock-option.unsuitable { background:#fff8f7; }
+.negotiation-stock-ticker { padding:3px 6px; border-radius:5px; background:var(--stock-accent,#3b82f6); color:white; font:800 10px 'DM Mono',monospace; letter-spacing:.04em; }
+.negotiation-stock-option strong { font-size:11px; line-height:1.3; overflow-wrap:anywhere; }
+.negotiation-stock-option small { color:#526b7d; font-size:10px; line-height:1.3; }
+.negotiation-stock-option em { color:#14704e; font-size:9px; line-height:1.3; font-style:normal; font-weight:800; }
+.negotiation-stock-option.unsuitable em { color:#b33a38; }
+.negotiation-product-card { border-left:4px solid var(--stock-accent,#3b82f6); }
+.negotiation-fit-reason { padding:9px 11px; border-radius:8px; background:#edf5fc; color:#254968; font-size:12px; line-height:1.55; }
+.negotiation-dialogue-line.system p { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:900px) { .negotiation-stock-picker { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:560px) { .negotiation-stock-picker { grid-template-columns:repeat(2,minmax(0,1fr)); } .negotiation-stock-option { padding:9px 8px; } }

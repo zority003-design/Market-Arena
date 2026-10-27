@@ -1,7 +1,7 @@
 import type { ClientProfile } from './economy'
 type DialogueStock = { name: string; ticker: string; upside: string; downside: string; catalyst: string; redFlags: string }
 
-export function evaluateFreeReply(text: string, client: ClientProfile, stock: DialogueStock | null) {
+export function evaluateFreeReply(text: string, client: ClientProfile, stock: DialogueStock | null, turn = 0) {
   const s = text.toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim()
   const temperament = client.temperament.toLowerCase()
   const hasRisk = /риск|долг|убыт|потер|волат|гарант|паден|комисс|минус|сниз|сценари|ликвид|ограничен|нестабил|непредсказ|резерв|налог|просад|не обещ|не гарант|конкурен|расход|возврат|санкц|зависим|дефицит/.test(s)
@@ -96,6 +96,35 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
     if ((temperament.includes('импульсив') || temperament.includes('нетерпелив')) && hasRisk && hasPlan) delta += 2
     if ((temperament.includes('дотош') || temperament.includes('аналит') || temperament.includes('требователь')) && !concrete) delta -= 2
     if (temperament.includes('статус') && hasPlan && hasRisk) delta += 1
+  }
+  const angle = [
+    ' На ближайшем отчёте сверю тезис с ' + (stock ? stock.catalyst.toLowerCase() : 'проверяемыми финансовыми показателями') + '.',
+    ' Если проявится ' + (stock ? stock.redFlags.toLowerCase() : 'ухудшение денежного потока') + ', я пересмотрю рекомендацию, а не буду усреднять убыток.',
+    ' С учётом вашей цели — «' + client.goal.toLowerCase() + '» — размер позиции должен соответствовать цене ошибки.',
+    ' Сравню идею с альтернативой и заранее назову факт, который заставит меня передумать.',
+    ' И да: график в форме ракеты не считается доказательством, даже если дизайнер очень старался.',
+  ]
+  if (s && promises) {
+    const warningReplies = [
+      '«Обещание гарантированной доходности — красный флаг. Назовите сценарий убытка, а не рекламный слоган».',
+      '«Гарантия доходности — красный флаг. Даже если произнести её голосом диктора, риск не исчезнет».',
+      '«Слово “гарантирую” — красный флаг. Кто покрывает убыток и на каком основании?»',
+      '«Это красный флаг: рынок не подписывал с вами договор о росте. Вернитесь к риску и условиям выхода».',
+      '«Красный флаг. Я не покупаю уверенность брокера — покажите факты, предел потерь и план пересмотра».',
+    ]
+    reply = warningReplies[Math.abs(turn) % warningReplies.length]
+  } else if (s && nonsense) {
+    const absurdReplies = [
+      '«Юмор понял, капитал не смеётся. Свяжите шутку с выручкой, риском и проверяемым фактом».',
+      '«Звучит как презентация после трёх энергетиков. Где денежный поток и что может сломать тезис?»',
+      '«Поставлю шутке семь из десяти, инвестиционному обоснованию — пока два. Вернёмся к цифрам».',
+      '«Если это метафора, переведите её на язык маржи, спроса и убытков. Если нет — тем более».',
+      '«Креатив засчитан. Теперь покажите, почему клиенту стоит рисковать деньгами, а не только слухом».',
+    ]
+    reply = absurdReplies[Math.abs(turn) % absurdReplies.length]
+  } else if (s) {
+    const extra = angle[Math.abs(turn) % angle.length]
+    reply = reply.endsWith('»') ? reply.slice(0, -1) + extra + '»' : reply + extra
   }
   return { delta: Math.max(-18, Math.min(14, delta)), reply }
 }

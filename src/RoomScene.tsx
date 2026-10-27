@@ -58,6 +58,9 @@ type RoomSceneProps = {
   onIntroComplete: () => void
   active: boolean
   ownedItems: string[]
+  ownedEmployees: string[]
+  ownedBusinessAssets: string[]
+  businessUpgrades: string[]
   housingId: string
   gameMinutes: number
   onSleepInteract: () => void
@@ -302,7 +305,7 @@ function FloorBoards({ housingId }: { housingId: string }) {
 }
 
 
-function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
@@ -310,6 +313,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const backWallColor = housingId === 'dorm' ? '#425566' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#d8d7d1'
   const panoramicWindow = housingId === 'premium-apartment'
   const dormRoom = housingId === 'dorm'
+  const showStaffDesks = ownedItems.includes('partner-desk') || ownedEmployees.length > 0 || ownedBusinessAssets.includes('referral-desk') || businessUpgrades.includes('partner-office')
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
@@ -429,6 +433,39 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {Array.from({ length: 7 }, (_, i) => <Box key={i} position={[-1.57, 0.19 + i * 0.055, -1.914]} size={[0.19, 0.012, 0.008]} color="#11191e" roughness={0.8} />)}
       <Box position={[-1.57, 0.65, -1.912]} size={[0.035, 0.035, 0.01]} color="#43d9a4" roughness={0.25} />
 
+      {/* Purchasable desk and hired brokers become real room furniture, not inventory-only icons. */}
+      {showStaffDesks && Array.from({ length: Math.max(1, Math.min(3, ownedEmployees.length || 1)) }, (_, index) => {
+        const z = -2.55 + index * 2.0
+        const employeeId = ownedEmployees[index]
+        const jacket = ['#25445a', '#354b3d', '#493a50'][index % 3]
+        return <group key={'staff-workstation-' + index}>
+          <Box position={[2.48, 0.88, z]} size={[1.28, 0.12, 0.76]} color="#5d4636" roughness={0.55} textureKind="wood" />
+          {[-0.52, 0.52].flatMap((dx) => [-0.27, 0.27].map((dz) => <Box key={dx + '-' + dz} position={[2.48 + dx, 0.44, z + dz]} size={[0.055, 0.78, 0.055]} color="#38434a" metalness={0.62} />))}
+          <Box position={[2.48, 1.18, z - 0.22]} size={[0.66, 0.46, 0.06]} color="#151e24" metalness={0.3} roughness={0.3} />
+          <Box position={[2.48, 1.18, z - 0.185]} size={[0.57, 0.36, 0.008]} color="#0d3d34" />
+          <Box position={[2.39, 1.22, z - 0.178]} size={[0.24, 0.014, 0.005]} color="#47d7a4" />
+          <Box position={[2.57, 1.12, z - 0.178]} size={[0.25, 0.012, 0.005]} color="#699a91" />
+          {employeeId && <group position={[2.48, 0, z + 0.78]}>
+            {/* Seated employee: overlapping torso, pelvis, sleeves, forearms and hands form one connected silhouette. */}
+            <Box position={[0, 0.61, 0]} size={[0.52, 0.45, 0.3]} color="#263540" roughness={0.78} />
+            <mesh position={[0, 1.04, 0]} scale={[0.28, 0.36, 0.22]} castShadow><sphereGeometry args={[1, 24, 18]} /><meshStandardMaterial color={jacket} roughness={0.72} /></mesh>
+            <mesh position={[0, 0.82, -0.015]} scale={[0.24, 0.18, 0.2]} castShadow><sphereGeometry args={[1, 20, 14]} /><meshStandardMaterial color={jacket} roughness={0.75} /></mesh>
+            <mesh position={[0, 1.13, 0.19]} scale={[0.105, 0.25, 0.045]}><boxGeometry args={[1, 1, 1]} /><meshStandardMaterial color="#e8e9e2" roughness={0.5} /></mesh>
+            <mesh position={[-0.22, 1.11, 0.015]} rotation={[0.9, 0, -0.18]}><capsuleGeometry args={[0.085, 0.3, 6, 10]} /><meshStandardMaterial color={jacket} roughness={0.72} /></mesh>
+            <mesh position={[0.22, 1.11, 0.015]} rotation={[0.9, 0, 0.18]}><capsuleGeometry args={[0.085, 0.3, 6, 10]} /><meshStandardMaterial color={jacket} roughness={0.72} /></mesh>
+            <mesh position={[-0.17, 0.94, -0.19]} rotation={[1.05, 0, -0.12]}><capsuleGeometry args={[0.065, 0.25, 6, 10]} /><meshStandardMaterial color="#e4b28e" roughness={0.8} /></mesh>
+            <mesh position={[0.17, 0.94, -0.19]} rotation={[1.05, 0, 0.12]}><capsuleGeometry args={[0.065, 0.25, 6, 10]} /><meshStandardMaterial color="#e4b28e" roughness={0.8} /></mesh>
+            <mesh position={[0, 1.39, 0]}><cylinderGeometry args={[0.09, 0.11, 0.17, 16]} /><meshStandardMaterial color="#d8a17d" roughness={0.84} /></mesh>
+            <mesh position={[0, 1.66, 0]} scale={[0.22, 0.27, 0.2]} castShadow><sphereGeometry args={[1, 24, 18]} /><meshStandardMaterial color={['#d8a17d','#edbd98','#b97955'][index % 3]} roughness={0.82} /></mesh>
+            <mesh position={[0, 1.83, -0.005]} scale={[0.225, 0.11, 0.205]} castShadow><sphereGeometry args={[1, 20, 14]} /><meshStandardMaterial color={['#30251f','#4b3028','#171b20'][index % 3]} roughness={0.94} /></mesh>
+            <mesh position={[0, 1.49, 0.18]}><coneGeometry args={[0.035, 0.18, 4]} /><meshStandardMaterial color={['#c55c45','#b68a3c','#b95142'][index % 3]} roughness={0.45} /></mesh>
+            <mesh position={[-0.08, 1.68, 0.183]}><sphereGeometry args={[0.025, 10, 8]} /><meshStandardMaterial color="#252b32" /></mesh>
+            <mesh position={[0.08, 1.68, 0.183]}><sphereGeometry args={[0.025, 10, 8]} /><meshStandardMaterial color="#252b32" /></mesh>
+            <Box position={[-0.13, 0.3, -0.02]} size={[0.16, 0.44, 0.2]} color="#303b48" />
+            <Box position={[0.13, 0.3, -0.02]} size={[0.16, 0.44, 0.2]} color="#303b48" />
+          </group>}
+        </group>
+      })}
       {/* Monitor, screen faces into the room */}
       <Box position={[0.1, 1.38, -2.64]} size={[1.42, 0.9, 0.09]} color="#151b21" roughness={0.28} metalness={0.25} />
       <mesh
@@ -634,7 +671,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   )
 }
 
-export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   return (
     <div className="room-scene-root">
       <Canvas
@@ -649,7 +686,7 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
           gl.toneMappingExposure = 1.12
         }}
       >
-        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} ownedEmployees={ownedEmployees} ownedBusinessAssets={ownedBusinessAssets} businessUpgrades={businessUpgrades} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </Canvas>
       {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
     </div>
