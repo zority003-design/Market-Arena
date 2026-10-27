@@ -181,8 +181,9 @@ export default function ArenaOS(props: Props) {
   const startCall = (id=clientId) => {
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
     setClientId(selected.id); setActiveStock(null); setStockPicker(true); setCallState('active')
-    const starterTrust = Math.max(12,Math.min(66,selected.baseTrust - Math.max(0,selected.tier-1)*5 - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08)))
-    setTrust(starterTrust); setPatience(selected.patience); setLastChance(0)
+    const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
+    const starterTrust = Math.max(12,Math.min(72,selected.baseTrust - Math.max(0,selected.tier-1)*5 - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5)))
+    setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
     if (!props.ownedItems.includes('mic')) lines.push('Клиент: «У вас микрофон из коробки с лапшой? Половину фразы съедает шум».')
     if (!props.ownedItems.includes('camera')) lines.push('Клиент: «Картинка мыльная. Надеюсь, финансовые расчёты у вас в фокусе лучше».')
