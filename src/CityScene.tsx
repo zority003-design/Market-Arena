@@ -140,8 +140,18 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     {/* The player's small home is the same landmark that anchors the entrance back into the interior. */}
     <group position={[0, 0, 5.2]}>
       <Block position={[0, 1.65, 0]} size={[6.2, 3.3, 4.4]} color="#c0b29a" />
-      <Block position={[0, 3.36, 0]} size={[6.45, 0.22, 4.65]} color="#554b43" />
-      <Block position={[0, 3.7, 0]} size={[6.7, 0.52, 4.9]} color="#3c4548" />
+      {/* A clearly pitched, timber-edged roof; two sloping panels replace the old flat slab. */}
+      <mesh position={[-1.62, 4.13, 0]} rotation={[0, 0, 0.39]} castShadow receiveShadow>
+        <boxGeometry args={[3.72, 0.24, 5.18]} />
+        <meshStandardMaterial color="#55463b" roughness={0.88} />
+      </mesh>
+      <mesh position={[1.62, 4.13, 0]} rotation={[0, 0, -0.39]} castShadow receiveShadow>
+        <boxGeometry args={[3.72, 0.24, 5.18]} />
+        <meshStandardMaterial color="#55463b" roughness={0.88} />
+      </mesh>
+      <Block position={[0, 4.83, 0]} size={[0.22, 0.22, 5.24]} color="#3c3430" roughness={0.9} />
+      <Block position={[0, 3.52, -2.31]} size={[6.45, 0.12, 0.16]} color="#6b5544" roughness={0.9} />
+      <Block position={[0, 3.52, 2.31]} size={[6.45, 0.12, 0.16]} color="#6b5544" roughness={0.9} />
       {/* Rear facade: the house has its own finished wall, not the distant map barrier. */}
       <Block position={[0, 1.65, 2.22]} size={[6.18, 3.28, 0.12]} color="#b7a991" roughness={0.9} />
       <Block position={[-1.72, 2.02, 2.30]} size={[0.84, 0.94, 0.06]} color="#9ec1c9" roughness={0.25} metalness={0.05} />
@@ -252,11 +262,24 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     <WindowBuilding x={-5.4} z={-2.4} width={3.1} depth={2.6} height={5.2} color={night ? '#394b53' : '#a0aaa5'} night={night} />
     <WindowBuilding x={-1.5} z={-4.2} width={2.4} depth={2.2} height={7.4} color={night ? '#2c404d' : '#7f9298'} night={night} />
     <WindowBuilding x={3.2} z={-3.3} width={3.3} depth={2.5} height={6.2} color={night ? '#334653' : '#8e9f9e'} night={night} />
-    {/* A quiet paved courtyard replaces the road visible through the room window. */}
-    <Block position={[0, -0.12, 1.4]} size={[25, 0.22, 12]} color={rainy ? '#586363' : '#747c75'} roughness={0.98} />
-    <Block position={[0, -0.005, 3.15]} size={[25, 0.045, 2.4]} color={rainy ? '#59686a' : '#858b80'} roughness={0.98} />
-    {Array.from({ length: 12 }, (_, i) => (
-      <Block key={'courtyard-seam-' + i} position={[-11.5 + i * 2.1, 0.021, 3.15]} size={[0.025, 0.006, 2.25]} color="#6e7975" roughness={0.98} />
+    {/* Green private garden outside the side window — no road/asphalt strip beside the wall. */}
+    <Block position={[0, -0.12, 1.4]} size={[25, 0.22, 12]} color={rainy ? '#3d5149' : '#536f4e'} roughness={1} />
+    {Array.from({ length: 18 }, (_, i) => (
+      <Block key={'garden-bed-' + i} position={[-11.2 + i * 1.32, -0.005, 1.0 + (i % 3) * 1.18]} size={[0.78, 0.045, 0.62]} color={i % 2 ? '#657b55' : '#748761'} roughness={1} />
+    ))}
+    {[-9.2, -5.6, 5.4, 9.3].map((x, i) => (
+      <group key={'courtyard-light-' + i} position={[x, 0, 1.55]}>
+        <Block position={[0, 1.25, 0]} size={[0.055, 2.5, 0.055]} color="#343d40" metalness={0.42} roughness={0.55} />
+        <Block position={[0.24, 2.45, 0]} size={[0.5, 0.055, 0.08]} color="#d0d1c3" roughness={0.35} />
+        {night && <pointLight position={[0.23, 2.35, 0]} intensity={0.3} distance={2.5} color="#f3d8a1" />}
+      </group>
+    ))}
+    {/* A few small shrubs make the window view read as a garden, not a street. */}
+    {[-8.2, -6.9, -3.8, 2.7, 6.7, 8.1].map((x, i) => (
+      <group key={'garden-shrub-' + i} position={[x, 0, -0.2 + (i % 2) * 1.25]}>
+        <Block position={[0, 0.3, 0]} size={[0.46, 0.6, 0.46]} color={rainy ? '#304c3d' : '#3e6847'} roughness={1} />
+        <Block position={[0.08, 0.62, 0.02]} size={[0.3, 0.28, 0.3]} color={rainy ? '#3b5b45' : '#587e4f'} roughness={1} />
+      </group>
     ))}
     {[-9.2, -5.6, 5.4, 9.3].map((x, i) => (
       <group key={'courtyard-light-' + i} position={[x, 0, 1.55]}>
