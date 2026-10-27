@@ -40,7 +40,7 @@ function updateMusic() {
       musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACKS.length
       if (musicPlayer) {
         musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
-        if (settings.enabled && settings.music && !settings.paused) void musicPlayer.play().catch(() => {})
+        if (settings.music && !settings.paused) void musicPlayer.play().catch(() => {})
       }
     })
     musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
