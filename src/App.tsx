@@ -204,7 +204,7 @@ function readSave(slot = getActiveSaveSlot()) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -420,6 +420,7 @@ export default function App() {
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
   const [clientDealCounts, setClientDealCounts] = useState<Record<string, number>>(saved.clientDealCounts ?? {})
   const [clientInvested, setClientInvested] = useState<Record<string, number>>(saved.clientInvested ?? {})
+  const [clientTrustScores, setClientTrustScores] = useState<Record<string, number>>(saved.clientTrustScores ?? {})
   const [dailyLeadIds, setDailyLeadIds] = useState<string[]>(saved.dailyLeadIds ?? getDailyLeadIds(day, reputation, saved.clientLastContactDay ?? {}, saved.clientDealCounts ?? {}, saved.clientInvested ?? {}))
   const [callClientId, setCallClientId] = useState(saved.callClientId ?? 'alex-vorontsov')
   const [callCompanyTicker, setCallCompanyTicker] = useState(saved.callCompanyTicker ?? '')
@@ -490,8 +491,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
+    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -685,6 +686,7 @@ export default function App() {
     setClientLastContactDay(data.clientLastContactDay ?? {})
     setClientDealCounts(data.clientDealCounts ?? {})
     setClientInvested(data.clientInvested ?? {})
+    setClientTrustScores(data.clientTrustScores ?? {})
     setCallsToday(data.callsToday ?? 0)
     setDailyLeadIds(data.dailyLeadIds ?? getDailyLeadIds(data.day ?? 1, data.reputation ?? 42, data.clientLastContactDay ?? {}, data.clientDealCounts ?? {}, data.clientInvested ?? {}))
     setCallClientId(data.callClientId ?? 'alex-vorontsov')
@@ -783,6 +785,7 @@ export default function App() {
     setClientLastContactDay({})
     setClientDealCounts({})
     setClientInvested({})
+    setClientTrustScores({})
     setDailyLeadIds(getDailyLeadIds(1, 42, {}, {}, {}))
     setCallClientId('alex-vorontsov')
     setVideoBackground('real')
@@ -851,7 +854,7 @@ export default function App() {
     if (!fit.suitable) {
       setCallCompanyTicker(assignedCompany.ticker); setSelectedCompany(assignedCompany.ticker); setCallClientId(activeClient.id)
       setCallsToday((count) => count + 1); setClientLastContactDay((items) => ({ ...items, [activeClient.id]: day }))
-      setTrust(Math.max(0, activeClient.baseTrust - 12)); setPatience(Math.max(0, activeClient.patience - 18))
+      setTrust(Math.max(0, (clientTrustScores[activeClient.id] ?? activeClient.baseTrust) - 12)); setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, (scores[activeClient.id] ?? activeClient.baseTrust) - 12) })); setPatience(Math.max(0, activeClient.patience - 18))
       setReputation((value) => Math.max(0, value - 2))
       setLastResult('Сделка сорвана до переговоров: ' + assignedCompany.name + ' не соответствует цели клиента. ' + fit.reason + ' Доверие −12, репутация фирмы −2, бонус не начислен. Восстанови доверие на подходящей акции.')
       setConversation([{ from: 'system', text: 'Проверка продукта: ' + assignedCompany.name + ' (' + assignedCompany.ticker + ') не подходит под запрос «' + activeClient.goal + '».' }, { from: 'client', text: '«Вы даже не сопоставили продукт с моей задачей? ' + fit.reason + ' Я прекращаю разговор. Сначала разберитесь, что мне нужно, потом звоните».' }, { from: 'system', text: 'Ошибка подбора: доверие −12, репутация −2. Это штраф за противоречие запросу, а не случайность.' }])
@@ -870,14 +873,15 @@ export default function App() {
     const preparationBonus = (marketReviewed ? 4 : 0) + (newsReviewed ? 4 : 0) + cityBonus
     const roomBonus = getFirstImpression(housingId, ownedItems, activeClient)
     const outfitBonus = getOutfitModifier(selectedOutfit, activeClient)
-    const relationshipBonus = Math.min(15, (clientDealCounts[activeClient.id] ?? 0) * 6)
+    const relationshipTrustBase = clientTrustScores[activeClient.id] ?? activeClient.baseTrust
+    const relationshipBonus = Math.min(6, (clientDealCounts[activeClient.id] ?? 0) * 2)
     const reputationBonus = Math.min(8, Math.floor(reputation / 15))
     const businessTrustBonus = BUSINESS_UPGRADES.filter((upgrade) => businessUpgrades.includes(upgrade.id)).reduce((sum, upgrade) => sum + upgrade.trustBonus, 0)
     const videoBonus = videoEnabled ? 2 + Math.min(3, getVideoQuality(ownedItems)) : 0
     const backgroundBonus = videoEnabled ? getBackgroundModifier(videoBackground, ownedItems, activeClient) : 0
     const newsFitBonus = (newsImpacts[assignedCompany.ticker] ?? 0) > 0 ? 2 : (newsImpacts[assignedCompany.ticker] ?? 0) < 0 ? -2 : 0
     const companyFitBonus = (assignedCompany.risk === 'Очень высокий' ? -5 : assignedCompany.risk === 'Высокий' ? -2 : assignedCompany.positive ? 3 : -3) + newsFitBonus
-    setTrust(Math.max(0, Math.min(100, activeClient.baseTrust + preparationBonus + roomBonus + outfitBonus + relationshipBonus + reputationBonus + businessTrustBonus + videoBonus + backgroundBonus + companyFitBonus)))
+    setTrust(Math.max(0, Math.min(100, relationshipTrustBase + preparationBonus + roomBonus + outfitBonus + relationshipBonus + reputationBonus + businessTrustBonus + videoBonus + backgroundBonus + companyFitBonus)))
     setPatience(activeClient.patience)
     setTimeLeft(75)
     setLastPenaltySecond(75)
@@ -950,6 +954,7 @@ export default function App() {
     const patienceCost = appliedDelta >= 7 ? 2 : appliedDelta <= -8 ? 9 : appliedDelta < 0 ? 6 : 4
     const nextPatience = Math.max(0, patience - patienceCost)
     setTrust(nextTrust); setPatience(nextPatience)
+    setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, Math.min(100, (scores[activeClient.id] ?? activeClient.baseTrust) + appliedDelta)) }))
     const lower = text.toLowerCase()
     const reckless = /гарантир|без риска|точно выраст|не может упасть|удво|100% доход/.test(lower)
     const evidence = /риск|убыт|марж|денеж|контракт|возврат|сценар|подтверж|провер|если|огранич|критер|дивиденд|прибыл/.test(lower)
