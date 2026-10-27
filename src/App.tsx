@@ -1036,7 +1036,8 @@ export default function App() {
       setCityLocation('office')
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
       const businessNetIncome = getBusinessDailyNetIncome(ownedBusinessAssets)
-      const available = cash + DAILY_SALARY + businessNetIncome
+      const staffNetIncome = getStaffDailyNetIncome(ownedEmployees)
+      const available = cash + DAILY_SALARY + businessNetIncome + staffNetIncome
       setCash(Math.max(0, available))
       setGameMinutes(7 * 60)
       setDayEnded(false)
