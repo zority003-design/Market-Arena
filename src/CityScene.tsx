@@ -50,7 +50,7 @@ function Building({ x, z, width, depth, height, color, label, shop = false, nigh
       <Block position={[0, 0.66, depth / 2 + 0.035]} size={[width * 0.74, 0.82, 0.07]} color="#263a38" roughness={0.4} />
       <Block position={[0, 1.25, depth / 2 + 0.09]} size={[width * 0.9, 0.13, 0.11]} color="#b58c5a" />
     </>}
-    <Text position={[0, height + 0.35, depth / 2 + 0.03]} fontSize={0.25} maxWidth={width + 1} color="#e4e9df" anchorX="center" outlineWidth={0.012} outlineColor="#182326">{label}</Text>
+    {label ? <Text position={[0, height + 0.35, depth / 2 + 0.03]} fontSize={0.25} maxWidth={width + 1} color="#e4e9df" anchorX="center" outlineWidth={0.012} outlineColor="#182326">{label}</Text> : null}
   </group>
 }
 
@@ -167,19 +167,65 @@ function District({ gameMinutes }: { gameMinutes: number }) {
   </>
 }
 
-export function CityWindowView({ night, wall = 'left' }: { night: boolean; wall?: 'left' | 'back' }) {
- const position:[number,number,number]=wall==='back'?[0.72,0.16,-6.55]:[-5.72,0.38,-1.15], rotation:[number,number,number]=wall==='back'?[0,0,0]:[0,Math.PI/2,0]
- const skyline=Array.from({length:16},(_,i)=>{const lane=i%8,row=Math.floor(i/8),heights=[5.2,8.4,4.1,10.2,6.7,3.8,7.5,5.8],widths=[2.2,2.7,1.8,2.5,2,2.8,1.7,2.3],colors=night?['#263746','#344958','#243b48','#3b4b56']:['#7b969e','#8fa8ad','#718b94','#9baeb0'];return{x:-8.6+lane*2.45+(row%2)*.6,z:-4.8-row*3.7,height:heights[(lane+row*3)%heights.length],width:widths[(lane+row)%widths.length],color:colors[(lane*3+row)%colors.length]}})
- return <group position={position} rotation={rotation} scale={wall==='back'?.48:.46}>
-  <Block position={[0,2.8,-10]} size={[25,8,.5]} color={night?'#1b2b39':'#b6c6c6'} />
-  {skyline.map((b,i)=><Building key={'skyline-'+i} x={b.x} z={b.z} width={b.width} depth={1.7+(i%3)*.5} height={b.height} color={b.color} label="" night={night} />)}
-  <Building x={-2.4} z={-1.2} width={3.1} depth={2.4} height={5.8} color={night?'#344b5d':'#7d9296'} label="КАФЕ" shop night={night} />
-  <Building x={1} z={.3} width={2.8} depth={2.2} height={4.7} color={night?'#263b4c':'#718892'} label="ЖИЛОЙ ДОМ" night={night} />
-  <Building x={4} z={-2.7} width={3.5} depth={2.6} height={7.8} color={night?'#2b4053':'#8aa2aa'} label="БИЗНЕС-ЦЕНТР" night={night} />
-  <Block position={[0,.04,2.5]} size={[18,.08,.8]} color="#343e43" />
-  {Array.from({length:11},(_,i)=><Tree key={'tree-'+i} position={[-7.2+i*1.45,.05,2]} />)}
-  <Block position={[0,.02,4.4]} size={[20,.04,.25]} color="#a7a99c" />
- </group>
+function WindowRain() {
+  const rain = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (rain.current) rain.current.position.y = -((clock.elapsedTime * 2.4) % 1.25)
+  })
+  return <group ref={rain}>
+    {Array.from({ length: 42 }, (_, i) => <mesh key={i} position={[-9 + (i * 37 % 180) / 10, 1.1 + (i * 19 % 47) / 10, -1 + (i * 13 % 95) / 10]} rotation={[0, 0, -0.18]} frustumCulled={false}>
+      <boxGeometry args={[0.018, 0.34, 0.012]} />
+      <meshBasicMaterial color="#b9d4e1" transparent opacity={0.52} depthWrite={false} />
+    </mesh>)}
+  </group>
+}
+
+export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: { night: boolean; wall?: 'left' | 'back'; gameMinutes?: number }) {
+  const position: [number, number, number] = wall === 'back' ? [0.72, 0.16, -6.55] : [-5.72, 0.38, -1.15]
+  const rotation: [number, number, number] = wall === 'back' ? [0, 0, 0] : [0, Math.PI / 2, 0]
+  const weather = Math.floor(gameMinutes / 180) % 4
+  const rainy = weather === 2
+  const overcast = weather === 1 || rainy
+  const skyline = Array.from({ length: 18 }, (_, i) => {
+    const lane = i % 9, row = Math.floor(i / 9)
+    const heights = [5.2, 8.4, 4.1, 10.2, 6.7, 3.8, 7.5, 5.8, 9.1]
+    const widths = [2.2, 2.7, 1.8, 2.5, 2, 2.8, 1.7, 2.3, 2.6]
+    const dayColors = ['#8c9b9c', '#a1acab', '#758a91', '#9aa6a3', '#6f8288']
+    const nightColors = ['#263746', '#344958', '#243b48', '#3b4b56', '#2b3e4a']
+    return { x: -10.5 + lane * 2.6 + row * .45, z: -6.4 - row * 4.6, height: heights[(lane + row * 3) % heights.length], width: widths[(lane + row) % widths.length], color: (night ? nightColors : dayColors)[(lane * 3 + row) % (night ? nightColors : dayColors).length] }
+  })
+  return <group position={position} rotation={rotation} scale={wall === 'back' ? .48 : .46}>
+    {/* Sky, haze and distant skyline create real depth instead of a flat wall of boxes. */}
+    <Block position={[0, 4.5, -17]} size={[34, 18, .4]} color={night ? '#182a3b' : rainy ? '#82969e' : overcast ? '#a6b3b4' : '#b8d3db'} roughness={1} />
+    {!night && !overcast && <mesh position={[7.8, 8.2, -16.65]}><sphereGeometry args={[.75, 20, 16]} /><meshBasicMaterial color="#f4d9a0" /></mesh>}
+    {[-7, -1.5, 4.2, 9.2].map((x, i) => <group key={'cloud-' + i} position={[x, 6.4 + (i % 2) * 1.1, -15.7 - (i % 2)]}>
+      <mesh position={[-.5, 0, 0]} scale={[1.2, .34, .12]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
+      <mesh position={[.12, .16, 0]} scale={[.7, .42, .13]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
+    </group>)}
+    {skyline.map((b, i) => <Building key={'skyline-' + i} x={b.x} z={b.z} width={b.width} depth={1.7 + (i % 3) * .5} height={b.height} color={b.color} label="" night={night} />)}
+    <DistantBlock position={[-12.5, 0, -19.8]} size={[7.4, 12.5, 3.4]} color={night ? '#233543' : '#9aa8a8'} />
+    <DistantBlock position={[-4.2, 0, -21.4]} size={[6.1, 8.4, 3.1]} color={night ? '#263947' : '#acb8b5'} />
+    <DistantBlock position={[4.2, 0, -21.8]} size={[7.2, 14.2, 3.8]} color={night ? '#1f3340' : '#87999d'} />
+    <DistantBlock position={[12.1, 0, -20.1]} size={[7.0, 10.5, 3.2]} color={night ? '#2a3c48' : '#a4b0ad'} />
+    {/* Ground plane, sidewalk, road markings and planted strips. */}
+    <Block position={[0, -.12, 1.4]} size={[25, .22, 12]} color={rainy ? '#586363' : '#747c75'} roughness={.98} />
+    <Block position={[0, -.005, 3.25]} size={[25, .08, 2.7]} color={rainy ? '#343e43' : '#3e484b'} roughness={.96} />
+    <Block position={[0, .04, 1.82]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
+    <Block position={[0, .04, 4.67]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
+    {[-9,-6,-3,0,3,6,9].map((x) => <Block key={'road-dash-' + x} position={[x, .045, 3.25]} size={[1.05, .012, .055]} color="#d5d0b7" roughness={.85} />)}
+    {[-9,-4,1,6,11].map((x, i) => <group key={'car-' + i} position={[x, .13, i % 2 ? 2.65 : 3.82]}>
+      <Block position={[0, .18, 0]} size={[1.28, .34, .62]} color={['#6b7779','#8a5b4d','#435c61','#b6a67e','#42514b'][i]} roughness={.55} metalness={.18} />
+      <Block position={[0, .4, -.035]} size={[.72, .24, .48]} color="#6c8b92" roughness={.28} metalness={.08} />
+      {[-1,1].map(side => <mesh key={side} position={[side * .38, -.015, .31]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.12,.12,.06,14]} /><meshStandardMaterial color="#20272a" roughness={.85} /></mesh>)}
+    </group>)}
+    {[-9.2, -5.6, 5.4, 9.3].map((x, i) => <group key={'street-light-' + i} position={[x, 0, 1.55]}>
+      <Block position={[0, 1.65, 0]} size={[.055, 3.3, .055]} color="#343d40" metalness={.42} roughness={.55} />
+      <Block position={[.24, 3.22, 0]} size={[.5, .055, .08]} color="#d0d1c3" roughness={.35} />
+      {night && <pointLight position={[.23, 3.1, 0]} intensity={.38} distance={3} color="#f3d8a1" />}
+    </group>)}
+    {rainy && <WindowRain />}
+    {rainy && <Block position={[0, .075, 3.25]} size={[25, .006, 2.7]} color="#627e88" transparent opacity={.13} roughness={.15} />}
+  </group>
 }
 
 function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySceneProps & { onNearbyChange: (nearby: LocationId | 'home' | null) => void }) {
