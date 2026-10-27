@@ -40,6 +40,7 @@ type Props = {
   onClose: () => void
   initialApp?: AppId
   sessionId?: number
+  saveSlot?: number
   introCallReceived: boolean
   setIntroCallReceived: (value: boolean) => void
 }
@@ -294,8 +295,8 @@ export default function ArenaOS(props: Props) {
       const payout = Math.min(getBusinessPayoutCap(props.businessUpgrades),Math.max(350,Math.round(client.ticket*(client.commissionRate+client.bonusRate*.25))))
       let firstSuccessfulDeal = false
       try {
-        firstSuccessfulDeal = localStorage.getItem('arena-os-v2-first-deal-guide-seen') !== 'true'
-        if (firstSuccessfulDeal) localStorage.setItem('arena-os-v2-first-deal-guide-seen','true')
+        firstSuccessfulDeal = localStorage.getItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1)) !== 'true'
+        if (firstSuccessfulDeal) localStorage.setItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1),'true')
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
       props.setCash(v=>v+payout); props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
