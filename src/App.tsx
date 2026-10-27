@@ -600,6 +600,7 @@ export default function App() {
   const getDisplayedChange = (company: typeof companies[number]) => { const base = Number(company.change.replace('%', '').replace(/[−–]/g, '-').replace(',', '.')); const moved = base + (newsImpacts[company.ticker] ?? 0); return (moved > 0 ? '+' : '') + moved.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%' }
   const marketIndexImpact = Object.values(newsImpacts).reduce((total, impact) => total + impact, 0) / 4
   const currentHousing = HOUSING.find((home) => home.id === housingId) ?? HOUSING[0]
+  const businessUpgradeTier = Math.max(0, ...BUSINESS_UPGRADES.filter((upgrade) => businessUpgrades.includes(upgrade.id)).map((upgrade) => BUSINESS_UPGRADES.indexOf(upgrade) + 1))
   const activeQuestions = getStockQuestions(activeCompany)
   const activeQuestion = activeQuestions[questionIndex]
   function openAppWindow(app: 'overview' | 'tasks' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing') {
@@ -629,7 +630,7 @@ export default function App() {
   }
   const displayedChoices = activeQuestion ? (choiceOrders[questionIndex]?.map((index) => activeQuestion.choices[index]).filter(Boolean) ?? activeQuestion.choices) : []
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
-  const projectedDeal = calculateDeal(activeClient, trust, clientDealCounts[activeClient.id] ?? 0, clientInvested[activeClient.id] ?? 0, businessUpgrades.length)
+  const projectedDeal = calculateDeal(activeClient, trust, clientDealCounts[activeClient.id] ?? 0, clientInvested[activeClient.id] ?? 0, businessUpgradeTier)
   const dailyQuotaShares = 25 + day * 10
   const dailyQuotaAmount = 8000 + day * 4000
   const dailyQuotaCompany = companies[(day - 1) % companies.length]
@@ -1180,7 +1181,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
       {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
