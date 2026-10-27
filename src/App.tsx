@@ -411,7 +411,7 @@ export default function App() {
       localStorage.setItem('na-vse-kotirovki-volume', String(masterVolume))
     } catch { /* Audio preferences are optional if storage is unavailable. */ }
     if (callStatus !== 'active' || mainMenu || tab !== 'calls') stopSpeech()
-  }, [soundEnabled, ambienceEnabled, masterVolume, curtainsOpen, mainMenu, panel, callStatus, pauseOpen, menuSettings, tab])
+  }, [soundEnabled, ambienceEnabled, masterVolume, curtainsOpen, mainMenu, panel, callStatus, pauseOpen, menuSettings, tab, gameMinutes])
 
   useEffect(() => {
     if (!soundEnabled || !ambienceEnabled || panel !== 'room' || pauseOpen || mainMenu) return
