@@ -1149,7 +1149,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
@@ -1166,7 +1166,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
       {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
