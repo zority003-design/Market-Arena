@@ -2644,3 +2644,346 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 
 .desktop-page.desktop-rebuilt{overflow:auto;scrollbar-width:thin;scrollbar-color:rgba(111,170,140,.35) transparent}
 .desktop-page.desktop-rebuilt::-webkit-scrollbar{width:7px}.desktop-page.desktop-rebuilt::-webkit-scrollbar-thumb{background:rgba(111,170,140,.35);border-radius:8px}
+
+
+/* Visual correction pass: 3D avatar framing, in-game item previews, window behavior and sleep cycle. */
+.wardrobe-character-stage .player-model-3d {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 300px;
+  min-height: 270px;
+  overflow: hidden;
+}
+.wardrobe-character-stage .player-model-3d canvas,
+.in-game-self-view .player-model-3d canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.in-game-self-view .player-model-3d {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.negotiation-client-video,
+.negotiation-self-video {
+  position: relative;
+  isolation: isolate;
+}
+.negotiation-client-video .client-portrait-3d {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.negotiation-client-video .client-portrait-3d canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+}
+.negotiation-video-tile .negotiation-video-caption {
+  position: relative;
+  z-index: 4;
+  background: linear-gradient(180deg, rgba(11,19,22,.94), rgba(8,14,17,.99));
+}
+.shop-item-game-preview {
+  min-height: 164px;
+  justify-content: space-between;
+  padding: 12px 8px 9px;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(75,145,113,.2), transparent 58%),
+    linear-gradient(145deg, #1a302d, #0c171a 78%);
+}
+.shop-item-game-stage {
+  display: grid;
+  width: 100%;
+  flex: 1;
+  place-items: center;
+  min-height: 100px;
+}
+.shop-item-game-stage .room-item-illustration {
+  width: min(100%, 150px);
+  max-height: 112px;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.32));
+}
+.shop-item-game-preview > span {
+  position: relative;
+  z-index: 1;
+  padding-top: 8px;
+}
+.os-floating-window:not(.maximized):not(.minimized) {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  resize: none !important;
+  min-width: min(280px, calc(100vw - 16px)) !important;
+  min-height: 180px !important;
+  max-width: calc(100vw - 16px) !important;
+  max-height: calc(100dvh - 80px) !important;
+  overflow: hidden;
+}
+.os-floating-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.os-window-resize-handle {
+  touch-action: none;
+  pointer-events: auto;
+}
+.sleep-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #e7eee8;
+  background: #030607;
+  pointer-events: all;
+}
+.sleep-room-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 52% 64%, rgba(80,125,105,.25), transparent 45%),
+    linear-gradient(180deg, #081013, #101b1d 60%, #05090b);
+}
+.sleep-bed-silhouette {
+  position: absolute;
+  left: 50%;
+  top: 53%;
+  width: min(54vw, 430px);
+  height: min(27vw, 190px);
+  min-width: 260px;
+  min-height: 125px;
+  transform: translate(-50%,-50%);
+  opacity: .9;
+}
+.sleep-blanket {
+  position: absolute;
+  left: 12%;
+  right: 2%;
+  bottom: 2%;
+  height: 54%;
+  border-radius: 36px 24px 9px 9px;
+  background: linear-gradient(145deg, #334d49, #182d2d 78%);
+  box-shadow: inset 0 2px rgba(210,229,215,.08), 0 16px 35px rgba(0,0,0,.35);
+}
+.sleep-pillow {
+  position: absolute;
+  left: 8%;
+  bottom: 35%;
+  width: 28%;
+  height: 42%;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #c4c4b3, #737f7a);
+  transform: rotate(-7deg);
+}
+.sleep-head {
+  position: absolute;
+  left: 13%;
+  bottom: 43%;
+  width: 18%;
+  height: 38%;
+  border-radius: 48% 42% 45% 46%;
+  background: linear-gradient(135deg, #c99d7e, #775746);
+  transform: rotate(-8deg);
+}
+.sleep-eye {
+  position: absolute;
+  z-index: 2;
+  left: 18%;
+  bottom: 57%;
+  width: 2.5%;
+  height: 1.5%;
+  border-radius: 50%;
+  background: #251b18;
+}
+.sleep-transition-caption {
+  position: absolute;
+  z-index: 5;
+  left: 20px;
+  right: 20px;
+  bottom: 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  text-shadow: 0 2px 18px #000;
+}
+.sleep-transition-caption span {
+  color: #9adbb9;
+  font: 10px 'DM Mono', monospace;
+  letter-spacing: .22em;
+}
+.sleep-transition-caption strong {
+  font-size: clamp(19px, 3vw, 28px);
+  font-weight: 600;
+}
+.sleep-transition-caption small {
+  max-width: 420px;
+  color: #9caea5;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.sleep-eyelid {
+  position: absolute;
+  left: -4%;
+  width: 108%;
+  height: 51%;
+  z-index: 3;
+  background: #020405;
+}
+.sleep-eyelid-top { top: 0; }
+.sleep-eyelid-bottom { bottom: 0; }
+.sleep-transition.sleeping .sleep-eyelid-top { animation: sleep-close-top .95s cubic-bezier(.7,0,.3,1) forwards; }
+.sleep-transition.sleeping .sleep-eyelid-bottom { animation: sleep-close-bottom .95s cubic-bezier(.7,0,.3,1) forwards; }
+.sleep-transition.sleeping .sleep-transition-caption { animation: sleep-caption-in .8s ease .5s both; }
+.sleep-transition.waking .sleep-eyelid-top { animation: sleep-open-top 1.25s cubic-bezier(.2,.7,.2,1) .2s forwards; }
+.sleep-transition.waking .sleep-eyelid-bottom { animation: sleep-open-bottom 1.25s cubic-bezier(.2,.7,.2,1) .2s forwards; }
+.sleep-transition.waking .sleep-transition-caption { animation: sleep-caption-in .8s ease .25s both; }
+@keyframes sleep-close-top { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+@keyframes sleep-close-bottom { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sleep-open-top { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+@keyframes sleep-open-bottom { from { transform: translateY(0); } to { transform: translateY(100%); } }
+@keyframes sleep-caption-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 600px) {
+  .wardrobe-character-stage .player-model-3d { height: 270px; min-height: 270px; }
+  .sleep-bed-silhouette { width: 78vw; height: 38vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sleep-transition .sleep-eyelid,
+  .sleep-transition-caption { animation-duration: .01ms !important; animation-delay: 0ms !important; }
+}
+
+
+.negotiation-conversation-log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 116px;
+  margin: 10px 0 12px;
+  padding: 9px 10px;
+  overflow: auto;
+  border: 1px solid rgba(133,185,157,.15);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(13,27,28,.94), rgba(7,14,17,.92));
+  scrollbar-width: thin;
+  scrollbar-color: rgba(116,180,146,.3) transparent;
+}
+.negotiation-dialogue-line {
+  display: grid;
+  grid-template-columns: 72px minmax(0,1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(180,215,198,.06);
+}
+.negotiation-dialogue-line:last-child { border-bottom: 0; }
+.negotiation-dialogue-line > span {
+  padding-top: 2px;
+  color: #7ea995;
+  font: 8px 'DM Mono', monospace;
+  letter-spacing: .04em;
+}
+.negotiation-dialogue-line p {
+  margin: 0;
+  color: #c8d8d0;
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.negotiation-dialogue-line.you > span { color: #dfc18b; }
+.negotiation-dialogue-line.you p { color: #f0e3c8; }
+.negotiation-dialogue-line.system > span { color: #8c9e9b; }
+.negotiation-dialogue-line.system p { color: #91a7a0; font-style: italic; }
+@media (max-width: 520px) {
+  .negotiation-dialogue-line { grid-template-columns: 58px minmax(0,1fr); gap: 6px; }
+  .negotiation-dialogue-line p { font-size: 9px; }
+}
+
+
+/* Arena OS should read as a working desktop, not a page full of app cards. */
+.desktop-page.desktop-rebuilt {
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(38,112,130,.28), transparent 38%),
+    radial-gradient(ellipse at 80% 76%, rgba(32,105,76,.24), transparent 42%),
+    linear-gradient(135deg, #0b171c 0%, #14272b 48%, #091316 100%);
+}
+.desktop-rebuilt-shortcuts {
+  grid-template-columns: repeat(3, minmax(78px, 104px));
+  grid-auto-rows: 94px;
+  gap: 8px;
+  align-content: start;
+  padding: 8px;
+}
+.desktop-rebuilt-shortcuts > button {
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  padding: 9px 5px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  text-align: center;
+}
+.desktop-rebuilt-shortcuts > button:hover,
+.desktop-rebuilt-shortcuts > button:focus-visible {
+  border-color: rgba(156,219,188,.22);
+  background: rgba(95,163,127,.12);
+  outline: none;
+}
+.desktop-shortcut-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.12);
+}
+.desktop-rebuilt-shortcuts strong {
+  font-size: 10px;
+  font-weight: 650;
+  text-shadow: 0 1px 5px rgba(0,0,0,.6);
+}
+.desktop-rebuilt-shortcuts small { display: none; }
+.desktop-rebuilt-widgets { gap: 8px; }
+.desktop-os-widget {
+  border-color: rgba(153,199,176,.12);
+  border-radius: 9px;
+  background: linear-gradient(145deg, rgba(12,27,29,.88), rgba(7,16,18,.86));
+  box-shadow: 0 8px 22px rgba(0,0,0,.16);
+  backdrop-filter: blur(8px);
+}
+.desktop-rebuilt-footer {
+  min-height: 38px;
+  padding: 9px 12px;
+  border-top: 1px solid rgba(160,205,182,.12);
+  background: rgba(5,13,15,.38);
+}
+.os-floating-window {
+  border: 1px solid rgba(143,193,166,.24);
+  border-radius: 10px;
+  background: #101d20;
+  box-shadow: 0 22px 70px rgba(0,0,0,.48), 0 0 0 1px rgba(0,0,0,.22);
+}
+.os-floating-titlebar {
+  min-height: 40px;
+  background: linear-gradient(90deg, #172b2c, #102020);
+  border-bottom: 1px solid rgba(143,193,166,.14);
+  touch-action: none;
+}
+@media(max-width:560px) {
+  .desktop-rebuilt-shortcuts { grid-template-columns: repeat(3, minmax(58px, 1fr)); grid-auto-rows: 82px; gap: 4px; padding: 2px; }
+  .desktop-shortcut-icon { width: 36px; height: 36px; }
+  .desktop-rebuilt-shortcuts strong { font-size: 9px; }
+}

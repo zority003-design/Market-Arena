@@ -8,21 +8,71 @@ import { CityWindowView } from './CityScene'
 type RoomTextureKind = 'wood' | 'fabric' | 'plaster'
 
 function makeKittenArtTexture() {
- const canvas=document.createElement('canvas'); canvas.width=512; canvas.height=512
- const ctx=canvas.getContext('2d'); if(!ctx) return new THREE.CanvasTexture(canvas)
- const bg=ctx.createLinearGradient(0,0,512,512); bg.addColorStop(0,'#f4e7cf'); bg.addColorStop(1,'#d7c4a6'); ctx.fillStyle=bg; ctx.fillRect(0,0,512,512)
- ctx.fillStyle='#b9c8b3'; ctx.beginPath(); ctx.roundRect(52,42,408,420,150); ctx.fill(); ctx.fillStyle='#e7d9be'; ctx.beginPath(); ctx.roundRect(76,66,360,372,130); ctx.fill()
- ctx.fillStyle='#b7835d'; ctx.beginPath(); ctx.moveTo(151,202); ctx.lineTo(164,106); ctx.lineTo(235,161); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(278,161); ctx.lineTo(350,106); ctx.lineTo(362,202); ctx.closePath(); ctx.fill()
- ctx.fillStyle='#e5b7a0'; ctx.beginPath(); ctx.moveTo(170,174); ctx.lineTo(174,130); ctx.lineTo(212,164); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(300,164); ctx.lineTo(338,130); ctx.lineTo(342,174); ctx.closePath(); ctx.fill()
- ctx.fillStyle='#c9956d'; ctx.beginPath(); ctx.ellipse(256,248,119,113,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#f1dfc6'; ctx.beginPath(); ctx.ellipse(256,283,80,62,0,0,Math.PI*2); ctx.fill()
- ctx.fillStyle='#35483e'; ctx.beginPath(); ctx.ellipse(218,239,10,15,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(294,239,10,15,0,0,Math.PI*2); ctx.fill()
- ctx.fillStyle='#fff6e6'; ctx.beginPath(); ctx.arc(221,234,3.5,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(297,234,3.5,0,Math.PI*2); ctx.fill()
- ctx.fillStyle='#9b6556'; ctx.beginPath(); ctx.moveTo(246,270); ctx.lineTo(266,270); ctx.lineTo(256,282); ctx.closePath(); ctx.fill()
- ctx.strokeStyle='#7e5749'; ctx.lineWidth=3; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(256,282); ctx.quadraticCurveTo(243,298,230,287); ctx.moveTo(256,282); ctx.quadraticCurveTo(269,298,282,287); ctx.stroke()
- ctx.strokeStyle='#8d6b54'; ctx.lineWidth=2; for(const side of [-1,1]) for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(220+side*28,280+i*10);ctx.lineTo(160+side*12,267+i*19);ctx.stroke()}
- ctx.fillStyle='#6f927b'; ctx.beginPath(); ctx.moveTo(174,350); ctx.quadraticCurveTo(256,402,338,350); ctx.lineTo(360,438); ctx.lineTo(152,438); ctx.closePath(); ctx.fill()
- ctx.fillStyle='#f4e7cf'; ctx.font='600 24px Georgia, serif'; ctx.textAlign='center'; ctx.fillText('МАЛЕНЬКИЙ НАЧАЛЬНИК',256,476)
- const texture=new THREE.CanvasTexture(canvas); texture.colorSpace=THREE.SRGBColorSpace; texture.anisotropy=4; return texture
+  const canvas = document.createElement('canvas')
+  canvas.width = 768
+  canvas.height = 768
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return new THREE.CanvasTexture(canvas)
+  const bg = ctx.createRadialGradient(360, 260, 20, 384, 384, 560)
+  bg.addColorStop(0, '#d6bd8d'); bg.addColorStop(.58, '#a77f57'); bg.addColorStop(1, '#503d31')
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, 768, 768)
+  for (let i = 0; i < 950; i++) {
+    const x = (i * 137.5) % 768, y = (i * 263.7) % 768
+    ctx.strokeStyle = i % 3 ? 'rgba(245,218,166,.075)' : 'rgba(45,29,22,.09)'
+    ctx.lineWidth = 1 + (i % 4); ctx.beginPath(); ctx.moveTo(x, y)
+    ctx.quadraticCurveTo(x + 5 + (i % 9), y - 4, x + 13 + (i % 12), y + 2); ctx.stroke()
+  }
+  for (let i = 0; i < 24; i++) {
+    const x = 70 + (i * 83) % 630, y = 100 + (i * 47) % 470
+    ctx.fillStyle = i % 2 ? 'rgba(51,76,55,.22)' : 'rgba(221,183,117,.18)'
+    ctx.beginPath(); ctx.ellipse(x, y, 32 + (i % 4) * 8, 14 + (i % 3) * 7, (i % 5) * .3, 0, Math.PI * 2); ctx.fill()
+  }
+  const coat = ctx.createLinearGradient(190, 470, 590, 720)
+  coat.addColorStop(0, '#34463a'); coat.addColorStop(.48, '#657050'); coat.addColorStop(1, '#26392f')
+  ctx.fillStyle = coat; ctx.beginPath(); ctx.moveTo(145, 740); ctx.quadraticCurveTo(165, 560, 285, 520); ctx.quadraticCurveTo(384, 480, 483, 520); ctx.quadraticCurveTo(610, 565, 630, 740); ctx.closePath(); ctx.fill()
+  const fur = ctx.createRadialGradient(310, 310, 18, 384, 355, 260)
+  fur.addColorStop(0, '#d4ad77'); fur.addColorStop(.58, '#b37e4e'); fur.addColorStop(1, '#684733')
+  ctx.fillStyle = fur
+  ctx.beginPath(); ctx.moveTo(230, 310); ctx.quadraticCurveTo(178, 220, 194, 126); ctx.quadraticCurveTo(274, 158, 316, 225); ctx.closePath(); ctx.fill()
+  ctx.beginPath(); ctx.moveTo(452, 225); ctx.quadraticCurveTo(494, 158, 574, 126); ctx.quadraticCurveTo(590, 220, 538, 310); ctx.closePath(); ctx.fill()
+  ctx.fillStyle = '#b97d72'
+  ctx.beginPath(); ctx.moveTo(230, 250); ctx.quadraticCurveTo(215, 205, 218, 173); ctx.quadraticCurveTo(258, 196, 279, 235); ctx.closePath(); ctx.fill()
+  ctx.beginPath(); ctx.moveTo(489, 235); ctx.quadraticCurveTo(510, 196, 550, 173); ctx.quadraticCurveTo(553, 205, 538, 250); ctx.closePath(); ctx.fill()
+  ctx.fillStyle = fur
+  ctx.beginPath(); ctx.moveTo(220, 280); ctx.quadraticCurveTo(238, 205, 326, 204); ctx.quadraticCurveTo(384, 174, 442, 204); ctx.quadraticCurveTo(530, 205, 548, 280); ctx.quadraticCurveTo(565, 400, 493, 480); ctx.quadraticCurveTo(440, 536, 384, 535); ctx.quadraticCurveTo(328, 536, 275, 480); ctx.quadraticCurveTo(203, 400, 220, 280); ctx.closePath(); ctx.fill()
+  const muzzle = ctx.createRadialGradient(384, 407, 8, 384, 414, 120)
+  muzzle.addColorStop(0, '#f1dfbf'); muzzle.addColorStop(1, '#c6a17b')
+  ctx.fillStyle = muzzle; ctx.beginPath(); ctx.ellipse(384, 421, 119, 83, 0, 0, Math.PI * 2); ctx.fill()
+  for (const side of [-1, 1]) for (let i = 0; i < 52; i++) {
+    const x = 384 + side * (34 + (i % 13) * 9), y = 250 + Math.floor(i / 13) * 43 + (i % 4) * 3
+    ctx.strokeStyle = i % 3 ? 'rgba(70,43,28,.2)' : 'rgba(250,224,175,.32)'
+    ctx.lineWidth = 1.5 + (i % 3); ctx.beginPath(); ctx.moveTo(x, y)
+    ctx.quadraticCurveTo(x + side * 7, y + 10, x + side * 5, y + 19); ctx.stroke()
+  }
+  for (const side of [-1, 1]) {
+    const x = 384 + side * 75
+    ctx.fillStyle = '#342e24'; ctx.beginPath(); ctx.ellipse(x, 337, 28, 38, side * -.08, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = '#9b8651'; ctx.beginPath(); ctx.ellipse(x, 340, 17, 27, 0, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = '#171d19'; ctx.beginPath(); ctx.ellipse(x, 341, 9, 21, 0, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = 'rgba(255,246,220,.92)'; ctx.beginPath(); ctx.arc(x - 6, 328, 6, 0, Math.PI * 2); ctx.fill()
+    ctx.strokeStyle = 'rgba(66,43,30,.8)'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(x - 29, 290); ctx.quadraticCurveTo(x, 274, x + 24, 293); ctx.stroke()
+  }
+  ctx.fillStyle = '#654137'; ctx.beginPath(); ctx.moveTo(365, 396); ctx.quadraticCurveTo(384, 383, 403, 396); ctx.quadraticCurveTo(390, 418, 384, 418); ctx.quadraticCurveTo(378, 418, 365, 396); ctx.fill()
+  ctx.strokeStyle = '#795243'; ctx.lineWidth = 4; ctx.lineCap = 'round'
+  ctx.beginPath(); ctx.moveTo(384, 416); ctx.quadraticCurveTo(365, 437, 346, 426); ctx.moveTo(384, 416); ctx.quadraticCurveTo(403, 437, 422, 426); ctx.stroke()
+  ctx.strokeStyle = 'rgba(245,229,199,.9)'; ctx.lineWidth = 2.2
+  for (const side of [-1, 1]) for (let i = 0; i < 3; i++) {
+    const y = 405 + i * 15; ctx.beginPath(); ctx.moveTo(384 + side * 92, y)
+    ctx.quadraticCurveTo(384 + side * 150, y - 10 + i * 8, 384 + side * 205, y - 23 + i * 21); ctx.stroke()
+  }
+  ctx.fillStyle = 'rgba(247,220,173,.045)'; ctx.fillRect(0, 0, 768, 768)
+  for (let i = 0; i < 700; i++) {
+    ctx.fillStyle = i % 2 ? 'rgba(255,241,209,.05)' : 'rgba(35,22,17,.045)'
+    ctx.fillRect((i * 197) % 768, (i * 311) % 768, 1 + i % 2, 1 + i % 3)
+  }
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8
+  return texture
 }
 
 function makeRoomTexture(kind: RoomTextureKind) {
@@ -35,7 +85,7 @@ function makeRoomTexture(kind: RoomTextureKind) {
   for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) {
     const i = (y * 256 + x) * 4
     const seed = (x * 374761393 + y * 668265263 + x * y * 1442695041) >>> 0
-    const grain = ((seed ^ (seed >>> 13)) % 17) - 8
+    const grain = ((seed ^ (seed >>> 13)) % 25) - 12
     const woodGrain = kind === 'wood' ? Math.sin(y * 0.17 + Math.sin(x * 0.04) * 3) * 11 + (x % 29 === 0 ? -9 : 0) : 0
     const fabricWeave = kind === 'fabric' ? ((x % 4 === 0 ? -8 : 0) + (y % 4 === 0 ? -7 : 0)) : 0
     const value = Math.max(0, Math.min(255, (kind === 'plaster' ? 238 : 232) + grain + woodGrain + fabricWeave))
@@ -269,7 +319,7 @@ function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, 
   return (
     <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={color} map={surfaceTexture ?? undefined} bumpMap={surfaceTexture ?? undefined} bumpScale={textureKind === 'wood' ? 0.045 : textureKind === 'fabric' ? 0.025 : 0.012} roughness={roughness} metalness={metalness} emissive={emissive} emissiveIntensity={emissiveIntensity} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
+      <meshStandardMaterial color={color} map={surfaceTexture ?? undefined} bumpMap={surfaceTexture ?? undefined} bumpScale={textureKind === 'wood' ? 0.045 : textureKind === 'fabric' ? 0.025 : 0.028} roughness={roughness} metalness={metalness} emissive={emissive} emissiveIntensity={emissiveIntensity} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
     </mesh>
   )
 }
@@ -351,25 +401,32 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <FloorBoards />
 
       {/* Warm wood skirting, consistent around the room. */}
-      <Box position={[0, 0.14, -3.86]} size={[7.7, 0.16, 0.07]} color="#b4a18b" />
-      <Box position={[-3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#9b8a78" />
-      <Box position={[3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#8b7a6b" />
+      <Box position={[0, 0.14, -3.86]} size={[7.76, 0.17, 0.09]} color="#624a38" roughness={0.74} textureKind="wood" />
+      {/* Split the window-wall trim around the opening so it cannot create a pale stripe across the glass. */}
+      <Box position={[-3.86, 0.14, -3.15]} size={[0.09, 0.17, 1.7]} color="#624a38" roughness={0.74} textureKind="wood" />
+      <Box position={[-3.86, 0.14, 2.0]} size={[0.09, 0.17, 4.0]} color="#624a38" roughness={0.74} textureKind="wood" />
+      <Box position={[3.86, 0.14, 0]} size={[0.09, 0.17, 7.76]} color="#624a38" roughness={0.74} textureKind="wood" />
+      <Box position={[0, 0.255, -3.86]} size={[7.76, 0.035, 0.085]} color="#a88963" roughness={0.58} textureKind="wood" />
+      <Box position={[-3.86, 0.255, -3.15]} size={[0.085, 0.035, 1.7]} color="#a88963" roughness={0.58} textureKind="wood" />
+      <Box position={[-3.86, 0.255, 2.0]} size={[0.085, 0.035, 4.0]} color="#a88963" roughness={0.58} textureKind="wood" />
+      <Box position={[3.86, 0.255, 0]} size={[0.085, 0.035, 7.76]} color="#a88963" roughness={0.58} textureKind="wood" />
 
       {/* One clean framed illustration; old chart meshes are removed completely. */}
       <Box position={[-2.25, 2.0, -3.84]} size={[1.62, 1.48, 0.09]} color="#493a30" roughness={0.52} />
       <Box position={[-2.25, 2.0, -3.785]} size={[1.48, 1.34, 0.018]} color="#e7d6b8" roughness={0.85} />
-      <mesh position={[-2.25, 2.0, -3.768]}><planeGeometry args={[1.39, 1.26]} /><meshBasicMaterial map={kittenArtTexture} toneMapped={false} /></mesh>
+      <Box position={[-2.25, 2.0, -3.765]} size={[1.42, 1.29, 0.025]} color="#b08a52" roughness={0.42} metalness={0.2} />
+      <mesh position={[-2.25, 2.0, -3.748]}><planeGeometry args={[1.34, 1.21]} /><meshBasicMaterial map={kittenArtTexture} toneMapped={false} /></mesh>
 
       {/* A compact floating shelf, a few books and a framed certificate make the wall feel inhabited. */}
       <Box position={[1.35, 2.55, -3.82]} size={[1.75, 0.09, 0.26]} color="#604632" textureKind="wood" roughness={0.72} />
       <Box position={[0.68, 2.43, -3.83]} size={[0.07, 0.22, 0.1]} color="#4d3a2c" />
       <Box position={[2.02, 2.43, -3.83]} size={[0.07, 0.22, 0.1]} color="#4d3a2c" />
       {[
-        { x: 0.82, h: 0.31, color: "#9a5748" },
-        { x: 0.94, h: 0.36, color: "#d0b879" },
-        { x: 1.06, h: 0.28, color: "#527b6b" },
-        { x: 1.18, h: 0.33, color: "#40586a" },
-      ].map((book) => <Box key={book.x} position={[book.x, 2.75 + book.h / 2, -3.82]} size={[0.095, book.h, 0.15]} color={book.color} roughness={0.9} />)}
+        { x: 0.82, h: 0.25, color: "#9a5748" },
+        { x: 0.94, h: 0.29, color: "#d0b879" },
+        { x: 1.06, h: 0.22, color: "#527b6b" },
+        { x: 1.18, h: 0.27, color: "#40586a" },
+      ].map((book) => <Box key={book.x} position={[book.x, 2.595 + book.h / 2, -3.82]} size={[0.095, book.h, 0.15]} color={book.color} roughness={0.9} />)}
       <Box position={[1.72, 2.79, -3.81]} size={[0.34, 0.42, 0.055]} color="#8c7354" />
       <Box position={[1.72, 2.79, -3.775]} size={[0.27, 0.35, 0.018]} color="#e9dfc9" />
       <Box position={[1.72, 2.82, -3.76]} size={[0.16, 0.018, 0.008]} color="#6b9b82" />
@@ -381,7 +438,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {[-0.72, -0.36, 0, 0.36, 0.72].map((offset) => <Box key={'rug-line-' + offset} position={[0.15 + offset, 0.089, 0.52]} size={[0.025, 0.006, 1.78]} color="#50685f" roughness={1} />)}
 
       {/* Side-window city view: the skyline is now to the left of the desk, not behind the monitor. */}
-      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" />
+      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" gameMinutes={gameMinutes} />
       <Box position={[-3.79, 1.9, -2.3]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
       <Box position={[-3.79, 1.9, 0.0]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
       <Box position={[-3.79, 2.82, -1.15]} size={[0.16, 0.12, 2.45]} color="#293b43" roughness={0.38} metalness={0.18} />
@@ -391,8 +448,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.055, 2.35]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.58, 0.045]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
       <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.045, 2.32]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[-3.7, curtainsOpen ? 1.92 : 1.92, curtainsOpen ? -2.08 : -2.05]} size={[0.1, 1.42, curtainsOpen ? 0.22 : 0.7]} color="#3f6868" roughness={0.96} textureKind="fabric" />
-      <Box position={[-3.7, 1.92, curtainsOpen ? -0.22 : -0.25]} size={[0.1, 1.42, curtainsOpen ? 0.22 : 0.7]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.7, 1.92, curtainsOpen ? -2.16 : -1.725]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#3f6868" roughness={0.96} textureKind="fabric" />
 
       {/* Small lived-in details: plant, books and framed personal photo. */}
       <Box position={[-3.72, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
