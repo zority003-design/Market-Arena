@@ -26,7 +26,6 @@ function FreshCharacter({ tier, variant, outfit, mood }: Required<PortraitProps>
   })
   const skinMat = <meshStandardMaterial color={palette.skin} roughness={0.78} />
   const hairMat = <meshStandardMaterial color={palette.hair} roughness={0.88} />
-  const shirtMat = <meshStandardMaterial color={palette.shirt} roughness={0.78} />
   const browTilt = mood === 'skeptical' ? -0.16 : mood === 'angry' ? 0.18 : 0
   const mouthWidth = mood === 'happy' || mood === 'interested' ? 0.17 : 0.13
   return <group ref={root} position={[0, -0.16, 0]}>
