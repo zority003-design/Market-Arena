@@ -81,8 +81,10 @@ export function getAvailableClients(day:number, reputation:number):ClientProfile
 export function getFirstImpression(housingId:string, ownedItems:string[], client:ClientProfile):number {
  const home=HOUSING.find(option=>option.id===housingId) ?? HOUSING[0]
  const itemScore=ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.firstImpression ?? 0),0)
+ // Comfort contributes to the client's first impression: a quiet, private room is easier to trust than a cramped dorm.
+ const comfortBonus=Math.floor(home.comfort/2)
  const statusMismatch=client.statusSensitive && home.firstImpression<2 ? -2 : 0
- return Math.max(-5,Math.min(8,home.firstImpression+Math.min(5,itemScore)+statusMismatch))
+ return Math.max(-5,Math.min(10,home.firstImpression+comfortBonus+Math.min(5,itemScore)+statusMismatch))
 }
 export function getVideoQuality(ownedItems:string[]):number {
  return Math.min(8,ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.videoQuality ?? 0),0))
