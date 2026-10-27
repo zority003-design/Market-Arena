@@ -21,6 +21,7 @@ type Props = {
   ownedOutfits: OutfitId[]; setOwnedOutfits: (v: OutfitId[] | ((p: OutfitId[]) => OutfitId[])) => void
   ownedItems: string[]; setOwnedItems: (v: string[] | ((p: string[]) => string[])) => void
   onClose: () => void
+  initialApp?: AppId
 }
 
 const STOCKS: Stock[] = [
@@ -47,7 +48,7 @@ const GEAR = [
 const money = (n:number) => Math.round(n).toLocaleString('ru-RU') + ' ₽'
 
 export default function ArenaOS(props: Props) {
-  const [activeApp,setActiveApp] = useState<AppId>('home')
+  const [activeApp,setActiveApp] = useState<AppId>(props.initialApp ?? 'home')
   const [incoming,setIncoming] = useState(() => { try { return localStorage.getItem('arena-os-v2-first-call') !== 'accepted' } catch { return true } })
   const [clientId,setClientId] = useState('alex-vorontsov')
   const [callState,setCallState] = useState<'idle'|'active'|'won'|'lost'>('idle')
