@@ -167,6 +167,25 @@ function District({ gameMinutes }: { gameMinutes: number }) {
   </>
 }
 
+function WindowBuilding({ x, z, width, depth, height, color, night }: { x: number; z: number; width: number; depth: number; height: number; color: string; night: boolean }) {
+  const floors = Math.max(2, Math.floor(height / 1.55))
+  const columns = Math.max(2, Math.floor(width / 0.92))
+  return <group position={[x, 0, z]}>
+    <Block position={[0, height / 2, 0]} size={[width, height, depth]} color={color} roughness={.94} />
+    <Block position={[0, height + .06, 0]} size={[width + .14, .12, depth + .14]} color={night ? '#26353e' : '#737f7e'} roughness={.82} />
+    <Block position={[0, height * .56, depth / 2 + .025]} size={[width - .12, .045, .05]} color={night ? '#42515a' : '#c0c2b7'} roughness={.86} />
+    {Array.from({ length: floors }, (_, row) => Array.from({ length: columns }, (_, col) => {
+      const wx = -width / 2 + (col + .5) * width / columns
+      const wy = .65 + row * (height - .9) / floors
+      const lit = night && (row * 3 + col * 5 + Math.round(x)) % 4 !== 0
+      return <group key={row + '-' + col}>
+        <Block position={[wx, wy, depth / 2 + .045]} size={[Math.min(.48, width / columns * .72), .48, .045]} color="#293b43" roughness={.7} />
+        <Block position={[wx, wy, depth / 2 + .071]} size={[Math.min(.37, width / columns * .56), .37, .018]} color={lit ? '#e9cf93' : night ? '#405d6b' : '#8eafb7'} roughness={.3} metalness={.08} />
+      </group>
+    }))}
+  </group>
+}
+
 function WindowRain() {
   const rain = useRef<THREE.Group>(null)
   useFrame(({ clock }) => {
@@ -186,13 +205,13 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
   const weather = Math.floor((gameMinutes + 360) / 180) % 4
   const rainy = weather === 2
   const overcast = weather === 1 || rainy
-  const skyline = Array.from({ length: 18 }, (_, i) => {
-    const lane = i % 9, row = Math.floor(i / 9)
+  const skyline = Array.from({ length: 14 }, (_, i) => {
+    const lane = i % 7, row = Math.floor(i / 7)
     const heights = [5.2, 8.4, 4.1, 10.2, 6.7, 3.8, 7.5, 5.8, 9.1]
     const widths = [2.2, 2.7, 1.8, 2.5, 2, 2.8, 1.7, 2.3, 2.6]
     const dayColors = ['#8c9b9c', '#a1acab', '#758a91', '#9aa6a3', '#6f8288']
     const nightColors = ['#263746', '#344958', '#243b48', '#3b4b56', '#2b3e4a']
-    return { x: -10.5 + lane * 2.6 + row * .45, z: -6.4 - row * 4.6, height: heights[(lane + row * 3) % heights.length], width: widths[(lane + row) % widths.length], color: (night ? nightColors : dayColors)[(lane * 3 + row) % (night ? nightColors : dayColors).length] }
+    return { x: -9.1 + lane * 2.95 + row * .7, z: -6.4 - row * 4.6, height: heights[(lane + row * 3) % heights.length], width: widths[(lane + row) % widths.length], color: (night ? nightColors : dayColors)[(lane * 3 + row) % (night ? nightColors : dayColors).length] }
   })
   return <group position={position} rotation={rotation} scale={wall === 'back' ? .48 : .46}>
     {/* Sky, haze and distant skyline create real depth instead of a flat wall of boxes. */}
@@ -202,7 +221,7 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
       <mesh position={[-.5, 0, 0]} scale={[1.2, .34, .12]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
       <mesh position={[.12, .16, 0]} scale={[.7, .42, .13]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
     </group>)}
-    {skyline.map((b, i) => <Building key={'skyline-' + i} x={b.x} z={b.z} width={b.width} depth={1.7 + (i % 3) * .5} height={b.height} color={b.color} label="" night={night} />)}
+    {skyline.map((b, i) => <WindowBuilding key={'skyline-' + i} x={b.x} z={b.z} width={b.width} depth={1.7 + (i % 3) * .5} height={b.height} color={b.color} night={night} />)}
     <DistantBlock position={[-12.5, 0, -19.8]} size={[7.4, 12.5, 3.4]} color={night ? '#233543' : '#9aa8a8'} />
     <DistantBlock position={[-4.2, 0, -21.4]} size={[6.1, 8.4, 3.1]} color={night ? '#263947' : '#acb8b5'} />
     <DistantBlock position={[4.2, 0, -21.8]} size={[7.2, 14.2, 3.8]} color={night ? '#1f3340' : '#87999d'} />
