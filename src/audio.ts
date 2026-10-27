@@ -29,6 +29,21 @@ let musicPlayer: HTMLAudioElement | null = null
 let musicTrackIndex = 0
 const MUSIC_TRACKS = ['/audio/Endless%20Solitude.mp3', '/audio/Market%20Pulse.mp3']
 
+// Browsers often block background audio until the first real user gesture.
+// Retry playback from that gesture instead of silently leaving the soundtrack stopped.
+let musicUnlockInstalled = false
+function installMusicUnlock() {
+  if (typeof window === 'undefined' || musicUnlockInstalled) return
+  musicUnlockInstalled = true
+  const unlock = () => {
+    updateMusic()
+    window.removeEventListener('pointerdown', unlock, true)
+    window.removeEventListener('keydown', unlock, true)
+  }
+  window.addEventListener('pointerdown', unlock, true)
+  window.addEventListener('keydown', unlock, true)
+}
+
 function updateMusic() {
   if (typeof window === 'undefined') return
   const shouldPlay = settings.music && !settings.paused
@@ -128,6 +143,7 @@ function updateAmbience() {
 }
 
 export function configureAudio(next: Partial<AudioSettings>) {
+  installMusicUnlock()
   settings = { ...settings, ...next }
   updateAmbience()
   updateMusic()
@@ -151,6 +167,7 @@ function tone(frequency: number, duration: number, type: OscillatorType, volume:
 }
 
 export function playSound(kind: SoundKind, intensity = 1) {
+  installMusicUnlock()
   const ctx = ensureAudio()
   updateMusic()
   if (!ctx || !settings.enabled) return
