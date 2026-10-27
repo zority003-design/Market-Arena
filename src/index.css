@@ -3245,3 +3245,16 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 @media (max-width: 900px) {
   .computer-overlay.os-shell .terminal-body { margin: 8px; }
 }
+
+
+/* Keep the career confirmation genuinely centered in the viewport. */
+.menu-modal-backdrop {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.confirm-career-modal {
+  margin: auto;
+  transform: none;
+}
+.version-watermark { display: none; }
