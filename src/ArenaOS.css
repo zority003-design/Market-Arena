@@ -236,3 +236,25 @@
 .arena-os-stock-picker-grid button{background:#fff!important;color:#173657!important;border:1px solid #c4d8ed!important}
 .arena-os-stock-picker-grid button small{color:#526982!important}
 .arena-os-window.minimized{display:none!important}
+
+
+.arena-os-housing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.arena-os-housing-card{display:flex;flex-direction:column;overflow:hidden;border:1px solid #d1e0f1;border-radius:12px;background:#fff;box-shadow:0 5px 16px rgba(28,65,106,.05)}
+.arena-os-housing-card.current{border-color:#5aa5e8;box-shadow:0 0 0 2px #d8ecff}
+.arena-os-housing-art{height:100px;display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#dcecff,#aecfee);color:#2769a5}
+.arena-os-housing-art span{font-size:10px;font-weight:850;letter-spacing:.12em}
+.arena-os-housing-art.housing-art-dorm{background:linear-gradient(135deg,#d7e3ed,#a4b9ca);color:#38556e}
+.arena-os-housing-art.housing-art-shared-flat{background:linear-gradient(135deg,#dcebe4,#a9c9b8);color:#326c58}
+.arena-os-housing-art.housing-art-studio{background:linear-gradient(135deg,#e9e0fb,#c5b3e6);color:#6b4a9b}
+.arena-os-housing-art.housing-art-city-apartment{background:linear-gradient(135deg,#f9e7ca,#e9c18a);color:#8c5a20}
+.arena-os-housing-art.housing-art-premium-apartment{background:linear-gradient(135deg,#e6e7ed,#b4bac8);color:#4a5065}
+.arena-os-housing-copy{display:flex;flex:1;flex-direction:column;gap:9px;padding:16px}
+.arena-os-housing-copy h3{margin:0;color:#1b3c60;font-size:16px}
+.arena-os-housing-copy p{margin:0;color:#627990;font-size:11px;line-height:1.55;min-height:36px}
+.arena-os-housing-stats{display:flex;flex-wrap:wrap;gap:7px}
+.arena-os-housing-stats span{padding:5px 7px;border-radius:5px;background:#edf5ff;color:#4d6c8d;font-size:10px}
+.arena-os-housing-stats b{color:#1e609f}
+.arena-os-housing-price{color:#1b4169;font-size:15px}
+.arena-os-housing-copy small{min-height:28px;color:#73869b;font-size:10px;line-height:1.45}
+.arena-os-housing-copy button{width:100%;margin-top:auto}
+@media(max-width:760px){.arena-os-housing-grid{grid-template-columns:1fr}.arena-os-housing-art{height:82px}}
