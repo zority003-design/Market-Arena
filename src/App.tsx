@@ -12,7 +12,7 @@ import ClientPortrait3D from './ClientPortrait3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getDailyQuota, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -566,8 +566,7 @@ export default function App() {
   const displayedChoices = activeQuestion ? (choiceOrders[questionIndex]?.map((index) => activeQuestion.choices[index]).filter(Boolean) ?? activeQuestion.choices) : []
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
   const projectedDeal = calculateDeal(activeClient, trust, clientDealCounts[activeClient.id] ?? 0, clientInvested[activeClient.id] ?? 0)
-  const dailyQuotaShares = 25 + day * 10
-  const dailyQuotaAmount = 8000 + day * 4000
+  const { targetShares: dailyQuotaShares, targetAmount: dailyQuotaAmount } = getDailyQuota(day)
   const dailyQuotaCompany = companies[(day - 1) % companies.length]
 
   useEffect(() => {
@@ -913,8 +912,7 @@ export default function App() {
   function endDay() {
     if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
     const shiftTargetCompany = companies[(day - 1) % companies.length]
-    const targetShares = 25 + day * 10
-    const targetAmount = 8000 + day * 4000
+    const { targetShares, targetAmount } = getDailyQuota(day)
     const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
     const reward = success ? 1000 + day * 250 : 0
     const penalty = success ? 0 : 750
