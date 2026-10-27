@@ -191,10 +191,19 @@ const news = [
   { tag: 'ТАПОКТЕХ', time: '08:30', title: 'Возвраты умных тапочек превысили прогноз', body: 'Компания обещает обновить посадку устройства. Акции теряют часть вчерашнего роста.', meaning: 'Возвраты означают потерянную выручку и дополнительные расходы. Обещание исправить товар — не доказательство, что проблема решена.', impact: 'Сигнал для TAPK: негативный; следи за возвратами и расходами на гарантию.', tone: 'red' },
 ]
 
+function getActiveSaveSlot() {
+  try { const n = Number(localStorage.getItem('market-arena-active-save-slot') || '1'); return Number.isInteger(n) && n >= 1 && n <= 3 ? n : 1 } catch { return 1 }
+}
+function getSaveKey(slot = getActiveSaveSlot()) { return 'market-arena-career-slot-' + slot }
 function readSave() {
   try {
-    const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number }
+    const key = getSaveKey()
+    let raw = localStorage.getItem(key)
+    if (!raw && getActiveSaveSlot() === 1) {
+      raw = localStorage.getItem('na-vse-kotirovki-save-v1')
+      if (raw) localStorage.setItem(key, raw)
+    }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -360,6 +369,15 @@ export default function App() {
   useEffect(() => { try { localStorage.setItem('na-vse-kotirovki-outfit', selectedOutfit); localStorage.setItem('na-vse-kotirovki-owned-outfits', JSON.stringify(ownedOutfits)) } catch { /* Outfit preferences are optional if storage is unavailable. */ } }, [selectedOutfit, ownedOutfits])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
+  const [activeSaveSlot, setActiveSaveSlot] = useState(() => getActiveSaveSlot())
+  const saveSlotSummaries = useMemo(() => [1, 2, 3].map((slot) => {
+    try {
+      const raw = localStorage.getItem(getSaveKey(slot)) || (slot === 1 ? localStorage.getItem('na-vse-kotirovki-save-v1') : null)
+      if (!raw) return { slot, exists: false, day: 0, cash: 0 }
+      const data = JSON.parse(raw) as { day?: number; cash?: number }
+      return { slot, exists: true, day: data.day ?? 1, cash: data.cash ?? 0 }
+    } catch { return { slot, exists: false, day: 0, cash: 0 } }
+  }), [activeSaveSlot])
   const [menuSettings, setMenuSettings] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-reduced-motion') === 'true' } catch { return false } })
   const [soundEnabled, setSoundEnabled] = useState(() => { try { return localStorage.getItem('na-vse-kotirovki-sound') !== 'false' } catch { return true } })
@@ -454,7 +472,7 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
+    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
   }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
 
   useEffect(() => {
@@ -651,7 +669,7 @@ export default function App() {
 
   function confirmStartNewGame() {
     window.setTimeout(() => playSound('alarm'), 900)
-    try { localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
+    try { localStorage.removeItem(getSaveKey(activeSaveSlot)); if (activeSaveSlot === 1) localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
     setCash(STARTING_CASH)
     setXp(0)
     setFirmCapital(STARTING_FIRM_CAPITAL)
@@ -1039,7 +1057,18 @@ export default function App() {
                 <button className="menu-back-button" onClick={() => setOfflineMenu(false)}><ArrowLeft size={15} /> ГЛАВНОЕ МЕНЮ</button>
                 <div className="menu-eyebrow"><span /> ОФЛАЙН-КАРЬЕРА</div>
                 <h1>С чего <em>начнём?</em></h1>
-                <p className="menu-description">Прогресс автоматически сохраняется в этом браузере. Пока серверных аккаунтов нет, сохранение доступно только на этом устройстве и в этом браузере.</p>
+                <p className="menu-description">Выбери одну из трёх независимых карьер. Сохранения хранятся локально в этом браузере и не синхронизируются между устройствами.</p>
+                <div className="career-save-slots" aria-label="Три ячейки сохранения">
+                  {saveSlotSummaries.map((slot) => <button key={slot.slot} className={'career-save-slot' + (activeSaveSlot === slot.slot ? ' selected' : '') + (slot.exists ? ' occupied' : ' empty')} onClick={() => {
+                    try { localStorage.setItem('market-arena-active-save-slot', String(slot.slot)) } catch { /* Storage may be blocked. */ }
+                    window.location.reload()
+                  }}>
+                    <span className="career-slot-number">СЛОТ {slot.slot}</span>
+                    <strong>{slot.exists ? 'Карьера сохранена' : 'Пустая ячейка'}</strong>
+                    <small>{slot.exists ? 'День ' + String(slot.day).padStart(2, '0') + ' · ' + slot.cash.toLocaleString('ru-RU') + ' ₽' : 'Можно начать новую карьеру'}</small>
+                    <span className="career-slot-action">{activeSaveSlot === slot.slot ? 'ВЫБРАН' : 'ВЫБРАТЬ'}</span>
+                  </button>)}
+                </div>
                 <div className="offline-save-card">
                   <div className="offline-save-icon"><Laptop size={23} /></div>
                   <div className="offline-save-copy"><strong>Твоя карьера</strong><small>{hasSavedGame ? `День ${String(day).padStart(2, '0')} · ${currentHousing.name} · ${cash.toLocaleString('ru-RU')} ₽` : 'Сохранений пока нет — самое время начать.'}</small></div>
@@ -1049,7 +1078,7 @@ export default function App() {
                   <button className="menu-play-button" onClick={enterOfflineGame} disabled={!hasSavedGame}><Play size={17} fill="currentColor" /> Загрузить игру <ArrowRight size={16} /></button>
                   <button className="menu-secondary-button" onClick={startNewGame}><RotateCcw size={16} /> Новая карьера</button>
                 </div>
-                <p className="offline-save-note">{hasSavedGame ? 'Загрузка продолжит последнее сохранение.' : 'Сначала создай карьеру. После начала игры она будет сохраняться автоматически.'}</p>
+                <p className="offline-save-note">{hasSavedGame ? 'Продолжится карьера из слота ' + activeSaveSlot + '. Выбери другую ячейку выше, чтобы открыть другую карьеру.' : 'Новая карьера создаст сохранение только в выбранном слоте ' + activeSaveSlot + '. Две другие ячейки останутся нетронутыми.'}</p>
               </div>
             )}
           </section>
