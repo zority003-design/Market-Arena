@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(source, {
 const economy = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'))
 const {
   CLIENTS, HOUSING, ROOM_ITEMS, calculateDeal, getAvailableClients, getBackgroundModifier,
-  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality,
+  getDailyLeadIds, getDailyQuota, getFirstImpression, getOutfitModifier, getVideoQuality,
 } = economy
 
 test('career starts with a viable, known baseline', () => {
@@ -20,6 +20,12 @@ test('career starts with a viable, known baseline', () => {
   assert.equal(HOUSING[0].id, economy.STARTING_HOUSING_ID)
   assert.equal(HOUSING[0].dailyCost, 650)
   assert.equal(economy.DAILY_SALARY - HOUSING[0].dailyCost, 250)
+})
+
+test('daily sales quota uses one consistent, gradual progression', () => {
+  assert.deepEqual(getDailyQuota(1), { targetShares: 35, targetAmount: 12000 })
+  assert.deepEqual(getDailyQuota(16), { targetShares: 185, targetAmount: 72000 })
+  assert.deepEqual(getDailyQuota(0), { targetShares: 35, targetAmount: 12000 })
 })
 
 test('client unlocks respect both day and reputation gates', () => {
