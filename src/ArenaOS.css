@@ -20,3 +20,94 @@
 .arena-os-window.maximized{flex:1;min-width:0;min-height:0;width:auto;height:auto;margin:0}
 .arena-os-window.restored{flex:0 1 auto;width:min(1060px,calc(100% - 8px));height:min(720px,calc(100% - 8px));min-height:260px;align-self:center;margin:auto;resize:both;max-width:100%;max-height:100%}
 .arena-os-window.minimized{display:none}
+
+
+/* Professional Arena OS refresh: restrained graphite surfaces, clear hierarchy, one teal accent. */
+.arena-os-v2 {
+  color: #e8eef6;
+  background:
+    radial-gradient(ellipse at 78% 12%, rgba(53, 115, 146, .18), transparent 38%),
+    linear-gradient(135deg, #111b27 0%, #172534 52%, #101923 100%);
+}
+.arena-os-v2:before {
+  background: radial-gradient(ellipse at 55% 40%, rgba(83, 154, 166, .07), transparent 42%);
+}
+.arena-os-topbar {
+  background: rgba(13, 22, 32, .94);
+  border-bottom-color: rgba(180, 202, 222, .13);
+  backdrop-filter: blur(16px);
+}
+.arena-os-back, .arena-os-close {
+  border-color: rgba(195, 211, 228, .18);
+  background: rgba(255,255,255,.045);
+  color: #dce7f2;
+}
+.arena-os-back:hover, .arena-os-close:hover { background: rgba(255,255,255,.1); }
+.arena-os-mark {
+  color: #09251f;
+  background: linear-gradient(145deg, #8de3cb, #43b89b);
+  box-shadow: 0 5px 16px rgba(54, 179, 145, .15);
+}
+.arena-os-brand small, .arena-os-system-status { color: #a8bacb; }
+.arena-os-desktop { background: transparent; }
+.arena-os-desktop-icon { color: #e2ebf4; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.arena-os-desktop-icon:hover, .arena-os-desktop-icon.selected {
+  background: rgba(152, 190, 207, .09);
+  border-color: rgba(167, 207, 220, .2);
+}
+.arena-os-app-icon { background: linear-gradient(145deg,#5e9cb4,#32647e); }
+.arena-os-app-icon.calls { background: linear-gradient(145deg,#55c6a7,#267e78); }
+.arena-os-app-icon.market { background: linear-gradient(145deg,#e4bd78,#a87839); }
+.arena-os-app-icon.clients { background: linear-gradient(145deg,#9aabd1,#586d9c); }
+.arena-os-app-icon.wardrobe { background: linear-gradient(145deg,#c5a2b9,#86617d); }
+.arena-os-app-icon.equipment { background: linear-gradient(145deg,#9dbbd2,#527d9c); }
+.arena-os-app-icon.tasks { background: linear-gradient(145deg,#91c9a9,#477e61); }
+.arena-os-window {
+  border: 1px solid rgba(189, 209, 225, .2);
+  border-radius: 12px;
+  background: #edf2f6;
+  box-shadow: 0 24px 72px rgba(0,0,0,.32), 0 2px 8px rgba(0,0,0,.12);
+}
+.arena-os-window-title {
+  background: linear-gradient(#f9fbfd,#e8eef3);
+  border-bottom-color: #d0dbe4;
+  color: #25394b;
+}
+.arena-os-taskbar {
+  background: rgba(12, 20, 29, .96);
+  border-top-color: rgba(180, 202, 222, .13);
+}
+.arena-os-taskbar button:hover, .arena-os-taskbar button.active {
+  background: rgba(91, 183, 159, .14);
+  border-color: rgba(107, 208, 180, .22);
+}
+.arena-os-start { color: #80d9c0 !important; }
+.arena-os-primary {
+  border-color: #267c70;
+  background: linear-gradient(135deg,#287f73,#20665f);
+  box-shadow: 0 5px 12px rgba(28,105,94,.17);
+}
+.arena-os-secondary {
+  color: #285d59;
+  border-color: #c2d9d4;
+  background: #e8f2ef;
+}
+.arena-os-kicker { color: #397c73; }
+.arena-os-welcome h1, .arena-os-page-heading h1 { color: #172c3e; }
+.arena-os-welcome p, .arena-os-page-heading p { color: #5c6d7c; }
+.arena-os-stat-grid article, .arena-os-stock-card, .arena-os-quick-grid button,
+.arena-os-all-clients article, .arena-os-outfit-card, .arena-os-gear-grid article,
+.arena-os-task-list article {
+  border-color: #d7e0e7;
+  box-shadow: 0 4px 14px rgba(28, 48, 66, .045);
+}
+.arena-os-stat-grid svg, .arena-os-quick-grid button>svg { color: #367f78; }
+.arena-os-ticker { background: #e5f2ef; color: #276b63; }
+.arena-os-stock-price { color: #243f55; }
+.arena-os-pros { background: #e8f4ee; }
+.arena-os-cons { background: #f8eded; }
+.arena-os-taskbar-label { color: #dce7f0; }
+.arena-os-toast { border-color: #d4e2e8; }
+@media (max-width: 850px) {
+  .arena-os-v2 { background: linear-gradient(145deg,#111b27,#1a2c39 55%,#101923); }
+}
