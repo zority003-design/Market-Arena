@@ -80,8 +80,20 @@ test('room impression is bounded and ignores unknown item IDs', () => {
   assert.ok(sensitive)
   assert.equal(getFirstImpression('dorm', [], sensitive), -4)
   assert.equal(getFirstImpression('not-a-home', ['unknown-item'], CLIENTS[0]), -2)
-  assert.ok(getFirstImpression('premium-apartment', ROOM_ITEMS.map(i => i.id), CLIENTS[0]) <= 8)
+  assert.ok(getFirstImpression('premium-apartment', ROOM_ITEMS.map(i => i.id), CLIENTS[0]) <= 10)
   assert.ok(getFirstImpression('dorm', ROOM_ITEMS.map(i => i.id), CLIENTS[0]) >= -5)
+})
+
+test('housing comfort adds a modest first-impression bonus without overpowering negotiation', () => {
+  const client = CLIENTS[0]
+  const dorm = getFirstImpression('dorm', [], client)
+  const shared = getFirstImpression('shared-flat', [], client)
+  const studio = getFirstImpression('studio', [], client)
+  const premium = getFirstImpression('premium-apartment', [], client)
+  assert.ok(shared > dorm)
+  assert.ok(studio > shared)
+  assert.ok(premium > studio)
+  assert.ok(premium <= 8)
 })
 
 test('video quality has a hard cap and ignores unknown items', () => {
