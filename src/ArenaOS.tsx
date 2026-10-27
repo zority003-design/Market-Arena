@@ -1,5 +1,5 @@
 import './ArenaOS.css'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import {
   Activity, TrendingUp, Check, ChevronRight, Clock3, House, Laptop, Mic,
   Newspaper, PhoneCall, Search, ShieldCheck, ShoppingBag, Sparkles, Users,
@@ -13,13 +13,13 @@ type OutfitId = 'intern' | 'classic' | 'premium'
 type AppId = 'home' | 'calls' | 'market' | 'clients' | 'wardrobe' | 'equipment' | 'tasks'
 type Stock = { ticker: string; name: string; price: number; risk: 'Низкий' | 'Средний' | 'Высокий'; upside: string; downside: string; fit: string }
 type Props = {
-  cash: number; setCash: (v: number | ((p: number) => number)) => void
-  reputation: number; setReputation: (v: number | ((p: number) => number)) => void
-  xp: number; setXp: (v: number | ((p: number) => number)) => void
+  cash: number; setCash: Dispatch<SetStateAction<number>>
+  reputation: number; setReputation: Dispatch<SetStateAction<number>>
+  xp: number; setXp: Dispatch<SetStateAction<number>>
   day: number
   selectedOutfit: OutfitId; setSelectedOutfit: (v: OutfitId) => void
-  ownedOutfits: OutfitId[]; setOwnedOutfits: (v: OutfitId[] | ((p: OutfitId[]) => OutfitId[])) => void
-  ownedItems: string[]; setOwnedItems: (v: string[] | ((p: string[]) => string[])) => void
+  ownedOutfits: OutfitId[]; setOwnedOutfits: Dispatch<SetStateAction<OutfitId[]>>
+  ownedItems: string[]; setOwnedItems: Dispatch<SetStateAction<string[]>>
   onClose: () => void
   initialApp?: AppId
 }
