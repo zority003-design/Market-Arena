@@ -114,3 +114,15 @@
 
 .pixel-client-avatar { image-rendering:pixelated; }
 .arena-os-video-tile>svg.pixel-client-avatar,.arena-os-preview-face>svg.pixel-client-avatar { image-rendering:pixelated; }
+
+
+/* Windows 11-like Start menu. */
+.arena-os-start-menu{position:absolute;left:14px;bottom:58px;z-index:12;width:min(390px,calc(100% - 28px));padding:16px;border:1px solid rgba(207,222,232,.85);border-radius:12px;background:rgba(239,245,248,.97);box-shadow:0 20px 60px rgba(0,0,0,.34);backdrop-filter:blur(18px);color:#253b4b}
+.arena-os-start-menu-heading{display:flex;align-items:center;gap:10px;padding:4px 4px 14px;border-bottom:1px solid #d8e2e8}
+.arena-os-start-menu-heading>div{display:grid;gap:3px}.arena-os-start-menu-heading b{font-size:13px}.arena-os-start-menu-heading small{font-size:10px;color:#758691}
+.arena-os-start-menu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:12px 0}
+.arena-os-start-menu-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:78px;border:1px solid transparent;border-radius:7px;background:transparent;color:#334b5a;font-size:10px;cursor:pointer}
+.arena-os-start-menu-grid button:hover{background:#e0ebf0;border-color:#cfdee5}
+.arena-os-start-menu-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:11px;border-top:1px solid #d8e2e8;font-size:10px;color:#617481}
+.arena-os-start-menu-footer button{padding:7px 9px;border:1px solid #cfdae1;border-radius:5px;background:#e8eef2;color:#334c5a;font-size:10px;cursor:pointer}
+.arena-os-start.active{background:rgba(91,183,159,.2);}
