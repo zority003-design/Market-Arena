@@ -16,6 +16,9 @@ type DailyMissionProps = {
   quotaAmount: number
   soldShares: number
   soldAmount: number
+  cash: number
+  reputation: number
+  housingId: string
   onOpenResearch?: () => void
 }
 
@@ -26,10 +29,23 @@ const MISSION_QUOTES = [
   '«План продаж — это не просьба. Это число, которое завтра будет смотреть на тебя с экрана начальника».',
 ]
 
-export default function DailyMissionPanel({ company, day, quotaShares, quotaAmount, soldShares, soldAmount, onOpenResearch }: DailyMissionProps) {
+export default function DailyMissionPanel({ company, day, quotaShares, quotaAmount, soldShares, soldAmount, cash, reputation, housingId, onOpenResearch }: DailyMissionProps) {
   const progress = Math.min(100, Math.round((soldShares / Math.max(1, quotaShares)) * 100))
   const remaining = Math.max(0, quotaShares - soldShares)
   const quote = MISSION_QUOTES[(day - 1) % MISSION_QUOTES.length]
+  const careerMilestone = reputation < 25
+    ? { title: 'Заработай доверие первых клиентов', detail: 'Говори о рисках честно и доведи репутацию минимум до 25.' }
+    : housingId === 'dorm'
+      ? { title: 'Переезжай из общежития', detail: 'Отложи 12 000 ₽ на комнату в общей квартире. Помни: жильё увеличит ежедневные расходы.' }
+      : reputation < 40
+        ? { title: 'Открой клиентов среднего уровня', detail: 'Подними репутацию до 40, чтобы перейти к более крупным сделкам.' }
+        : cash < 135000
+          ? { title: 'Накопи на хорошую квартиру', detail: 'Цель — 135 000 ₽. Не трать весь капитал на одежду: оборудование помогает переговорам.' }
+          : reputation < 65
+            ? { title: 'Стань брокером высокого уровня', detail: 'Доведи репутацию до 65 и удерживай стабильные результаты по плану.' }
+            : cash < 480000
+              ? { title: 'Собери капитал для премиального уровня', detail: 'Крупные клиенты ждут уверенности, но дорогой образ не заменяет цифры.' }
+              : { title: 'Следующая вершина — собственный офис', detail: 'Ты уже накопил серьёзный капитал. Дальнейшая карьерная цель — открыть собственную брокерскую фирму.' }
   return (
     <section className="daily-mission-panel" aria-label="Задание на рабочий день">
       <div className="daily-mission-topline">
@@ -63,6 +79,12 @@ export default function DailyMissionPanel({ company, day, quotaShares, quotaAmou
         <div><b>01</b><span><strong>Подготовься</strong><small>Запомни 2 сильных аргумента и 1 реальный риск</small></span></div>
         <div><b>02</b><span><strong>Установи контакт</strong><small>Пойми, чего клиент боится и что ему важно</small></span></div>
         <div><b>03</b><span><strong>Закрой сделку</strong><small>Отвечай по делу — пустые гарантии вредят репутации</small></span></div>
+      </div>
+      <div className="career-roadmap" aria-label="Долгосрочная цель карьеры">
+        <div className="career-roadmap-heading"><span>ДОЛГОСРОЧНАЯ ЦЕЛЬ</span><strong>Из маленькой комнаты — в собственный брокерский офис</strong></div>
+        <div className="career-roadmap-path"><span className={housingId === 'dorm' ? 'active' : 'complete'}>Комната</span><i>→</i><span className={housingId === 'shared-flat' ? 'active' : ['studio','city-apartment','premium-apartment'].includes(housingId) ? 'complete' : ''}>Отдельное жильё</span><i>→</i><span className={reputation >= 40 ? 'complete' : reputation >= 25 ? 'active' : ''}>Крупные клиенты</span><i>→</i><span className={cash >= 480000 && reputation >= 65 ? 'active' : ''}>Свой офис</span></div>
+        <div className="career-roadmap-next"><span>СЛЕДУЮЩИЙ РУБЕЖ</span><strong>{careerMilestone.title}</strong><p>{careerMilestone.detail}</p></div>
+        <small className="career-roadmap-note">Офис — финальная цель карьерной системы; покупка и управление офисом будут отдельной игровой механикой.</small>
       </div>
     </section>
   )
