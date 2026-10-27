@@ -418,3 +418,23 @@
 .arena-os-empire-goal{border-color:#b6dcd0;border-radius:13px;background:linear-gradient(135deg,#e8f8f2,#f7fbff);box-shadow:0 7px 22px rgba(23,101,81,.05)}
 @media(max-width:850px){.arena-os-staff-grid{grid-template-columns:1fr}.arena-os-staff-grid article{grid-template-columns:100px minmax(0,1fr)}.arena-os-staff-avatar{width:100px;height:145px}.arena-os-home-avatar{width:150px;height:190px}.arena-os-outfit-preview{height:190px}}
 @media(max-width:560px){.arena-os-home-avatar{width:90px;height:125px;border-radius:12px}.arena-os-home-avatar .broker-avatar-3d{height:100%}.arena-os-avatar-caption{font-size:6px}.arena-os-staff-grid article{grid-template-columns:82px minmax(0,1fr);padding:10px;gap:10px}.arena-os-staff-avatar{width:82px;height:124px}.arena-os-staff-copy p{font-size:10px}.arena-os-staff-summary{grid-template-columns:1fr}.arena-os-outfit-preview{height:190px}}
+
+
+/* Dialogue reliability: keep every message readable and every send action obvious. */
+.arena-os-dialogue-log{scroll-behavior:smooth;overflow-wrap:anywhere;overscroll-behavior:contain}
+.arena-os-chat-row{min-width:0;align-items:flex-end}
+.arena-os-chat-bubble{min-width:0;max-width:min(92%,720px);overflow-wrap:anywhere;word-break:normal}
+.arena-os-chat-bubble p{margin:0;color:#172b42!important;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65}
+.arena-os-chat-bubble.player-line{background:#dcecff!important;color:#142f4f!important}
+.arena-os-chat-bubble.player-line p{color:#142f4f!important}
+.arena-os-chat-bubble.system-line{background:#fff2ce!important;color:#493b1b!important}
+.arena-os-chat-bubble.system-line p{color:#493b1b!important}
+.arena-os-response-actions button{color:#183b60!important;background:#f5f9fd!important;border:1px solid #c8d9e7!important;text-align:left;white-space:normal;overflow-wrap:anywhere}
+.arena-os-response-actions button:focus-visible,.arena-os-free-text button:focus-visible,.arena-os-free-text textarea:focus-visible{outline:3px solid #65b8e8;outline-offset:2px}
+.arena-os-free-text{display:flex;gap:8px;align-items:stretch}
+.arena-os-free-text textarea{flex:1 1 100%;width:100%;min-width:0;box-sizing:border-box;color:#152c45!important;background:#fff!important;caret-color:#155f9e}
+.arena-os-free-text textarea::placeholder{color:#667b91!important;opacity:1}
+.arena-os-free-text button[type="submit"]{color:#fff!important;background:#176f62!important;border:1px solid #176f62!important;white-space:nowrap}
+.arena-os-free-text button[type="submit"]:disabled{color:#53677a!important;background:#e4eaf0!important;border-color:#c6d0da!important;cursor:not-allowed}
+.arena-os-window-content{overflow-wrap:anywhere}
+@media(max-width:560px){.arena-os-free-text button[type="submit"]{flex:1 1 auto}.arena-os-free-text .arena-os-mic-button{flex:1 1 auto}.arena-os-chat-bubble{max-width:100%}}
