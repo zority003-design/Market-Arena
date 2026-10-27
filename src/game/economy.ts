@@ -11,6 +11,10 @@ export type HousingOption = {
   id: string; name: string; price: number; dailyCost: number; firstImpression: number
   comfort: number; minDay: number; minReputation: number; description: string
 }
+export type BusinessUpgrade = {
+ id: string; name: string; price: number; minDay: number; minReputation: number
+ payoutCap: number; trustBonus: number; description: string; effect: string
+}
 export type RoomItem = {
   id: string; name: string; price: number; firstImpression: number; videoQuality: number
   suspicion: number; minDay: number; minLevel?: number; description: string
@@ -20,6 +24,15 @@ export const DAILY_SALARY = 1100
 export const STARTING_CASH = 22000
 export const STARTING_FIRM_CAPITAL = 25000
 export const STARTING_HOUSING_ID = 'dorm'
+export const BUSINESS_UPGRADES: BusinessUpgrade[] = [
+ { id:'lead-network', name:'Сеть рекомендаций', price:7500, minDay:2, minReputation:10, payoutCap:1500, trustBonus:0, description:'Покупаешь доступ к небольшому каталогу новых лидов и отраслевым знакомствам.', effect:'+1 дополнительный звонок в день и более ранний доступ к нескольким клиентам.' },
+ { id:'research-terminal', name:'Аналитический терминал', price:18000, minDay:5, minReputation:20, payoutCap:2300, trustBonus:2, description:'Сводки по компаниям, сравнительные таблицы и сценарии риска вместо презентаций на глаз.', effect:'До +2 к стартовому доверию и повышенный предел личного бонуса.' },
+ { id:'client-crm', name:'CRM и рекомендации', price:38000, minDay:8, minReputation:35, payoutCap:3300, trustBonus:1, description:'Напоминания, история сделок и повторные обращения не теряются в блокноте.', effect:'+1 дополнительный звонок в день и доступ к части клиентов раньше обычного.' },
+ { id:'partner-office', name:'Партнёрский стол', price:70000, minDay:12, minReputation:50, payoutCap:4500, trustBonus:3, description:'Первое серьёзное расширение бизнеса: стандарты переговоров, отчётность и рекомендации.', effect:'До +3 к стартовому доверию и максимальный предел бонуса среди улучшений.' },
+]
+export function getBusinessPayoutCap(ownedUpgradeIds: string[]): number {
+ return Math.max(900, ...BUSINESS_UPGRADES.filter(upgrade => ownedUpgradeIds.includes(upgrade.id)).map(upgrade => upgrade.payoutCap))
+}
 
 export const CLIENTS: ClientProfile[] = [
  { id:'alex-vorontsov', name:'Алексей Воронцов', initials:'АВ', age:34, profession:'Владелец небольшой студии дизайна', tier:0, budget:50000, ticket:12000, maxAllocation:.25, baseTrust:43, patience:74, experience:'Новичок', temperament:'Осторожный', goal:'Сохранить накопления и разобраться в инвестициях', quote:'«Хочу попробовать инвестировать, но мне уже обещали золотые горы. Чем вы отличаетесь?»', source:'Входящий звонок', minDay:1, minReputation:0, commissionRate:.03, bonusRate:.018, statusSensitive:false },
@@ -78,12 +91,14 @@ export function getOutfitModifier(outfit:'intern'|'classic'|'premium', client:Cl
  // Status-conscious clients notice polished clothing more, but everyone responds to a more professional appearance.
  return base+(client.statusSensitive && outfit!=='intern' ? 1 : 0)
 }
-export function calculateDeal(client:ClientProfile, trust:number, previousDeals=0, previouslyInvested=0) {
+export function calculateDeal(client:ClientProfile, trust:number, previousDeals=0, previouslyInvested=0, businessTier=0) {
  const remainingBudget=Math.max(0,client.budget-previouslyInvested)
  const allocationRate=Math.min(.45,client.maxAllocation+previousDeals*.05)
  const ticket=Math.min(Math.round(client.ticket*(1+previousDeals*.25)),Math.floor(client.budget*allocationRate),remainingBudget)
  const qualityMultiplier=trust>=75?1.25:trust>=62?1.1:1
- return {ticket,firmRevenue:Math.round(ticket*client.commissionRate),playerBonus:Math.round(ticket*client.bonusRate*qualityMultiplier),qualityMultiplier}
+ const bonusCaps=[900,1500,2300,3300,4500]
+ const playerBonus=Math.min(bonusCaps[Math.min(bonusCaps.length-1,Math.max(0,businessTier))],Math.round(ticket*client.bonusRate*qualityMultiplier))
+ return {ticket,firmRevenue:Math.round(ticket*client.commissionRate),playerBonus,qualityMultiplier}
 }
 export function getBackgroundModifier(mode:VideoBackground, ownedItems:string[], client:ClientProfile):number {
  if(mode==='real') return 0
