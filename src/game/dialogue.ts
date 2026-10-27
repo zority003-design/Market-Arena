@@ -1,7 +1,7 @@
 import type { ClientProfile } from './economy'
 type DialogueStock = { name: string; ticker: string; upside: string; downside: string; catalyst: string; redFlags: string }
 
-export function evaluateFreeReply(text: string, client: ClientProfile, stock: DialogueStock | null) {
+export function evaluateFreeReply(text: string, client: ClientProfile, stock: DialogueStock | null, turn = 0) {
   const s = text.toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim()
   const temperament = client.temperament.toLowerCase()
   const hasRisk = /риск|долг|убыт|потер|волат|гарант|паден|комисс|минус|сниз|сценари|ликвид|ограничен|нестабил|непредсказ|резерв|налог|просад|не обещ|не гарант|конкурен|расход|возврат|санкц|зависим|дефицит/.test(s)
@@ -96,6 +96,17 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
     if ((temperament.includes('импульсив') || temperament.includes('нетерпелив')) && hasRisk && hasPlan) delta += 2
     if ((temperament.includes('дотош') || temperament.includes('аналит') || temperament.includes('требователь')) && !concrete) delta -= 2
     if (temperament.includes('статус') && hasPlan && hasRisk) delta += 1
+  }
+  const angle = [
+    ' На ближайшем отчёте сверю тезис с ' + (stock ? stock.catalyst.toLowerCase() : 'проверяемыми финансовыми показателями') + '.',
+    ' Если проявится ' + (stock ? stock.redFlags.toLowerCase() : 'ухудшение денежного потока') + ', я пересмотрю рекомендацию, а не буду усреднять убыток.',
+    ' С учётом вашей цели — «' + client.goal.toLowerCase() + '» — размер позиции должен соответствовать цене ошибки.',
+    ' Сравню идею с альтернативой и заранее назову факт, который заставит меня передумать.',
+    ' И да: график в форме ракеты не считается доказательством, даже если дизайнер очень старался.',
+  ]
+  if (s && !promises && !nonsense) {
+    const extra = angle[Math.abs(turn) % angle.length]
+    reply = reply.endsWith('»') ? reply.slice(0, -1) + extra + '»' : reply + extra
   }
   return { delta: Math.max(-18, Math.min(14, delta)), reply }
 }
