@@ -20,6 +20,10 @@ export const DAILY_SALARY = 1200
 export const STARTING_CASH = 18500
 export const STARTING_FIRM_CAPITAL = 25000
 export const STARTING_HOUSING_ID = 'dorm'
+export function getDailyQuota(day:number):{targetShares:number;targetAmount:number} {
+ const safeDay=Math.max(1,Math.floor(day))
+ return { targetShares:20+safeDay*8, targetAmount:8000+safeDay*6000 }
+}
 
 export type DailyFinanceResult = {
  cash: number
