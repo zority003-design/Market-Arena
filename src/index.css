@@ -3097,3 +3097,57 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .desktop-os-widget .desktop-os-control-actions button { flex:1 1 auto; justify-content:center; margin:0; padding:8px 9px; border:1px solid rgba(119,220,187,.22); border-radius:7px; background:rgba(76,181,145,.09); color:#c4f6e2; font-size:11px; }
 .desktop-os-widget .desktop-os-control-actions button:hover { background:rgba(76,181,145,.2); border-color:rgba(119,220,187,.44); }
 .desktop-os-control-widget input:focus-visible { outline:2px solid #9de8c4; outline-offset:3px; }
+
+
+/* Side-by-side master controls: music and SFX are easy to find and compare. */
+.settings-volume-pair { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:stretch; margin:4px 0 10px; }
+.settings-volume-pair .settings-volume-row { min-width:0; margin:0; padding:13px 14px; border:1px solid rgba(143,177,190,.15); border-radius:12px; background:rgba(13,25,34,.48); }
+.settings-volume-pair .settings-volume-row label { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.settings-volume-pair .settings-volume-row label span { min-width:0; }
+.settings-volume-pair .settings-volume-row output { flex:0 0 auto; color:#7ce2bd; font-variant-numeric:tabular-nums; font-weight:750; }
+.settings-volume-pair .settings-range { width:100%; margin-top:12px; accent-color:#58dcae; }
+@media(max-width:560px) { .settings-volume-pair { grid-template-columns:1fr; gap:8px; } }
+
+/* ARENA OS 1.0 — cohesive desktop shell, clear task guidance and Windows-like workspace. */
+.desktop-page.desktop-rebuilt { background:radial-gradient(ellipse at 70% 0%,rgba(44,116,106,.2),transparent 44%),linear-gradient(145deg,#101c27 0%,#0a121b 58%,#13232d 100%); color:#eaf4f2; }
+.desktop-rebuilt-topline { position:relative; z-index:2; padding:18px 22px 14px; border-bottom:1px solid rgba(160,206,210,.13); background:rgba(6,13,20,.55); }
+.desktop-rebuilt-mark { display:grid; place-items:center; border-radius:11px; background:linear-gradient(145deg,#5ce0b1,#278e78); color:#08241e; box-shadow:0 7px 20px rgba(36,194,145,.22); }
+.desktop-rebuilt-session { border:1px solid rgba(108,224,184,.18); border-radius:999px; padding:7px 11px; background:rgba(56,154,121,.08); }
+.desktop-os-welcome { position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px 24px; align-items:center; margin:18px 22px 8px; padding:22px 24px 18px; border:1px solid rgba(107,220,181,.27); border-radius:17px; overflow:hidden; background:linear-gradient(115deg,rgba(26,67,61,.95),rgba(19,39,48,.96) 62%,rgba(22,33,43,.98)); box-shadow:0 16px 36px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.035); }
+.desktop-os-welcome:before { content:""; position:absolute; width:210px; height:210px; right:20%; top:-155px; border:1px solid rgba(129,239,202,.15); border-radius:50%; box-shadow:0 0 0 28px rgba(129,239,202,.025),0 0 0 56px rgba(129,239,202,.018); pointer-events:none; }
+.desktop-os-welcome-copy { min-width:0; position:relative; z-index:1; }
+.desktop-os-welcome-kicker { color:#75e5bb; font-size:10px; font-weight:850; letter-spacing:.16em; }
+.desktop-os-welcome h2 { margin:7px 0 5px; color:#f4faf8; font-size:clamp(20px,2vw,28px); letter-spacing:-.035em; line-height:1.12; }
+.desktop-os-welcome p { max-width:700px; margin:0; color:#bdd0ce; font-size:12px; line-height:1.65; }
+.desktop-os-primary-action { position:relative; z-index:1; display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border:1px solid rgba(182,255,222,.45); border-radius:10px; background:linear-gradient(135deg,#6de6b8,#36b98e); color:#08251d; font-weight:850; font-size:12px; box-shadow:0 8px 22px rgba(44,197,143,.17); white-space:nowrap; transition:transform .16s ease,filter .16s ease; }
+.desktop-os-primary-action:hover { transform:translateY(-1px); filter:brightness(1.06); }
+.desktop-os-step-track { grid-column:1/-1; display:flex; align-items:center; gap:10px; padding-top:13px; border-top:1px solid rgba(191,225,219,.1); }
+.desktop-os-step-track span { display:inline-flex; align-items:center; gap:7px; color:#809b9b; font-size:10px; font-weight:750; white-space:nowrap; }
+.desktop-os-step-track span b { display:grid; place-items:center; width:21px; height:21px; border:1px solid rgba(159,190,190,.25); border-radius:50%; color:#a9c1bf; font-size:10px; }
+.desktop-os-step-track span.current { color:#c9f9e4; }
+.desktop-os-step-track span.current b { border-color:#60dcb1; background:rgba(70,202,153,.15); color:#8df1c9; }
+.desktop-os-step-track span.complete { color:#80e5ba; }
+.desktop-os-step-track span.complete b { border-color:rgba(90,222,169,.5); background:#286c55; color:#e6fff3; }
+.desktop-os-step-track i { height:1px; flex:1 1 28px; max-width:90px; background:rgba(149,189,184,.18); }
+.desktop-rebuilt-workspace { padding-top:10px; }
+.desktop-rebuilt-shortcuts { gap:10px; }
+.desktop-rebuilt-shortcuts > button { min-height:100px; padding:13px 9px; border:1px solid rgba(163,198,209,.13); border-radius:12px; background:linear-gradient(145deg,rgba(27,44,57,.86),rgba(15,27,37,.86)); box-shadow:0 6px 15px rgba(0,0,0,.12); transition:transform .16s ease,border-color .16s ease,background .16s ease; }
+.desktop-rebuilt-shortcuts > button:hover { transform:translateY(-2px); border-color:rgba(105,226,185,.45); background:linear-gradient(145deg,rgba(36,71,76,.96),rgba(16,34,43,.96)); }
+.desktop-shortcut-icon { border-radius:10px; box-shadow:inset 0 1px rgba(255,255,255,.15),0 5px 14px rgba(0,0,0,.16); }
+.desktop-rebuilt-shortcuts > button strong { margin-top:9px; color:#e8f3f2; font-size:12px; }
+.desktop-rebuilt-shortcuts > button small { color:#7f9a9e; font-size:10px; }
+.desktop-os-widget { border:1px solid rgba(158,195,206,.13); border-radius:13px; background:linear-gradient(145deg,rgba(23,39,51,.94),rgba(12,24,34,.96)); box-shadow:0 9px 20px rgba(0,0,0,.13),inset 0 1px rgba(255,255,255,.025); }
+.desktop-os-widget-label { color:#8ca9ae; letter-spacing:.12em; }
+.desktop-os-widget > strong { color:#f0f8f6; }
+.desktop-os-widget button { border:1px solid rgba(118,205,177,.2); border-radius:8px; background:rgba(50,135,108,.1); color:#bcebd9; }
+.desktop-os-widget button:hover { background:rgba(55,164,126,.2); border-color:rgba(118,231,190,.4); }
+.desktop-rebuilt-footer { border-top:1px solid rgba(155,191,201,.12); background:rgba(5,13,20,.5); }
+.os-taskbar { border-top:1px solid rgba(142,184,194,.18); background:rgba(8,17,26,.94); backdrop-filter:blur(18px); }
+.taskbar-start { border:1px solid rgba(123,203,194,.12); border-radius:8px; background:rgba(47,87,93,.18); }
+.taskbar-start:hover,.taskbar-start.active { background:rgba(69,169,142,.19); border-color:rgba(103,224,181,.28); }
+.start-windows-mark { color:#78e0c2; }
+.os-taskbar-app { border-radius:7px; }
+.os-taskbar-app:hover,.os-taskbar-app.minimized { background:rgba(76,146,146,.14); }
+.hud-pause-button,.os-pause-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+.hud-pause-button > svg,.os-pause-button > svg { flex:none; stroke-linecap:round; }
+@media(max-width:760px) { .desktop-os-welcome { grid-template-columns:1fr; margin:12px 12px 6px; padding:18px 16px; } .desktop-os-primary-action { justify-self:start; } .desktop-os-step-track { gap:5px; } .desktop-os-step-track span { font-size:9px; } .desktop-rebuilt-topline { padding:14px 12px; } }
