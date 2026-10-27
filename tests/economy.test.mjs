@@ -11,11 +11,12 @@ const compiled = ts.transpileModule(source, {
 const economy = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'))
 const {
   CLIENTS, HOUSING, ROOM_ITEMS, calculateDeal, getAvailableClients, getBackgroundModifier,
-  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, BUSINESS_ASSETS, getBusinessDailyNetIncome, BROKER_HIRES, getStaffDailyNetIncome,
+  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, STOCK_PROFILES, getClientStockFit, getClientTrustRequirement, BUSINESS_ASSETS, getBusinessDailyNetIncome, BROKER_HIRES, getStaffDailyNetIncome,
 } = economy
 
 test('career starts with a viable, known baseline', () => {
-  assert.equal(economy.STARTING_CASH, 22000)
+  assert.equal(economy.STARTING_CASH, 6500)
+  assert.ok(economy.STARTING_CASH < BROKER_HIRES[0].price, 'a new career cannot hire staff immediately')
   assert.equal(economy.STARTING_FIRM_CAPITAL, 25000)
   assert.equal(economy.STARTING_HOUSING_ID, 'studio')
   assert.equal(HOUSING.find(home => home.id === economy.STARTING_HOUSING_ID)?.id, 'studio')
@@ -39,6 +40,27 @@ test('client unlocks respect both day and reputation gates', () => {
   assert.ok(getAvailableClients(5, 25).some(c => c.id === 'igor-melnikov'))
   assert.ok(!getAvailableClients(15, 70).some(c => c.id === 'diana-volkova'))
   assert.ok(getAvailableClients(16, 70).some(c => c.id === 'diana-volkova'))
+})
+
+test('every client has an explicit trust threshold and at least one suitable stock', () => {
+  for (const client of CLIENTS) {
+    const required = getClientTrustRequirement(client)
+    assert.ok(required >= 48 && required <= 76, client.id + ' trust threshold')
+    assert.ok(Object.keys(STOCK_PROFILES).some(ticker => getClientStockFit(client.id, ticker).suitable), client.id + ' must have a viable product')
+  }
+  assert.equal(getClientTrustRequirement(CLIENTS.find(c => c.id === 'diana-volkova')), 76)
+  assert.equal(getClientStockFit('alex-vorontsov', 'KOTL').suitable, true)
+  assert.equal(getClientStockFit('boris-zhukov', 'TAPK').suitable, false)
+  assert.equal(getClientStockFit('alina-fedorova', 'TAPK').suitable, true)
+})
+
+test('purchasable desk is a real work item with first-impression and call-quality effects', () => {
+  const desk = ROOM_ITEMS.find(item => item.id === 'partner-desk')
+  assert.ok(desk)
+  assert.equal(desk.category, 'work')
+  assert.equal(desk.price, 9500)
+  assert.ok(desk.firstImpression > 0)
+  assert.ok(desk.videoQuality > 0)
 })
 
 test('deal amount never exceeds remaining client budget or allocation cap', () => {
