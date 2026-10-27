@@ -13,7 +13,7 @@ import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
