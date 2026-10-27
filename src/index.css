@@ -1976,7 +1976,7 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .os-start-search input::placeholder { color:#809d90; opacity:1; }
 .os-start-empty { padding:22px 8px; color:#8ca99a; font-size:11px; text-align:center; }
 
-.room-scene-root { position: absolute; inset: 0; width: 100%; height: 100%; }
+.room-scene-root { position: absolute; inset: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 52% 28%, #334956 0%, #1d2d37 50%, #111a22 100%); }
 .room-scene-root > canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .room-touch-controls { display: block; position: absolute; z-index: 12; left: max(18px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom)); width: 154px; pointer-events: none; user-select: none; }
 .room-touch-dpad { display: flex; flex-direction: column; align-items: center; gap: 5px; }
