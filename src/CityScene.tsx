@@ -226,6 +226,10 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     <DistantBlock position={[-4.2, 0, -21.4]} size={[6.1, 8.4, 3.1]} color={night ? '#263947' : '#acb8b5'} />
     <DistantBlock position={[4.2, 0, -21.8]} size={[7.2, 14.2, 3.8]} color={night ? '#1f3340' : '#87999d'} />
     <DistantBlock position={[12.1, 0, -20.1]} size={[7.0, 10.5, 3.2]} color={night ? '#2a3c48' : '#a4b0ad'} />
+    {/* Near and mid-distance blocks give the window a street-level view, not a flat skyline. */}
+    <WindowBuilding x={-5.4} z={-2.4} width={3.1} depth={2.6} height={5.2} color={night ? '#394b53' : '#a0aaa5'} night={night} />
+    <WindowBuilding x={-1.5} z={-4.2} width={2.4} depth={2.2} height={7.4} color={night ? '#2c404d' : '#7f9298'} night={night} />
+    <WindowBuilding x={3.2} z={-3.3} width={3.3} depth={2.5} height={6.2} color={night ? '#334653' : '#8e9f9e'} night={night} />
     {/* Ground plane, sidewalk, road markings and planted strips. */}
     <Block position={[0, -.12, 1.4]} size={[25, .22, 12]} color={rainy ? '#586363' : '#747c75'} roughness={.98} />
     <Block position={[0, -.005, 3.25]} size={[25, .08, 2.7]} color={rainy ? '#343e43' : '#3e484b'} roughness={.96} />
