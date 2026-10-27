@@ -23,10 +23,14 @@ function CapsuleLimb({ start, end, radius, color }: { start: [number, number, nu
   const direction = new THREE.Vector3().subVectors(b, a)
   const midpoint = new THREE.Vector3().addVectors(a, b).multiplyScalar(0.5)
   const ref = useRef<THREE.Mesh>(null)
-  return <mesh ref={ref} position={midpoint.toArray()} quaternion={new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize())} castShadow>
-    <cylinderGeometry args={[radius * 0.84, radius, direction.length(), 12]} />
-    <meshStandardMaterial color={color} roughness={0.62} />
-  </mesh>
+  return <group>
+    <mesh ref={ref} position={midpoint.toArray()} quaternion={new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize())} castShadow>
+      <cylinderGeometry args={[radius * 0.9, radius, direction.length(), 16, 1]} />
+      <meshStandardMaterial color={color} roughness={0.62} />
+    </mesh>
+    <mesh position={a.toArray()} castShadow><sphereGeometry args={[radius, 16, 12]}/><meshStandardMaterial color={color} roughness={0.62}/></mesh>
+    <mesh position={b.toArray()} castShadow><sphereGeometry args={[radius, 16, 12]}/><meshStandardMaterial color={color} roughness={0.62}/></mesh>
+  </group>
 }
 
 function BrokerModel({ identity, outfit }: { identity: string; outfit: string }) {
@@ -103,7 +107,7 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
 
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
-    <Canvas camera={{ position: [0, 0.22, 7.1], fov: 26, near: 0.1, far: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+    <Canvas camera={{ position: [0, 0.22, 6.6], fov: 28, near: 0.1, far: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
       <color attach="background" args={['#e9f0f7']} />
       <ambientLight intensity={1.55} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.5]} />
