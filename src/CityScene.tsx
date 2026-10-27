@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Text } from '@react-three/drei'
 import * as THREE from 'three'
+import { playSound } from './audio'
 
 type LocationId = 'office' | 'exchange' | 'cafe' | 'newsstand'
 type CitySceneProps = {
@@ -115,27 +116,48 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     <ambientLight intensity={night ? 0.34 : 1.05} />
     <hemisphereLight args={[night ? '#8298bd' : '#e1eff2', '#4a5548', night ? 0.45 : 1.25]} />
     <directionalLight position={[-12, 18, 8]} intensity={night ? 0.55 : 2.1} color={evening ? '#f0d1a6' : '#fff2dc'} castShadow shadow-mapSize={[2048, 2048]} />
-    <Block position={[0, -0.22, -4]} size={[48, 0.4, 44]} color="#59625d" />
-    <Block position={[0, -0.01, -4]} size={[8.5, 0.08, 40]} color="#343e43" roughness={0.98} />
-    <Block position={[-6.1, 0.015, -4]} size={[3.6, 0.12, 40]} color="#8b9085" />
-    <Block position={[6.1, 0.015, -4]} size={[3.6, 0.12, 40]} color="#8b9085" />
-    <Block position={[0, 0.035, -4]} size={[0.13, 0.02, 40]} color="#d9c9a3" />
-    {Array.from({ length: 10 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, 13 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
-    <Block position={[-6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
-    <Block position={[6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
-    {/* Modular sidewalk slabs, curbs, crosswalk and drain details break up the toy-like flat ground. */}
-    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
-    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {/* The street ends before the house. Keep the front yard pedestrian-only so asphalt never cuts through the building. */}
+    <Block position={[0, -0.22, -12]} size={[48, 0.4, 24]} color="#59625d" />
+    <Block position={[0, -0.01, -12]} size={[8.5, 0.08, 24]} color="#343e43" roughness={0.98} />
+    <Block position={[-6.1, 0.015, -12]} size={[3.6, 0.12, 24]} color="#8b9085" />
+    <Block position={[6.1, 0.015, -12]} size={[3.6, 0.12, 24]} color="#8b9085" />
+    <Block position={[0, 0.035, -12]} size={[0.13, 0.02, 24]} color="#d9c9a3" />
+    {Array.from({ length: 7 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, -1 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
+    <Block position={[-6.2, 0.06, -12]} size={[0.08, 0.03, 24]} color="#b8b8a5" />
+    <Block position={[6.2, 0.06, -12]} size={[0.08, 0.03, 24]} color="#b8b8a5" />
+    {/* Sidewalk tiles, curbs and drain stay on the street side of the front yard. */}
+    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, -1.5 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, -1.5 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, -2.2 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, -2.2 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
     {Array.from({ length: 5 }, (_, i) => <RoadDetail key={'crosswalk-' + i} position={[-2.2 + i * 1.1, 0.052, -1.2]} size={[0.64, 0.025, 2.8]} color="#d3d1c4" />)}
-    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, 0.82]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
+    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, -1.4]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
 
+    {/* A small private front garden separates the house from the public street. */}
+    <Block position={[0, -0.035, 1.55]} size={[11, 0.08, 2.9]} color="#60775d" roughness={1} />
+    <Block position={[0, 0.012, 2.22]} size={[1.35, 0.045, 1.55]} color="#a7a69a" roughness={0.98} />
+    {[-0.43, 0, 0.43].map((x) => <Block key={'path-seam-' + x} position={[x, 0.038, 2.22]} size={[0.025, 0.006, 1.45]} color="#888d83" />)}
     {/* The player's small home is the same landmark that anchors the entrance back into the interior. */}
     <group position={[0, 0, 5.2]}>
       <Block position={[0, 1.65, 0]} size={[6.2, 3.3, 4.4]} color="#c0b29a" />
-      <Block position={[0, 3.36, 0]} size={[6.45, 0.22, 4.65]} color="#554b43" />
-      <Block position={[0, 3.7, 0]} size={[6.7, 0.52, 4.9]} color="#3c4548" />
+      {/* A clearly pitched, timber-edged roof; two sloping panels replace the old flat slab. */}
+      <mesh position={[-1.62, 4.13, 0]} rotation={[0, 0, 0.39]} castShadow receiveShadow>
+        <boxGeometry args={[3.72, 0.24, 5.18]} />
+        <meshStandardMaterial color="#55463b" roughness={0.88} />
+      </mesh>
+      <mesh position={[1.62, 4.13, 0]} rotation={[0, 0, -0.39]} castShadow receiveShadow>
+        <boxGeometry args={[3.72, 0.24, 5.18]} />
+        <meshStandardMaterial color="#55463b" roughness={0.88} />
+      </mesh>
+      <Block position={[0, 4.83, 0]} size={[0.22, 0.22, 5.24]} color="#3c3430" roughness={0.9} />
+      <Block position={[0, 3.52, -2.31]} size={[6.45, 0.12, 0.16]} color="#6b5544" roughness={0.9} />
+      <Block position={[0, 3.52, 2.31]} size={[6.45, 0.12, 0.16]} color="#6b5544" roughness={0.9} />
+      {/* Rear facade: the house has its own finished wall, not the distant map barrier. */}
+      <Block position={[0, 1.65, 2.22]} size={[6.18, 3.28, 0.12]} color="#b7a991" roughness={0.9} />
+      <Block position={[-1.72, 2.02, 2.30]} size={[0.84, 0.94, 0.06]} color="#9ec1c9" roughness={0.25} metalness={0.05} />
+      <Block position={[1.72, 2.02, 2.30]} size={[0.84, 0.94, 0.06]} color="#9ec1c9" roughness={0.25} metalness={0.05} />
+      <Block position={[0, 0.19, 2.31]} size={[6.22, 0.18, 0.08]} color="#55483e" />
+
       <Block position={[0, 0.95, -2.23]} size={[1.25, 1.95, 0.13]} color="#3b3029" />
       <Block position={[0, 1.04, -2.31]} size={[0.12, 2.05, 0.08]} color="#d0b78c" />
       <Block position={[-1.72, 2.0, -2.25]} size={[0.82, 0.92, 0.1]} color="#a9cbd2" roughness={0.22} />
@@ -186,23 +208,6 @@ function WindowBuilding({ x, z, width, depth, height, color, night }: { x: numbe
   </group>
 }
 
-function WindowCar({ index }: { index: number }) {
-  const car = useRef<THREE.Group>(null)
-  useFrame(({ clock }) => {
-    if (!car.current) return
-    const direction = index % 2 === 0 ? 1 : -1
-    const travel = clock.elapsedTime * direction * .72 + index * 4.8 - 10
-    car.current.position.x = ((travel + 12) % 24 + 24) % 24 - 12
-  })
-  return <group ref={car} position={[0, .13, index % 2 ? 2.65 : 3.82]}>
-    <Block position={[0, .18, 0]} size={[1.28, .34, .62]} color={['#6b7779','#8a5b4d','#435c61','#b6a67e','#42514b'][index]} roughness={.55} metalness={.18} />
-    <Block position={[0, .4, -.035]} size={[.72, .24, .48]} color="#6c8b92" roughness={.28} metalness={.08} />
-    <Block position={[-.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
-    <Block position={[.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
-    {[-1,1].map(side => <mesh key={side} position={[side * .38, -.015, .31]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.12,.12,.06,14]} /><meshStandardMaterial color="#20272a" roughness={.85} /></mesh>)}
-  </group>
-}
-
 function WindowRain() {
   const rain = useRef<THREE.Group>(null)
   useFrame(({ clock }) => {
@@ -219,6 +224,10 @@ function WindowRain() {
 export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: { night: boolean; wall?: 'left' | 'back'; gameMinutes?: number }) {
   const position: [number, number, number] = wall === 'back' ? [0.72, 0.16, -6.55] : [-5.72, 0.38, -1.15]
   const rotation: [number, number, number] = wall === 'back' ? [0, 0, 0] : [0, Math.PI / 2, 0]
+  const cloudMotion = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (cloudMotion.current) cloudMotion.current.position.x = Math.sin(clock.elapsedTime * 0.025) * 0.65
+  })
   const weather = Math.floor((gameMinutes + 360) / 180) % 4
   const rainy = weather === 2
   const overcast = weather === 1 || rainy
@@ -238,10 +247,12 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
       <mesh position={[7.8, 8.2, -16.65]}><sphereGeometry args={[.56, 20, 16]} /><meshBasicMaterial color="#d9e3df" /></mesh>
       {Array.from({ length: 18 }, (_, i) => <mesh key={'star-' + i} position={[-10 + (i * 31 % 190) / 10, 5.2 + (i * 17 % 47) / 10, -16.6]}><sphereGeometry args={[.025 + (i % 3) * .008, 8, 6]} /><meshBasicMaterial color="#e5eee8" transparent opacity={.65} /></mesh>)}
     </group>}
+    <group ref={cloudMotion}>
     {[-7, -1.5, 4.2, 9.2].map((x, i) => <group key={'cloud-' + i} position={[x, 6.4 + (i % 2) * 1.1, -15.7 - (i % 2)]}>
       <mesh position={[-.5, 0, 0]} scale={[1.2, .34, .12]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
       <mesh position={[.12, .16, 0]} scale={[.7, .42, .13]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
     </group>)}
+    </group>
     {skyline.map((b, i) => <WindowBuilding key={'skyline-' + i} x={b.x} z={b.z} width={b.width} depth={1.7 + (i % 3) * .5} height={b.height} color={b.color} night={night} />)}
     <DistantBlock position={[-12.5, 0, -19.8]} size={[7.4, 12.5, 3.4]} color={night ? '#233543' : '#9aa8a8'} />
     <DistantBlock position={[-4.2, 0, -21.4]} size={[6.1, 8.4, 3.1]} color={night ? '#263947' : '#acb8b5'} />
@@ -251,20 +262,33 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     <WindowBuilding x={-5.4} z={-2.4} width={3.1} depth={2.6} height={5.2} color={night ? '#394b53' : '#a0aaa5'} night={night} />
     <WindowBuilding x={-1.5} z={-4.2} width={2.4} depth={2.2} height={7.4} color={night ? '#2c404d' : '#7f9298'} night={night} />
     <WindowBuilding x={3.2} z={-3.3} width={3.3} depth={2.5} height={6.2} color={night ? '#334653' : '#8e9f9e'} night={night} />
-    {/* Ground plane, sidewalk, road markings and planted strips. */}
-    <Block position={[0, -.12, 1.4]} size={[25, .22, 12]} color={rainy ? '#586363' : '#747c75'} roughness={.98} />
-    <Block position={[0, -.005, 3.25]} size={[25, .08, 2.7]} color={rainy ? '#343e43' : '#3e484b'} roughness={.96} />
-    <Block position={[0, .04, 1.82]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
-    <Block position={[0, .04, 4.67]} size={[25, .07, .42]} color="#b4b4a7" roughness={.94} />
-    {[-9,-6,-3,0,3,6,9].map((x) => <Block key={'road-dash-' + x} position={[x, .045, 3.25]} size={[1.05, .012, .055]} color="#d5d0b7" roughness={.85} />)}
-    {Array.from({ length: 5 }, (_, i) => <WindowCar key={'car-' + i} index={i} />)}
-    {[-9.2, -5.6, 5.4, 9.3].map((x, i) => <group key={'street-light-' + i} position={[x, 0, 1.55]}>
-      <Block position={[0, 1.65, 0]} size={[.055, 3.3, .055]} color="#343d40" metalness={.42} roughness={.55} />
-      <Block position={[.24, 3.22, 0]} size={[.5, .055, .08]} color="#d0d1c3" roughness={.35} />
-      {night && <pointLight position={[.23, 3.1, 0]} intensity={.38} distance={3} color="#f3d8a1" />}
-    </group>)}
+    {/* Green private garden outside the side window — no road/asphalt strip beside the wall. */}
+    <Block position={[0, -0.12, 1.4]} size={[25, 0.22, 12]} color={rainy ? '#3d5149' : '#536f4e'} roughness={1} />
+    {Array.from({ length: 18 }, (_, i) => (
+      <Block key={'garden-bed-' + i} position={[-11.2 + i * 1.32, -0.005, 1.0 + (i % 3) * 1.18]} size={[0.78, 0.045, 0.62]} color={i % 2 ? '#657b55' : '#748761'} roughness={1} />
+    ))}
+    {[-9.2, -5.6, 5.4, 9.3].map((x, i) => (
+      <group key={'courtyard-light-' + i} position={[x, 0, 1.55]}>
+        <Block position={[0, 1.25, 0]} size={[0.055, 2.5, 0.055]} color="#343d40" metalness={0.42} roughness={0.55} />
+        <Block position={[0.24, 2.45, 0]} size={[0.5, 0.055, 0.08]} color="#d0d1c3" roughness={0.35} />
+        {night && <pointLight position={[0.23, 2.35, 0]} intensity={0.3} distance={2.5} color="#f3d8a1" />}
+      </group>
+    ))}
+    {/* A few small shrubs make the window view read as a garden, not a street. */}
+    {[-8.2, -6.9, -3.8, 2.7, 6.7, 8.1].map((x, i) => (
+      <group key={'garden-shrub-' + i} position={[x, 0, -0.2 + (i % 2) * 1.25]}>
+        <Block position={[0, 0.3, 0]} size={[0.46, 0.6, 0.46]} color={rainy ? '#304c3d' : '#3e6847'} roughness={1} />
+        <Block position={[0.08, 0.62, 0.02]} size={[0.3, 0.28, 0.3]} color={rainy ? '#3b5b45' : '#587e4f'} roughness={1} />
+      </group>
+    ))}
+    {[-9.2, -5.6, 5.4, 9.3].map((x, i) => (
+      <group key={'courtyard-light-' + i} position={[x, 0, 1.55]}>
+        <Block position={[0, 1.25, 0]} size={[0.055, 2.5, 0.055]} color="#343d40" metalness={0.42} roughness={0.55} />
+        <Block position={[0.24, 2.45, 0]} size={[0.5, 0.055, 0.08]} color="#d0d1c3" roughness={0.35} />
+        {night && <pointLight position={[0.23, 2.35, 0]} intensity={0.3} distance={2.5} color="#f3d8a1" />}
+      </group>
+    ))}
     {rainy && <WindowRain />}
-    {rainy && <Block position={[0, .075, 3.25]} size={[25, .006, 2.7]} color="#627e88" transparent opacity={.13} roughness={.15} />}
   </group>
 }
 
@@ -345,6 +369,7 @@ function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySc
     if (keys.current.d) move.add(right.current)
     if (keys.current.a) move.sub(right.current)
     if (move.lengthSq()) {
+      playSound('step')
       move.normalize().multiplyScalar((keys.current.shift ? 5.2 : 3.2) * dt)
       const nx = THREE.MathUtils.clamp(camera.position.x + move.x, -13.5, 13.5)
       const nz = THREE.MathUtils.clamp(camera.position.z + move.z, -15.8, 9.3)

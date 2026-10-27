@@ -1,4 +1,4 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'sleep'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'sleep' | 'wardrobe' | 'keyboard'
 
 type AudioSettings = {
   enabled: boolean
@@ -8,6 +8,7 @@ type AudioSettings = {
   inRoom: boolean
   inCall: boolean
   paused: boolean
+  rainy: boolean
   volume: number
 }
 
@@ -19,7 +20,7 @@ let rainGain: GainNode | null = null
 let noiseSource: AudioBufferSourceNode | null = null
 let rainSource: AudioBufferSourceNode | null = null
 let settings: AudioSettings = {
-  enabled: true, ambience: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
+  enabled: true, ambience: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, rainy: false, volume: 0.72,
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
@@ -93,10 +94,9 @@ function updateAmbience() {
   const ctx = ensureAudio()
   if (!ctx || !master || !ambienceGain || !rainGain) return
   const audible = settings.enabled && settings.ambience && settings.inRoom && !settings.paused && !settings.inCall
-  const curtainFactor = settings.curtainsOpen ? 1 : 0.18
-  const nightFactor = 1
-  ambienceGain.gain.setTargetAtTime(audible ? curtainFactor * 0.12 * nightFactor : 0, ctx.currentTime, 0.8)
-  rainGain.gain.setTargetAtTime(0, ctx.currentTime, 0.8)
+  const curtainFactor = settings.inRoom && !settings.rainy ? (settings.curtainsOpen ? 1 : 0.18) : 1
+  ambienceGain.gain.setTargetAtTime(audible ? curtainFactor * (settings.rainy ? 0.075 : 0.12) : 0, ctx.currentTime, 0.8)
+  rainGain.gain.setTargetAtTime(audible && settings.rainy ? 0.075 : 0, ctx.currentTime, 0.8)
   master.gain.setTargetAtTime(settings.enabled ? 0.68 * Math.max(0, Math.min(1, settings.volume)) : 0, ctx.currentTime, 0.05)
 }
 
@@ -171,6 +171,13 @@ export function playSound(kind: SoundKind) {
       break
     case 'sleep':
       tone(330, 0.22, 'sine', 0.05, 220)
+      break
+    case 'wardrobe':
+      tone(145, 0.16, 'triangle', 0.055, 92)
+      window.setTimeout(() => tone(260, 0.075, 'triangle', 0.025, 210), 75)
+      break
+    case 'keyboard':
+      tone(760 + Math.random() * 180, 0.018, 'square', 0.012, 520)
       break
   }
 }
