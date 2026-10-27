@@ -19,5 +19,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
+      - name: Test economy rules
+        run: npm test
       - name: Build
         run: npm run build
