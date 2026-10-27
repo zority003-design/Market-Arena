@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(source, {
 const economy = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'))
 const {
   CLIENTS, HOUSING, ROOM_ITEMS, calculateDeal, getAvailableClients, getBackgroundModifier,
-  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality,
+  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, BUSINESS_ASSETS, getBusinessDailyNetIncome,
 } = economy
 
 test('career starts with a viable, known baseline', () => {
@@ -20,6 +20,17 @@ test('career starts with a viable, known baseline', () => {
   assert.equal(HOUSING[0].id, economy.STARTING_HOUSING_ID)
   // Housing is purchased once; dailyCost is legacy metadata and must not be charged during end-of-day processing.
   assert.equal(HOUSING[0].id, 'dorm')
+})
+
+test('brokerage empire assets create a clear staged income progression', () => {
+  assert.equal(getBusinessDailyNetIncome([]), 0)
+  assert.deepEqual(BUSINESS_ASSETS.map(asset => asset.dailyRevenue - asset.dailyCost), [1200, 3000, 9000, 27000])
+  assert.equal(getBusinessDailyNetIncome(['referral-desk']), 1200)
+  assert.equal(getBusinessDailyNetIncome(['referral-desk', 'broker-team']), 4200)
+  assert.equal(getBusinessDailyNetIncome(['referral-desk', 'broker-team', 'city-agency', 'national-network']), 40200)
+  assert.equal(BUSINESS_ASSETS[1].prerequisite, 'referral-desk')
+  assert.equal(BUSINESS_ASSETS[2].prerequisite, 'broker-team')
+  assert.equal(BUSINESS_ASSETS[3].prerequisite, 'city-agency')
 })
 
 test('client unlocks respect both day and reputation gates', () => {
