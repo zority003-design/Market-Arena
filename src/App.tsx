@@ -9,6 +9,7 @@ import {
 import RoomScene from './RoomScene'
 import CityScene from './CityScene'
 import ClientAvatar2D from './ClientAvatar2D'
+import BrokerAvatar3D from './BrokerAvatar3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
@@ -195,11 +196,11 @@ function getActiveSaveSlot() {
   try { const n = Number(localStorage.getItem('market-arena-active-save-slot') || '1'); return Number.isInteger(n) && n >= 1 && n <= 3 ? n : 1 } catch { return 1 }
 }
 function getSaveKey(slot = getActiveSaveSlot()) { return 'market-arena-career-slot-' + slot }
-function readSave() {
+function readSave(slot = getActiveSaveSlot()) {
   try {
-    const key = getSaveKey()
+    const key = getSaveKey(slot)
     let raw = localStorage.getItem(key)
-    if (!raw && getActiveSaveSlot() === 1) {
+    if (!raw && slot === 1) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
@@ -223,7 +224,7 @@ function getCareerLevel(xp: number) {
 function SelfCameraPreview({ enabled, background, outfit }: { enabled: boolean; background: VideoBackground; outfit: OutfitId }) {
   return <div className={'player-preview-tile in-game-self-view ' + background + ' outfit-' + outfit + (enabled ? '' : ' video-disabled')} aria-label="Игровой видеокадр персонажа">
     <div className="self-view-room"><span className="self-view-window" /><span className="self-view-lamp" /><span className="self-view-shelf" /></div>
-    {enabled ? <ClientAvatar2D tier={0} variant="player" outfit={outfit} className="self-view-pixel-avatar" /> : <div className="video-off-overlay"><Video size={16} /><span>ВИДЕО ВЫКЛЮЧЕНО</span></div>}
+    {enabled ? <BrokerAvatar3D identity="player" outfit={outfit} className="self-view-3d-avatar" /> : <div className="video-off-overlay"><Video size={16} /><span>ВИДЕО ВЫКЛЮЧЕНО</span></div>}
     <small>{enabled ? 'ТВОЙ ПЕРСОНАЖ' : 'ТОЛЬКО АУДИО'}</small>
   </div>
 }
@@ -325,7 +326,7 @@ function RoomItemIllustration({ id }: { id: string }) {
 }
 
 function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
-  return <PixelAvatar outfit={outfit} mode="full" className="wardrobe-pixel-avatar" />
+  return <BrokerAvatar3D identity="player" outfit={outfit} className="wardrobe-player-avatar" />
 }
 
 export default function App() {
@@ -370,7 +371,7 @@ export default function App() {
   useEffect(() => { try { localStorage.setItem('na-vse-kotirovki-outfit', selectedOutfit); localStorage.setItem('na-vse-kotirovki-owned-outfits', JSON.stringify(ownedOutfits)) } catch { /* Outfit preferences are optional if storage is unavailable. */ } }, [selectedOutfit, ownedOutfits])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
-  const [activeSaveSlot] = useState(() => getActiveSaveSlot())
+  const [activeSaveSlot, setActiveSaveSlot] = useState(() => getActiveSaveSlot())
   const saveSlotSummaries = [1, 2, 3].map((slot) => {
     try {
       const raw = localStorage.getItem(getSaveKey(slot)) || (slot === 1 ? localStorage.getItem('na-vse-kotirovki-save-v1') : null)
@@ -664,7 +665,66 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleNegotiationKeys)
   }, [panel, tab, appWindows, callStatus, displayedChoices, questionIndex, trust, patience, videoEnabled, videoBackground, ownedItems, activeClient, activeQuestions])
 
+  function loadSelectedSave() {
+    const data = readSave(activeSaveSlot)
+    if (!Object.keys(data).length) return
+    setCash(data.cash ?? STARTING_CASH)
+    setXp(data.xp ?? 0)
+    setFirmCapital(data.firmCapital ?? STARTING_FIRM_CAPITAL)
+    setDebt(data.debt ?? 0)
+    setReputation(data.reputation ?? 42)
+    setDay(data.day ?? 1)
+    setDeals(data.deals ?? 0)
+    setHousingId(data.housingId ?? STARTING_HOUSING_ID)
+    setBusinessUpgrades(data.businessUpgrades ?? [])
+    setOwnedBusinessAssets(data.ownedBusinessAssets ?? [])
+    setOwnedEmployees(data.ownedEmployees ?? [])
+    setCompanyName(data.companyName ?? '')
+    setOwnedItems(data.ownedItems ?? [])
+    setSelectedClientId(data.selectedClientId ?? 'alex-vorontsov')
+    setClientLastContactDay(data.clientLastContactDay ?? {})
+    setClientDealCounts(data.clientDealCounts ?? {})
+    setClientInvested(data.clientInvested ?? {})
+    setCallsToday(data.callsToday ?? 0)
+    setDailyLeadIds(data.dailyLeadIds ?? getDailyLeadIds(data.day ?? 1, data.reputation ?? 42, data.clientLastContactDay ?? {}, data.clientDealCounts ?? {}, data.clientInvested ?? {}))
+    setCallClientId(data.callClientId ?? 'alex-vorontsov')
+    setCallCompanyTicker(data.callCompanyTicker ?? '')
+    setVideoBackground(data.videoBackground ?? 'real')
+    setGameMinutes(data.gameMinutes ?? 7 * 60)
+    setDayEnded(data.dayEnded ?? false)
+    setDailySalesAmount(data.dailySalesAmount ?? 0)
+    setDailySalesShares(data.dailySalesShares ?? 0)
+    setCallStatus('idle')
+    setQuestionIndex(0)
+    setTrust(48)
+    setPatience(74)
+    setTimeLeft(75)
+    setFreeAnswer('')
+    setConversation([])
+    setLastResult('')
+    setNewsImpacts({})
+    setMarketReviewed(false)
+    setNewsReviewed(false)
+    setPanel('room')
+    setTab('overview')
+    setCareerStarted(true)
+    setHasSavedGame(true)
+    setMainMenu(false)
+    setOfflineMenu(false)
+    setMenuSettings(false)
+    setOnlineInfo(false)
+    setControlsVisible(true)
+    setCanInteractWithComputer(false)
+    setIntroActive(false)
+    setCareerSessionId(value => value + 1)
+    try { setIntroCallReceived(localStorage.getItem(`na-vse-kotirovki-intro-call-received-slot-${activeSaveSlot}`) === 'true') } catch { setIntroCallReceived(false) }
+  }
+
   function enterOfflineGame() {
+    if (hasSavedGame) {
+      loadSelectedSave()
+      return
+    }
     setCareerStarted(true)
     setHasSavedGame(true)
     setMainMenu(false)
@@ -692,7 +752,11 @@ export default function App() {
     })
   }
 
-  function startNewGame() { setConfirmNewCareer(true) }
+  function startNewGame() {
+    const selected = saveSlotSummaries.find(slot => slot.slot === activeSaveSlot)
+    if (selected?.exists) setConfirmNewCareer(true)
+    else confirmStartNewGame()
+  }
 
   function confirmStartNewGame() {
     updateIntroCallReceived(false)
@@ -1094,9 +1158,10 @@ export default function App() {
                 <h1>С чего <em>начнём?</em></h1>
                 <p className="menu-description">Выбери одну из трёх независимых карьер. Сохранения хранятся локально в этом браузере и не синхронизируются между устройствами.</p>
                 <div className="career-save-slots" aria-label="Три ячейки сохранения">
-                  {saveSlotSummaries.map((slot) => <button key={slot.slot} className={'career-save-slot' + (activeSaveSlot === slot.slot ? ' selected' : '') + (slot.exists ? ' occupied' : ' empty')} onClick={() => {
+                  {saveSlotSummaries.map((slot) => <button key={slot.slot} type="button" aria-pressed={activeSaveSlot === slot.slot} className={'career-save-slot' + (activeSaveSlot === slot.slot ? ' selected' : '') + (slot.exists ? ' occupied' : ' empty')} onClick={() => {
                     try { localStorage.setItem('market-arena-active-save-slot', String(slot.slot)) } catch { /* Storage may be blocked. */ }
-                    window.location.reload()
+                    setActiveSaveSlot(slot.slot)
+                    setHasSavedGame(slot.exists)
                   }}>
                     <span className="career-slot-number">СЛОТ {slot.slot}</span>
                     <strong>{slot.exists ? 'Карьера сохранена' : 'Пустая ячейка'}</strong>
@@ -1106,19 +1171,19 @@ export default function App() {
                 </div>
                 <div className="offline-save-card">
                   <div className="offline-save-icon"><Laptop size={23} /></div>
-                  <div className="offline-save-copy"><strong>Твоя карьера</strong><small>{hasSavedGame ? `День ${String(day).padStart(2, '0')} · ${currentHousing.name} · ${cash.toLocaleString('ru-RU')} ₽` : 'Сохранений пока нет — самое время начать.'}</small></div>
+                  <div className="offline-save-copy"><strong>Карьера · слот {activeSaveSlot}</strong><small>{saveSlotSummaries.find(slot => slot.slot === activeSaveSlot)?.exists ? `День ${String(saveSlotSummaries.find(slot => slot.slot === activeSaveSlot)?.day ?? 1).padStart(2, '0')} · ${(saveSlotSummaries.find(slot => slot.slot === activeSaveSlot)?.cash ?? 0).toLocaleString('ru-RU')} ₽` : 'В этой ячейке пока нет сохранения — можно начать новую игру.'}</small></div>
                   <span className={'offline-save-status' + (hasSavedGame ? ' saved' : '')}>{hasSavedGame ? 'СОХРАНЕНО' : 'ПУСТО'}</span>
                 </div>
                 <div className="offline-menu-actions">
-                  <button className="menu-play-button" onClick={enterOfflineGame} disabled={!hasSavedGame}><Play size={17} fill="currentColor" /> Загрузить игру <ArrowRight size={16} /></button>
-                  <button className="menu-secondary-button" onClick={startNewGame}><RotateCcw size={16} /> Новая карьера</button>
+                  <button className="menu-play-button" onClick={enterOfflineGame} disabled={!hasSavedGame}><Play size={17} fill="currentColor" /> Загрузить выбранную игру <ArrowRight size={16} /></button>
+                  <button className="menu-secondary-button" onClick={startNewGame}><RotateCcw size={16} /> Начать новую игру</button>
                 </div>
-                <p className="offline-save-note">{hasSavedGame ? 'Продолжится карьера из слота ' + activeSaveSlot + '. Выбери другую ячейку выше, чтобы открыть другую карьеру.' : 'Новая карьера создаст сохранение только в выбранном слоте ' + activeSaveSlot + '. Две другие ячейки останутся нетронутыми.'}</p>
+                <p className="offline-save-note">{hasSavedGame ? 'Загрузится сохранение из выбранного слота ' + activeSaveSlot + '. Переключение ячейки не перезагружает страницу.' : 'Новая игра начнётся сразу в выбранном слоте ' + activeSaveSlot + '. Две другие ячейки останутся нетронутыми.'}</p>
               </div>
             )}
           </section>
           {menuSettings && <div className="menu-modal-backdrop" onClick={() => setMenuSettings(false)}><section className="menu-settings-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setMenuSettings(false)} aria-label="Закрыть настройки"><X size={18} /></button><span className="menu-eyebrow"><Settings size={14} /> ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><div className="settings-row"><span><strong>Звуковые эффекты</strong><small>Кнопки, шаги, компьютер и действия в комнате.</small></span><button className={'settings-toggle' + (soundEnabled ? ' on' : '')} onClick={() => setSoundEnabled((value) => !value)} aria-pressed={soundEnabled}>{soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Фоновая музыка</strong><small>Две композиции чередуются во время игры.</small></span><button className={'settings-toggle' + (musicEnabled ? ' on' : '')} onClick={() => setMusicEnabled((value) => !value)} aria-pressed={musicEnabled}>{musicEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Шум города</strong><small>Фоновая городская атмосфера; дождь не включается постоянно.</small></span><button className={'settings-toggle' + (ambienceEnabled ? ' on' : '')} onClick={() => setAmbienceEnabled((value) => !value)} aria-pressed={ambienceEnabled}>{ambienceEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-volume-pair"><div className="settings-volume-row"><label htmlFor="music-volume"><span><strong>Громкость музыки</strong><small>Отдельно от звуковых эффектов.</small></span><output htmlFor="music-volume">{musicVolume}%</output></label><input className="settings-range" id="music-volume" type="range" min="0" max="100" step="1" value={musicVolume} onChange={(event) => setMusicVolume(Number(event.target.value))} aria-label="Громкость музыки" /></div><div className="settings-volume-row"><label htmlFor="master-volume"><span><strong>Громкость звуков игры</strong><small>Шаги, клавиатура, действия и городская атмосфера.</small></span><output htmlFor="master-volume">{masterVolume}%</output></label><input className="settings-range" id="master-volume" type="range" min="0" max="100" step="1" value={masterVolume} onChange={(event) => setMasterVolume(Number(event.target.value))} aria-label="Громкость звуков игры" /></div></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Отключает декоративные движения интерфейса.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Сохранение</strong><small>Прогресс карьеры хранится локально в браузере.</small></span><span className="settings-local-save">ЛОКАЛЬНО</span></div><button className="menu-modal-done" onClick={() => setMenuSettings(false)}>Готово <ArrowRight size={16} /></button></section></div>}
-          {confirmNewCareer && <div className="menu-modal-backdrop" onClick={() => setConfirmNewCareer(false)}><section className="menu-settings-modal confirm-career-modal" onClick={(event) => event.stopPropagation()}><span className="menu-eyebrow"><RotateCcw size={14} /> НОВОЕ НАЧАЛО</span><h2>Начать новую карьеру?</h2><p className="online-info-copy">Текущее сохранение будет удалено с этого устройства. Это действие нельзя отменить.</p><div className="confirm-career-actions"><button className="menu-secondary-button" onClick={() => setConfirmNewCareer(false)}>Отмена</button><button className="menu-play-button" onClick={confirmStartNewGame}>Начать заново <ArrowRight size={16} /></button></div></section></div>}
+          {confirmNewCareer && <div className="menu-modal-backdrop" onClick={() => setConfirmNewCareer(false)}><section className="menu-settings-modal confirm-career-modal" onClick={(event) => event.stopPropagation()}><span className="menu-eyebrow"><RotateCcw size={14} /> НОВОЕ НАЧАЛО</span><h2>Начать новую карьеру?</h2><p className="online-info-copy">Сохранение в слоте {activeSaveSlot} будет заменено новой карьерой. Два остальных слота не изменятся. Это действие нельзя отменить.</p><div className="confirm-career-actions"><button className="menu-secondary-button" onClick={() => setConfirmNewCareer(false)}>Отмена</button><button className="menu-play-button" onClick={confirmStartNewGame}>Начать новую игру <ArrowRight size={16} /></button></div></section></div>}
           {changelogOpen && <div className="menu-modal-backdrop" onClick={() => setChangelogOpen(false)}><section className="menu-settings-modal changelog-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setChangelogOpen(false)} aria-label="Закрыть историю обновлений"><X size={18} /></button><span className="menu-eyebrow"><Clock3 size={14} /> ЖУРНАЛ РАЗРАБОТКИ</span><h2>История обновлений</h2><div className="changelog-list"><article className="changelog-entry current"><div className="changelog-version"><strong>v0.5.0</strong><span>В РАБОТЕ</span></div><h3>Первые шаги к полноценной игре</h3><ul><li>Вступительная сцена пробуждения и временные подсказки управления.</li><li>Улучшение взаимодействия с компьютером и столкновений в комнате.</li><li>Стартовый экран компьютера превращён в рабочий стол с иконками приложений.</li><li>Начата визуальная переработка видеопереговоров.</li></ul></article><article className="changelog-entry"><div className="changelog-version"><strong>v0.4.0</strong><span>ПРОТОТИП</span></div><h3>Стартовое меню и локальная карьера</h3><ul><li>Добавлены офлайн-режим, экран загрузки сохранения и создание новой карьеры.</li><li>Добавлены настройки и заглушка будущего онлайн-режима.</li><li>Прогресс сохраняется в браузере на этом устройстве.</li></ul></article></div><p className="changelog-note">Здесь будут появляться заметки к каждой опубликованной версии.</p><button className="menu-modal-done" onClick={() => setChangelogOpen(false)}>Назад в меню</button></section></div>}
           {onlineInfo && <div className="menu-modal-backdrop" onClick={() => setOnlineInfo(false)}><section className="menu-settings-modal online-info-modal" onClick={(event) => event.stopPropagation()}><button className="menu-modal-close" onClick={() => setOnlineInfo(false)} aria-label="Закрыть окно"><X size={18} /></button><span className="menu-eyebrow"><Users size={14} /> СЕТЕВАЯ КАРЬЕРА</span><h2>Онлайн появится позже</h2><p className="online-info-copy">Сначала доведём до ума одиночную карьеру. Затем добавим аккаунты и серверные сохранения, таблицы лидеров и соревнования с друзьями. Сейчас онлайн-режим ещё не подключён.</p><div className="online-roadmap"><span><Check size={15} /> Локальная карьера</span><span><Clock3 size={15} /> Сервер и аккаунты — в разработке</span><span><Users size={15} /> Соревнования — позже</span></div><button className="menu-modal-done" onClick={() => setOnlineInfo(false)}>Понятно</button></section></div>}
         </div>

@@ -3258,3 +3258,11 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   transform: none;
 }
 .version-watermark { display: none; }
+
+
+/* Shared 3D broker model in the wardrobe and the local video preview. */
+.wardrobe-character-stage .wardrobe-player-avatar{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.wardrobe-character-stage .wardrobe-player-avatar canvas{width:100%!important;height:100%!important}
+.in-game-self-view>.broker-avatar-3d{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+.in-game-self-view>.broker-avatar-3d canvas{width:100%!important;height:100%!important}
+.in-game-self-view .broker-avatar-3d+small{z-index:8}
