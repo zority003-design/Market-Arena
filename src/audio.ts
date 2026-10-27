@@ -25,72 +25,44 @@ let settings: AudioSettings = {
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
-// Procedural background soundtrack: no external MP3 files or network requests required.
-let musicBus: GainNode | null = null
-let musicTimer: number | null = null
-let musicStep = 0
-let musicUnlockInstalled = false
-const musicNotes = [110, 164.81, 220, 164.81, 130.81, 196, 261.63, 196, 98, 146.83, 196, 146.83, 123.47, 185, 246.94, 185]
+// Use the two MP3 soundtrack files shipped in public/audio.
+const musicTracks = ['/audio/Endless%20Solitude.mp3', '/audio/Market%20Pulse.mp3']
+let musicAudio: HTMLAudioElement | null = null
+let nextMusicIndex = 0
 
-function playMusicNote(frequency: number, startAt: number, duration: number, volume: number, type: OscillatorType = 'triangle') {
-  if (!context || !musicBus) return
-  const oscillator = context.createOscillator()
-  const envelope = context.createGain()
-  oscillator.type = type
-  oscillator.frequency.setValueAtTime(frequency, startAt)
-  envelope.gain.setValueAtTime(0.0001, startAt)
-  envelope.gain.linearRampToValueAtTime(volume, startAt + 0.08)
-  envelope.gain.setTargetAtTime(0.0001, startAt + duration * 0.55, Math.max(0.08, duration * 0.22))
-  oscillator.connect(envelope)
-  envelope.connect(musicBus)
-  oscillator.start(startAt)
-  oscillator.stop(startAt + duration + 0.2)
+function playProjectTrack() {
+  if (!musicAudio || !settings.music || settings.paused) return
+  musicAudio.src = musicTracks[nextMusicIndex]
+  musicAudio.currentTime = 0
+  musicAudio.volume = Math.max(0, Math.min(1, settings.musicVolume))
+  void musicAudio.play().catch(() => {})
 }
 
-function startProceduralMusic() {
-  if (!context || musicTimer !== null) return
-  musicBus = context.createGain()
-  musicBus.gain.value = 0.0001
-  musicBus.connect(context.destination)
-  musicBus.gain.setTargetAtTime(Math.max(0, Math.min(1, settings.musicVolume)) * 0.42, context.currentTime, 0.35)
-  musicStep = 0
-  const schedule = () => {
-    if (!context || !musicBus || !settings.music || settings.paused) return
-    if (context.state === 'suspended') void context.resume().catch(() => {})
-    const now = context.currentTime + 0.04
-    const note = musicNotes[musicStep % musicNotes.length]
-    playMusicNote(note, now, 1.65, 0.095)
-    playMusicNote(note * 2, now + 0.04, 1.25, 0.026, 'sine')
-    if (musicStep % 4 === 0) {
-      playMusicNote(note * 0.5, now, 2.9, 0.055, 'sine')
-      playMusicNote(note * 1.5, now + 0.12, 1.8, 0.018, 'sine')
-    }
-    musicStep += 1
+function startProjectMusic() {
+  if (typeof window === 'undefined' || !settings.music || settings.paused) return
+  if (!musicAudio) {
+    musicAudio = new Audio()
+    musicAudio.preload = 'auto'
+    musicAudio.addEventListener('ended', () => {
+      if (!settings.music || settings.paused) return
+      nextMusicIndex = (nextMusicIndex + 1) % musicTracks.length
+      playProjectTrack()
+    })
   }
-  schedule()
-  musicTimer = window.setInterval(schedule, 720)
+  if (!musicAudio.src) playProjectTrack()
+  else if (musicAudio.paused) void musicAudio.play().catch(() => {})
+  musicAudio.volume = Math.max(0, Math.min(1, settings.musicVolume))
 }
 
-function stopProceduralMusic() {
-  if (musicTimer !== null && typeof window !== 'undefined') window.clearInterval(musicTimer)
-  musicTimer = null
-  if (musicBus && context) {
-    musicBus.gain.setTargetAtTime(0.0001, context.currentTime, 0.12)
-    const oldBus = musicBus
-    window.setTimeout(() => { try { oldBus.disconnect() } catch {} }, 900)
-  }
-  musicBus = null
+function stopProjectMusic() {
+  if (musicAudio) musicAudio.pause()
 }
 
 function installMusicUnlock() {
   if (typeof window === 'undefined' || musicUnlockInstalled) return
   musicUnlockInstalled = true
   const unlock = () => {
-    if (settings.music && !settings.paused) {
-      const ctx = ensureAudio()
-      if (ctx?.state === 'suspended') void ctx.resume().catch(() => {})
-      startProceduralMusic()
-    }
+    if (settings.music && !settings.paused) startProjectMusic()
     window.removeEventListener('pointerdown', unlock, true)
     window.removeEventListener('keydown', unlock, true)
   }
@@ -101,13 +73,12 @@ function installMusicUnlock() {
 function updateMusic() {
   if (typeof window === 'undefined') return
   if (settings.music && !settings.paused) {
-    const ctx = ensureAudio()
-    if (ctx?.state === 'suspended') void ctx.resume().catch(() => {})
-    startProceduralMusic()
-    if (musicBus && context) musicBus.gain.setTargetAtTime(Math.max(0, Math.min(1, settings.musicVolume)) * 0.42, context.currentTime, 0.18)
-  } else {
-    stopProceduralMusic()
-  }
+    startProjectMusic()
+    if (musicAudio) {
+      musicAudio.volume = Math.max(0, Math.min(1, settings.musicVolume))
+      if (musicAudio.paused && musicAudio.src) void musicAudio.play().catch(() => {})
+    }
+  } else stopProjectMusic()
 }
 
 function ensureAudio() {
