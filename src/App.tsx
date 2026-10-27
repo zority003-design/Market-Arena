@@ -203,7 +203,7 @@ function readSave() {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -412,6 +412,8 @@ export default function App() {
   const previousHousingId = useRef(housingId)
   const [businessUpgrades, setBusinessUpgrades] = useState<string[]>(saved.businessUpgrades ?? [])
   const [ownedBusinessAssets, setOwnedBusinessAssets] = useState<string[]>(saved.ownedBusinessAssets ?? [])
+  const [ownedEmployees, setOwnedEmployees] = useState<string[]>(saved.ownedEmployees ?? [])
+  const [companyName, setCompanyName] = useState(saved.companyName ?? '')
   const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])
   const [selectedClientId, setSelectedClientId] = useState(saved.selectedClientId ?? 'alex-vorontsov')
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
@@ -487,8 +489,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets])
+    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -708,6 +710,8 @@ export default function App() {
     setHousingId(STARTING_HOUSING_ID)
     setBusinessUpgrades([])
     setOwnedBusinessAssets([])
+    setOwnedEmployees([])
+    setCompanyName('')
     setOwnedItems([])
     setSelectedOutfit('intern')
     setOwnedOutfits(['intern'])
