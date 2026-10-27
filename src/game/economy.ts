@@ -159,10 +159,18 @@ export function getDailyLeadIds(
 
 export const STOCK_PROFILES: Record<string, { label: string; color: string; description: string; risk: string }> = {
  KOTL: { label: 'Рост', color: '#3b82f6', description: 'Рост выручки и будущая прибыль; сейчас компания убыточна.', risk: 'Высокий' },
- OGUR: { label: 'Дивиденды и прибыль', color: '#16a34a', description: 'Действующая прибыль и понятный спрос; рост умеренный.', risk: 'Средний' },
+ KTLT: { label: 'Рост', color: '#3b82f6', description: 'Доставка дронами и роботами; важно подтвердить заказы и путь к прибыли.', risk: 'Высокий' },
+ OGUR: { label: 'Прибыль и повторные продажи', color: '#16a34a', description: 'Действующая прибыль и понятный спрос; следи за маржой.', risk: 'Средний' },
+ SBRX: { label: 'Устойчивый бизнес', color: '#16a34a', description: 'Регулярная выручка и цифровые сервисы; рост может замедлиться.', risk: 'Средний' },
  TAPK: { label: 'Спекулятивное восстановление', color: '#dc4b5b', description: 'Ставка на исправление продукта; возвраты и убытки могут продолжиться.', risk: 'Очень высокий' },
+ GROV: { label: 'Рискованный рост', color: '#dc4b5b', description: 'Онлайн-торговля растёт, но скидки и доставка съедают прибыль.', risk: 'Высокий' },
+ BYTE: { label: 'Ставка на запуск', color: '#9333ea', description: 'Потенциал нового продукта без подтверждённых продаж.', risk: 'Высокий' },
  DUST: { label: 'Защитная', color: '#0d9488', description: 'Долгосрочные контракты и денежный поток; потенциал роста спокойнее.', risk: 'Низкий' },
+ MEDX: { label: 'Защитная', color: '#0d9488', description: 'Устойчивый спрос на медуслуги, но расширение требует капитала.', risk: 'Низкий' },
+ GRID: { label: 'Инфраструктура', color: '#0d9488', description: 'Регулируемый спрос; тарифы и капзатраты ограничивают рост.', risk: 'Низкий' },
  BTRAN: { label: 'Денежный поток', color: '#d97706', description: 'Сеть АЗС и дополнительные сервисы; важны маржа, трафик и окупаемость.', risk: 'Средний' },
+ NEFT: { label: 'Циклический денежный поток', color: '#d97706', description: 'Экспорт и добыча зависят от сырьевых цен, курса и логистики.', risk: 'Средний' },
+ LOGI: { label: 'Операционный бизнес', color: '#d97706', description: 'Контракты и доставка; расходы на топливо и зарплаты давят на маржу.', risk: 'Средний' },
 }
 const CLIENT_STOCK_FIT: Record<string, string[]> = {
  'alex-vorontsov': ['KOTL','OGUR','DUST'], 'maria-sokolova': ['KOTL','OGUR','BTRAN'],
@@ -184,12 +192,13 @@ const CLIENT_TRUST_REQUIREMENTS: Record<string, number> = {
  'maksim-sobolev': 54, 'ekaterina-mironova': 76, 'boris-zhukov': 55, 'yaroslav-nikitin': 52,
 }
 export function getClientStockFit(clientId: string, ticker: string): { suitable: boolean; reason: string } {
+ const canonicalTicker = ({ KTLT: 'KOTL', SBRX: 'OGUR', NEFT: 'BTRAN', MEDX: 'DUST', GRID: 'DUST', LOGI: 'BTRAN', GROV: 'TAPK', BYTE: 'TAPK' } as Record<string, string>)[ticker] ?? ticker
  const suitableTickers = CLIENT_STOCK_FIT[clientId]
- if (!STOCK_PROFILES[ticker]) return { suitable: false, reason: 'Эта акция отсутствует в каталоге.' }
- if (!suitableTickers) return { suitable: ticker !== 'TAPK', reason: ticker === 'TAPK' ? 'Слишком высокий риск без подтверждённого спроса.' : 'Сначала уточни цель клиента и допустимый риск.' }
- if (suitableTickers.includes(ticker)) return { suitable: true, reason: 'Тип акции соответствует цели клиента и его отношению к риску.' }
- if (ticker === 'TAPK') return { suitable: false, reason: 'Спекулятивное восстановление не подходит клиенту, который ценит предсказуемость.' }
- if (ticker === 'KOTL') return { suitable: false, reason: 'Это акция роста с текущим убытком, а клиенту важнее стабильность и сохранность капитала.' }
+ if (!STOCK_PROFILES[ticker] && !STOCK_PROFILES[canonicalTicker]) return { suitable: false, reason: 'Эта акция отсутствует в каталоге.' }
+ if (!suitableTickers) return { suitable: canonicalTicker !== 'TAPK', reason: canonicalTicker === 'TAPK' ? 'Слишком высокий риск без подтверждённого спроса.' : 'Сначала уточни цель клиента и допустимый риск.' }
+ if (suitableTickers.includes(canonicalTicker)) return { suitable: true, reason: 'Тип акции соответствует цели клиента и его отношению к риску.' }
+ if (canonicalTicker === 'TAPK') return { suitable: false, reason: 'Спекулятивное восстановление не подходит клиенту, который ценит предсказуемость.' }
+ if (canonicalTicker === 'KOTL') return { suitable: false, reason: 'Это акция роста с текущим убытком, а клиенту важнее стабильность и сохранность капитала.' }
  return { suitable: false, reason: 'Профиль дохода и риска акции не совпадает с задачей клиента.' }
 }
 export function getClientTrustRequirement(client: ClientProfile): number {
