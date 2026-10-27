@@ -32,6 +32,7 @@ type Props = {
   ownedItems: string[]; setOwnedItems: Dispatch<SetStateAction<string[]>>
   onClose: () => void
   initialApp?: AppId
+  sessionId?: number
 }
 
 const STOCKS: Stock[] = [
@@ -161,9 +162,16 @@ export default function ArenaOS(props: Props) {
   useEffect(()=>{
     if (props.initialApp === 'wardrobe') return
     setIncoming(false)
+    setCallState('idle')
+    setActiveApp('home')
+    setWindowOpen(false)
+    setWindowMinimized(false)
+    setWindowMaximized(true)
+    setCallLog([])
+    setMessage('')
     const timer = window.setTimeout(() => setIncoming(true), 3000)
     return () => window.clearTimeout(timer)
-  },[props.initialApp])
+  },[props.initialApp, props.sessionId])
   useEffect(()=>{ if(incoming) playSound('ring') },[incoming])
   useEffect(()=>{ const el=dialogueLogRef.current; if(el) el.scrollTop=el.scrollHeight },[callLog,callState,activeApp])
   useEffect(()=>{ const timer=window.setInterval(()=>setClockNow(new Date()),15000); return ()=>window.clearInterval(timer) },[])
