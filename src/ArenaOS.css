@@ -189,3 +189,12 @@
 .arena-os-volume-panel small{font-size:10px;line-height:1.4;color:#a8b8c7}
 .arena-os-volume-toggle{font-size:14px!important;min-width:30px!important}
 @media(max-width:650px){.career-save-slots{grid-template-columns:1fr}.career-save-slot{min-height:96px}.arena-os-volume-panel{right:5px;width:min(230px,calc(100vw - 24px))}}
+
+.arena-os-stock-dossier{display:grid;gap:7px;padding:14px;border:1px solid #354b5e;border-radius:10px;background:#101d29;color:#eaf2f8}
+.arena-os-stock-dossier>b{font-size:15px;color:#fff;margin-bottom:2px}
+.arena-os-stock-dossier p{margin:0;font-size:12px;line-height:1.55;color:#d4e0ea}
+.arena-os-stock-dossier strong{color:#82d5b0}
+.arena-os-debrief{margin:16px 0;padding:15px;border:1px solid #33495c;border-radius:10px;background:#111f2c;text-align:left;color:#eaf2f8}
+.arena-os-debrief>b{font-size:13px;color:#83d7b0}
+.arena-os-debrief p{font-size:12px;line-height:1.55;color:#d4e0ea;margin:8px 0 0}
+.arena-os-debrief p:last-child{color:#f0f5fa}
