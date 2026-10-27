@@ -11,6 +11,11 @@ export type HousingOption = {
   id: string; name: string; price: number; dailyCost: number; firstImpression: number
   comfort: number; minDay: number; minReputation: number; description: string
 }
+export type BusinessAsset = {
+ id: string; name: string; price: number; minDay: number; minReputation: number
+ dailyRevenue: number; dailyCost: number; description: string; effect: string
+ prerequisite?: string
+}
 export type BusinessUpgrade = {
  id: string; name: string; price: number; minDay: number; minReputation: number
  payoutCap: number; trustBonus: number; description: string; effect: string
@@ -30,6 +35,15 @@ export const BUSINESS_UPGRADES: BusinessUpgrade[] = [
  { id:'client-crm', name:'CRM и рекомендации', price:38000, minDay:8, minReputation:35, payoutCap:3300, trustBonus:1, description:'Напоминания, история сделок и повторные обращения не теряются в блокноте.', effect:'+1 дополнительный звонок в день и доступ к части клиентов раньше обычного.' },
  { id:'partner-office', name:'Партнёрский стол', price:70000, minDay:12, minReputation:50, payoutCap:4500, trustBonus:3, description:'Первое серьёзное расширение бизнеса: стандарты переговоров, отчётность и рекомендации.', effect:'До +3 к стартовому доверию и максимальный предел бонуса среди улучшений.' },
 ]
+export const BUSINESS_ASSETS: BusinessAsset[] = [
+ { id:'referral-desk', name:'Бюро рекомендаций', price:18000, minDay:2, minReputation:25, dailyRevenue:1700, dailyCost:500, description:'Небольшая команда обрабатывает рекомендации и возвращает старых клиентов. Доход зависит от работающей сети, а не от одного звонка.', effect:'Первый постоянный денежный поток: +1 200 ₽ чистыми за игровой день.' },
+ { id:'broker-team', name:'Команда брокеров', price:85000, minDay:5, minReputation:35, dailyRevenue:5200, dailyCost:2200, prerequisite:'referral-desk', description:'Два младших брокера ведут простые обращения, пока ты занимаешься крупными клиентами.', effect:'Расширяет фирму и приносит +3 000 ₽ чистыми за день.' },
+ { id:'city-agency', name:'Городское агентство', price:280000, minDay:10, minReputation:50, dailyRevenue:16000, dailyCost:7000, prerequisite:'broker-team', description:'Собственный офис, поток корпоративных обращений и команда сопровождения.', effect:'Уже не одиночная работа: +9 000 ₽ чистыми за день.' },
+ { id:'national-network', name:'Федеральная сеть', price:1000000, minDay:18, minReputation:70, dailyRevenue:52000, dailyCost:25000, prerequisite:'city-agency', description:'Несколько представительств и управляющая команда. Доход большой, но и постоянные расходы соответствующие.', effect:'Финальная цель текущей ветки: +27 000 ₽ чистыми за день.' },
+]
+export function getBusinessDailyNetIncome(ownedAssetIds: string[]): number {
+ return BUSINESS_ASSETS.filter(asset => ownedAssetIds.includes(asset.id)).reduce((sum, asset) => sum + asset.dailyRevenue - asset.dailyCost, 0)
+}
 export function getBusinessPayoutCap(ownedUpgradeIds: string[]): number {
  return Math.max(900, ...BUSINESS_UPGRADES.filter(upgrade => ownedUpgradeIds.includes(upgrade.id)).map(upgrade => upgrade.payoutCap))
 }
