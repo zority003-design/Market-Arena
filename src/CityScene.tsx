@@ -134,6 +134,21 @@ function District({ gameMinutes }: { gameMinutes: number }) {
         <boxGeometry args={[3.85, 0.2, 5.18]} />
         <meshStandardMaterial color="#624832" roughness={0.9} />
       </mesh>
+      {/* Narrow timber battens on both slopes make the roof read as planked wood instead of a flat dark cap. */}
+      {Array.from({ length: 8 }, (_, i) => {
+        const x = -3.05 + i * 0.39
+        return <mesh key={'roof-board-l-' + i} position={[x, 4.18 + (x + 1.62) * Math.sin(0.39), 0]} rotation={[0, 0, 0.39]} castShadow receiveShadow>
+          <boxGeometry args={[0.045, 0.045, 5.08]} />
+          <meshStandardMaterial color={i % 2 ? '#806044' : '#98714a'} roughness={0.92} />
+        </mesh>
+      })}
+      {Array.from({ length: 8 }, (_, i) => {
+        const x = 0.32 + i * 0.39
+        return <mesh key={'roof-board-r-' + i} position={[x, 4.18 - (x - 1.62) * Math.sin(0.39), 0]} rotation={[0, 0, -0.39]} castShadow receiveShadow>
+          <boxGeometry args={[0.045, 0.045, 5.08]} />
+          <meshStandardMaterial color={i % 2 ? '#806044' : '#98714a'} roughness={0.92} />
+        </mesh>
+      })}
       <Block position={[0, 4.9, 0]} size={[0.22, 0.22, 5.26]} color="#3c3430" roughness={0.9} />
       {Array.from({ length: 9 }, (_, i) => <Block key={'roof-ridge-slat-' + i} position={[0, 4.98, -2.3 + i * 0.575]} size={[0.25, 0.04, 0.045]} color={i % 2 ? '#74543a' : '#846345'} roughness={0.9} />)
       }
