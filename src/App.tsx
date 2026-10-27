@@ -204,7 +204,7 @@ function readSave(slot = getActiveSaveSlot()) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; careerSessionId?: number; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -356,7 +356,7 @@ export default function App() {
   const [onlineInfo, setOnlineInfo] = useState(false)
   const [changelogOpen, setChangelogOpen] = useState(false)
   const [confirmNewCareer, setConfirmNewCareer] = useState(false)
-  const [careerSessionId, setCareerSessionId] = useState(0)
+  const [careerSessionId, setCareerSessionId] = useState(saved.careerSessionId ?? 1)
   const [introActive, setIntroActive] = useState(false)
   const [sleepTransition, setSleepTransition] = useState<'sleeping' | 'waking' | null>(null)
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
@@ -498,7 +498,7 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+    try { const snapshot = JSON.stringify({ careerSessionId, cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
   }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
@@ -725,7 +725,7 @@ export default function App() {
     setControlsVisible(true)
     setCanInteractWithComputer(false)
     setIntroActive(false)
-    setCareerSessionId(value => value + 1)
+    setCareerSessionId(data.careerSessionId ?? 1)
     try { setIntroCallReceived(localStorage.getItem(`na-vse-kotirovki-intro-call-received-slot-${activeSaveSlot}`) === 'true') } catch { setIntroCallReceived(false) }
   }
 
