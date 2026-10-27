@@ -2121,3 +2121,36 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .os-call-quote { margin: 0; padding: 10px 12px; border-left: 2px solid #79b8f4; background: rgba(121,184,244,.06); color: #a9bfd1; font-size: 10px; line-height: 1.6; }
 @media (max-width: 1000px) { .os-multi-window-layer { inset: 74px 12px 54px 12px; } }
 @media (max-width: 560px) { .os-multi-window-layer { inset: 66px 6px 50px 6px; } .os-floating-window { width: calc(100vw - 24px); } .os-floating-content { padding: 12px; } .os-call-portrait { flex-basis: 90px; width: 90px; height: 108px; } }
+
+/* Shared pixel-art avatar: the wardrobe, outfit cards and call preview use one sprite. */
+.wardrobe-pixel-avatar {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: min(46%, 190px);
+  height: 272px;
+  overflow: visible;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 9px 0 rgba(0,0,0,.22));
+  animation: pixelBrokerIdle 3.6s steps(2, end) infinite;
+}
+.wardrobe-character-stage .wardrobe-stage-label { z-index: 3; }
+.outfit-swatch { display:flex; align-items:flex-end; justify-content:center; height:90px; }
+.outfit-illustration { display:block; width:62px; height:86px; max-width:100%; image-rendering:pixelated; shape-rendering:crispEdges; }
+.self-pixel-avatar {
+  position:absolute;
+  z-index:2;
+  inset:2px 0 0;
+  display:block;
+  width:100%;
+  height:calc(100% - 7px);
+  image-rendering:pixelated;
+  shape-rendering:crispEdges;
+}
+.in-game-self-view .self-view-room { z-index:0; }
+.in-game-self-view > small { position:absolute; z-index:8; bottom:3px; left:0; right:0; text-align:center; }
+.room-item-illustration { image-rendering:pixelated; shape-rendering:crispEdges; }
+.shop-item-icon-wrap { min-height:112px; }
+.shop-item-icon-wrap .room-item-illustration { height:106px; max-width:170px; }
+@keyframes pixelBrokerIdle { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .wardrobe-pixel-avatar { animation:none; } }
