@@ -454,6 +454,39 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         <Box position={[1.55, 0.57, 1.15]} size={[0.18, 0.56, 0.76]} color="#8b755e" roughness={0.88} textureKind="fabric" />
         <Box position={[3.21, 0.57, 1.15]} size={[0.18, 0.56, 0.76]} color="#8b755e" roughness={0.88} textureKind="fabric" />
       </group>}
+      {/* Distinct furniture sets make each address feel like a different location. */}
+      {housingId === 'shared-flat' && <group>
+        <Box position={[3.35, 0.62, -1.72]} size={[0.82, 0.88, 1.32]} color="#8d9a91" roughness={0.88} textureKind="wood" />
+        <Box position={[3.34, 1.08, -1.72]} size={[0.86, 0.07, 1.36]} color="#c2b39b" roughness={0.72} />
+        <Box position={[3.34, 1.17, -1.72]} size={[0.58, 0.025, 0.78]} color="#b9c3bb" roughness={0.35} metalness={0.12} />
+        <Box position={[3.34, 1.2, -1.72]} size={[0.16, 0.035, 0.18]} color="#d9ded9" roughness={0.24} metalness={0.3} />
+        <Box position={[2.55, 0.48, -1.0]} size={[0.78, 0.08, 0.62]} color="#9a7656" roughness={0.8} textureKind="wood" />
+        <Box position={[2.27, 0.24, -1.0]} size={[0.05, 0.48, 0.05]} color="#56473a" />
+        <Box position={[2.83, 0.24, -1.0]} size={[0.05, 0.48, 0.05]} color="#56473a" />
+      </group>}
+      {housingId === 'studio' && <group>
+        <Box position={[3.42, 0.54, -1.68]} size={[0.42, 1.0, 0.62]} color="#c1b59f" roughness={0.82} textureKind="wood" />
+        <Box position={[3.42, 0.62, -1.34]} size={[0.33, 0.68, 0.025]} color="#4b5f56" roughness={0.9} />
+        <Box position={[3.3, 0.92, 0.25]} size={[0.36, 0.64, 0.36]} color="#ad825b" roughness={0.86} />
+        <mesh position={[3.3, 1.3, 0.25]}><sphereGeometry args={[0.34, 9, 8]} /><meshStandardMaterial color="#3f7757" roughness={0.95} /></mesh>
+        <mesh position={[3.12, 1.38, 0.12]}><sphereGeometry args={[0.2, 8, 7]} /><meshStandardMaterial color="#548c65" roughness={0.95} /></mesh>
+      </group>}
+      {housingId === 'city-apartment' && <group>
+        <Box position={[3.36, 0.72, -1.62]} size={[0.72, 1.34, 1.0]} color="#6d5540" roughness={0.86} textureKind="wood" />
+        {[0.2, 0.55, 0.9].map((y) => <Box key={'city-shelf-' + y} position={[3.0, y, -1.08]} size={[0.08, 0.035, 0.92]} color="#b9986c" roughness={0.7} textureKind="wood" />)}
+        {[-1.38, -1.15, -0.92].map((z, i) => <Box key={'city-book-' + z} position={[2.97, 0.35 + (i % 2) * 0.34, z]} size={[0.035, 0.22, 0.12]} color={['#a65c49','#d2b66f','#5c7f70'][i]} roughness={0.9} />)}
+        <Box position={[3.28, 0.28, 2.55]} size={[0.62, 0.5, 0.62]} color="#9d7650" roughness={0.9} />
+        <mesh position={[3.28, 0.7, 2.55]}><sphereGeometry args={[0.38, 9, 8]} /><meshStandardMaterial color="#4f825e" roughness={0.95} /></mesh>
+      </group>}
+      {housingId === 'premium-apartment' && <group>
+        <Box position={[3.36, 1.5, -1.58]} size={[0.045, 1.15, 1.1]} color="#b28b51" roughness={0.5} metalness={0.22} />
+        <Box position={[3.33, 1.5, -1.58]} size={[0.025, 0.98, 0.92]} color="#243b3b" roughness={0.7} />
+        <Box position={[3.3, 1.5, -1.58]} size={[0.018, 0.8, 0.74]} color="#c3a978" roughness={0.82} />
+        <Box position={[3.36, 0.58, -0.2]} size={[0.58, 0.92, 0.58]} color="#77533b" roughness={0.72} textureKind="wood" />
+        <Box position={[3.36, 1.07, -0.2]} size={[0.64, 0.055, 0.64]} color="#dfcba7" roughness={0.9} textureKind="fabric" />
+        <pointLight position={[3.25, 1.5, -0.2]} intensity={0.6} distance={2.4} color="#ffdba3" />
+      </group>}
+
       {/* Soft woven rug adds texture to the centre of the room. */}
       <Box position={[0.15, 0.067, 0.52]} size={[2.35, 0.025, 2.05]} color="#596f67" roughness={1} textureKind="fabric" />
       <Box position={[0.15, 0.082, 0.52]} size={[2.18, 0.009, 1.88]} color="#9a8a70" roughness={1} />
