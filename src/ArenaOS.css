@@ -461,3 +461,22 @@
 .arena-os-guide-actions{display:flex;gap:8px;flex-wrap:wrap}
 .arena-os-guide-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
 @media(max-width:620px){.arena-os-first-purchases{grid-template-columns:1fr}.arena-os-first-purchases article{display:grid;grid-template-columns:1fr auto}.arena-os-first-purchases article small{grid-column:1/-1}.arena-os-response-actions button small{font-size:10px}}
+
+
+/* Stock cards make the investment style and client fit visible before a call. */
+.arena-os-stock-picker-grid { grid-template-columns:repeat(3,minmax(0,1fr)); align-items:stretch; }
+.arena-os-stock-choice { min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:6px; border:1px solid #cbd7e3; border-top:3px solid var(--stock-accent,#3b82f6); border-radius:11px; background:#f8fbff; color:#172f46; padding:12px; text-align:left; }
+.arena-os-stock-choice:hover { border-color:var(--stock-accent,#3b82f6); background:#fff; transform:translateY(-1px); }
+.arena-os-stock-choice.unsuitable { background:#fff8f7; border-top-color:#d34b51; }
+.arena-os-stock-choice-ticker { display:inline-flex; padding:3px 6px; border-radius:5px; background:var(--stock-accent,#3b82f6); color:#fff; font-size:10px; font-weight:900; letter-spacing:.05em; }
+.arena-os-stock-choice b { font-size:12px; line-height:1.35; }
+.arena-os-stock-choice small { color:#586f82; font-size:10px; line-height:1.35; }
+.arena-os-stock-choice em { color:#18734d; font-size:10px; font-weight:800; font-style:normal; }
+.arena-os-stock-choice.unsuitable em { color:#b5373e; }
+.arena-os-stock-choice p { margin:0; font-size:10px; line-height:1.5; color:#536b7e; }
+.arena-os-video-tile.self { position:relative; overflow:hidden; isolation:isolate; }
+.arena-os-video-tile.self .broker-avatar-3d { position:absolute; inset:18px 0 0; width:100%; height:calc(100% - 18px); }
+.arena-os-video-tile.self .broker-avatar-3d canvas { display:block; width:100%!important; height:100%!important; }
+.arena-os-video-tile.self small { position:absolute; z-index:5; bottom:6px; left:6px; right:6px; }
+.arena-os-first-purchases { grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); }
+@media(max-width:620px) { .arena-os-stock-picker-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
