@@ -46,14 +46,17 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
       root.current.position.y = Math.sin(clock.elapsedTime * 1.25) * 0.018
     }
   })
-  return <group ref={root} position={[0, -1.24, 0]}>
+  return <group ref={root} position={[0, -1.08, 0]}>
     {/* Shoes and tailored trousers */}
     <RoundedBox position={[-0.19, 0.13, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
     <RoundedBox position={[0.19, 0.13, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
-    <mesh position={[-0.19, 0.66, 0]} scale={[0.16, 0.56, 0.17]} castShadow><capsuleGeometry args={[0.34, 0.62, 5, 10]}/><meshStandardMaterial color="#303b48" roughness={0.75}/></mesh>
-    <mesh position={[0.19, 0.66, 0]} scale={[0.16, 0.56, 0.17]} castShadow><capsuleGeometry args={[0.34, 0.62, 5, 10]}/><meshStandardMaterial color="#303b48" roughness={0.75}/></mesh>
+    <mesh position={[-0.19, 0.68, 0]} scale={[0.19, 0.61, 0.19]} castShadow><capsuleGeometry args={[0.34, 0.62, 8, 14]}/><meshStandardMaterial color="#303b48" roughness={0.75}/></mesh>
+    <mesh position={[0.19, 0.68, 0]} scale={[0.19, 0.61, 0.19]} castShadow><capsuleGeometry args={[0.34, 0.62, 8, 14]}/><meshStandardMaterial color="#303b48" roughness={0.75}/></mesh>
     {/* Shirt, jacket, tailored lapels and collar */}
-    <mesh position={[0, 1.43, 0]} scale={[0.46, 0.57, 0.29]} castShadow><capsuleGeometry args={[0.42, 0.55, 5, 14]}/><meshStandardMaterial color={jacket} roughness={0.63}/></mesh>
+    <mesh position={[0, 1.43, 0]} scale={[0.59, 0.57, 0.34]} castShadow><capsuleGeometry args={[0.42, 0.55, 8, 18]}/><meshStandardMaterial color={jacket} roughness={0.63}/></mesh>
+    <mesh position={[0, 0.99, -0.005]} scale={[0.38, 0.21, 0.29]} castShadow><sphereGeometry args={[1, 24, 16]}/><meshStandardMaterial color={jacket} roughness={0.68}/></mesh>
+    <mesh position={[-0.33, 1.66, 0]} scale={[0.22, 0.18, 0.29]} castShadow><sphereGeometry args={[1, 20, 14]}/><meshStandardMaterial color={jacket} roughness={0.63}/></mesh>
+    <mesh position={[0.33, 1.66, 0]} scale={[0.22, 0.18, 0.29]} castShadow><sphereGeometry args={[1, 20, 14]}/><meshStandardMaterial color={jacket} roughness={0.63}/></mesh>
     <mesh position={[0, 1.48, 0.265]} scale={[0.19, 0.43, 0.035]}><boxGeometry args={[1, 1, 1]}/><meshStandardMaterial color={palette.shirt} roughness={0.48}/></mesh>
     <mesh position={[-0.12, 1.47, 0.302]} rotation={[0, 0, -0.13]}><coneGeometry args={[0.105, 0.56, 4]}/><meshStandardMaterial color={jacket} roughness={0.58}/></mesh>
     <mesh position={[0.12, 1.47, 0.302]} rotation={[0, 0, 0.13]}><coneGeometry args={[0.105, 0.56, 4]}/><meshStandardMaterial color={jacket} roughness={0.58}/></mesh>
@@ -73,7 +76,8 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
     <mesh position={[-0.41, 1.12, 0.055]} scale={[0.13, 0.08, 0.12]}><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.shirt}/></mesh>
     <mesh position={[0.41, 1.12, 0.055]} scale={[0.13, 0.08, 0.12]}><sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial color={palette.shirt}/></mesh>
     {/* Neck and expressive head */}
-    <mesh position={[0, 1.99, 0]}><cylinderGeometry args={[0.13, 0.15, 0.23, 16]}/><meshStandardMaterial color={palette.skin} roughness={0.86}/></mesh>
+    <mesh position={[0, 1.99, 0]}><cylinderGeometry args={[0.14, 0.16, 0.27, 20]}/><meshStandardMaterial color={palette.skin} roughness={0.86}/></mesh>
+    <mesh position={[0, 1.91, 0]} scale={[0.19, 0.12, 0.18]}><sphereGeometry args={[1, 20, 16]}/><meshStandardMaterial color={jacket} roughness={0.65}/></mesh>
     <mesh position={[0, 2.28, 0]} scale={[0.32, 0.39, 0.3]} castShadow><sphereGeometry args={[1, 32, 24]}/><meshStandardMaterial color={palette.skin} roughness={0.82}/></mesh>
     {/* Hair silhouette, individual fringe and ears */}
     <mesh position={[0, 2.51, -0.025]} scale={[0.325, 0.19, 0.31]} rotation={[0.06, 0, -0.03]} castShadow><sphereGeometry args={[1, 24, 16]}/><meshStandardMaterial color={palette.hair} roughness={0.94}/></mesh>
@@ -99,14 +103,14 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
 
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
-    <Canvas camera={{ position: [0, 1.42, 4.8], fov: 34 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+    <Canvas camera={{ position: [0, 0.22, 7.1], fov: 26, near: 0.1, far: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
       <color attach="background" args={['#e9f0f7']} />
       <ambientLight intensity={1.55} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.5]} />
       <directionalLight position={[-3, 5, 4]} intensity={2.5} castShadow />
       <directionalLight position={[3, 2, -2]} intensity={1.1} color="#9fc7ff" />
       <BrokerModel identity={identity} outfit={outfit} />
-      <ContactShadows position={[0, -1.23, 0]} opacity={0.25} scale={2.4} blur={2.5} far={2.8} />
+      <ContactShadows position={[0, -0.96, 0]} opacity={0.3} scale={2.6} blur={2.2} far={3.2} />
     </Canvas>
   </div>
 }
