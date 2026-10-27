@@ -168,17 +168,18 @@ function District({ gameMinutes }: { gameMinutes: number }) {
 }
 
 export function CityWindowView({ night, wall = 'left' }: { night: boolean; wall?: 'left' | 'back' }) {
-  // The back-wall layout is deliberately aligned with the player's spawn direction,
-  // so the city is visible immediately instead of hidden to the far left.
-  const position: [number, number, number] = wall === 'back' ? [0.72, 0.16, -6.55] : [-5.72, 0.38, -1.15]
-  const rotation: [number, number, number] = wall === 'back' ? [0, 0, 0] : [0, Math.PI / 2, 0]
-  return <group position={position} rotation={rotation} scale={wall === 'back' ? 0.48 : 0.46}>
-    <Building x={-1.65} z={-0.6} width={3.4} depth={2.6} height={5.3} color={night ? '#344b5d' : '#7d9296'} label="КАФЕ" shop night={night} />
-    <Building x={1.15} z={0.45} width={2.8} depth={2.2} height={4.1} color={night ? '#263b4c' : '#718892'} label="ЖИЛОЙ ДОМ" night={night} />
-    <Building x={0.0} z={-3.7} width={3.8} depth={2.8} height={7.2} color={night ? '#2b4053' : '#8aa2aa'} label="БИЗНЕС-ЦЕНТР" night={night} />
-    <Block position={[0, 0.04, 2.5]} size={[12, 0.08, 0.8]} color="#343e43" />
-    {[-3.2, -1.6, 0, 1.6, 3.2].map((x) => <Tree key={x} position={[x, 0.05, 2.0]} />)}
-  </group>
+ const position:[number,number,number]=wall==='back'?[0.72,0.16,-6.55]:[-5.72,0.38,-1.15], rotation:[number,number,number]=wall==='back'?[0,0,0]:[0,Math.PI/2,0]
+ const skyline=Array.from({length:16},(_,i)=>{const lane=i%8,row=Math.floor(i/8),heights=[5.2,8.4,4.1,10.2,6.7,3.8,7.5,5.8],widths=[2.2,2.7,1.8,2.5,2,2.8,1.7,2.3],colors=night?['#263746','#344958','#243b48','#3b4b56']:['#7b969e','#8fa8ad','#718b94','#9baeb0'];return{x:-8.6+lane*2.45+(row%2)*.6,z:-4.8-row*3.7,height:heights[(lane+row*3)%heights.length],width:widths[(lane+row)%widths.length],color:colors[(lane*3+row)%colors.length]}})
+ return <group position={position} rotation={rotation} scale={wall==='back'?.48:.46}>
+  <Block position={[0,2.8,-10]} size={[25,8,.5]} color={night?'#1b2b39':'#b6c6c6'} />
+  {skyline.map((b,i)=><Building key={'skyline-'+i} x={b.x} z={b.z} width={b.width} depth={1.7+(i%3)*.5} height={b.height} color={b.color} label="" night={night} />)}
+  <Building x={-2.4} z={-1.2} width={3.1} depth={2.4} height={5.8} color={night?'#344b5d':'#7d9296'} label="КАФЕ" shop night={night} />
+  <Building x={1} z={.3} width={2.8} depth={2.2} height={4.7} color={night?'#263b4c':'#718892'} label="ЖИЛОЙ ДОМ" night={night} />
+  <Building x={4} z={-2.7} width={3.5} depth={2.6} height={7.8} color={night?'#2b4053':'#8aa2aa'} label="БИЗНЕС-ЦЕНТР" night={night} />
+  <Block position={[0,.04,2.5]} size={[18,.08,.8]} color="#343e43" />
+  {Array.from({length:11},(_,i)=><Tree key={'tree-'+i} position={[-7.2+i*1.45,.05,2]} />)}
+  <Block position={[0,.02,4.4]} size={[20,.04,.25]} color="#a7a99c" />
+ </group>
 }
 
 function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySceneProps & { onNearbyChange: (nearby: LocationId | 'home' | null) => void }) {
