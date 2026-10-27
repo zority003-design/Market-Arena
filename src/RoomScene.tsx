@@ -346,6 +346,11 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={backWallColor} textureKind="plaster" />
+      {/* Opposite wall: the old scene was missing the entire +Z side, exposing the room like a cutaway. */}
+      <Box position={[0, 1.58, 3.98]} size={[8, 3.56, 0.28]} color={backWallColor} roughness={0.92} textureKind="plaster" />
+      <Box position={[0, 0.14, 3.82]} size={[7.76, 0.17, 0.09]} color="#624a38" roughness={0.74} textureKind="wood" />
+      <Box position={[0, 0.255, 3.82]} size={[7.76, 0.035, 0.085]} color="#a88963" roughness={0.58} textureKind="wood" />
+      {[-3.72, -1.85, 0, 1.85, 3.72].map((x, i) => <Box key={'front-wall-trim-' + i} position={[x, 1.7, 3.82]} size={[0.045, 2.5, 0.045]} color="#8b765e" roughness={0.9} textureKind="wood" />)}
 
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
