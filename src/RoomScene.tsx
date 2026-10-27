@@ -281,7 +281,8 @@ function Cylinder({ position, radius, height, color, metalness = 0, roughness = 
 
 const woodPalette = ['#73523d', '#805c43', '#674936', '#896447', '#76543d']
 
-function FloorBoards() {
+function FloorBoards({ housingId }: { housingId: string }) {
+  const palette = housingId === 'dorm' ? ['#514b46', '#5b534b', '#46423f', '#655b52'] : housingId === 'premium-apartment' ? ['#c9b99c', '#bca987', '#d7c9ad', '#ad9977'] : woodPalette
   const boards = useMemo(() => Array.from({ length: 20 }, (_, row) => {
     const widths = row % 2 ? [2.35, 2.55, 2.9] : [1.9, 2.7, 3.2]
     let cursor = -3.9
@@ -292,7 +293,7 @@ function FloorBoards() {
         key: row + '-' + col,
         position: [x, 0.056, -3.705 + row * 0.39] as [number, number, number],
         size: [width - 0.025, 0.022, 0.365] as [number, number, number],
-        color: woodPalette[(row * 3 + col * 2) % woodPalette.length],
+        color: palette[(row * 3 + col * 2) % palette.length],
       }
     })
   }).flat(), [])
@@ -337,11 +338,11 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Front wall opposite the desk: deliberately overlaps the floor edge to seal the exterior slit. */}
       <Box position={[0, 1.57, -3.98]} size={[8, 3.54, 0.28]} color={backWallColor} roughness={0.92} textureKind="plaster" />
       {/* Rear wall uses the same plaster texture as the side walls, with warm timber wainscoting and clear panel seams. */}
-      <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color="#806044" roughness={0.9} textureKind="wood" />
-      {Array.from({ length: 15 }, (_, i) => <Box key={'rear-wall-panel-' + i} position={[-3.72 + i * 0.53, 0.55, -3.825]} size={[0.025, 0.58, 0.025]} color="#4e3b2d" roughness={0.88} textureKind="wood" />)}
-      <Box position={[0, 0.91, -3.82]} size={[7.78, 0.045, 0.045]} color="#c09a6a" roughness={0.65} textureKind="wood" />
-      <Box position={[0, 1.24, -3.82]} size={[7.78, 0.035, 0.045]} color="#c09a6a" roughness={0.65} textureKind="wood" />
-      {[-3.72, -1.85, 0, 1.85, 3.72].map((x, i) => <Box key={'rear-wall-upper-trim-' + i} position={[x, 1.72, -3.865]} size={[0.045, 1.45, 0.045]} color="#8b765e" roughness={0.9} textureKind="wood" />)}
+      <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color={panoramicWindow ? "#d1c7b3" : "#806044"} roughness={0.9} textureKind="wood" />
+      {Array.from({ length: 15 }, (_, i) => <Box key={'rear-wall-panel-' + i} position={[-3.72 + i * 0.53, 0.55, -3.825]} size={[0.025, 0.58, 0.025]} color={panoramicWindow ? "#b8a16c" : "#4e3b2d"} roughness={0.88} textureKind="wood" />)}
+      <Box position={[0, 0.91, -3.82]} size={[7.78, 0.045, 0.045]} color={panoramicWindow ? "#b8a16c" : "#c09a6a"} roughness={0.65} textureKind="wood" />
+      <Box position={[0, 1.24, -3.82]} size={[7.78, 0.035, 0.045]} color={panoramicWindow ? "#b8a16c" : "#c09a6a"} roughness={0.65} textureKind="wood" />
+      {[-3.72, -1.85, 0, 1.85, 3.72].map((x, i) => <Box key={'rear-wall-upper-trim-' + i} position={[x, 1.72, -3.865]} size={[0.045, 1.45, 0.045]} color={panoramicWindow ? "#c8b990" : "#8b765e"} roughness={0.9} textureKind="wood" />)}
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
       <Box position={[-3.98, 1.62, panoramicWindow ? -3.45 : -3.15]} size={[0.18, 3.4, panoramicWindow ? 0.9 : 1.7]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 1.62, panoramicWindow ? 2.3 : 2.0]} size={[0.18, 3.4, panoramicWindow ? 3.4 : 4.0]} color={backWallColor} textureKind="plaster" />
@@ -353,8 +354,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Plain uninterrupted blue-gray wall opposite the bed; decorative seams removed at the user's request. */}
       <Box position={[0, 0.16, 3.80]} size={[7.76, 0.22, 0.08]} color="#344c59" roughness={0.9} textureKind="wood" />
 
-      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
-      <FloorBoards />
+      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : housingId === "premium-apartment" ? "#b7a98f" : "#75644f"} roughness={0.98} textureKind="wood" />
+      <FloorBoards housingId={housingId} />
 
       {/* Warm wood skirting, consistent around the room. */}
       <Box position={[0, 0.14, -3.86]} size={[7.76, 0.17, 0.09]} color="#624a38" roughness={0.74} textureKind="wood" />
@@ -398,7 +399,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.79, 1.9, panoramicWindow ? -3.0 : -2.3]} size={[0.16, 1.9, 0.12]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
       <Box position={[-3.79, 1.9, panoramicWindow ? -1.2 : 0.0]} size={[0.16, 1.9, 0.12]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
       {panoramicWindow && <Box position={[-3.79, 1.9, 0.6]} size={[0.16, 1.9, 0.12]} color="#b8b6ad" roughness={0.38} metalness={0.18} />}
-      {panoramicWindow && <Box position={[-3.78, 1.9, -1.2]} size={[0.08, 1.78, 3.52]} color="#b5b5ae" roughness={0.28} metalness={0.32} transparent opacity={0.13} />
+      {panoramicWindow && <Box position={[-3.78, 1.9, -1.2]} size={[0.08, 1.78, 3.52]} color="#b5b5ae" roughness={0.28} metalness={0.32} transparent opacity={0.13} />}
       <Box position={[-3.79, 2.82, -1.15]} size={[0.16, 0.12, panoramicWindow ? 3.62 : 2.45]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
       <Box position={[-3.79, 0.98, -1.15]} size={[0.18, 0.14, panoramicWindow ? 3.62 : 2.45]} color={housingId === 'premium-apartment' ? "#c4bca8" : "#7d6a56"} roughness={0.66} />
       <Box position={[-3.82, 1.9, -1.15]} size={[0.014, 1.62, panoramicWindow ? 3.45 : 2.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
