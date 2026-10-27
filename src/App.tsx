@@ -436,6 +436,13 @@ export default function App() {
   }, [soundEnabled, ambienceEnabled, panel, pauseOpen, mainMenu])
 
   useEffect(() => {
+    if (!soundEnabled || !ambienceEnabled || panel !== 'city' || pauseOpen || mainMenu) return
+    // Occasional distant traffic keeps the outdoor area alive without becoming repetitive.
+    const traffic = window.setInterval(() => playSound('street'), 12500)
+    return () => window.clearInterval(traffic)
+  }, [soundEnabled, ambienceEnabled, panel, pauseOpen, mainMenu])
+
+  useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null
       if (target?.closest('button, [role="button"], .desktop-app-icon, .side-link')) playSound('ui')
