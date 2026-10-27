@@ -20,6 +20,11 @@ export const DAILY_SALARY = 900
 export const STARTING_CASH = 18500
 export const STARTING_FIRM_CAPITAL = 25000
 export const STARTING_HOUSING_ID = 'dorm'
+export function getDailyQuota(day: number): { targetShares: number; targetAmount: number } {
+  const safeDay = Math.max(1, Math.floor(day))
+  return { targetShares: 25 + safeDay * 10, targetAmount: 8000 + safeDay * 4000 }
+}
+
 
 export const CLIENTS: ClientProfile[] = [
  { id:'alex-vorontsov', name:'Алексей Воронцов', initials:'АВ', age:34, profession:'Владелец небольшой студии дизайна', tier:0, budget:50000, ticket:12000, maxAllocation:.25, baseTrust:43, patience:74, experience:'Новичок', temperament:'Осторожный', goal:'Сохранить накопления и разобраться в инвестициях', quote:'«Хочу попробовать инвестировать, но мне уже обещали золотые горы. Чем вы отличаетесь?»', source:'Входящий звонок', minDay:1, minReputation:0, commissionRate:.03, bonusRate:.018, statusSensitive:false },
