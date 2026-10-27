@@ -169,7 +169,7 @@ function District({ gameMinutes }: { gameMinutes: number }) {
 
 export function CityWindowView({ night, wall = 'left' }: { night: boolean; wall?: 'left' | 'back' }) {
  const position:[number,number,number]=wall==='back'?[0.72,0.16,-6.55]:[-5.72,0.38,-1.15], rotation:[number,number,number]=wall==='back'?[0,0,0]:[0,Math.PI/2,0]
- const skyline=Array.from({length:24},(_,i)=>{const lane=i%8,row=Math.floor(i/8),heights=[5.2,8.4,4.1,10.2,6.7,3.8,7.5,5.8],widths=[2.2,2.7,1.8,2.5,2,2.8,1.7,2.3],colors=night?['#263746','#344958','#243b48','#3b4b56']:['#7b969e','#8fa8ad','#718b94','#9baeb0'];return{x:-8.6+lane*2.45+(row%2)*.6,z:-4.8-row*3.7,height:heights[(lane+row*3)%heights.length],width:widths[(lane+row)%widths.length],color:colors[(lane*3+row)%colors.length]}})
+ const skyline=Array.from({length:16},(_,i)=>{const lane=i%8,row=Math.floor(i/8),heights=[5.2,8.4,4.1,10.2,6.7,3.8,7.5,5.8],widths=[2.2,2.7,1.8,2.5,2,2.8,1.7,2.3],colors=night?['#263746','#344958','#243b48','#3b4b56']:['#7b969e','#8fa8ad','#718b94','#9baeb0'];return{x:-8.6+lane*2.45+(row%2)*.6,z:-4.8-row*3.7,height:heights[(lane+row*3)%heights.length],width:widths[(lane+row)%widths.length],color:colors[(lane*3+row)%colors.length]}})
  return <group position={position} rotation={rotation} scale={wall==='back'?.48:.46}>
   <Block position={[0,2.8,-10]} size={[25,8,.5]} color={night?'#1b2b39':'#b6c6c6'} />
   {skyline.map((b,i)=><Building key={'skyline-'+i} x={b.x} z={b.z} width={b.width} depth={1.7+(i%3)*.5} height={b.height} color={b.color} label="" night={night} />)}
