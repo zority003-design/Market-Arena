@@ -10,7 +10,7 @@ const compiled = ts.transpileModule(source, {
 const economy = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'))
 const {
   CLIENTS, HOUSING, ROOM_ITEMS, calculateDeal, getAvailableClients, getBackgroundModifier,
-  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, settleDailyFinances,
+  getDailyLeadIds, getDailyQuota, getFirstImpression, getOutfitModifier, getVideoQuality, settleDailyFinances,
 } = economy
 
 test('career starts with a viable baseline and housing tiers have sustainable cost progression', () => {
@@ -128,4 +128,11 @@ test('lead count expands only at the intended reputation thresholds', () => {
   assert.ok(getDailyLeadIds(1, 0).length <= 2)
   assert.ok(getDailyLeadIds(10, 35).length <= 3)
   assert.ok(getDailyLeadIds(20, 60).length <= 4)
+})
+
+test('daily quota ramps gradually and uses the same helper for UI and shift settlement', () => {
+  assert.deepEqual(getDailyQuota(1), {targetShares:28,targetAmount:14000})
+  assert.deepEqual(getDailyQuota(2), {targetShares:36,targetAmount:20000})
+  assert.deepEqual(getDailyQuota(16), {targetShares:148,targetAmount:104000})
+  assert.deepEqual(getDailyQuota(0), getDailyQuota(1))
 })
