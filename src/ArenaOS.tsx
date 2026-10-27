@@ -1,10 +1,9 @@
 import './ArenaOS.css'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  Activity, Bell, TrendingUp, Check, ChevronRight,
-  CircleDollarSign, Clock3, Headphones, House, Laptop, MessageCircle, Mic,
-  Newspaper, PhoneCall, Search, Settings, ShieldCheck, ShoppingBag, Sparkles,
-  TrendingUp, Users, Video, Wallet, X
+  Activity, TrendingUp, Check, ChevronRight, Clock3, House, Laptop, Mic,
+  Newspaper, PhoneCall, Search, ShieldCheck, ShoppingBag, Sparkles, Users,
+  Video, Wallet, X
 } from 'lucide-react'
 import { CLIENTS, type ClientProfile } from './game/economy'
 import ClientAvatar2D from './ClientAvatar2D'
