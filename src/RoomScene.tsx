@@ -333,7 +333,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {[-2.55, 0, 2.55].flatMap((x) => [-2.55, 0, 2.55].map((z) => <group key={'ceiling-downlight-' + x + '-' + z} position={[x, 3.055, z]}><Cylinder position={[0, 0, 0]} radius={0.16} height={0.025} color="#d5d1c7" metalness={0.12} roughness={0.6} /><Cylinder position={[0, -0.016, 0]} radius={0.105} height={0.012} color="#fff7df" roughness={0.3} /></group>))}
       {[-3.78, 3.78].map((x) => <Box key={'ceiling-perimeter-' + x} position={[x, 3.095, 0]} size={[0.055, 0.08, 7.76]} color="#c9c5ba" roughness={0.84} />)}
       {/* Front wall opposite the desk: deliberately overlaps the floor edge to seal the exterior slit. */}
-      <Box position={[0, 1.57, -3.94]} size={[8, 3.54, 0.26]} color={backWallColor} roughness={0.92} textureKind="plaster" />
+      <Box position={[0, 1.57, -3.98]} size={[8, 3.54, 0.28]} color={backWallColor} roughness={0.92} textureKind="plaster" />
       {/* Rear wall uses the same plaster texture as the side walls, with warm timber wainscoting and clear panel seams. */}
       <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color="#806044" roughness={0.9} textureKind="wood" />
       {Array.from({ length: 15 }, (_, i) => <Box key={'rear-wall-panel-' + i} position={[-3.72 + i * 0.53, 0.55, -3.825]} size={[0.025, 0.58, 0.025]} color="#4e3b2d" roughness={0.88} textureKind="wood" />)}
