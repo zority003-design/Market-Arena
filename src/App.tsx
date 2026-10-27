@@ -9,6 +9,7 @@ import {
 import RoomScene from './RoomScene'
 import CityScene from './CityScene'
 import ClientAvatar2D from './ClientAvatar2D'
+import BrokerAvatar3D from './BrokerAvatar3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
@@ -325,7 +326,7 @@ function RoomItemIllustration({ id }: { id: string }) {
 }
 
 function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
-  return <PixelAvatar outfit={outfit} mode="full" className="wardrobe-pixel-avatar" />
+  return <BrokerAvatar3D identity="player" outfit={outfit} className="wardrobe-player-avatar" />
 }
 
 export default function App() {
