@@ -1,3 +1,4 @@
+import './ArenaOS.css'
 import { useEffect, useMemo, useState } from 'react'
 import {
   Activity, Bell, BriefcaseBusiness, ChartNoAxesCombined, Check, ChevronRight,
