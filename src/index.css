@@ -2987,3 +2987,65 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .desktop-shortcut-icon { width: 36px; height: 36px; }
   .desktop-rebuilt-shortcuts strong { font-size: 9px; }
 }
+
+/* Shared 2D pixel-art character and in-game product artwork. */
+.wardrobe-pixel-avatar {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: min(46%, 190px);
+  height: 272px;
+  overflow: visible;
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+  filter: drop-shadow(0 9px 0 rgba(0,0,0,.22));
+  animation: pixelBrokerIdle 3.6s steps(2, end) infinite;
+}
+.wardrobe-character-stage .wardrobe-pixel-avatar { flex: 0 0 auto; }
+.outfit-swatch { display:flex; align-items:flex-end; justify-content:center; min-height:100px; }
+.outfit-illustration { display:block; width:72px; height:112px; max-width:100%; image-rendering:pixelated; shape-rendering:crispEdges; }
+.outfit-preview-button { display:flex; width:100%; flex-direction:column; align-items:center; gap:2px; }
+.outfit-preview-caption { position:relative; z-index:2; }
+.self-pixel-avatar {
+  position:absolute;
+  z-index:2;
+  inset:2px 0 0;
+  display:block;
+  width:100%;
+  height:calc(100% - 7px);
+  image-rendering:pixelated;
+  shape-rendering:crispEdges;
+}
+.in-game-self-view .self-view-room { z-index:0; }
+.in-game-self-view > small { position:absolute; z-index:8; bottom:3px; left:0; right:0; text-align:center; }
+.room-item-illustration { image-rendering:pixelated; shape-rendering:crispEdges; }
+.shop-item-game-stage .room-item-illustration { width:100%; max-width:170px; height:106px; }
+@keyframes pixelBrokerIdle { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .wardrobe-pixel-avatar { animation:none; } }
+
+/* Career map: daily sales now visibly connect to a longer-term reason to play. */
+.career-roadmap {
+  margin-top:18px;
+  padding:15px;
+  border:1px solid rgba(218,185,118,.22);
+  border-radius:12px;
+  background:linear-gradient(105deg,rgba(28,42,37,.72),rgba(14,25,29,.82));
+}
+.career-roadmap-heading,.career-roadmap-next { display:flex; flex-direction:column; gap:5px; }
+.career-roadmap-heading > span,.career-roadmap-next > span { color:#c6a66f; font:8px 'DM Mono',monospace; letter-spacing:.12em; }
+.career-roadmap-heading strong { color:#eff3e9; font-size:13px; line-height:1.5; }
+.career-roadmap-path { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:13px 0; }
+.career-roadmap-path span { padding:5px 8px; border:1px solid rgba(156,183,169,.18); border-radius:5px; color:#80958c; font-size:9px; }
+.career-roadmap-path span.active { border-color:rgba(228,188,119,.55); color:#f1d49a; background:rgba(228,188,119,.08); }
+.career-roadmap-path span.complete { border-color:rgba(76,194,145,.35); color:#87d8b3; }
+.career-roadmap-path i { color:#647a70; font-size:10px; font-style:normal; }
+.career-roadmap-next { padding-top:11px; border-top:1px solid rgba(156,183,169,.15); }
+.career-roadmap-next strong { color:#d9eee2; font-size:11px; }
+.career-roadmap-next p { margin:0; color:#91a59b; font-size:10px; line-height:1.6; }
+.career-roadmap-note { display:block; margin-top:9px; color:#74867e; font-size:9px; line-height:1.5; }
+@media (max-width:600px) {
+  .wardrobe-pixel-avatar { height:235px; }
+  .career-roadmap { padding:12px; }
+  .career-roadmap-path { gap:5px; }
+  .career-roadmap-path span { font-size:8px; padding:5px 6px; }
+}
