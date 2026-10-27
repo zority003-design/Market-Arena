@@ -28,7 +28,7 @@ export type RoomItem = {
 export const DAILY_SALARY = 1100
 export const STARTING_CASH = 22000
 export const STARTING_FIRM_CAPITAL = 25000
-export const STARTING_HOUSING_ID = 'dorm'
+export const STARTING_HOUSING_ID = 'studio'
 export const BUSINESS_UPGRADES: BusinessUpgrade[] = [
  { id:'lead-network', name:'Сеть рекомендаций', price:7500, minDay:2, minReputation:10, payoutCap:1500, trustBonus:0, description:'Покупаешь доступ к небольшому каталогу новых лидов и отраслевым знакомствам.', effect:'+1 дополнительный звонок в день и более ранний доступ к нескольким клиентам.' },
  { id:'research-terminal', name:'Аналитический терминал', price:18000, minDay:5, minReputation:20, payoutCap:2300, trustBonus:2, description:'Сводки по компаниям, сравнительные таблицы и сценарии риска вместо презентаций на глаз.', effect:'До +2 к стартовому доверию и повышенный предел личного бонуса.' },
