@@ -1146,7 +1146,7 @@ export default function App() {
           <div className="computer-topbar os-topbar">
             <button className="back-button" onClick={() => { setPanel('room'); setCallStatus('idle'); setPauseOpen(false) }}><ArrowLeft size={16} /> В комнату</button>
             <div className="os-topbar-center"><span className="os-status-dot" /> Рабочая станция · {String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</div>
-            <button className="os-pause-button" onClick={() => setPauseOpen(true)}><span>Ⅱ</span> Пауза</button>
+            <button className="os-pause-button" onClick={() => setPauseOpen(true)}><Pause size={16} strokeWidth={2.6} /> Пауза</button>
           </div>
           <div className={'terminal-body os-terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '') + (tab === 'calls' && callStatus === 'active' ? ' immersive-call-body' : '')}>
             <aside className="terminal-sidebar">
@@ -1173,6 +1173,11 @@ export default function App() {
                 <div className="desktop-page desktop-rebuilt">
                   <div className="desktop-rebuilt-glow" />
                   <div className="desktop-rebuilt-topline"><div><span className="desktop-rebuilt-mark">▦</span><span><strong>ARENA OS</strong><small>Рабочая станция брокера</small></span></div><span className="desktop-rebuilt-session"><i /> ОФЛАЙН-СЕССИЯ · ДЕНЬ {day}</span></div>
+                  <section className="desktop-os-welcome">
+                    <div className="desktop-os-welcome-copy"><span className="desktop-os-welcome-kicker">ТВОЯ СМЕНА · ДЕНЬ {day}</span><h2>{!marketReviewed ? 'Начни с изучения компании' : !newsReviewed ? 'Проверь последние новости' : callsToday === 0 ? 'Позвони первому клиенту' : 'Продолжай строить репутацию'}</h2><p>{!marketReviewed ? 'Открой биржевой терминал, изучи компанию «Котолёт», её преимущества и риски. Потом подготовься к разговору.' : !newsReviewed ? 'Новости меняют отношение клиентов к акциям. Учитывай события перед тем, как предлагать бумагу.' : callsToday === 0 ? 'Выбери клиента, объясни ему выгоду и риски. Не обещай гарантированную прибыль — доверие важнее.' : 'Проверь выполнение плана смены, следи за деньгами и репутацией, а затем выбирай следующую возможность.'}</p></div>
+                    <button className="desktop-os-primary-action" onClick={() => openAppWindow(!marketReviewed ? 'market' : !newsReviewed ? 'news' : 'calls')}>{!marketReviewed ? '1. Изучить компанию' : !newsReviewed ? '2. Открыть новости' : '3. Начать звонок'} <ArrowRight size={16}/></button>
+                    <div className="desktop-os-step-track"><span className={marketReviewed ? 'complete' : 'current'}><b>{marketReviewed ? '✓' : '1'}</b> Компания</span><i/><span className={newsReviewed ? 'complete' : !marketReviewed ? '' : 'current'}><b>{newsReviewed ? '✓' : '2'}</b> Новости</span><i/><span className={callsToday > 0 ? 'complete' : marketReviewed && newsReviewed ? 'current' : ''}><b>{callsToday > 0 ? '✓' : '3'}</b> Клиент</span></div>
+                  </section>
                   <div className="desktop-rebuilt-workspace">
                     <div className="desktop-rebuilt-shortcuts">
                       <button onClick={() => openAppWindow('overview')}><span className="desktop-shortcut-icon shortcut-overview"><Activity size={21} /></span><strong>Обзор</strong><small>Сводка дня</small></button>
