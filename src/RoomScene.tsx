@@ -388,9 +388,11 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
-      {/* Solid backing slab intentionally removed: the visible underside is made from timber planks, not a dark flat plane. */}
-      {Array.from({ length: 16 }, (_, i) => <Box key={'ceiling-board-' + i} position={[-3.64 + i * 0.485, 3.34, 0]} size={[0.47, 0.085, 7.98]} color={woodPalette[(i + 2) % woodPalette.length]} roughness={0.78} textureKind="wood" />)}
-      {[-2.65, 0, 2.65].map((z, i) => <Box key={'ceiling-beam-' + i} position={[0, 3.235, z]} size={[7.9, 0.17, 0.2]} color={i === 1 ? '#704c31' : '#815b3d'} roughness={0.82} textureKind="wood" />)}
+      {/* Modern ceiling: a clean graphite acoustic surface, recessed linear LEDs and slim dark rails. */}
+      <Box position={[0, 3.22, 0]} size={[7.98, 0.16, 7.98]} color="#202831" roughness={0.88} />
+      {Array.from({ length: 8 }, (_, i) => <Box key={'ceiling-acoustic-panel-' + i} position={[-3.42 + i * 0.975, 3.13, 0]} size={[0.86, 0.035, 7.72]} color={i % 2 ? '#29343e' : '#242e37'} roughness={0.94} />)}
+      {[-3.2, 0, 3.2].map((x, i) => <Box key={'ceiling-led-' + i} position={[x, 3.105, 0]} size={[0.045, 0.025, 6.4]} color="#b9f5e6" emissive="#55d9b5" emissiveIntensity={i === 1 ? 1.4 : 0.8} roughness={0.35} />)}
+      {[-3.35, 3.35].map((x, i) => <Box key={'ceiling-rail-' + i} position={[x, 3.105, 0]} size={[0.055, 0.045, 7.65]} color="#111820" roughness={0.6} metalness={0.35} />)}
       {/* The rear wall has a contrasting finish and visible wood panelling so it cannot disappear into the background. */}
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} roughness={0.92} textureKind="plaster" />
       {/* Rear wall uses the same plaster texture as the side walls, with warm timber wainscoting and clear panel seams. */}
