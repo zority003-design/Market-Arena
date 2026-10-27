@@ -111,10 +111,8 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     <ambientLight intensity={night ? 0.34 : 1.05} />
     <hemisphereLight args={[night ? '#8298bd' : '#e1eff2', '#4a5548', night ? 0.45 : 1.25]} />
     <directionalLight position={[-12, 18, 8]} intensity={night ? 0.55 : 2.1} color={evening ? '#f0d1a6' : '#fff2dc'} castShadow shadow-mapSize={[2048, 2048]} />
-    {/* Pedestrian courtyard in front of the home. The street was removed so no asphalt or traffic can overlap the house. */}
+    {/* Grass courtyard in front of the home. No paved entry path, road markings or traffic. */}
     <Block position={[0, -0.22, -4]} size={[48, 0.4, 44]} color="#536b50" roughness={1} />
-    <Block position={[0, -0.005, 2.25]} size={[2.25, 0.055, 5.2]} color="#a6a394" roughness={0.98} />
-    {Array.from({ length: 7 }, (_, i) => <Block key={'entry-path-seam-' + i} position={[-0.86 + i * 0.29, 0.025, 2.25]} size={[0.025, 0.008, 5.05]} color="#85877e" roughness={1} />)}
     {[-8.8, -6.8, -4.8, 4.8, 6.8, 8.8].map((x, i) => <Block key={'front-garden-bed-' + i} position={[x, 0.02, 1.1 + (i % 2) * 1.3]} size={[1.2, 0.08, 0.92]} color={i % 2 ? '#6c8055' : '#748861'} roughness={1} />)}
     {[-7.8, -5.8, 5.8, 7.8].map((x, i) => <group key={'front-shrub-' + i} position={[x, 0, 0.55 + (i % 2) * 1.45]}>
       <Block position={[0, 0.32, 0]} size={[0.48, 0.64, 0.48]} color="#3e6847" roughness={1} />
