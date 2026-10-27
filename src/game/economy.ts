@@ -13,7 +13,7 @@ export type HousingOption = {
 }
 export type RoomItem = {
   id: string; name: string; price: number; firstImpression: number; videoQuality: number
-  suspicion: number; minDay: number; description: string
+  suspicion: number; minDay: number; minLevel?: number; description: string
   category: 'comfort' | 'video' | 'background' | 'work'
 }
 export const DAILY_SALARY = 900
@@ -41,12 +41,12 @@ export const ROOM_ITEMS: RoomItem[] = [
  { id:'desk-lamp', name:'Настольная лампа', price:1200, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'comfort', description:'Ровнее свет на лице и меньше усталости вечером.' },
  { id:'used-chair', name:'Б/у офисный стул', price:3500, firstImpression:0, videoQuality:0, suspicion:0, minDay:1, category:'comfort', description:'Комфортнее работать весь день.' },
  { id:'headset', name:'Гарнитура с микрофоном', price:4500, firstImpression:1, videoQuality:2, suspicion:0, minDay:1, category:'video', description:'Чётче звук и меньше недопонимания.' },
- { id:'ring-light', name:'Кольцевая лампа', price:5500, firstImpression:1, videoQuality:2, suspicion:0, minDay:2, category:'video', description:'Ровный свет помогает выглядеть собраннее.' },
- { id:'hd-camera', name:'HD-веб-камера', price:7500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, category:'video', description:'Более чёткая картинка на видеозвонке.' },
+ { id:'ring-light', name:'Кольцевая лампа', price:5500, firstImpression:1, videoQuality:2, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Ровный свет помогает выглядеть собраннее.' },
+ { id:'hd-camera', name:'HD-веб-камера', price:7500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Более чёткая картинка на видеозвонке.' },
  { id:'neutral-backdrop', name:'Нейтральный фон', price:8000, firstImpression:2, videoQuality:1, suspicion:0, minDay:3, category:'background', description:'Аккуратная обстановка без показной роскоши.' },
- { id:'second-monitor', name:'Второй монитор', price:12000, firstImpression:0, videoQuality:0, suspicion:0, minDay:4, category:'work', description:'Удобнее сравнивать отчёт, новости и условия.' },
- { id:'chromakey-kit', name:'Хромакей-комплект', price:18000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
- { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, category:'video', description:'Профессиональный звук для сложных переговоров.' },
+ { id:'second-monitor', name:'Второй монитор', price:12000, firstImpression:0, videoQuality:0, suspicion:0, minDay:4, minLevel:2, category:'work', description:'Удобнее сравнивать отчёт, новости и условия.' },
+ { id:'chromakey-kit', name:'Хромакей-комплект', price:18000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, minLevel:3, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
+ { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, minLevel:4, category:'video', description:'Профессиональный звук для сложных переговоров.' },
 ]
 export function getAvailableClients(day:number, reputation:number):ClientProfile[] {
  return CLIENTS.filter(client => day>=client.minDay && reputation>=client.minReputation)
