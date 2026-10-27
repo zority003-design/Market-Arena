@@ -2561,7 +2561,7 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 @media(max-width:760px){.daily-mission-panel{padding:15px;border-radius:12px}.daily-mission-heading{display:block}.daily-mission-target{display:inline-block;margin-top:12px;text-align:left}.daily-mission-brief-grid{grid-template-columns:1fr}.daily-mission-steps{grid-template-columns:1fr}.daily-mission-company{flex-wrap:wrap}.daily-mission-research{margin-left:54px}.daily-mission-boss-quote{display:block}.daily-mission-boss-quote p{margin-top:7px}}
 
 /* Negotiation HUD v2: clear trust goal, readable timer, real desktop window resizing. */
-.os-floating-window:not(.maximized):not(.minimized){resize:both;overflow:hidden;min-width:320px;min-height:230px;max-width:calc(100vw - 20px);max-height:calc(100vh - 90px)}
+.os-floating-window:not(.maximized):not(.minimized){resize:both;overflow:hidden;min-width:min(320px,calc(100vw - 24px));min-height:180px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 90px)}
 .os-floating-content{height:calc(100% - 44px);overflow:auto;overscroll-behavior:contain}
 .negotiation-answer{grid-template-columns:36px minmax(0,1fr)!important}
 .negotiation-answer>span{line-height:1.55}
