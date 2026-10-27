@@ -480,3 +480,5 @@
 .arena-os-video-tile.self small { position:absolute; z-index:5; bottom:6px; left:6px; right:6px; }
 .arena-os-first-purchases { grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); }
 @media(max-width:620px) { .arena-os-stock-picker-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+.arena-os-client-goal { margin:8px 0 12px; padding:10px 12px; border-left:3px solid #d6a64f; border-radius:0 8px 8px 0; background:#fff7e5; color:#4b3b20; font-size:12px; line-height:1.55; }
