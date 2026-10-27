@@ -50,7 +50,9 @@ test('every client has an explicit trust threshold and at least one suitable sto
   }
   assert.equal(getClientTrustRequirement(CLIENTS.find(c => c.id === 'diana-volkova')), 76)
   assert.equal(getClientStockFit('alex-vorontsov', 'KOTL').suitable, true)
+  assert.equal(getClientStockFit('alex-vorontsov', 'KTLT').suitable, true, 'ARENA OS alias maps to the growth stock profile')
   assert.equal(getClientStockFit('boris-zhukov', 'TAPK').suitable, false)
+  assert.equal(getClientStockFit('boris-zhukov', 'BYTE').suitable, false, 'speculative software launch should not suit a capital-preservation client')
   assert.equal(getClientStockFit('alina-fedorova', 'TAPK').suitable, true)
 })
 
