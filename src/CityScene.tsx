@@ -117,22 +117,26 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     <hemisphereLight args={[night ? '#8298bd' : '#e1eff2', '#4a5548', night ? 0.45 : 1.25]} />
     <directionalLight position={[-12, 18, 8]} intensity={night ? 0.55 : 2.1} color={evening ? '#f0d1a6' : '#fff2dc'} castShadow shadow-mapSize={[2048, 2048]} />
     {/* The street ends before the house. Keep the front yard pedestrian-only so asphalt never cuts through the building. */}
-    <Block position={[0, -0.22, -10]} size={[48, 0.4, 26]} color="#59625d" />
-    <Block position={[0, -0.01, -10]} size={[8.5, 0.08, 26]} color="#343e43" roughness={0.98} />
-    <Block position={[-6.1, 0.015, -10]} size={[3.6, 0.12, 26]} color="#8b9085" />
-    <Block position={[6.1, 0.015, -10]} size={[3.6, 0.12, 26]} color="#8b9085" />
-    <Block position={[0, 0.035, -10]} size={[0.13, 0.02, 26]} color="#d9c9a3" />
-    {Array.from({ length: 7 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, 2 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
-    <Block position={[-6.2, 0.06, -10]} size={[0.08, 0.03, 26]} color="#b8b8a5" />
-    <Block position={[6.2, 0.06, -10]} size={[0.08, 0.03, 26]} color="#b8b8a5" />
+    <Block position={[0, -0.22, -12]} size={[48, 0.4, 24]} color="#59625d" />
+    <Block position={[0, -0.01, -12]} size={[8.5, 0.08, 24]} color="#343e43" roughness={0.98} />
+    <Block position={[-6.1, 0.015, -12]} size={[3.6, 0.12, 24]} color="#8b9085" />
+    <Block position={[6.1, 0.015, -12]} size={[3.6, 0.12, 24]} color="#8b9085" />
+    <Block position={[0, 0.035, -12]} size={[0.13, 0.02, 24]} color="#d9c9a3" />
+    {Array.from({ length: 7 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, -1 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
+    <Block position={[-6.2, 0.06, -12]} size={[0.08, 0.03, 24]} color="#b8b8a5" />
+    <Block position={[6.2, 0.06, -12]} size={[0.08, 0.03, 24]} color="#b8b8a5" />
     {/* Sidewalk tiles, curbs and drain stay on the street side of the front yard. */}
-    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, -0.3 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, -0.3 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, -1.1 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
-    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, -1.1 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, -1.5 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, -1.5 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, -2.2 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, -2.2 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
     {Array.from({ length: 5 }, (_, i) => <RoadDetail key={'crosswalk-' + i} position={[-2.2 + i * 1.1, 0.052, -1.2]} size={[0.64, 0.025, 2.8]} color="#d3d1c4" />)}
-    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, -0.35]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
+    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, -1.4]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
 
+    {/* A small private front garden separates the house from the public street. */}
+    <Block position={[0, -0.035, 1.55]} size={[11, 0.08, 2.9]} color="#60775d" roughness={1} />
+    <Block position={[0, 0.012, 2.22]} size={[1.35, 0.045, 1.55]} color="#a7a69a" roughness={0.98} />
+    {[-0.43, 0, 0.43].map((x) => <Block key={'path-seam-' + x} position={[x, 0.038, 2.22]} size={[0.025, 0.006, 1.45]} color="#888d83" />)}
     {/* The player's small home is the same landmark that anchors the entrance back into the interior. */}
     <group position={[0, 0, 5.2]}>
       <Block position={[0, 1.65, 0]} size={[6.2, 3.3, 4.4]} color="#c0b29a" />
