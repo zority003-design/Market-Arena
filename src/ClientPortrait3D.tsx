@@ -58,8 +58,8 @@ function FreshCharacter({ tier, variant, outfit, mood }: Required<PortraitProps>
       {variant === 'player' && <mesh position={[0,0.43,0.05]} rotation={[0.1,0,-0.2]} scale={[0.22,0.08,0.2]}><sphereGeometry args={[1,24,16]}/><meshStandardMaterial color="#202a30" roughness={0.7}/></mesh>}
     </group>
     {/* tailored collar and tie: separate pieces, not painted-on details */}
-    <mesh position={[-0.15,0.42,0.355]} rotation={[0,0,-0.16]} scale={[0.16,0.23,0.035]}><coneGeometry args={[1,1,4]}><meshStandardMaterial color={outfit==='intern'?palette.shirt:'#e9e7df'} roughness={0.7}/></coneGeometry></mesh>
-    <mesh position={[0.15,0.42,0.355]} rotation={[0,0,0.16]} scale={[0.16,0.23,0.035]}><coneGeometry args={[1,1,4]}><meshStandardMaterial color={outfit==='intern'?palette.shirt:'#e9e7df'} roughness={0.7}/></coneGeometry></mesh>
+    <mesh position={[-0.15,0.42,0.355]} rotation={[0,0,-0.16]} scale={[0.16,0.23,0.035]}><coneGeometry args={[1,1,4]}/><meshStandardMaterial color={outfit==='intern'?palette.shirt:'#e9e7df'} roughness={0.7}/></mesh>
+    <mesh position={[0.15,0.42,0.355]} rotation={[0,0,0.16]} scale={[0.16,0.23,0.035]}><coneGeometry args={[1,1,4]}/><meshStandardMaterial color={outfit==='intern'?palette.shirt:'#e9e7df'} roughness={0.7}/></mesh>
     {outfit !== 'intern' && <group>
       <mesh position={[0,0.34,0.405]} scale={[0.055,0.075,0.025]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color={palette.tie}/></mesh>
       <mesh position={[0,0.15,0.42]} rotation={[0,0,0.03]} scale={[0.055,0.21,0.027]}><coneGeometry args={[1,1,4]}/><meshStandardMaterial color={palette.tie} roughness={0.55}/></mesh>
