@@ -320,71 +320,64 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      {/* The main window is cut into the back wall and faces the starting camera. */}
-      <Box position={[-2.25, 1.62, -3.98]} size={[3.5, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
-      <Box position={[3.0, 1.62, -3.98]} size={[2.0, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
-      <Box position={[0.75, 3.01, -3.98]} size={[2.5, 0.62, 0.18]} color={backWallColor} textureKind="plaster" />
-      <Box position={[0.75, 0.55, -3.98]} size={[2.5, 1.1, 0.18]} color={backWallColor} textureKind="plaster" />
-      <Box position={[-3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#4d5d64" textureKind="plaster" />
-      {/* Closed wall: the outside district is intentionally out of scope for this chapter. */}
+      {/* The back wall is now uninterrupted; the window belongs on the left wall. */}
+      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      {/* Left-side window opening, with a proper sill and dark metal frame. */}
+      <Box position={[-3.98, 1.62, -2.85]} size={[0.18, 3.4, 2.3]} color="#4d5d64" textureKind="plaster" />
+      <Box position={[-3.98, 1.62, 2.55]} size={[0.18, 3.4, 2.9]} color="#4d5d64" textureKind="plaster" />
+      <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color="#4d5d64" textureKind="plaster" />
+      <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color="#4d5d64" textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color="#454d56" />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
 
-      {/* Back wall details and skirting */}
+      {/* Warm wood skirting, consistent around the room. */}
       <Box position={[0, 0.14, -3.86]} size={[7.7, 0.16, 0.07]} color="#b4a18b" />
       <Box position={[-3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#9b8a78" />
       <Box position={[3.86, 0.14, 0]} size={[0.07, 0.16, 7.7]} color="#8b7a6b" />
-      {/* A framed market chart instead of unexplained wall stripes. */}
-      <Box position={[-1.9, 1.96, -3.84]} size={[1.82, 1.22, 0.055]} color="#222b30" roughness={0.55} />
-      <Box position={[-1.9, 1.96, -3.805]} size={[1.68, 1.08, 0.012]} color="#10201f" roughness={0.8} />
-      <Text position={[-2.64, 2.42, -3.78]} fontSize={0.075} color="#a7c4b5" anchorX="left" anchorY="middle">KOTL · 1D</Text>
-      <Text position={[-1.23, 2.42, -3.78]} fontSize={0.075} color="#dc8178" anchorX="right" anchorY="middle">−4,2%</Text>
-      {[1.58, 1.82, 2.06, 2.3].map((y) => <Box key={y} position={[-1.9, y, -3.794]} size={[1.58, 0.006, 0.006]} color="#203b36" />)}
-      {[-2.55, -2.15, -1.75, -1.35].map((x) => <Box key={x} position={[x, 1.96, -3.793]} size={[0.006, 0.92, 0.006]} color="#203b36" />)}
 
-
-
-
-
-      {/* Candles and volume bars make the wall chart read as a real market chart, not random stripes. */}
-      {[
-        { x: -2.62, y: 1.78, h: 0.22, up: true }, { x: -2.38, y: 1.91, h: 0.31, up: true },
-        { x: -2.14, y: 1.85, h: 0.18, up: false }, { x: -1.9, y: 2.05, h: 0.34, up: true },
-        { x: -1.66, y: 2.16, h: 0.27, up: false }, { x: -1.42, y: 2.29, h: 0.32, up: true },
-      ].map((candle) => <group key={'wall-candle-' + candle.x}>
-        <Box position={[candle.x, candle.y, -3.776]} size={[0.025, candle.h + 0.1, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
-        <Box position={[candle.x, candle.y, -3.769]} size={[0.075, candle.h * 0.45, 0.008]} color={candle.up ? '#58dca5' : '#dc8178'} />
+      {/* A cozy framed kitten illustration replaces the ugly stock-chart wall art. */}
+      <Box position={[-2.25, 2.0, -3.84]} size={[1.55, 1.42, 0.07]} color="#5a4638" roughness={0.68} />
+      <Box position={[-2.25, 2.0, -3.795]} size={[1.39, 1.26, 0.018]} color="#f2e5cc" roughness={0.92} />
+      <mesh position={[-2.25, 1.99, -3.775]} castShadow>
+        <circleGeometry args={[0.42, 48]} />
+        <meshStandardMaterial color="#d8b28b" roughness={0.95} />
+      </mesh>
+      <mesh position={[-2.48, 2.31, -3.77]} rotation={[0, 0, -0.24]} castShadow>
+        <coneGeometry args={[0.19, 0.42, 3]} />
+        <meshStandardMaterial color="#d8b28b" roughness={0.95} />
+      </mesh>
+      <mesh position={[-2.02, 2.31, -3.77]} rotation={[0, 0, 0.24]} castShadow>
+        <coneGeometry args={[0.19, 0.42, 3]} />
+        <meshStandardMaterial color="#d8b28b" roughness={0.95} />
+      </mesh>
+      <mesh position={[-2.39, 2.06, -3.742]}><sphereGeometry args={[0.045, 20, 16]} /><meshStandardMaterial color="#35433d" /></mesh>
+      <mesh position={[-2.11, 2.06, -3.742]}><sphereGeometry args={[0.045, 20, 16]} /><meshStandardMaterial color="#35433d" /></mesh>
+      <mesh position={[-2.25, 1.94, -3.735]}><sphereGeometry args={[0.045, 16, 12]} /><meshStandardMaterial color="#bb8278" /></mesh>
+      <mesh position={[-2.25, 1.87, -3.735]}><sphereGeometry args={[0.13, 24, 12]} scale={[1, 0.25, 1]} /><meshStandardMaterial color="#f8efe1" /></mesh>
+      {[-1, 1].map((side) => <group key={'kitten-whiskers-' + side}>
+        <Box position={[-2.25 + side * 0.24, 1.96, -3.736]} size={[0.22, 0.012, 0.006]} color="#88705d" />
+        <Box position={[-2.25 + side * 0.25, 1.89, -3.736]} size={[0.19, 0.012, 0.006]} color="#88705d" />
       </group>)}
+      <Text position={[-2.25, 1.53, -3.76]} fontSize={0.095} color="#6b5a48" anchorX="center" anchorY="middle">маленький начальник</Text>
 
-      {/* Large skyline window: visible from the spawn point, with the city actually behind the glass. */}
-      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="back" />
-      <Box position={[-0.52, 1.9, -3.79]} size={[0.12, 1.86, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
-      <Box position={[2.02, 1.9, -3.79]} size={[0.12, 1.86, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
-      <Box position={[0.75, 2.79, -3.79]} size={[2.66, 0.12, 0.16]} color="#293b43" roughness={0.38} metalness={0.18} />
-      <Box position={[0.75, 1.02, -3.79]} size={[2.66, 0.14, 0.18]} color="#7d6a56" roughness={0.66} />
-      <Box position={[0.75, 1.9, -3.82]} size={[2.38, 1.58, 0.014]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
-      <Box position={[0.75, 1.9, -3.72]} size={[0.055, 1.62, 0.075]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[0.75, 1.9, -3.72]} size={[2.42, 0.055, 0.075]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
-      <Box position={[0.75, 2.88, -3.73]} size={[2.45, 0.055, 0.09]} color="#b6a58d" roughness={0.8} />
-      {[-0.36, -0.08, 0.2, 0.48, 0.76, 1.04, 1.32, 1.6, 1.88].map((x) => (
-        <Cylinder key={'window-ring-' + x} position={[x, 2.83, -3.68]} radius={0.026} height={0.06} color="#c3a46f" metalness={0.45} rotation={[0, 0, Math.PI / 2]} />
-      ))}
-      <Box position={[curtainsOpen ? -0.42 : 0.0, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
-      <Box position={[curtainsOpen ? 1.92 : 1.5, 1.92, -3.7]} size={[curtainsOpen ? 0.22 : 0.96, 1.42, 0.08]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      {/* Side-window city view: the skyline is now to the left of the desk, not behind the monitor. */}
+      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" />
+      <Box position={[-3.79, 1.9, -2.3]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[-3.79, 1.9, 0.0]} size={[0.16, 1.9, 0.12]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[-3.79, 2.82, -1.15]} size={[0.16, 0.12, 2.45]} color="#293b43" roughness={0.38} metalness={0.18} />
+      <Box position={[-3.79, 0.98, -1.15]} size={[0.18, 0.14, 2.45]} color="#7d6a56" roughness={0.66} />
+      <Box position={[-3.82, 1.9, -1.15]} size={[0.014, 1.62, 2.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.62, 0.055]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.055, 2.35]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.58, 0.045]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.045, 2.32]} color="#9eb7bd" roughness={0.42} metalness={0.22} />
+      <Box position={[-3.7, curtainsOpen ? 1.92 : 1.92, curtainsOpen ? -2.08 : -2.05]} size={[0.1, 1.42, curtainsOpen ? 0.22 : 0.7]} color="#3f6868" roughness={0.96} textureKind="fabric" />
+      <Box position={[-3.7, 1.92, curtainsOpen ? -0.22 : -0.25]} size={[0.1, 1.42, curtainsOpen ? 0.22 : 0.7]} color="#3f6868" roughness={0.96} textureKind="fabric" />
 
-      {/* A new illuminated broker sign makes this feel like the player's first tiny office. */}
-      <Box position={[3.0, 2.0, -3.82]} size={[1.55, 1.05, 0.075]} color="#172b2d" roughness={0.42} />
-      <Box position={[3.0, 2.0, -3.77]} size={[1.42, 0.92, 0.025]} color="#223f3d" roughness={0.5} />
-      <Box position={[3.0, 2.44, -3.74]} size={[0.84, 0.025, 0.012]} color="#45d5a2" emissive="#45d5a2" emissiveIntensity={0.55} />
-      <Text position={[3.0, 2.24, -3.73]} fontSize={0.19} color="#78e4bc" anchorX="center" anchorY="middle" outlineWidth={0.005} outlineColor="#0d201e">ARENA</Text>
-      <Text position={[3.0, 1.98, -3.73]} fontSize={0.062} color="#c3d8d0" anchorX="center" anchorY="middle">BROKER'S ROOM</Text>
-      <Text position={[3.0, 1.76, -3.73]} fontSize={0.045} color="#d8b67b" anchorX="center" anchorY="middle">KNOW THE RISK</Text>
-
-      {/* A real wall light switch, close enough to interact with using E. */}
-      <Box position={[-3.84, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
-      <Box position={[-3.81, 1.55, 2.05]} size={[0.025, 0.075, 0.055]} color="#f1ead9" roughness={0.35} />
-
+      {/* Small lived-in details: plant, books and framed personal photo. */}
+      <Box position={[-3.72, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
+      <Box position={[-3.69, 1.55, 2.05]} size={[0.025, 0.075, 0.055]} color="#f1ead9" roughness={0.35} />
       {/* Desk and metal frame */}
       <Box position={[0.15, 0.88, -2.36]} size={[2.7, 0.13, 1.05]} color="#674a37" roughness={0.5} textureKind="wood" />
       <Box position={[0.15, 0.81, -2.36]} size={[2.58, 0.035, 0.94]} color="#8d684b" roughness={0.4} textureKind="wood" />
