@@ -2866,3 +2866,49 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .sleep-transition .sleep-eyelid,
   .sleep-transition-caption { animation-duration: .01ms !important; animation-delay: 0ms !important; }
 }
+
+
+.negotiation-conversation-log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 116px;
+  margin: 10px 0 12px;
+  padding: 9px 10px;
+  overflow: auto;
+  border: 1px solid rgba(133,185,157,.15);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(13,27,28,.94), rgba(7,14,17,.92));
+  scrollbar-width: thin;
+  scrollbar-color: rgba(116,180,146,.3) transparent;
+}
+.negotiation-dialogue-line {
+  display: grid;
+  grid-template-columns: 72px minmax(0,1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(180,215,198,.06);
+}
+.negotiation-dialogue-line:last-child { border-bottom: 0; }
+.negotiation-dialogue-line > span {
+  padding-top: 2px;
+  color: #7ea995;
+  font: 8px 'DM Mono', monospace;
+  letter-spacing: .04em;
+}
+.negotiation-dialogue-line p {
+  margin: 0;
+  color: #c8d8d0;
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.negotiation-dialogue-line.you > span { color: #dfc18b; }
+.negotiation-dialogue-line.you p { color: #f0e3c8; }
+.negotiation-dialogue-line.system > span { color: #8c9e9b; }
+.negotiation-dialogue-line.system p { color: #91a7a0; font-style: italic; }
+@media (max-width: 520px) {
+  .negotiation-dialogue-line { grid-template-columns: 58px minmax(0,1fr); gap: 6px; }
+  .negotiation-dialogue-line p { font-size: 9px; }
+}
