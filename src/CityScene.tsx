@@ -17,8 +17,8 @@ const locations: { id: LocationId; label: string; x: number; z: number; hint: st
   { id: 'office', label: 'ДЕЛОВОЙ ЦЕНТР', x: 8.3, z: -1.3, hint: 'Офисы и недвижимость' },
 ]
 
-function Block({ position, size, color, roughness = 0.9, metalness = 0 }: { position: [number, number, number]; size: [number, number, number]; color: string; roughness?: number; metalness?: number }) {
-  return <mesh position={position} castShadow receiveShadow><boxGeometry args={size} /><meshStandardMaterial color={color} roughness={roughness} metalness={metalness} /></mesh>
+function Block({ position, size, color, roughness = 0.9, metalness = 0, transparent = false, opacity = 1 }: { position: [number, number, number]; size: [number, number, number]; color: string; roughness?: number; metalness?: number; transparent?: boolean; opacity?: number }) {
+  return <mesh position={position} castShadow receiveShadow><boxGeometry args={size} /><meshStandardMaterial color={color} roughness={roughness} metalness={metalness} transparent={transparent} opacity={opacity} /></mesh>
 }
 
 function Building({ x, z, width, depth, height, color, label, shop = false, night = false }: { x: number; z: number; width: number; depth: number; height: number; color: string; label: string; shop?: boolean; night: boolean }) {
@@ -183,7 +183,7 @@ function WindowRain() {
 export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: { night: boolean; wall?: 'left' | 'back'; gameMinutes?: number }) {
   const position: [number, number, number] = wall === 'back' ? [0.72, 0.16, -6.55] : [-5.72, 0.38, -1.15]
   const rotation: [number, number, number] = wall === 'back' ? [0, 0, 0] : [0, Math.PI / 2, 0]
-  const weather = Math.floor(gameMinutes / 180) % 4
+  const weather = Math.floor((gameMinutes + 360) / 180) % 4
   const rainy = weather === 2
   const overcast = weather === 1 || rainy
   const skyline = Array.from({ length: 18 }, (_, i) => {
