@@ -2987,3 +2987,15 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .desktop-shortcut-icon { width: 36px; height: 36px; }
   .desktop-rebuilt-shortcuts strong { font-size: 9px; }
 }
+
+
+/* Crisp pixel-art avatar and shop sprites */
+.pixel-avatar-sprite { shape-rendering: crispEdges; }
+.wardrobe-character-stage .wardrobe-pixel-avatar { width: min(100%, 270px); height: 100%; max-height: 430px; image-rendering: pixelated; }
+.outfit-illustration { width: 100%; height: 100%; image-rendering: pixelated; shape-rendering: crispEdges; }
+.self-view-pixel-avatar { position:absolute; left:50%; bottom:8px; transform:translateX(-50%); width:48%; height:76%; image-rendering:pixelated; shape-rendering:crispEdges; filter:drop-shadow(0 4px 0 rgba(0,0,0,.25)); }
+.room-item-illustration { image-rendering:pixelated; shape-rendering:crispEdges; }
+.outfit-preview-button { display:flex; width:100%; flex-direction:column; align-items:center; gap:2px; }
+.outfit-preview-caption { position:relative; z-index:2; }
+.desktop-os-career-widget { border-color:rgba(228,188,119,.28); }
+.desktop-os-career-widget strong { color:#e8d5aa; }
