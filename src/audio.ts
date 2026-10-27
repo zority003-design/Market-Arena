@@ -1,4 +1,4 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep' | 'typing' | 'murmur' | 'street'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep' | 'typing' | 'murmur' | 'street' | 'ring'
 
 type AudioSettings = {
   enabled: boolean
@@ -219,6 +219,13 @@ export function playSound(kind: SoundKind, intensity = 1) {
       break
     case 'notification':
       tone(740, 0.1, 'sine', 0.06, 880)
+      break
+    case 'ring':
+      // Short, recognizable desk-phone ring; it plays after the call-arrival delay.
+      tone(480, 0.28, 'square', 0.045, 520)
+      tone(620, 0.28, 'square', 0.045, 660)
+      window.setTimeout(() => { tone(480, 0.28, 'square', 0.045, 520); tone(620, 0.28, 'square', 0.045, 660) }, 360)
+      window.setTimeout(() => { tone(480, 0.24, 'square', 0.04, 520); tone(620, 0.24, 'square', 0.04, 660) }, 1250)
       break
     case 'tick':
       tone(1420, 0.018, 'sine', 0.014, 1250)
