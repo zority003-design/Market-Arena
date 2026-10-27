@@ -50,11 +50,11 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
       root.current.position.y = Math.sin(clock.elapsedTime * 1.25) * 0.018
     }
   })
-  return <group ref={root} position={[0, -1.0, 0]}>
+  return <group ref={root} position={[0, -1.05, 0]}>
     {/* Shoes and tailored trousers */}
-    <RoundedBox position={[-0.19, 0.13, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
-    <RoundedBox position={[0.19, 0.13, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
-    <mesh position={[-0.19, 0.68, 0]} scale={[0.19, 0.61, 0.19]} castShadow><capsuleGeometry args={[0.34, 0.62, 8, 14]}/><meshStandardMaterial color="#303b48" roughness={0.75}/></mesh>
+    <RoundedBox position={[-0.19, 0.2, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
+    <RoundedBox position={[0.19, 0.2, 0.045]} args={[0.25, 0.16, 0.43]} radius={0.055} smoothness={3} castShadow><meshStandardMaterial color="#20262c" roughness={0.42}/></RoundedBox>
+    <mesh position={[-0.19, 0.68, 0]} scale={[0.22, 0.61, 0.22]} castShadow><capsuleGeometry args={[0.34, 0.62, 8, 14]}/><meshStandardMaterial color="#303b48" roughness={0.75}/></mesh>
     <mesh position={[0.19, 0.68, 0]} scale={[0.19, 0.61, 0.19]} castShadow><capsuleGeometry args={[0.34, 0.62, 8, 14]}/><meshStandardMaterial color="#303b48" roughness={0.75}/></mesh>
     {/* Shirt, jacket, tailored lapels and collar */}
     <mesh position={[0, 1.43, 0]} scale={[0.59, 0.57, 0.34]} castShadow><capsuleGeometry args={[0.42, 0.55, 8, 18]}/><meshStandardMaterial color={jacket} roughness={0.63}/></mesh>
