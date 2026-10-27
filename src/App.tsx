@@ -317,7 +317,14 @@ function RoomItemIllustration({ id }: { id: string }) {
       <rect x="52" y="80" width="36" height="8" fill={outline}/><rect x="56" y="80" width="28" height="4" fill={metal}/>
       <rect x="40" y="88" width="60" height="4" fill={outline}/><rect x="48" y="84" width="44" height="4" fill={metalLight}/>
     </g>}
-    {!['desk-lamp','used-chair','headset','ring-light','hd-camera','neutral-backdrop','second-monitor','chromakey-kit','pro-mic'].includes(id) && <g>
+    {id === 'partner-desk' && <g>
+      <rect x="22" y="34" width="96" height="10" fill={outline}/><rect x="26" y="28" width="88" height="8" fill="#b58a60"/><rect x="30" y="32" width="80" height="4" fill="#d8b185"/>
+      <rect x="30" y="44" width="8" height="40" fill={outline}/><rect x="102" y="44" width="8" height="40" fill={outline}/>
+      <rect x="34" y="48" width="4" height="32" fill={metal}/><rect x="102" y="48" width="4" height="32" fill={metal}/>
+      <rect x="46" y="18" width="44" height="4" fill={outline}/><rect x="42" y="22" width="52" height="28" fill={outline}/><rect x="48" y="26" width="40" height="20" fill={dark}/><rect x="52" y="30" width="32" height="3" fill={greenLight}/><rect x="52" y="36" width="24" height="3" fill={green}/>
+      <rect x="58" y="50" width="20" height="6" fill={outline}/><rect x="46" y="56" width="44" height="4" fill={metal}/>
+    </g>}
+    {!['desk-lamp','used-chair','headset','ring-light','hd-camera','neutral-backdrop','second-monitor','chromakey-kit','pro-mic','partner-desk'].includes(id) && <g>
       <rect x="32" y="24" width="76" height="60" fill={outline}/><rect x="36" y="28" width="68" height="52" fill={dark}/>
       <rect x="44" y="36" width="52" height="4" fill={greenLight}/><rect x="44" y="48" width="36" height="4" fill={green}/><rect x="44" y="60" width="44" height="4" fill={greenLight}/>
       <rect x="60" y="84" width="20" height="8" fill={metal}/><rect x="44" y="92" width="52" height="4" fill={outline}/>
