@@ -152,3 +152,17 @@
 .arena-os-taskbar button.active{box-shadow:inset 0 -2px #60b8ff;border-radius:5px 5px 2px 2px}
 @keyframes arena-message-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:700px){.arena-os-chat-row{max-width:96%}.arena-os-dialogue-log{padding:8px;max-height:280px}.arena-os-free-text textarea{flex-basis:100%}.arena-os-free-text .arena-os-mic-button{flex:1}}
+
+.arena-os-economy-roadmap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(250px,.85fr);gap:14px;margin-top:18px}
+.arena-os-economy-main,.arena-os-economy-next{padding:19px;border:1px solid #d2e1f2;border-radius:11px;background:linear-gradient(145deg,#fff,#f4f8ff)}
+.arena-os-economy-main h2{margin:8px 0;color:#183b61;font-size:24px}
+.arena-os-economy-main p,.arena-os-economy-next p{color:#5c728b;font-size:12px;line-height:1.6}
+.arena-os-career-track{margin:16px 0 9px}
+.arena-os-career-track>div:first-child{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:#6b8097;font-size:10px}
+.arena-os-career-track b{color:#2c5279}
+.arena-os-economy-main>small,.arena-os-economy-next>small{display:block;color:#71869c;font-size:10px;line-height:1.6}
+.arena-os-economy-next{display:flex;flex-direction:column;align-items:flex-start;gap:5px;background:linear-gradient(145deg,#f5faff,#eaf3ff)}
+.arena-os-economy-next>b{margin-top:5px;color:#1b4168;font-size:17px}
+.arena-os-economy-next>strong{color:#1b5e9d;font-size:19px}
+.arena-os-economy-next .arena-os-secondary{margin-top:auto}
+@media(max-width:760px){.arena-os-economy-roadmap{grid-template-columns:1fr}.arena-os-economy-next .arena-os-secondary{margin-top:10px}.arena-os-career-track>div:first-child{flex-wrap:wrap}}
