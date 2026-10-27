@@ -193,22 +193,95 @@ function OutfitIllustration({ id }: { id: OutfitId }) {
 }
 
 function RoomItemIllustration({ id }: { id: string }) {
-  const stroke = '#b8dfcc'
-  const shade = '#24463e'
   const productName = ROOM_ITEMS.find((item) => item.id === id)?.name ?? id.replace(/-/g, ' ')
-  return <svg className={'room-item-illustration illustration-' + id} viewBox="0 0 140 110" role="img" aria-label={productName}>
-    <defs><linearGradient id={'item-metal-' + id} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#b8d2c7" /><stop offset="100%" stopColor="#47685e" /></linearGradient></defs>
-    <ellipse cx="70" cy="96" rx="44" ry="6" fill="#071011" opacity=".55" />
-    {id === 'desk-lamp' && <g stroke={stroke} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"><path d="M54 88h34M70 86l-8-34 23-17" /><path d="M74 27l28 4-9 17-28-4z" fill={shade} /><path d="M79 48l-5 9M86 49l-2 9" stroke="#e4c88b" strokeWidth="2" /></g>}
-    {id === 'used-chair' && <g stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M46 24q0-5 6-5h26q7 0 7 7v34H46z" fill={shade}/><path d="M43 58h47v13H43z" fill="#355a50"/><path d="M49 71l-7 20M83 71l9 20M66 71v20" fill="none"/><path d="M41 92h-8M92 92h9" fill="none"/></g>}
-    {id === 'headset' && <g stroke={stroke} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"><path d="M36 60V47a34 34 0 0 1 68 0v13"/><rect x="29" y="52" width="18" height="29" rx="7" fill={shade}/><rect x="93" y="52" width="18" height="29" rx="7" fill={shade}/><path d="M101 80q-3 15-22 15h-8" strokeWidth="3"/><circle cx="66" cy="95" r="4" fill="#d7b879" stroke="none"/></g>}
-    {id === 'ring-light' && <g strokeLinecap="round" strokeLinejoin="round" fill="none"><circle cx="70" cy="40" r="27" stroke="#e7d8a8" strokeWidth="7"/><circle cx="70" cy="40" r="19" stroke="#8bb9a4" strokeWidth="2"/><path d="M70 67v24M56 92h28" stroke={stroke} strokeWidth="4"/><path d="M48 26l-7-4M92 26l7-4" stroke="#f2d8a1" strokeWidth="2"/></g>}
-    {id === 'hd-camera' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><rect x="31" y="37" width="78" height="42" rx="9" fill={shade}/><circle cx="70" cy="58" r="17" fill="#0c1c1c"/><circle cx="70" cy="58" r="10" fill="#548b7b"/><circle cx="66" cy="54" r="4" fill="#c5ead8" stroke="none"/><path d="M48 36l7-8h30l7 8" fill="none"/><circle cx="98" cy="47" r="3" fill="#d7b879" stroke="none"/></g>}
-    {id === 'neutral-backdrop' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><path d="M36 86V24M104 86V24M32 25h76" fill="none"/><path d="M42 29h56v55H42z" fill={shade}/><path d="M51 31v51M63 31v51M76 31v51M88 31v51" stroke="#547d6d" strokeWidth="2"/><path d="M31 88h15M94 88h15" fill="none"/></g>}
-    {id === 'second-monitor' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><rect x="18" y="23" width="48" height="43" rx="4" fill={shade}/><rect x="72" y="15" width="50" height="51" rx="4" fill="#19332e"/><path d="M26 53l10-12 8 6 11-15M80 50l10-15 8 8 14-14" fill="none" stroke="#7de0b1" strokeWidth="2.5"/><path d="M42 67v13M96 67v13M31 81h23M84 81h24" fill="none"/></g>}
-    {id === 'chromakey-kit' && <g stroke={stroke} strokeWidth="4" strokeLinejoin="round"><path d="M31 88V21M109 88V21M27 22h86" fill="none"/><path d="M38 27h64v55H38z" fill="#2f8466"/><path d="M46 35h48M46 45h48M46 55h48M46 65h48" stroke="#67b994" strokeWidth="2" opacity=".65"/><path d="M30 89h-7M110 89h7" fill="none"/></g>}
-    {id === 'pro-mic' && <g stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><rect x="54" y="16" width="32" height="48" rx="15" fill={shade}/><path d="M45 44v8a25 25 0 0 0 50 0v-8M70 77v13M56 91h28" fill="none"/><path d="M62 24v22M70 22v24M78 24v22" stroke="#80c4a2" strokeWidth="2"/></g>}
-    {!['desk-lamp','used-chair','headset','ring-light','hd-camera','neutral-backdrop','second-monitor','chromakey-kit','pro-mic'].includes(id) && <g stroke={stroke} strokeWidth="4" fill={shade}><rect x="35" y="25" width="70" height="55" rx="7"/><path d="M48 91h44M70 80v11" fill="none"/></g>}
+  const outline = '#15252b'
+  const metal = '#8eaaa4'
+  const metalLight = '#c0d8cb'
+  const green = '#3b8167'
+  const greenLight = '#79c39a'
+  const dark = '#203b3b'
+  return <svg className={'room-item-illustration pixel-product-art illustration-' + id} viewBox="0 0 140 110" role="img" aria-label={productName} shapeRendering="crispEdges">
+    <rect x="26" y="96" width="88" height="4" fill="#02090b" opacity=".55" />
+    {id === 'desk-lamp' && <g>
+      <rect x="42" y="88" width="56" height="6" fill={outline}/><rect x="48" y="84" width="44" height="4" fill={metal}/>
+      <rect x="66" y="56" width="8" height="30" fill={outline}/><rect x="62" y="52" width="8" height="30" fill={metal}/>
+      <rect x="70" y="48" width="20" height="8" fill={outline}/><rect x="74" y="44" width="20" height="8" fill={metal}/>
+      <rect x="86" y="32" width="28" height="8" fill={outline}/><rect x="82" y="36" width="32" height="8" fill={outline}/>
+      <rect x="86" y="28" width="24" height="8" fill={metalLight}/><rect x="82" y="32" width="32" height="8" fill={metal}/>
+      <rect x="86" y="40" width="22" height="4" fill="#e8d69b"/><rect x="94" y="44" width="18" height="4" fill="#e8d69b" opacity=".7"/>
+      <rect x="64" y="60" width="4" height="20" fill={metalLight}/><rect x="50" y="88" width="40" height="2" fill={metalLight}/>
+    </g>}
+    {id === 'used-chair' && <g>
+      <rect x="44" y="16" width="48" height="8" fill={outline}/><rect x="40" y="24" width="56" height="36" fill={outline}/>
+      <rect x="48" y="24" width="40" height="28" fill={green}/><rect x="44" y="28" width="8" height="24" fill={greenLight}/>
+      <rect x="52" y="32" width="32" height="4" fill="#4f9479"/><rect x="52" y="40" width="32" height="4" fill={dark}/>
+      <rect x="36" y="56" width="68" height="12" fill={outline}/><rect x="40" y="56" width="60" height="8" fill="#3d6558"/>
+      <rect x="44" y="68" width="8" height="20" fill={outline}/><rect x="88" y="68" width="8" height="20" fill={outline}/>
+      <rect x="64" y="68" width="8" height="22" fill={metal}/><rect x="40" y="88" width="16" height="4" fill={outline}/><rect x="84" y="88" width="16" height="4" fill={outline}/>
+      <rect x="48" y="72" width="4" height="12" fill={metal}/><rect x="88" y="72" width="4" height="12" fill={metal}/>
+    </g>}
+    {id === 'headset' && <g>
+      <rect x="40" y="24" width="60" height="8" fill={outline}/><rect x="32" y="32" width="8" height="28" fill={outline}/><rect x="100" y="32" width="8" height="28" fill={outline}/>
+      <rect x="40" y="20" width="60" height="8" fill={metal}/><rect x="36" y="28" width="8" height="28" fill={metal}/><rect x="96" y="28" width="8" height="28" fill={metal}/>
+      <rect x="28" y="52" width="20" height="32" fill={outline}/><rect x="32" y="56" width="12" height="24" fill={green}/><rect x="36" y="60" width="4" height="16" fill={greenLight}/>
+      <rect x="92" y="52" width="20" height="32" fill={outline}/><rect x="96" y="56" width="12" height="24" fill={green}/><rect x="100" y="60" width="4" height="16" fill={greenLight}/>
+      <rect x="96" y="80" width="8" height="8" fill={outline}/><rect x="80" y="84" width="16" height="4" fill={metal}/><rect x="76" y="88" width="12" height="4" fill={metalLight}/>
+      <rect x="72" y="88" width="8" height="8" fill={outline}/><rect x="76" y="92" width="4" height="4" fill="#d7b879"/>
+    </g>}
+    {id === 'ring-light' && <g>
+      <rect x="52" y="12" width="36" height="8" fill={outline}/><rect x="40" y="20" width="12" height="8" fill={outline}/><rect x="88" y="20" width="12" height="8" fill={outline}/>
+      <rect x="32" y="28" width="8" height="28" fill={outline}/><rect x="100" y="28" width="8" height="28" fill={outline}/>
+      <rect x="40" y="56" width="12" height="8" fill={outline}/><rect x="88" y="56" width="12" height="8" fill={outline}/><rect x="52" y="64" width="36" height="8" fill={outline}/>
+      <rect x="52" y="16" width="36" height="4" fill="#f3e5b4"/><rect x="40" y="24" width="8" height="32" fill="#f3e5b4"/><rect x="92" y="24" width="8" height="32" fill="#f3e5b4"/>
+      <rect x="52" y="60" width="36" height="4" fill="#f3e5b4"/><rect x="48" y="28" width="8" height="24" fill="#d4e2c8"/><rect x="88" y="28" width="8" height="24" fill="#d4e2c8"/>
+      <rect x="66" y="68" width="8" height="24" fill={outline}/><rect x="62" y="72" width="16" height="16" fill={metal}/>
+      <rect x="46" y="92" width="48" height="4" fill={outline}/><rect x="54" y="88" width="32" height="4" fill={metalLight}/>
+    </g>}
+    {id === 'hd-camera' && <g>
+      <rect x="28" y="36" width="84" height="40" fill={outline}/><rect x="36" y="28" width="68" height="8" fill={outline}/>
+      <rect x="36" y="36" width="68" height="32" fill={dark}/><rect x="44" y="40" width="52" height="24" fill={green}/>
+      <rect x="52" y="44" width="36" height="16" fill={outline}/><rect x="56" y="44" width="28" height="16" fill="#16282e"/>
+      <rect x="60" y="48" width="20" height="8" fill="#6aa6b5"/><rect x="64" y="48" width="8" height="4" fill="#d4f2e9"/>
+      <rect x="92" y="40" width="8" height="8" fill="#d7b879"/><rect x="36" y="32" width="20" height="4" fill={metal}/>
+      <rect x="60" y="76" width="20" height="8" fill={outline}/><rect x="64" y="84" width="12" height="8" fill={metal}/>
+      <rect x="48" y="92" width="44" height="4" fill={outline}/><rect x="56" y="88" width="28" height="4" fill={metalLight}/>
+    </g>}
+    {id === 'neutral-backdrop' && <g>
+      <rect x="32" y="16" width="8" height="72" fill={outline}/><rect x="100" y="16" width="8" height="72" fill={outline}/><rect x="36" y="16" width="68" height="8" fill={outline}/>
+      <rect x="40" y="24" width="60" height="60" fill="#9da8a1"/><rect x="44" y="28" width="52" height="52" fill="#c2c8bd"/>
+      <rect x="48" y="28" width="4" height="52" fill="#d8d8c9"/><rect x="64" y="28" width="4" height="52" fill="#aeb7ad"/><rect x="80" y="28" width="4" height="52" fill="#d8d8c9"/>
+      <rect x="28" y="88" width="20" height="4" fill={outline}/><rect x="92" y="88" width="20" height="4" fill={outline}/>
+      <rect x="32" y="84" width="12" height="4" fill={metal}/><rect x="96" y="84" width="12" height="4" fill={metal}/>
+    </g>}
+    {id === 'second-monitor' && <g>
+      <rect x="12" y="24" width="52" height="44" fill={outline}/><rect x="16" y="28" width="44" height="36" fill="#152d35"/>
+      <rect x="72" y="16" width="56" height="52" fill={outline}/><rect x="76" y="20" width="48" height="44" fill="#15362f"/>
+      <rect x="20" y="48" width="8" height="8" fill={green}/><rect x="28" y="40" width="8" height="16" fill={greenLight}/><rect x="36" y="44" width="8" height="12" fill={green}/><rect x="44" y="32" width="8" height="24" fill={greenLight}/>
+      <rect x="80" y="48" width="8" height="8" fill={green}/><rect x="88" y="36" width="8" height="20" fill={greenLight}/><rect x="96" y="40" width="8" height="16" fill={green}/><rect x="104" y="28" width="12" height="28" fill={greenLight}/>
+      <rect x="32" y="68" width="12" height="16" fill={outline}/><rect x="94" y="68" width="12" height="16" fill={outline}/>
+      <rect x="20" y="84" width="36" height="4" fill={metal}/><rect x="82" y="84" width="40" height="4" fill={metal}/>
+    </g>}
+    {id === 'chromakey-kit' && <g>
+      <rect x="28" y="16" width="8" height="72" fill={outline}/><rect x="104" y="16" width="8" height="72" fill={outline}/><rect x="32" y="16" width="76" height="8" fill={outline}/>
+      <rect x="36" y="24" width="68" height="60" fill="#155b45"/><rect x="40" y="28" width="60" height="52" fill="#2a986a"/>
+      <rect x="44" y="32" width="52" height="4" fill="#6acb91"/><rect x="44" y="44" width="52" height="4" fill="#6acb91"/><rect x="44" y="56" width="52" height="4" fill="#6acb91"/><rect x="44" y="68" width="52" height="4" fill="#6acb91"/>
+      <rect x="24" y="88" width="20" height="4" fill={outline}/><rect x="96" y="88" width="20" height="4" fill={outline}/>
+      <rect x="32" y="84" width="12" height="4" fill={metal}/><rect x="100" y="84" width="12" height="4" fill={metal}/>
+    </g>}
+    {id === 'pro-mic' && <g>
+      <rect x="52" y="16" width="36" height="8" fill={outline}/><rect x="44" y="24" width="52" height="32" fill={outline}/>
+      <rect x="48" y="24" width="44" height="28" fill={metal}/><rect x="52" y="28" width="36" height="20" fill={dark}/>
+      <rect x="56" y="28" width="4" height="20" fill={greenLight}/><rect x="64" y="28" width="4" height="20" fill={green}/><rect x="72" y="28" width="4" height="20" fill={greenLight}/><rect x="80" y="28" width="4" height="20" fill={green}/>
+      <rect x="44" y="52" width="52" height="8" fill={outline}/><rect x="48" y="56" width="44" height="4" fill={metalLight}/>
+      <rect x="64" y="60" width="12" height="20" fill={outline}/><rect x="68" y="64" width="4" height="16" fill={metal}/>
+      <rect x="52" y="80" width="36" height="8" fill={outline}/><rect x="56" y="80" width="28" height="4" fill={metal}/>
+      <rect x="40" y="88" width="60" height="4" fill={outline}/><rect x="48" y="84" width="44" height="4" fill={metalLight}/>
+    </g>}
+    {!['desk-lamp','used-chair','headset','ring-light','hd-camera','neutral-backdrop','second-monitor','chromakey-kit','pro-mic'].includes(id) && <g>
+      <rect x="32" y="24" width="76" height="60" fill={outline}/><rect x="36" y="28" width="68" height="52" fill={dark}/>
+      <rect x="44" y="36" width="52" height="4" fill={greenLight}/><rect x="44" y="48" width="36" height="4" fill={green}/><rect x="44" y="60" width="44" height="4" fill={greenLight}/>
+      <rect x="60" y="84" width="20" height="8" fill={metal}/><rect x="44" y="92" width="52" height="4" fill={outline}/>
+    </g>}
   </svg>
 }
 
