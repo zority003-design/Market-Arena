@@ -1,9 +1,10 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'sleep'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep'
 
 type AudioSettings = {
   enabled: boolean
   ambience: boolean
   music: boolean
+  musicVolume: number
   voice: boolean
   curtainsOpen: boolean
   inRoom: boolean
@@ -20,7 +21,7 @@ let rainGain: GainNode | null = null
 let noiseSource: AudioBufferSourceNode | null = null
 let rainSource: AudioBufferSourceNode | null = null
 let settings: AudioSettings = {
-  enabled: true, ambience: true, music: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
+  enabled: true, ambience: true, music: true, musicVolume: 0.42, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
@@ -44,7 +45,7 @@ function updateMusic() {
     })
     musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
   }
-  musicPlayer.volume = Math.max(0, Math.min(1, settings.volume * 0.42))
+  musicPlayer.volume = Math.max(0, Math.min(1, settings.volume * settings.musicVolume))
   if (shouldPlay) void musicPlayer.play().catch(() => {})
   else musicPlayer.pause()
 }
@@ -149,7 +150,7 @@ function tone(frequency: number, duration: number, type: OscillatorType, volume:
   oscillator.stop(ctx.currentTime + duration + 0.03)
 }
 
-export function playSound(kind: SoundKind) {
+export function playSound(kind: SoundKind, intensity = 1) {
   const ctx = ensureAudio()
   updateMusic()
   if (!ctx || !settings.enabled) return
@@ -189,13 +190,17 @@ export function playSound(kind: SoundKind) {
       tone(1420, 0.018, 'sine', 0.014, 1250)
       break
     case 'countdown':
-      tone(1180, 0.075, 'sine', 0.09, 980)
+      tone(1180, 0.075, 'sine', 0.09 * Math.max(1, intensity), 980)
       break
     case 'lamp':
       tone(130, 0.045, 'square', 0.035, 85)
       break
     case 'curtain':
       tone(180, 0.13, 'sawtooth', 0.025, 95)
+      break
+    case 'wardrobe':
+      tone(210, 0.16, 'triangle', 0.045, 130)
+      window.setTimeout(() => tone(360, 0.09, 'sine', 0.025, 280), 100)
       break
     case 'sleep':
       tone(330, 0.22, 'sine', 0.05, 220)
