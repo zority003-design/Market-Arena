@@ -16,10 +16,37 @@ export type RoomItem = {
   suspicion: number; minDay: number; minLevel?: number; description: string
   category: 'comfort' | 'video' | 'background' | 'work'
 }
-export const DAILY_SALARY = 900
+export const DAILY_SALARY = 1200
 export const STARTING_CASH = 18500
 export const STARTING_FIRM_CAPITAL = 25000
 export const STARTING_HOUSING_ID = 'dorm'
+export function getDailyQuota(day:number):{targetShares:number;targetAmount:number} {
+ const safeDay=Math.max(1,Math.floor(day))
+ return { targetShares:20+safeDay*8, targetAmount:8000+safeDay*6000 }
+}
+
+export type DailyFinanceResult = {
+ cash: number
+ debt: number
+ salaryPaid: number
+ costsPaid: number
+ debtPaid: number
+ shortfall: number
+}
+
+/** Pay salary, then daily living costs, then use any remainder to repay debt. */
+export function settleDailyFinances(cash:number, debt:number, dailyCost:number, salary=DAILY_SALARY):DailyFinanceResult {
+ const safeCash=Math.max(0,Math.floor(cash))
+ const safeDebt=Math.max(0,Math.floor(debt))
+ const safeCost=Math.max(0,Math.floor(dailyCost))
+ const safeSalary=Math.max(0,Math.floor(salary))
+ const available=safeCash+safeSalary
+ const costsPaid=Math.min(available,safeCost)
+ const shortfall=safeCost-costsPaid
+ const remainder=available-costsPaid
+ const debtPaid=Math.min(safeDebt,remainder)
+ return { cash: remainder-debtPaid, debt: safeDebt-debtPaid+shortfall, salaryPaid: safeSalary, costsPaid, debtPaid, shortfall }
+}
 
 export const CLIENTS: ClientProfile[] = [
  { id:'alex-vorontsov', name:'Алексей Воронцов', initials:'АВ', age:34, profession:'Владелец небольшой студии дизайна', tier:0, budget:50000, ticket:12000, maxAllocation:.25, baseTrust:43, patience:74, experience:'Новичок', temperament:'Осторожный', goal:'Сохранить накопления и разобраться в инвестициях', quote:'«Хочу попробовать инвестировать, но мне уже обещали золотые горы. Чем вы отличаетесь?»', source:'Входящий звонок', minDay:1, minReputation:0, commissionRate:.03, bonusRate:.018, statusSensitive:false },
@@ -31,22 +58,22 @@ export const CLIENTS: ClientProfile[] = [
 ]
 
 export const HOUSING: HousingOption[] = [
- { id:'dorm', name:'Общежитие', price:0, dailyCost:650, firstImpression:-2, comfort:0, minDay:1, minReputation:0, description:'Тесно и шумно, зато можно начать без депозита.' },
- { id:'shared-flat', name:'Комната в общей квартире', price:12000, dailyCost:900, firstImpression:0, comfort:1, minDay:3, minReputation:0, description:'Больше тишины и места для оборудования.' },
- { id:'studio', name:'Небольшая студия', price:45000, dailyCost:1600, firstImpression:2, comfort:3, minDay:6, minReputation:20, description:'Приватность для видеозвонков и рабочее место.' },
- { id:'city-apartment', name:'Хорошая квартира', price:135000, dailyCost:3000, firstImpression:4, comfort:5, minDay:10, minReputation:40, description:'Солидный вид, но ежедневные расходы заметны.' },
- { id:'premium-apartment', name:'Премиальные апартаменты', price:480000, dailyCost:7000, firstImpression:5, comfort:6, minDay:16, minReputation:65, description:'Статус помогает в части встреч, содержание дорого.' },
+ { id:'dorm', name:'Общежитие', price:0, dailyCost:500, firstImpression:-2, comfort:0, minDay:1, minReputation:0, description:'Тесно и шумно, зато можно начать без депозита.' },
+ { id:'shared-flat', name:'Комната в общей квартире', price:14000, dailyCost:800, firstImpression:0, comfort:1, minDay:3, minReputation:0, description:'Больше тишины и места для оборудования.' },
+ { id:'studio', name:'Небольшая студия', price:45000, dailyCost:1400, firstImpression:2, comfort:3, minDay:6, minReputation:20, description:'Приватность для видеозвонков и рабочее место.' },
+ { id:'city-apartment', name:'Хорошая квартира', price:125000, dailyCost:2300, firstImpression:4, comfort:5, minDay:10, minReputation:40, description:'Солидный вид, но ежедневные расходы заметны.' },
+ { id:'premium-apartment', name:'Премиальные апартаменты', price:320000, dailyCost:3800, firstImpression:5, comfort:6, minDay:16, minReputation:65, description:'Статус помогает в части встреч, содержание дорого.' },
 ]
 export const ROOM_ITEMS: RoomItem[] = [
  { id:'desk-lamp', name:'Настольная лампа', price:1200, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'comfort', description:'Ровнее свет на лице и меньше усталости вечером.' },
- { id:'used-chair', name:'Б/у офисный стул', price:3500, firstImpression:0, videoQuality:0, suspicion:0, minDay:1, category:'comfort', description:'Комфортнее работать весь день.' },
- { id:'headset', name:'Гарнитура с микрофоном', price:4500, firstImpression:1, videoQuality:2, suspicion:0, minDay:1, category:'video', description:'Чётче звук и меньше недопонимания.' },
- { id:'ring-light', name:'Кольцевая лампа', price:5500, firstImpression:1, videoQuality:2, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Ровный свет помогает выглядеть собраннее.' },
- { id:'hd-camera', name:'HD-веб-камера', price:7500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Более чёткая картинка на видеозвонке.' },
- { id:'neutral-backdrop', name:'Нейтральный фон', price:8000, firstImpression:2, videoQuality:1, suspicion:0, minDay:3, category:'background', description:'Аккуратная обстановка без показной роскоши.' },
- { id:'second-monitor', name:'Второй монитор', price:12000, firstImpression:0, videoQuality:0, suspicion:0, minDay:4, minLevel:2, category:'work', description:'Удобнее сравнивать отчёт, новости и условия.' },
- { id:'chromakey-kit', name:'Хромакей-комплект', price:18000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, minLevel:3, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
- { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, minLevel:4, category:'video', description:'Профессиональный звук для сложных переговоров.' },
+ { id:'used-chair', name:'Б/у офисный стул', price:2500, firstImpression:0, videoQuality:0, suspicion:0, minDay:1, category:'comfort', description:'Комфортнее работать весь день.' },
+ { id:'headset', name:'Гарнитура с микрофоном', price:3500, firstImpression:1, videoQuality:2, suspicion:0, minDay:1, category:'video', description:'Чётче звук и меньше недопонимания.' },
+ { id:'ring-light', name:'Кольцевая лампа', price:4500, firstImpression:1, videoQuality:2, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Ровный свет помогает выглядеть собраннее.' },
+ { id:'hd-camera', name:'HD-веб-камера', price:6500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Более чёткая картинка на видеозвонке.' },
+ { id:'neutral-backdrop', name:'Нейтральный фон', price:7000, firstImpression:2, videoQuality:1, suspicion:0, minDay:3, category:'background', description:'Аккуратная обстановка без показной роскоши.' },
+ { id:'second-monitor', name:'Второй монитор', price:10000, firstImpression:0, videoQuality:0, suspicion:0, minDay:4, minLevel:2, category:'work', description:'Удобнее сравнивать отчёт, новости и условия.' },
+ { id:'chromakey-kit', name:'Хромакей-комплект', price:16000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, minLevel:3, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
+ { id:'pro-mic', name:'Микрофон и акустика', price:24000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, minLevel:4, category:'video', description:'Профессиональный звук для сложных переговоров.' },
 ]
 export function getAvailableClients(day:number, reputation:number):ClientProfile[] {
  return CLIENTS.filter(client => day>=client.minDay && reputation>=client.minReputation)
@@ -55,7 +82,9 @@ export function getFirstImpression(housingId:string, ownedItems:string[], client
  const home=HOUSING.find(option=>option.id===housingId) ?? HOUSING[0]
  const itemScore=ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.firstImpression ?? 0),0)
  const statusMismatch=client.statusSensitive && home.firstImpression<2 ? -2 : 0
- return Math.max(-5,Math.min(8,home.firstImpression+Math.min(5,itemScore)+statusMismatch))
+ // Comfort creates a small, reliable trust bonus: premium homes help, but never replace good negotiation.
+ const comfortBonus=Math.floor(home.comfort/2)
+ return Math.max(-5,Math.min(10,home.firstImpression+comfortBonus+Math.min(5,itemScore)+statusMismatch))
 }
 export function getVideoQuality(ownedItems:string[]):number {
  return Math.min(8,ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.videoQuality ?? 0),0))
@@ -89,7 +118,7 @@ export function getDailyLeadIds(
  invested:Record<string,number>={}
 ):string[] {
  const eligible=getAvailableClients(day,reputation).filter(client =>
-   day-(lastContact[client.id] ?? -100)>=3 &&
+   day-(lastContact[client.id] ?? -100)>=1 &&
    (dealCounts[client.id] ?? 0)<3 &&
    (invested[client.id] ?? 0)<client.budget
  )

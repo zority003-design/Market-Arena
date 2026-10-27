@@ -12,7 +12,7 @@ import ClientPortrait3D from './ClientPortrait3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PlayerModel3D from './PlayerModel3D'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getDailyQuota, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, settleDailyFinances, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -23,8 +23,8 @@ const NEGOTIATION_STAGES = ['ОТКРЫТИЕ', 'ПРОДУКТ И СПРОС', 
 
 const OUTFITS: { id: OutfitId; name: string; price: number; description: string }[] = [
   { id: 'intern', name: 'Стажёр', price: 0, description: 'Футболка, тёмные брюки и удобная обувь.' },
-  { id: 'classic', name: 'Классический брокер', price: 4500, description: 'Рубашка, аккуратный пиджак и деловой силуэт.' },
-  { id: 'premium', name: 'Премиальный костюм', price: 12500, description: 'Тёмный костюм, светлая рубашка и золотистые детали.' },
+  { id: 'classic', name: 'Классический брокер', price: 3500, description: 'Рубашка, аккуратный пиджак и деловой силуэт.' },
+  { id: 'premium', name: 'Премиальный костюм', price: 9500, description: 'Тёмный костюм, светлая рубашка и золотистые детали.' },
 ]
 
 const companies = [
@@ -513,8 +513,7 @@ export default function App() {
   const displayedChoices = activeQuestion ? (choiceOrders[questionIndex]?.map((index) => activeQuestion.choices[index]).filter(Boolean) ?? activeQuestion.choices) : []
   const trustLabel = trust >= 72 ? 'Высокое доверие' : trust >= 52 ? 'Осторожный интерес' : trust >= 32 ? 'Сомневается' : 'На грани отказа'
   const projectedDeal = calculateDeal(activeClient, trust, clientDealCounts[activeClient.id] ?? 0, clientInvested[activeClient.id] ?? 0)
-  const dailyQuotaShares = 25 + day * 10
-  const dailyQuotaAmount = 8000 + day * 4000
+  const { targetShares: dailyQuotaShares, targetAmount: dailyQuotaAmount } = getDailyQuota(day)
   const dailyQuotaCompany = companies[(day - 1) % companies.length]
 
   useEffect(() => {
@@ -838,7 +837,11 @@ export default function App() {
     if (cash < home.price) { setToast('Не хватает ' + (home.price - cash).toLocaleString('ru-RU') + ' ₽ на переезд и депозит.'); return }
     setCash((value) => value - home.price)
     setHousingId(home.id)
-    setToast('Переезд завершён: ' + home.name + '. Ежедневные расходы теперь ' + home.dailyCost.toLocaleString('ru-RU') + ' ₽.')
+    setPanel('room')
+    setNearbyRoomObject(null)
+    setCanInteractWithComputer(false)
+    playSound('ui')
+    setToast('Переезд завершён: ' + home.name + '. Комфорт +' + home.comfort + ', бонус первого доверия +' + (home.firstImpression + Math.floor(home.comfort / 2)) + '. Расходы: ' + home.dailyCost.toLocaleString('ru-RU') + ' ₽/день.')
   }
 
   function travelToCity(location: string) {
@@ -860,11 +863,10 @@ export default function App() {
   function endDay() {
     if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
     const shiftTargetCompany = companies[(day - 1) % companies.length]
-    const targetShares = 25 + day * 10
-    const targetAmount = 8000 + day * 4000
+    const { targetShares, targetAmount } = getDailyQuota(day)
     const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
-    const reward = success ? 1000 + day * 250 : 0
-    const penalty = success ? 0 : 750
+    const reward = success ? 700 + day * 100 : 0
+    const penalty = success ? 0 : 400
     if (success) { setCash((value) => value + reward); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
     else { setReputation((value) => Math.max(0, value - 3)); setFirmCapital((value) => Math.max(0, value - penalty)); setToast('План не выполнен: репутация −3, фирма потеряла ' + penalty.toLocaleString('ru-RU') + ' ₽.') }
     setShiftReport({ success, ticker: shiftTargetCompany.ticker, company: shiftTargetCompany.name, shares: dailySalesShares, targetShares, amount: dailySalesAmount, targetAmount, reward, penalty })
@@ -895,16 +897,12 @@ export default function App() {
       setCityLocation('office')
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
       const dailyCosts = currentHousing.dailyCost
-      const available = cash + DAILY_SALARY
-      const paidCosts = Math.min(available, dailyCosts)
-      const shortfall = dailyCosts - paidCosts
-      const remainder = available - paidCosts
-      const debtPayment = Math.min(debt, remainder)
-      setCash(remainder - debtPayment)
-      setDebt(Math.max(0, debt - debtPayment) + shortfall)
-      const debtNote = shortfall > 0
-        ? ' Просрочка по расходам: +' + shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
-        : debtPayment > 0 ? ' Погашено долга: ' + debtPayment.toLocaleString('ru-RU') + ' ₽.' : ''
+      const finances = settleDailyFinances(cash, debt, dailyCosts, DAILY_SALARY)
+      setCash(finances.cash)
+      setDebt(finances.debt)
+      const debtNote = finances.shortfall > 0
+        ? ' Просрочка по расходам: +' + finances.shortfall.toLocaleString('ru-RU') + ' ₽ к долгу.'
+        : finances.debtPaid > 0 ? ' Погашено долга: ' + finances.debtPaid.toLocaleString('ru-RU') + ' ₽.' : ''
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
@@ -1097,6 +1095,7 @@ export default function App() {
                     </div>
                     <aside className="desktop-rebuilt-widgets">
                       <section className="desktop-os-widget desktop-os-clock"><span className="desktop-os-widget-label"><Clock3 size={13} /> СИСТЕМНОЕ ВРЕМЯ</span><strong>{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</strong><small>День {day} · {currentHousing.name}</small></section>
+                      <section className="desktop-os-widget"><span className="desktop-os-widget-label"><House size={13} /> МОЙ ДОМ</span><strong>{currentHousing.name}</strong><div className="desktop-os-market-line"><span>Комфорт</span><b>{currentHousing.comfort}/6</b></div><div className="desktop-os-progress"><span style={{width: Math.min(100, currentHousing.comfort / 6 * 100) + '%'}} /></div><small>Первое доверие клиента: {currentHousing.firstImpression + Math.floor(currentHousing.comfort / 2) > 0 ? '+' : ''}{currentHousing.firstImpression + Math.floor(currentHousing.comfort / 2)} · содержание {currentHousing.dailyCost.toLocaleString('ru-RU')} ₽/день</small><button onClick={() => openAppWindow('housing')}>Улучшить жильё <ArrowRight size={13} /></button></section>
                       <section className="desktop-os-widget"><span className="desktop-os-widget-label"><TrendingUp size={13} /> РЫНОК СЕГОДНЯ</span><strong>{activeCompany.name}</strong><div className="desktop-os-market-line"><span>{activeCompany.ticker}</span><b>{getDisplayedPrice(activeCompany)}</b></div><small>Изменение {getDisplayedChange(activeCompany)} · риск {activeCompany.risk.toLowerCase()}</small><button onClick={() => openAppWindow('market')}>Открыть котировки <ArrowRight size={13} /></button></section>
                       <section className="desktop-os-widget"><span className="desktop-os-widget-label"><Wallet size={13} /> МОИ ФИНАНСЫ</span><strong>{cash.toLocaleString('ru-RU')} ₽</strong><div className="desktop-os-market-line"><span>Репутация</span><b>{reputation}/100</b></div><div className="desktop-os-progress"><span style={{width: reputation + '%'}} /></div><small>Капитал фирмы: {firmCapital.toLocaleString('ru-RU')} ₽</small></section>
                       <section className="desktop-os-widget desktop-os-mission-widget"><span className="desktop-os-widget-label"><Check size={13} /> ПЛАН СМЕНЫ</span><strong>{dailyQuotaCompany.ticker} · {Math.round(Math.min(100, dailySalesShares / dailyQuotaShares * 100))}%</strong><small>Продай {dailyQuotaShares} акций и сделай оборот {dailyQuotaAmount.toLocaleString('ru-RU')} ₽. Это влияет на премию и репутацию.</small><div className="desktop-os-progress"><span style={{width: Math.min(100, dailySalesShares / dailyQuotaShares * 100) + '%'}} /></div><button onClick={() => openAppWindow('market')}>Изучить цель <ArrowRight size={13} /></button><button onClick={() => openAppWindow('shop')}>Зачем улучшения? <ArrowRight size={13} /></button></section><section className="desktop-os-widget desktop-os-call-widget"><span className="desktop-os-widget-label"><Video size={13} /> ВХОДЯЩИЕ ЛИДЫ</span><strong>{availableClients.length} клиентов доступны</strong><small>{availableClients[0]?.name ?? 'Новых лидов пока нет'}</small><button onClick={() => openAppWindow('calls')}>Открыть видеозвонки <ArrowRight size={13} /></button></section>
@@ -1141,6 +1140,7 @@ export default function App() {
                 <div className="shop-page">
                   <div className="page-heading"><div><div className="eyebrow">ИНВЕНТАРЬ · ОБОРУДОВАНИЕ</div><h2>Улучши рабочее место</h2><p>Техника улучшает качество звонков и первое впечатление. Она не заменяет знания и честные ответы.</p></div><div className="market-status"><ShoppingBag size={14} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
                   <div className="economy-summary"><div><small>ЛИЧНЫЕ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>УСТАНОВЛЕНО ПРЕДМЕТОВ</small><strong>{ownedItems.length}</strong></div><div><small>КАЧЕСТВО ВИДЕО</small><strong>{getVideoQuality(ownedItems)}/8</strong></div></div>
+                  <section className="shop-housing-section"><div className="shop-housing-heading"><div><span className="eyebrow">НЕДВИЖИМОСТЬ</span><h3>Выбери новую комнату</h3><p>Комфорт даёт небольшой бонус к первому доверию клиента. Покупка сразу перенесёт тебя в новое жильё; аренда списывается ежедневно.</p></div><button className="secondary-action" onClick={() => setTab('housing')}>Все условия <ArrowRight size={14} /></button></div><div className="housing-list">{HOUSING.map((home, index) => { const current = home.id === housingId; const locked = day < home.minDay || reputation < home.minReputation; return <article key={home.id} className={current ? 'housing-option current' : 'housing-option'}><div className="housing-rank">0{index + 1}</div><div className="housing-option-main"><span className="eyebrow">УРОВЕНЬ {index + 1}</span><h3>{home.name}</h3><p>{home.description}</p><div className="housing-effects"><span>Комфорт +{home.comfort}</span><span>Доверие +{home.firstImpression + Math.floor(home.comfort / 2)}</span></div></div><div className="housing-option-buy"><strong>{home.price === 0 ? 'Бесплатно' : home.price.toLocaleString('ru-RU') + ' ₽'}</strong><small>{home.dailyCost.toLocaleString('ru-RU')} ₽ / день</small><button disabled={current || locked || cash < home.price} className={current ? 'secondary-action' : 'primary-action'} onClick={() => moveToHousing(home.id)}>{current ? 'Уже здесь' : locked ? 'Пока закрыто' : cash < home.price ? 'Не хватает денег' : 'Купить и переехать'}</button></div></article>})}</div></section>
                   <section className="shop-progression-panel"><div className="shop-progression-icon"><Sparkles size={19} /></div><div className="shop-progression-copy"><div><strong>Карьера · уровень {careerLevel.level}</strong><span>{careerLevel.currentXp} / {careerLevel.nextLevelAt} XP до следующего уровня</span></div><div className="shop-progression-track"><i style={{ width: careerLevel.progress + '%' }} /></div><small>Звонок: +25 XP · успешная сделка: ещё +35 XP · изучил рынок и новости перед звонком: +10 XP</small></div></section>
                   <div className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><WardrobeAvatar3D outfit={selectedOutfit} /><span className="wardrobe-stage-label">3D-ПРЕДПРОСМОТР ОБРАЗА</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ГАРДЕРОБ · ПЕРСОНАЖ</span><h3>Твой брокерский образ</h3><p>Выбирай образ для переговоров: одежда меняется и в гардеробе, и в маленьком видеокадре во время звонка.</p><div className="wardrobe-look-tags"><span>{selectedOutfit === 'premium' ? 'Премиальный костюм' : selectedOutfit === 'classic' ? 'Деловой пиджак' : 'Базовая футболка'}</span><span>{selectedOutfit === 'intern' ? 'Тёмные брюки' : 'Деловой силуэт'}</span><span>{selectedOutfit === 'premium' ? 'Золотые детали' : selectedOutfit === 'classic' ? 'Строгий стиль' : 'Повседневный стиль'}</span></div></div></div>
                   <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ГАРДЕРОБ</span><h3>Одежда персонажа</h3></div><span>На тебе: {OUTFITS.find((outfit) => outfit.id === selectedOutfit)?.name}</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '') + (outfitDetailsId === outfit.id ? ' details-open' : '')} key={outfit.id}><button className="outfit-preview-button" aria-label={'Примерить образ «' + outfit.name + '»'} onClick={() => { setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('ui') }}><div className="outfit-swatch"><OutfitIllustration id={outfit.id} /></div><span className="outfit-preview-caption">{wearing ? 'Сейчас надет' : 'Нажми для примерки'}</span></button><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><div className="outfit-card-actions"><button className="outfit-details-button" onClick={() => setOutfitDetailsId(outfitDetailsId === outfit.id ? null : outfit.id)}>{outfitDetailsId === outfit.id ? 'Скрыть детали' : 'Подробнее'}</button><button disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); playSound('ui'); return } setCash((value) => value - outfit.price); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('deal'); setToast('Новый образ добавлен в гардероб') }}>{wearing ? 'На тебе' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></div>{outfitDetailsId === outfit.id && <div className="outfit-detail-panel"><strong>Что даёт этот образ</strong><p>{outfit.id === 'intern' ? 'Бесплатный стартовый комплект. Не даёт бонуса к первому впечатлению, зато сохраняет деньги на важные покупки.' : outfit.id === 'classic' ? 'Деловой стиль для более убедительного образа на встречах. Это косметическое улучшение: знания компании и честность в ответах важнее одежды.' : 'Премиальный внешний вид для ролевого прогресса. Дороже остальных, но не гарантирует сделку и не заменяет подготовку.'}</p><span>{owned ? 'Уже куплено' : canAfford ? 'Можно купить сейчас' : 'Сначала накопи нужную сумму'}</span></div>}</article> })}</div></section>
