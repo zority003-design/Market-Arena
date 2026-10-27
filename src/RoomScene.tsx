@@ -4,6 +4,7 @@ import { ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
 import { playSound } from './audio'
 import { CityWindowView } from './CityScene'
+import { BrokerModel } from './BrokerAvatar3D'
 
 type RoomTextureKind = 'wood' | 'fabric' | 'plaster'
 
@@ -446,23 +447,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
           <Box position={[2.39, 1.22, z - 0.178]} size={[0.24, 0.014, 0.005]} color="#47d7a4" />
           <Box position={[2.57, 1.12, z - 0.178]} size={[0.25, 0.012, 0.005]} color="#699a91" />
           {employeeId && <group position={[2.48, 0, z + 0.78]}>
-            {/* Seated employee: overlapping torso, pelvis, sleeves, forearms and hands form one connected silhouette. */}
-            <Box position={[0, 0.61, 0]} size={[0.52, 0.45, 0.3]} color="#263540" roughness={0.78} />
-            <mesh position={[0, 1.04, 0]} scale={[0.28, 0.36, 0.22]} castShadow><sphereGeometry args={[1, 24, 18]} /><meshStandardMaterial color={jacket} roughness={0.72} /></mesh>
-            <mesh position={[0, 0.82, -0.015]} scale={[0.24, 0.18, 0.2]} castShadow><sphereGeometry args={[1, 20, 14]} /><meshStandardMaterial color={jacket} roughness={0.75} /></mesh>
-            <mesh position={[0, 1.13, 0.19]} scale={[0.105, 0.25, 0.045]}><boxGeometry args={[1, 1, 1]} /><meshStandardMaterial color="#e8e9e2" roughness={0.5} /></mesh>
-            <mesh position={[-0.22, 1.11, 0.015]} rotation={[0.9, 0, -0.18]}><capsuleGeometry args={[0.085, 0.3, 6, 10]} /><meshStandardMaterial color={jacket} roughness={0.72} /></mesh>
-            <mesh position={[0.22, 1.11, 0.015]} rotation={[0.9, 0, 0.18]}><capsuleGeometry args={[0.085, 0.3, 6, 10]} /><meshStandardMaterial color={jacket} roughness={0.72} /></mesh>
-            <mesh position={[-0.17, 0.94, -0.19]} rotation={[1.05, 0, -0.12]}><capsuleGeometry args={[0.065, 0.25, 6, 10]} /><meshStandardMaterial color="#e4b28e" roughness={0.8} /></mesh>
-            <mesh position={[0.17, 0.94, -0.19]} rotation={[1.05, 0, 0.12]}><capsuleGeometry args={[0.065, 0.25, 6, 10]} /><meshStandardMaterial color="#e4b28e" roughness={0.8} /></mesh>
-            <mesh position={[0, 1.39, 0]}><cylinderGeometry args={[0.09, 0.11, 0.17, 16]} /><meshStandardMaterial color="#d8a17d" roughness={0.84} /></mesh>
-            <mesh position={[0, 1.66, 0]} scale={[0.22, 0.27, 0.2]} castShadow><sphereGeometry args={[1, 24, 18]} /><meshStandardMaterial color={['#d8a17d','#edbd98','#b97955'][index % 3]} roughness={0.82} /></mesh>
-            <mesh position={[0, 1.83, -0.005]} scale={[0.225, 0.11, 0.205]} castShadow><sphereGeometry args={[1, 20, 14]} /><meshStandardMaterial color={['#30251f','#4b3028','#171b20'][index % 3]} roughness={0.94} /></mesh>
-            <mesh position={[0, 1.49, 0.18]}><coneGeometry args={[0.035, 0.18, 4]} /><meshStandardMaterial color={['#c55c45','#b68a3c','#b95142'][index % 3]} roughness={0.45} /></mesh>
-            <mesh position={[-0.08, 1.68, 0.183]}><sphereGeometry args={[0.025, 10, 8]} /><meshStandardMaterial color="#252b32" /></mesh>
-            <mesh position={[0.08, 1.68, 0.183]}><sphereGeometry args={[0.025, 10, 8]} /><meshStandardMaterial color="#252b32" /></mesh>
-            <Box position={[-0.13, 0.3, -0.02]} size={[0.16, 0.44, 0.2]} color="#303b48" />
-            <Box position={[0.13, 0.3, -0.02]} size={[0.16, 0.44, 0.2]} color="#303b48" />
+            <BrokerModel identity={employeeId} outfit={employeeId.includes('senior') || employeeId.includes('team-lead') ? 'premium' : 'classic'} pose="seated" />
           </group>}
         </group>
       })}
