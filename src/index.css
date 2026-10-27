@@ -2987,3 +2987,14 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .desktop-shortcut-icon { width: 36px; height: 36px; }
   .desktop-rebuilt-shortcuts strong { font-size: 9px; }
 }
+
+/* Housing is a first-class store category; keep it readable inside the desktop app window. */
+
+.housing-store-section { margin: 24px 0 28px; padding: 18px; border: 1px solid rgba(93,218,162,.2); border-radius: 13px; background: linear-gradient(145deg,rgba(23,43,39,.56),rgba(12,20,24,.72)); }
+.housing-store-section .housing-list { margin-top: 14px; }
+.housing-store-section .housing-option { background: rgba(9,16,20,.68); }
+.housing-store-section .housing-option-buy button { white-space: normal; }
+@media (max-width: 760px) {
+  .housing-store-section { padding: 12px; margin: 18px 0; }
+  .housing-store-section .outfit-selector-heading { align-items: flex-start; flex-direction: column; }
+}
