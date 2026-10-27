@@ -28,7 +28,7 @@ function FreshCharacter({ tier, variant, outfit, mood }: Required<PortraitProps>
   const hairMat = <meshStandardMaterial color={palette.hair} roughness={0.88} />
   const browTilt = mood === 'skeptical' ? -0.16 : mood === 'angry' ? 0.18 : 0
   const mouthWidth = mood === 'happy' || mood === 'interested' ? 0.17 : 0.13
-  return <group ref={root} position={[0, -0.16, 0]}>
+  return <group ref={root} position={[0, -0.08, 0]} scale={0.88}>
     {/* A newly built head-and-shoulders character, with independent facial and clothing geometry. */}
     <mesh position={[0, 0.34, -0.16]} scale={[0.76, 0.77, 0.35]}><sphereGeometry args={[1, 36, 28]} /><meshStandardMaterial color="#10181d" roughness={0.94} /></mesh>
     <mesh position={[0, 0.03, 0]} scale={[0.94, 0.55, 0.44]}><sphereGeometry args={[1, 36, 28]} /><meshStandardMaterial color={palette.shirt} roughness={0.8} /></mesh>
@@ -69,7 +69,7 @@ function FreshCharacter({ tier, variant, outfit, mood }: Required<PortraitProps>
 
 export default function ClientPortrait3D({ tier, variant = 'client', outfit = 'intern', mood = 'neutral' }: PortraitProps) {
   return <div className={'client-portrait-3d mood-' + mood} aria-label={(variant === 'player' ? 'Новый 3D-портрет игрока: ' : 'Новый 3D-портрет клиента: ') + mood}>
-    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 1.15, 4.6], fov: 37, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl, camera }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.02; gl.outputColorSpace = THREE.SRGBColorSpace; camera.lookAt(0, 0.93, 0) }}>
+    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 1.15, 5.1], fov: 32, near: 0.1, far: 20 }} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }} onCreated={({ gl, camera }) => { gl.setClearColor(0x000000, 0); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.02; gl.outputColorSpace = THREE.SRGBColorSpace; camera.lookAt(0, 0.88, 0) }}>
       <ambientLight intensity={1.35} />
       <hemisphereLight args={['#d9e6f1', '#3a302d', 0.8]} />
       <directionalLight position={[-2.5, 3.5, 3]} intensity={2.15} color="#ffe0c5" />
