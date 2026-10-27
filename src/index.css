@@ -3052,3 +3052,33 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
   .settings-volume-row strong { font-size: 12px; }
   .settings-volume-row small { font-size: 10px; }
 }
+
+
+/* 2D call portraits: soft illustrated character art, no WebGL canvases. */
+.client-avatar-2d { display:block; width:100%; height:100%; object-fit:contain; overflow:visible; filter:drop-shadow(0 8px 10px rgba(0,0,0,.2)); }
+.client-video-feed > .client-avatar-2d { position:absolute; z-index:1; inset:4% 0 0; width:100%; height:96%; }
+.result-client-reaction .client-avatar-2d { width:140px; height:160px; }
+.negotiation-client-video .client-avatar-2d,
+.negotiation-self-video .client-avatar-2d { position:absolute; inset:0; width:100%; height:100%; padding:5px 12px 0; }
+.negotiation-self-video .client-avatar-2d { z-index:1; }
+.negotiation-video-tile .negotiation-video-caption { position:relative; z-index:4; }
+.outfit-card > .outfit-card-actions > .outfit-buy-button {
+  border:1px solid rgba(101,220,169,.46);
+  background:linear-gradient(135deg,#287b5c,#17513f);
+  color:#f0fff7;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 5px 14px rgba(0,0,0,.16);
+  font-weight:750;
+  text-shadow:0 1px 1px rgba(0,0,0,.18);
+}
+.outfit-card > .outfit-card-actions > .outfit-buy-button:hover:not(:disabled) {
+  border-color:rgba(140,245,194,.8);
+  background:linear-gradient(135deg,#32966d,#1c654d);
+  transform:translateY(-1px);
+}
+.outfit-card > .outfit-card-actions > .outfit-buy-button:disabled {
+  background:rgba(63,84,75,.42);
+  color:#a9bbb2;
+  border-color:rgba(170,201,187,.13);
+  box-shadow:none;
+  text-shadow:none;
+}
