@@ -29,7 +29,7 @@ test('daily settlement pays costs, then debt, and never creates negative cash', 
   assert.deepEqual(settleDailyFinances(1000, 500, 500), {cash:1200,debt:0,salaryPaid:1200,costsPaid:500,debtPaid:500,shortfall:0})
   assert.deepEqual(settleDailyFinances(0, 0, 3800), {cash:0,debt:2600,salaryPaid:1200,costsPaid:1200,debtPaid:0,shortfall:2600})
   assert.deepEqual(settleDailyFinances(-500, -20, -10), {cash:1200,debt:0,salaryPaid:1200,costsPaid:0,debtPaid:0,shortfall:0})
-  assert.deepEqual(settleDailyFinances(1000, 3000, 500), {cash:0,debt:2300,salaryPaid:1200,costsPaid:500,debtPaid:1700,shortfall:0})
+  assert.deepEqual(settleDailyFinances(1000, 3000, 500), {cash:0,debt:1300,salaryPaid:1200,costsPaid:500,debtPaid:1700,shortfall:0})
 })
 
 test('client unlocks respect both day and reputation gates', () => {
