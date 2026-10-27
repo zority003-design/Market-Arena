@@ -389,12 +389,16 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
       <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#5b4434" roughness={0.82} textureKind="wood" />
-      {/* Warm wooden ceiling boards with visible seams, matching the floor instead of a flat dark slab. */}
-      {Array.from({ length: 16 }, (_, i) => <Box key={'ceiling-board-' + i} position={[-3.64 + i * 0.485, 3.255, 0]} size={[0.455, 0.035, 7.76]} color={woodPalette[(i + 2) % woodPalette.length]} roughness={0.78} textureKind="wood" />)}
+      {/* Visible wooden ceiling: individual boards plus three substantial cross-beams. */}
+      {Array.from({ length: 16 }, (_, i) => <Box key={'ceiling-board-' + i} position={[-3.64 + i * 0.485, 3.255, 0]} size={[0.455, 0.045, 7.76]} color={woodPalette[(i + 2) % woodPalette.length]} roughness={0.78} textureKind="wood" />)}
+      {[-2.65, 0, 2.65].map((z, i) => <Box key={'ceiling-beam-' + i} position={[0, 3.19, z]} size={[7.84, 0.13, 0.18]} color={i === 1 ? '#61442f' : '#6b4c35'} roughness={0.82} textureKind="wood" />)}
       <Box position={[0, 3.225, -3.72]} size={[7.7, 0.055, 0.12]} color="#5b4030" roughness={0.72} textureKind="wood" />
       <Box position={[0, 3.225, 3.72]} size={[7.7, 0.055, 0.12]} color="#5b4030" roughness={0.72} textureKind="wood" />
-      {/* The back wall is now uninterrupted; the window belongs on the left wall. */}
+      {/* Solid, contrasting rear wall with wooden dado trim so it remains visually distinct. */}
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[0, 0.52, -3.865]} size={[7.78, 0.62, 0.055]} color="#806247" roughness={0.9} textureKind="wood" />
+      <Box position={[0, 0.84, -3.825]} size={[7.78, 0.045, 0.045]} color="#b18b5e" roughness={0.65} textureKind="wood" />
+      <Box position={[0, 1.18, -3.825]} size={[7.78, 0.035, 0.045]} color="#b18b5e" roughness={0.65} textureKind="wood" />
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
       <Box position={[-3.98, 1.62, -3.15]} size={[0.18, 3.4, 1.7]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 1.62, 2.0]} size={[0.18, 3.4, 4.0]} color={backWallColor} textureKind="plaster" />
