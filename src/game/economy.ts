@@ -28,7 +28,7 @@ export type RoomItem = {
 export const DAILY_SALARY = 1100
 export const STARTING_CASH = 22000
 export const STARTING_FIRM_CAPITAL = 25000
-export const STARTING_HOUSING_ID = 'dorm'
+export const STARTING_HOUSING_ID = 'studio'
 export const BUSINESS_UPGRADES: BusinessUpgrade[] = [
  { id:'lead-network', name:'Сеть рекомендаций', price:7500, minDay:2, minReputation:10, payoutCap:1500, trustBonus:0, description:'Покупаешь доступ к небольшому каталогу новых лидов и отраслевым знакомствам.', effect:'+1 дополнительный звонок в день и более ранний доступ к нескольким клиентам.' },
  { id:'research-terminal', name:'Аналитический терминал', price:18000, minDay:5, minReputation:20, payoutCap:2300, trustBonus:2, description:'Сводки по компаниям, сравнительные таблицы и сценарии риска вместо презентаций на глаз.', effect:'До +2 к стартовому доверию и повышенный предел личного бонуса.' },
@@ -43,6 +43,18 @@ export const BUSINESS_ASSETS: BusinessAsset[] = [
 ]
 export function getBusinessDailyNetIncome(ownedAssetIds: string[]): number {
  return BUSINESS_ASSETS.filter(asset => ownedAssetIds.includes(asset.id)).reduce((sum, asset) => sum + asset.dailyRevenue - asset.dailyCost, 0)
+}
+
+export type BrokerHire = { id: string; name: string; price: number; dailyRevenue: number; dailySalary: number; minDay: number; minReputation: number; description: string }
+export const BROKER_HIRES: BrokerHire[] = [
+ { id: 'junior-broker', name: 'Младший брокер', price: 7500, dailyRevenue: 1900, dailySalary: 1200, minDay: 1, minReputation: 0, description: 'Недорогой сотрудник: ведёт простые заявки и приносит около 700 ₽ чистыми в день.' },
+ { id: 'broker-specialist', name: 'Брокер-специалист', price: 26000, dailyRevenue: 4300, dailySalary: 2800, minDay: 4, minReputation: 20, description: 'Самостоятельно закрывает больше обращений и приносит около 1 500 ₽ чистыми в день.' },
+ { id: 'senior-broker', name: 'Старший брокер', price: 62000, dailyRevenue: 8200, dailySalary: 5700, minDay: 8, minReputation: 40, description: 'Дорогой специалист с высокой выручкой: около 2 500 ₽ чистыми за день.' },
+ { id: 'relationship-broker', name: 'Менеджер по клиентам', price: 95000, dailyRevenue: 13500, dailySalary: 9000, minDay: 11, minReputation: 50, description: 'Ведёт постоянных клиентов и повторные обращения; приносит около 4 500 ₽ чистыми в день.' },
+ { id: 'team-lead', name: 'Руководитель группы', price: 150000, dailyRevenue: 20000, dailySalary: 14000, minDay: 15, minReputation: 65, description: 'Опытный сотрудник, который помогает вести крупные сделки и приносит около 6 000 ₽ чистыми в день.' },
+]
+export function getStaffDailyNetIncome(ownedEmployeeIds: string[]): number {
+ return BROKER_HIRES.filter(employee => ownedEmployeeIds.includes(employee.id)).reduce((sum, employee) => sum + employee.dailyRevenue - employee.dailySalary, 0)
 }
 export function getBusinessPayoutCap(ownedUpgradeIds: string[]): number {
  return Math.max(900, ...BUSINESS_UPGRADES.filter(upgrade => ownedUpgradeIds.includes(upgrade.id)).map(upgrade => upgrade.payoutCap))

@@ -13,7 +13,7 @@ import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -203,7 +203,7 @@ function readSave() {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -412,6 +412,8 @@ export default function App() {
   const previousHousingId = useRef(housingId)
   const [businessUpgrades, setBusinessUpgrades] = useState<string[]>(saved.businessUpgrades ?? [])
   const [ownedBusinessAssets, setOwnedBusinessAssets] = useState<string[]>(saved.ownedBusinessAssets ?? [])
+  const [ownedEmployees, setOwnedEmployees] = useState<string[]>(saved.ownedEmployees ?? [])
+  const [companyName, setCompanyName] = useState(saved.companyName ?? '')
   const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])
   const [selectedClientId, setSelectedClientId] = useState(saved.selectedClientId ?? 'alex-vorontsov')
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
@@ -487,8 +489,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets])
+    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -708,6 +710,8 @@ export default function App() {
     setHousingId(STARTING_HOUSING_ID)
     setBusinessUpgrades([])
     setOwnedBusinessAssets([])
+    setOwnedEmployees([])
+    setCompanyName('')
     setOwnedItems([])
     setSelectedOutfit('intern')
     setOwnedOutfits(['intern'])
@@ -1032,7 +1036,8 @@ export default function App() {
       setCityLocation('office')
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
       const businessNetIncome = getBusinessDailyNetIncome(ownedBusinessAssets)
-      const available = cash + DAILY_SALARY + businessNetIncome
+      const staffNetIncome = getStaffDailyNetIncome(ownedEmployees)
+      const available = cash + DAILY_SALARY + businessNetIncome + staffNetIncome
       setCash(Math.max(0, available))
       setGameMinutes(7 * 60)
       setDayEnded(false)
@@ -1177,7 +1182,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
@@ -1194,7 +1199,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
       {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
