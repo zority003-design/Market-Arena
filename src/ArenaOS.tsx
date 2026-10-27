@@ -273,7 +273,9 @@ export default function ArenaOS(props: Props) {
     setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
     const relationshipTrustBase = props.clientTrustScores[selected.id] ?? selected.baseTrust
-    const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus + outfitBonus))
+    const preselectedFitBonus = activeStock && getClientStockFit(selected.id, activeStock.ticker).suitable ? 4 : 0
+    const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus + outfitBonus + preselectedFitBonus))
+    if (preselectedFitBonus > 0) props.setClientTrustScores(scores => ({ ...scores, [selected.id]: Math.min(100, (scores[selected.id] ?? selected.baseTrust) + preselectedFitBonus) }))
     setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
     if (!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) && (selected.statusSensitive || Math.random() < 0.45)) lines.push('Клиент: «Звук немного глухой. Надеюсь, финансовые расчёты у вас звучат убедительнее микрофона».')
