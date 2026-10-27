@@ -82,7 +82,9 @@ export function getFirstImpression(housingId:string, ownedItems:string[], client
  const home=HOUSING.find(option=>option.id===housingId) ?? HOUSING[0]
  const itemScore=ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.firstImpression ?? 0),0)
  const statusMismatch=client.statusSensitive && home.firstImpression<2 ? -2 : 0
- return Math.max(-5,Math.min(8,home.firstImpression+Math.min(5,itemScore)+statusMismatch))
+ // Comfort creates a small, reliable trust bonus: premium homes help, but never replace good negotiation.
+ const comfortBonus=Math.floor(home.comfort/2)
+ return Math.max(-5,Math.min(10,home.firstImpression+comfortBonus+Math.min(5,itemScore)+statusMismatch))
 }
 export function getVideoQuality(ownedItems:string[]):number {
  return Math.min(8,ownedItems.reduce((sum,id)=>sum+(ROOM_ITEMS.find(item=>item.id===id)?.videoQuality ?? 0),0))
