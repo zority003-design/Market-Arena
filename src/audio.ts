@@ -3,6 +3,7 @@ type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'ha
 type AudioSettings = {
   enabled: boolean
   ambience: boolean
+  music: boolean
   voice: boolean
   curtainsOpen: boolean
   inRoom: boolean
@@ -19,10 +20,34 @@ let rainGain: GainNode | null = null
 let noiseSource: AudioBufferSourceNode | null = null
 let rainSource: AudioBufferSourceNode | null = null
 let settings: AudioSettings = {
-  enabled: true, ambience: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
+  enabled: true, ambience: true, music: true, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
+let musicPlayer: HTMLAudioElement | null = null
+let musicTrackIndex = 0
+const MUSIC_TRACKS = ['/audio/Endless%20Solitude.mp3', '/audio/Market%20Pulse.mp3']
+
+function updateMusic() {
+  if (typeof window === 'undefined') return
+  const shouldPlay = settings.enabled && settings.music && !settings.paused
+  if (!musicPlayer) {
+    musicPlayer = new Audio()
+    musicPlayer.loop = false
+    musicPlayer.preload = 'auto'
+    musicPlayer.addEventListener('ended', () => {
+      musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACKS.length
+      if (musicPlayer) {
+        musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
+        if (settings.enabled && settings.music && !settings.paused) void musicPlayer.play().catch(() => {})
+      }
+    })
+    musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
+  }
+  musicPlayer.volume = Math.max(0, Math.min(1, settings.volume * 0.42))
+  if (shouldPlay) void musicPlayer.play().catch(() => {})
+  else musicPlayer.pause()
+}
 
 function ensureAudio() {
   if (typeof window === 'undefined') return null
@@ -98,11 +123,13 @@ function updateAmbience() {
   ambienceGain.gain.setTargetAtTime(audible ? curtainFactor * 0.12 * nightFactor : 0, ctx.currentTime, 0.8)
   rainGain.gain.setTargetAtTime(0, ctx.currentTime, 0.8)
   master.gain.setTargetAtTime(settings.enabled ? 0.68 * Math.max(0, Math.min(1, settings.volume)) : 0, ctx.currentTime, 0.05)
+  updateMusic()
 }
 
 export function configureAudio(next: Partial<AudioSettings>) {
   settings = { ...settings, ...next }
   updateAmbience()
+  updateMusic()
 }
 
 function tone(frequency: number, duration: number, type: OscillatorType, volume: number, endFrequency?: number) {
@@ -124,6 +151,7 @@ function tone(frequency: number, duration: number, type: OscillatorType, volume:
 
 export function playSound(kind: SoundKind) {
   const ctx = ensureAudio()
+  updateMusic()
   if (!ctx || !settings.enabled) return
   switch (kind) {
     case 'ui':
