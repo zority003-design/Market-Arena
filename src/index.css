@@ -3032,3 +3032,23 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .outfit-preview-caption { position:relative; z-index:2; }
 .desktop-os-career-widget { border-color:rgba(228,188,119,.28); }
 .desktop-os-career-widget strong { color:#e8d5aa; }
+
+
+/* Audio controls: always visible and usable in both menu and pause settings, including mobile. */
+.menu-modal-backdrop { overflow-y: auto; align-items: start; }
+.menu-settings-modal, .pause-settings-panel { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+.settings-volume-row { display: block; padding: 15px 0 18px; border-top: 1px solid rgba(126,224,183,.18); }
+.settings-volume-row label { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.settings-volume-row label > span { min-width: 0; }
+.settings-volume-row strong { display: block; font-size: 13px; line-height: 1.45; }
+.settings-volume-row small { display: block; font-size: 11px; line-height: 1.5; }
+.settings-volume-row output { flex: 0 0 auto; min-width: 48px; padding: 5px 7px; border: 1px solid rgba(126,224,183,.28); border-radius: 5px; background: rgba(56,214,160,.08); color: #9de8c4; font: 12px 'DM Mono',monospace; text-align: center; }
+.settings-volume-row input.settings-range[type="range"] { display: block; appearance: auto; -webkit-appearance: auto; width: 100%; min-width: 0; height: 24px; margin: 0; padding: 0; accent-color: #55dba5; cursor: pointer; touch-action: pan-y; }
+@media (max-width: 720px) {
+  .menu-modal-backdrop { padding: 10px; }
+  .menu-settings-modal, .pause-settings-panel { width: 100%; max-width: 490px; padding: 24px 18px 18px; }
+  .settings-volume-row { padding: 13px 0 16px; }
+  .settings-volume-row label { gap: 8px; }
+  .settings-volume-row strong { font-size: 12px; }
+  .settings-volume-row small { font-size: 10px; }
+}
