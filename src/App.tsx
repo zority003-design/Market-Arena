@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three'
 import { OrbitControls } from '@react-three/drei'
 import {
   Activity, ArrowLeft, ArrowUpRight, Bell, CalendarDays, MapPin,
@@ -12,6 +11,8 @@ import {
 import RoomScene from './RoomScene'
 import CityScene from './CityScene'
 import ClientPortrait3D from './ClientPortrait3D'
+import DailyMissionPanel from './DailyMissionPanel'
+import PlayerModel3D from './PlayerModel3D'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, CLIENTS, DAILY_SALARY, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -48,9 +49,9 @@ function getStockQuestions(company: typeof companies[number]) {
   const scenarios: Record<string, { prompts: string[]; hints: string[]; choices: [string, string, string][] }> = {
     KOTL: {
       prompts: [
-        '«Котолёт» быстро растёт, но убыточен. На каких цифрах основано предложение?',
-        'Контракт на 800 роботов пока только обсуждается. Что произойдёт, если его не подпишут?',
-        'Когда «Котолёт» сможет оправдать текущую оценку и что заставит нас пересмотреть идею?',
+        '«Котолёт» растёт, но убыточен. Мы инвестируем в бизнес или спонсируем кота с реактивным двигателем? Покажите цифры.',
+        'Контракт на 800 роботов ещё не подписан. Если заказчик передумает, кто будет кормить эту армию механических котов?',
+        'Когда «Котолёт» начнёт оправдывать оценку, а не только красиво взлетать в презентациях? Назовите критерии провала.',
       ],
       hints: [
         'Для KOTL важны темп выручки, денежный запас и путь к прибыльности — не только рост котировки.',
@@ -65,9 +66,9 @@ function getStockQuestions(company: typeof companies[number]) {
     },
     OGUR: {
       prompts: [
-        '«Огурец Капитал» прибыльный, но растёт медленно. Почему это подходит именно вам?',
-        'Что будет с маржой, если упаковка и сырьё подорожают?',
-        'Какую доходность можно ожидать от спокойного бизнеса без обещаний быстрого роста?',
+        '«Огурец Капитал» приносит прибыль, но не летит на Луну. Почему это инвестиция, а не просто дорогой овощной отдел?',
+        'Если огурцы, бутылки и упаковка подорожают одновременно, где компания найдёт маржу — в соке или в слезах финансового директора?',
+        'Какой здесь реалистичный сценарий доходности? И пожалуйста, без обещаний «иксов к пятнице» и прочей брокерской магии.',
       ],
       hints: [
         'Для OGUR важны стабильная прибыль и дистрибуция, но темп роста ограничен.',
@@ -82,9 +83,9 @@ function getStockQuestions(company: typeof companies[number]) {
     },
     TAPK: {
       prompts: [
-        '«ТапокТех» теряет 4% за день, а возвраты растут. Почему покупать сейчас — не просто ловить падающий нож?',
-        'Компания обещает исправить умные тапочки. Как проверить, что проблема действительно решена?',
-        'Что должно произойти, чтобы вы признали инвестиционную идею по TAPK ошибочной?',
+        '«ТапокТех» падает на 4%, а клиенты возвращают тапочки. Это инвестиционная возможность или рынок пытается убежать босиком?',
+        'Директор клянётся, что новая прошивка спасёт умные тапочки. Какие данные покажут, что они наконец умнее коврика у двери?',
+        'Какой факт заставит нас признать, что эта идея провалилась, и не продолжать покупать тапочки в надежде на чудо?',
       ],
       hints: [
         'Для TAPK ключевые сигналы — возвраты, гарантийные расходы и доказательства качества новой версии.',
@@ -99,9 +100,9 @@ function getStockQuestions(company: typeof companies[number]) {
     },
     BTRAN: {
       prompts: [
-        '«Банан Транс» — крупнейшая сеть АЗС города. На чём она зарабатывает кроме бензина?',
-        'Оптовая цена топлива выросла, а поднять розничную цену сразу нельзя. Что будет с маржой?',
-        'Сеть строит новые станции и зарядки. Как понять, не тратит ли она слишком много?',
+        '«Банан Транс» продаёт бензин, кофе и надежду успеть на работу. Что из этого реально приносит прибыль?',
+        'Оптовое топливо дорожает, а ценник на колонке нельзя менять каждую минуту. Кто оплатит этот банановый кризис — маржа или клиент?',
+        'Новые станции растут как грибы после дождя. Как понять, что это расширение бизнеса, а не памятники амбициям директора?',
       ],
       hints: [
         'Раздели продажи топлива, магазин, мойку и зарядки: у каждого направления своя маржа.',
@@ -116,9 +117,9 @@ function getStockQuestions(company: typeof companies[number]) {
     },
     DUST: {
       prompts: [
-        '«Пыль и прибыль» растёт медленно. Чем оправдана покупка вместо более рискованной компании?',
-        'Как рост зарплат и себестоимости может повлиять на долгосрочные контракты?',
-        'Что должно измениться, чтобы вы продали даже прибыльную компанию?',
+        '«Пыль и прибыль» растёт медленно, зато убирает стабильно. Это скучный надёжный бизнес или акция, от которой уснёшь раньше дивидендов?',
+        'Если зарплаты растут быстрее цены уборочного контракта, кто будет вытирать слёзы акционеров?',
+        'Даже у прибыльной компании бывает момент «спасибо, расходимся». Какие цифры заставят вас продать DUST?',
       ],
       hints: [
         'Для DUST важны денежный поток и контракты, но низкий темп роста ограничивает потенциал.',
@@ -185,9 +186,33 @@ const news = [
 function readSave() {
   try {
     const raw = localStorage.getItem('na-vse-kotirovki-save-v1')
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
+}
+
+function getCareerLevel(xp: number) {
+  let level = 1
+  let nextLevelAt = 100
+  let remaining = Math.max(0, xp)
+  while (remaining >= nextLevelAt) {
+    remaining -= nextLevelAt
+    level += 1
+    nextLevelAt = Math.round(nextLevelAt * 1.25)
+  }
+  return { level, currentXp: remaining, nextLevelAt, progress: Math.min(100, Math.round(remaining / nextLevelAt * 100)) }
+}
+
+const ROOM_ITEM_PHOTOS: Record<string, { src: string; alt: string }> = {
+  'desk-lamp': { src: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85', alt: 'Настольная лампа на рабочем столе' },
+  'used-chair': { src: 'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=900&q=85', alt: 'Современное офисное кресло' },
+  headset: { src: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=900&q=85', alt: 'Наушники с микрофоном для видеозвонков' },
+  'ring-light': { src: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=85', alt: 'Компактная техника и свет для съёмки' },
+  'hd-camera': { src: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=85', alt: 'Компьютерная периферия для рабочего места' },
+  'neutral-backdrop': { src: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85', alt: 'Аккуратный современный рабочий интерьер' },
+  'second-monitor': { src: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=900&q=85', alt: 'Монитор на компьютерном столе' },
+  'chromakey-kit': { src: 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?auto=format&fit=crop&w=900&q=85', alt: 'Комплект для съёмки и видеопроизводства' },
+  'pro-mic': { src: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=900&q=85', alt: 'Профессиональный микрофон для записи голоса' },
 }
 
 function SelfCameraPreview({ enabled, background, outfit }: { enabled: boolean; background: VideoBackground; outfit: OutfitId }) {
@@ -240,83 +265,7 @@ function RoomItemIllustration({ id }: { id: string }) {
 }
 
 function WardrobeAvatar3D({ outfit }: { outfit: OutfitId }) {
-  const jacket = outfit === 'premium' ? '#1b2d38' : outfit === 'classic' ? '#34485d' : '#6c897e'
-  const shirt = outfit === 'intern' ? '#6c897e' : '#e8e2d6'
-  const armColor = outfit === 'intern' ? shirt : jacket
-  const trousers = outfit === 'premium' ? '#202b33' : outfit === 'classic' ? '#303943' : '#303b42'
-  const skin = '#bda18a'
-  const hair = outfit === 'premium' ? '#211e1c' : '#35271f'
-  const skinTexture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = 512
-    canvas.height = 512
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return null
-    const base = ctx.createLinearGradient(0, 0, 512, 512)
-    base.addColorStop(0, '#c9b09a')
-    base.addColorStop(0.45, '#bda18a')
-    base.addColorStop(1, '#a78b76')
-    ctx.fillStyle = base
-    ctx.fillRect(0, 0, 512, 512)
-    const cheek = ctx.createRadialGradient(180, 245, 12, 180, 245, 170)
-    cheek.addColorStop(0, 'rgba(166,105,91,0.12)')
-    cheek.addColorStop(1, 'rgba(166,105,91,0)')
-    ctx.fillStyle = cheek
-    ctx.fillRect(0, 0, 512, 512)
-    let seed = 82471
-    const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646 }
-    for (let i = 0; i < 2100; i++) {
-      const x = random() * 512, y = random() * 512, r = 0.35 + random() * 1.15
-      ctx.fillStyle = random() > 0.5 ? 'rgba(91,48,35,0.10)' : 'rgba(255,224,193,0.12)'
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill()
-    }
-    const texture = new CanvasTexture(canvas)
-    texture.wrapS = RepeatWrapping
-    texture.colorSpace = SRGBColorSpace
-    texture.needsUpdate = true
-    return texture
-  }, [])
-  return <group position={[0, 0.02, 0]}>
-    <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[0.72, 48]} /><meshStandardMaterial color="#1a2829" roughness={0.96} /></mesh>
-    <mesh position={[0, 0.78, 0]} scale={[0.34, 0.24, 0.205]} castShadow><sphereGeometry args={[1, 40, 32]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
-    {[-0.145, 0.145].map((x) => <group key={x} position={[x, 0.08, 0]}>
-      <mesh position={[0, 0.43, 0]} scale={[0.94, 1, 0.94]} castShadow><capsuleGeometry args={[0.092, 0.55, 12, 24]} /><meshStandardMaterial color={trousers} roughness={0.9} /></mesh>
-      <mesh position={[0, 0.075, 0.075]} rotation={[Math.PI / 2, 0, 0]} scale={[1.2, 0.8, 1]} castShadow><capsuleGeometry args={[0.072, 0.14, 8, 18]} /><meshStandardMaterial color="#20262a" roughness={0.82} /></mesh>
-    </group>)}
-    <mesh position={[0, 1.17, 0]} scale={[1, 1.03, 0.92]} castShadow><capsuleGeometry args={[0.255, 0.43, 16, 32]} /><meshStandardMaterial color={outfit === 'intern' ? shirt : jacket} roughness={0.86} /></mesh>
-    <mesh position={[0, 0.99, 0.224]} scale={[0.105, 0.3, 0.045]} castShadow><capsuleGeometry args={[0.1, 0.22, 12, 24]} /><meshStandardMaterial color={shirt} roughness={0.88} /></mesh>
-    {[-1, 1].map((side) => <group key={side} position={[side * 0.245, 1.4, 0]}>
-      <mesh position={[side * 0.105, -0.24, 0]} rotation={[0, 0, side * -0.19]} castShadow><capsuleGeometry args={[0.078, 0.43, 14, 28]} /><meshStandardMaterial color={armColor} roughness={0.9} /></mesh>
-      <mesh position={[side * 0.16, -0.51, 0.01]} rotation={[0, 0, side * -0.13]} castShadow><capsuleGeometry args={[0.054, 0.13, 12, 22]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
-    </group>)}
-    <mesh position={[0, 1.59, 0]} castShadow><cylinderGeometry args={[0.065, 0.078, 0.19, 24]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
-    <mesh position={[0, 1.94, 0.005]} scale={[0.188, 0.245, 0.18]} castShadow><sphereGeometry args={[1, 64, 48]} /><meshStandardMaterial color={skin} roughness={0.88} metalness={0} map={skinTexture ?? undefined} /></mesh>
-    <mesh position={[0, 2.105, -0.008]} scale={[0.19, 0.092, 0.184]} castShadow><sphereGeometry args={[1, 40, 28]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
-    <mesh position={[0, 2.08, 0.095]} scale={[0.17, 0.065, 0.105]} castShadow><sphereGeometry args={[1, 32, 24]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
-    {[-1, 1].map((side) => <mesh key={side} position={[side * 0.184, 1.95, 0.002]} scale={[0.027, 0.045, 0.026]} castShadow><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>)}
-    {[-0.067, 0.067].map((x) => <group key={x}>
-      <mesh position={[x, 1.974, 0.174]} scale={[0.026, 0.015, 0.009]}><sphereGeometry args={[1, 24, 16]} /><meshStandardMaterial color="#e8d6c5" roughness={0.55} /></mesh>
-      <mesh position={[x, 1.974, 0.182]}><sphereGeometry args={[0.009, 20, 16]} /><meshStandardMaterial color="#4b625b" roughness={0.52} /></mesh>
-      <mesh position={[x, 2.004, 0.17]} rotation={[0, 0, x > 0 ? -0.12 : 0.12]}><capsuleGeometry args={[0.008, 0.035, 6, 12]} /><meshStandardMaterial color={hair} roughness={0.96} /></mesh>
-    </group>)}
-    <mesh position={[0, 1.928, 0.184]} scale={[0.012, 0.03, 0.015]}><sphereGeometry args={[1, 20, 16]} /><meshStandardMaterial color={skin} roughness={0.86} /></mesh>
-    <mesh position={[0, 1.874, 0.174]} scale={[0.026, 0.006, 0.006]}><sphereGeometry args={[1, 20, 12]} /><meshStandardMaterial color="#8b5146" roughness={0.92} /></mesh>
-    {outfit === 'intern' && <>
-      <mesh position={[-0.14, 1.27, 0.205]} rotation={[0, 0, -0.08]}><boxGeometry args={[0.09, 0.075, 0.02]} /><meshStandardMaterial color="#d8c69a" roughness={0.78} /></mesh>
-      <mesh position={[-0.14, 1.27, 0.219]}><sphereGeometry args={[0.014, 12, 10]} /><meshStandardMaterial color="#334e48" roughness={0.85} /></mesh>
-    </>}
-    {outfit !== 'intern' && <>
-      <mesh position={[-0.105, 1.335, 0.258]} rotation={[0, 0, -0.34]}><boxGeometry args={[0.075, 0.33, 0.024]} /><meshStandardMaterial color={outfit === 'premium' ? '#293d49' : '#435b70'} roughness={0.84} /></mesh>
-      <mesh position={[0.105, 1.335, 0.258]} rotation={[0, 0, 0.34]}><boxGeometry args={[0.075, 0.33, 0.024]} /><meshStandardMaterial color={outfit === 'premium' ? '#293d49' : '#435b70'} roughness={0.84} /></mesh>
-      {[1.26, 1.17, 1.08].map((y) => <mesh key={y} position={[0.015, y, 0.276]}><sphereGeometry args={[outfit === 'premium' ? 0.013 : 0.01, 12, 10]} /><meshStandardMaterial color={outfit === 'premium' ? '#c9a867' : '#1b2d38'} metalness={outfit === 'premium' ? 0.45 : 0.1} roughness={0.55} /></mesh>)}
-      <mesh position={[0.16, 1.2, 0.253]}><boxGeometry args={[0.09, 0.082, 0.025]} /><meshStandardMaterial color={outfit === 'premium' ? '#263a46' : '#293c50'} roughness={0.85} /></mesh>
-      {outfit === 'premium' && <mesh position={[0.16, 1.235, 0.271]} rotation={[0, 0, 0.13]}><boxGeometry args={[0.038, 0.05, 0.012]} /><meshStandardMaterial color="#c8a464" roughness={0.7} /></mesh>}
-      <mesh position={[-0.045, 1.46, 0.221]} rotation={[0, 0, -0.2]}><boxGeometry args={[0.07, 0.15, 0.018]} /><meshStandardMaterial color="#f0eadf" roughness={0.9} /></mesh>
-      <mesh position={[0.045, 1.46, 0.221]} rotation={[0, 0, 0.2]}><boxGeometry args={[0.07, 0.15, 0.018]} /><meshStandardMaterial color="#f0eadf" roughness={0.9} /></mesh>
-      <mesh position={[0, 1.29, 0.265]}><coneGeometry args={[0.027, 0.14, 4]} /><meshStandardMaterial color={outfit === 'premium' ? '#b69a62' : '#243d52'} roughness={0.75} /></mesh>
-    </>}
-    {outfit === 'premium' && <mesh position={[0.18, 1.3, 0.22]}><sphereGeometry args={[0.016, 16, 12]} /><meshStandardMaterial color="#d7b879" metalness={0.3} roughness={0.7} /></mesh>}
-  </group>
+  return <PlayerModel3D outfit={outfit} />
 }
 
 export default function App() {
@@ -346,7 +295,7 @@ export default function App() {
   const [deskLampOn, setDeskLampOn] = useState(false)
   const [roomLightOn, setRoomLightOn] = useState(true)
   const [curtainsOpen, setCurtainsOpen] = useState(true)
-  const [controlsVisible, setControlsVisible] = useState(true)
+  const [controlsVisible, setControlsVisible] = useState(false)
   const [nearbyRoomObject, setNearbyRoomObject] = useState<RoomObject | null>(null)
   const [selectedOutfit, setSelectedOutfit] = useState<OutfitId>(() => { try { return (localStorage.getItem('na-vse-kotirovki-outfit') as OutfitId) || 'intern' } catch { return 'intern' } })
   const [ownedOutfits, setOwnedOutfits] = useState<OutfitId[]>(() => { try { const raw = JSON.parse(localStorage.getItem('na-vse-kotirovki-owned-outfits') || '["intern"]'); return Array.isArray(raw) ? Array.from(new Set<OutfitId>(['intern', ...raw.filter((id: string): id is OutfitId => id === 'classic' || id === 'premium' || id === 'intern')])) : ['intern'] } catch { return ['intern'] } })
@@ -364,6 +313,8 @@ export default function App() {
   const [panel, setPanel] = useState<Panel>('room')
   const [tab, setTab] = useState<Tab>('overview')
   const [cash, setCash] = useState(saved.cash ?? STARTING_CASH)
+  const [xp, setXp] = useState(saved.xp ?? 0)
+  const careerLevel = getCareerLevel(xp)
   const [firmCapital, setFirmCapital] = useState(saved.firmCapital ?? STARTING_FIRM_CAPITAL)
   const [debt, setDebt] = useState(saved.debt ?? 0)
   const [reputation, setReputation] = useState(saved.reputation ?? 42)
@@ -437,8 +388,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
+    try { localStorage.setItem('na-vse-kotirovki-save-v1', JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares })) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares])
 
   useEffect(() => {
     if (!controlsVisible) return
@@ -624,6 +575,7 @@ export default function App() {
     window.setTimeout(() => playSound('alarm'), 900)
     try { localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
     setCash(STARTING_CASH)
+    setXp(0)
     setFirmCapital(STARTING_FIRM_CAPITAL)
     setDebt(0)
     setReputation(42)
@@ -742,6 +694,9 @@ export default function App() {
   function resolveCall(nextTrust: number, nextPatience: number) {
     const threshold = 58 + activeClient.tier * 2
     const success = nextTrust >= threshold && nextPatience > 20
+    const prepXp = marketReviewed && newsReviewed ? 10 : 0
+    const earnedXp = 25 + prepXp + (success ? 35 : 0)
+    setXp((value) => value + earnedXp)
     setCallStatus(success ? 'won' : 'lost')
     if (success) {
       playSound('deal')
@@ -759,13 +714,13 @@ export default function App() {
         setDailySalesAmount((value) => value + payout.ticket)
         setDailySalesShares((value) => value + soldShares)
       }
-      setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '.')
+      setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. Твой бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; доход фирмы после бонуса: +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.')
       const quotaNote = activeCompany.ticker === quotaTargetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + quotaTargetCompany.ticker + '.' : ' Внимание: дневной план по ' + quotaTargetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Объём ' + payout.ticket.toLocaleString('ru-RU') + ' ₽; фирма заработала комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽.' + quotaNote }])
     } else {
       playSound('decline')
       setReputation((value) => Math.max(0, value - 2))
-      setLastResult('Сделка не состоялась. ' + activeClient.name + ' не готов доверить деньги на этих условиях. Подготовься лучше или предложи более подходящий вариант.')
+      setLastResult('Сделка не состоялась. ' + activeClient.name + ' не готов доверить деньги на этих условиях. Подготовься лучше или предложи более подходящий вариант. За завершённый звонок получено +' + earnedXp + ' XP.')
       setConversation((items) => [...items, { from: 'system', text: '— Клиент отказался от сделки. Комиссия не начислена.' }])
     }
   }
@@ -873,7 +828,7 @@ export default function App() {
   function buyRoomItem(itemId: string) {
     const item = ROOM_ITEMS.find((candidate) => candidate.id === itemId)
     if (!item || ownedItems.includes(itemId)) return
-    if (day < item.minDay) { setToast('Этот предмет появится в продаже на ' + item.minDay + '-й день.'); return }
+    if (day < item.minDay || careerLevel.level < (item.minLevel ?? 1)) { setToast('Предмет требует ' + item.minDay + '-го дня и уровня ' + (item.minLevel ?? 1) + '.'); return }
     if (cash < item.price) { setToast('Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽.'); return }
     setCash((value) => value - item.price)
     setOwnedItems((items) => [...items, itemId])
@@ -1022,7 +977,7 @@ export default function App() {
           <span className="brand-text"><strong>НА ВСЕ КОТИРОВКИ</strong><small>БРОКЕРСКАЯ СИМУЛЯЦИЯ</small></span>
         </button>
         <div className="hud-center">
-          <span className="day-pill"><CalendarDays size={13} /> ДЕНЬ {String(day).padStart(2, '0')}</span><span className="day-pill game-time-pill"><Clock3 size={13} /> {String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</span><span className="day-pill game-weather-pill">☂ ДОЖДЬ</span>
+          <span className="day-pill"><CalendarDays size={13} /> ДЕНЬ {String(day).padStart(2, '0')}</span><span className="day-pill game-time-pill"><Clock3 size={13} /> {String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(gameMinutes % 60).padStart(2, '0')}</span>
           <span className="market-open"><span className="live-dot" /> РЫНОК ОТКРЫТ</span>
         </div>
         <div className="hud-right">
@@ -1037,7 +992,6 @@ export default function App() {
 
       {panel === 'room' && (
         <>
-          {controlsVisible && <div className="control-hint control-hint-temporary"><div className="key-cluster"><kbd>W</kbd><div><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div></div><span>ПЕРЕДВИЖЕНИЕ</span><i /><div className="mouse-hint"><span className="mouse-icon" /></div><span>ОБЗОР</span></div>}
           {canSleep && dayEnded ? <button className="interact-card proximity-interact sleep-interact" onClick={sleepNow}><span className="enter-key">E</span><span className="interact-copy"><strong>Лечь спать</strong><em>Отдохнуть и начать новый день</em></span><ChevronRight size={17} /></button> : nearbyRoomObject ? <button className="interact-card proximity-interact" onClick={() => interactWithRoomObject(nearbyRoomObject)}><span className="enter-key">E</span><span className="interact-copy"><strong>{nearbyRoomObject === 'lamp' ? `Настольная лампа · ${deskLampOn ? 'выключить' : 'включить'}` : nearbyRoomObject === 'light' ? `Освещение комнаты · ${roomLightOn ? 'выключить' : 'включить'}` : nearbyRoomObject === 'curtains' ? `Шторы · ${curtainsOpen ? 'закрыть' : 'открыть'}` : 'Открыть шкаф и гардероб'}</strong><em>{nearbyRoomObject === 'wardrobe' ? 'Одежда и внешний вид персонажа' : 'Нажми E, чтобы взаимодействовать'}</em></span><ChevronRight size={17} /></button> : canInteractWithComputer && <button className="interact-card proximity-interact" onClick={openComputer}><span className="enter-key">E</span><span className="interact-copy"><strong>Сесть за компьютер</strong><em>Нажми E, чтобы начать работу</em></span><ChevronRight size={17} /></button>}
         </>
       )}
@@ -1085,7 +1039,7 @@ export default function App() {
             <div className="page-heading"><div><div className="eyebrow">ОТДЕЛЬНО ОТ КОМПЬЮТЕРА</div><h2>Гардероб и личные покупки</h2><p>Меняй одежду и покупай предметы для комнаты здесь. Биржа, звонки и рабочие приложения находятся на компьютере.</p></div><div className="market-status"><Wallet size={15} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
             <section className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><Canvas className="wardrobe-3d-canvas" camera={{ position: [0, 1.35, 4.5], fov: 32 }} dpr={[1, 1.5]}><color attach="background" args={['#142224']} /><ambientLight intensity={1.05} /><directionalLight position={[-2.5, 4, 3]} intensity={2.1} /><pointLight position={[2, 2.5, -1]} intensity={0.8} color="#75d8ae" /><WardrobeAvatar3D outfit={selectedOutfit} /><OrbitControls enablePan={false} minDistance={3.8} maxDistance={5.5} minPolarAngle={1.05} maxPolarAngle={1.75} target={[0, 1.15, 0]} /></Canvas><span className="wardrobe-stage-label">ПЕРСОНАЖ · ПОТЯНИ, ЧТОБЫ ПОВЕРНУТЬ</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ТВОЙ ПЕРСОНАЖ</span><h3>{OUTFITS.find((outfit) => outfit.id === selectedOutfit)?.name}</h3><p>Одежда меняется и в гардеробе, и в видеокадре звонка. Модель пока стилизованная — это не реалистичный человеческий скан.</p><div className="wardrobe-look-tags"><span>Текущий образ</span><span>{ownedOutfits.length} комплект(а)</span></div></div></section>
             <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ОДЕЖДА</span><h3>Выбери комплект</h3></div><span>Деньги: {cash.toLocaleString('ru-RU')} ₽</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '') + (outfitDetailsId === outfit.id ? ' details-open' : '')} key={outfit.id}><button className="outfit-preview-button" onClick={() => { setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id) }}><div className="outfit-swatch"><OutfitIllustration id={outfit.id} /></div><span className="outfit-preview-caption">{wearing ? 'Сейчас надет' : 'Примерить'}</span></button><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><div className="outfit-card-actions"><button className="outfit-details-button" onClick={() => setOutfitDetailsId(outfitDetailsId === outfit.id ? null : outfit.id)}>{outfitDetailsId === outfit.id ? 'Скрыть детали' : 'Что даёт?'}</button><button disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); return } setCash((value) => value - outfit.price); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('deal') }}>{wearing ? 'Надет' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></div>{outfitDetailsId === outfit.id && <div className="outfit-detail-panel"><strong>Что даёт этот образ</strong><p>{outfit.id === 'intern' ? 'Бесплатный базовый комплект. Сохраняет деньги на оборудование и развитие.' : outfit.id === 'classic' ? 'Деловой внешний вид для ролевого прогресса. Не улучшает качество рекомендаций сам по себе.' : 'Премиальный внешний вид для встреч высокого уровня. Не гарантирует доверие или сделку.'}</p></div>}</article> })}</div></section>
-            <section className="outfit-selector wardrobe-store"><div className="outfit-selector-heading"><div><span className="eyebrow">МАГАЗИН КОМНАТЫ</span><h3>Оборудование и обстановка</h3></div><span>Магазин также доступен на компьютере</span></div><div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; const detailsOpen = roomItemDetailsId === item.id; return <article className={'shop-item' + (owned ? ' owned' : '') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap"><RoomItemIllustration id={item.id} /><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохой маске клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт, без прямого бонуса к переговорам.' : 'Улучшает атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Доступно с ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div></section>
+            <section className="outfit-selector wardrobe-store"><div className="outfit-selector-heading"><div><span className="eyebrow">ARENA SUPPLY · КАТАЛОГ</span><h3>Магазин и кастомизация</h3></div><span>Улучшай рабочее место, образ и качество связи</span></div><div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay || careerLevel.level < (item.minLevel ?? 1); const detailsOpen = roomItemDetailsId === item.id; return <article className={'shop-item' + (owned ? ' owned' : '') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap shop-item-photo-wrap"><img className="shop-item-photo" src={ROOM_ITEM_PHOTOS[item.id]?.src} alt={ROOM_ITEM_PHOTOS[item.id]?.alt ?? item.name} loading="lazy" onError={(event) => { event.currentTarget.style.display = 'none'; const fallback = event.currentTarget.nextElementSibling as HTMLElement | null; if (fallback) fallback.style.display = 'block' }} /><div className="shop-item-photo-fallback"><RoomItemIllustration id={item.id} /></div><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><div className="shop-item-benefits">{item.videoQuality > 0 && <span className="shop-benefit-positive">Видео +{item.videoQuality}</span>}{item.firstImpression > 0 && <span className="shop-benefit-positive">Первое впечатление +{item.firstImpression}</span>}{item.id === 'second-monitor' && <span className="shop-benefit-neutral">Бонус к подготовке</span>}{item.id === 'used-chair' && <span className="shop-benefit-neutral">Комфорт на смене</span>}{item.id === 'chromakey-kit' && <span className="shop-benefit-risk">Риск подозрения +10</span>}</div><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохой маске клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт, без прямого бонуса к переговорам.' : 'Улучшает атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Требуется день ' + item.minDay + ' · уровень ' + (item.minLevel ?? 1) : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'День ' + item.minDay + ' · ур. ' + (item.minLevel ?? 1) : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div></section>
           </main>
         </div>
       )}
@@ -1100,7 +1054,7 @@ export default function App() {
           <div className={'terminal-body os-terminal-body ' + (tab === 'overview' ? 'desktop-home-body' : '') + (tab === 'calls' && callStatus === 'active' ? ' immersive-call-body' : '')}>
             <aside className="terminal-sidebar">
               <div className="profile-card">
-                <div className="avatar">БР</div><div><strong>Младший брокер</strong><small>Стажёр · 1-й день</small></div><span className="online-indicator" />
+                <div className="avatar">БР</div><div className="profile-career-copy"><strong>Младший брокер</strong><small>Уровень {careerLevel.level} · {xp} XP</small><span className="profile-xp-track"><i style={{ width: careerLevel.progress + '%' }} /></span></div><span className="online-indicator" />
               </div>
               <div className="side-section-label">РАБОЧИЙ СТОЛ</div>
               <button className={tab === 'overview' ? 'side-link active' : 'side-link'} onClick={() => setTab('overview')}><Activity size={17} /> Обзор дня <span className="side-dot" /></button>
@@ -1178,10 +1132,11 @@ export default function App() {
                 <div className="shop-page">
                   <div className="page-heading"><div><div className="eyebrow">ИНВЕНТАРЬ · ОБОРУДОВАНИЕ</div><h2>Улучши рабочее место</h2><p>Техника улучшает качество звонков и первое впечатление. Она не заменяет знания и честные ответы.</p></div><div className="market-status"><ShoppingBag size={14} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
                   <div className="economy-summary"><div><small>ЛИЧНЫЕ ДЕНЬГИ</small><strong>{cash.toLocaleString('ru-RU')} ₽</strong></div><div><small>УСТАНОВЛЕНО ПРЕДМЕТОВ</small><strong>{ownedItems.length}</strong></div><div><small>КАЧЕСТВО ВИДЕО</small><strong>{getVideoQuality(ownedItems)}/8</strong></div></div>
+                  <section className="shop-progression-panel"><div className="shop-progression-icon"><Sparkles size={19} /></div><div className="shop-progression-copy"><div><strong>Карьера · уровень {careerLevel.level}</strong><span>{careerLevel.currentXp} / {careerLevel.nextLevelAt} XP до следующего уровня</span></div><div className="shop-progression-track"><i style={{ width: careerLevel.progress + '%' }} /></div><small>Звонок: +25 XP · успешная сделка: ещё +35 XP · изучил рынок и новости перед звонком: +10 XP</small></div></section>
                   <div className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><Canvas className="wardrobe-3d-canvas" camera={{ position: [0, 1.35, 4.5], fov: 32 }} dpr={[1, 1.5]} shadows><color attach="background" args={['#142224']} /><ambientLight intensity={1.05} /><directionalLight position={[-2.5, 4, 3]} intensity={2.1} castShadow /><pointLight position={[2, 2.5, -1]} intensity={0.8} color="#75d8ae" /><WardrobeAvatar3D outfit={selectedOutfit} /><OrbitControls enablePan={false} minDistance={3.8} maxDistance={5.5} minPolarAngle={1.05} maxPolarAngle={1.75} target={[0, 1.15, 0]} /></Canvas><span className="wardrobe-stage-label">ПЕРСОНАЖ · ПОТЯНИ, ЧТОБЫ ПОВЕРНУТЬ</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ГАРДЕРОБ · ПЕРСОНАЖ</span><h3>Твой брокерский образ</h3><p>Выбирай образ для переговоров: одежда меняется и в гардеробе, и в маленьком видеокадре во время звонка.</p><div className="wardrobe-look-tags"><span>{selectedOutfit === 'premium' ? 'Премиальный костюм' : selectedOutfit === 'classic' ? 'Деловой пиджак' : 'Базовая футболка'}</span><span>{selectedOutfit === 'intern' ? 'Тёмные брюки' : 'Деловой силуэт'}</span><span>{selectedOutfit === 'premium' ? 'Золотые детали' : selectedOutfit === 'classic' ? 'Строгий стиль' : 'Повседневный стиль'}</span></div></div></div>
                   <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ГАРДЕРОБ</span><h3>Одежда персонажа</h3></div><span>На тебе: {OUTFITS.find((outfit) => outfit.id === selectedOutfit)?.name}</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '') + (outfitDetailsId === outfit.id ? ' details-open' : '')} key={outfit.id}><button className="outfit-preview-button" aria-label={'Примерить образ «' + outfit.name + '»'} onClick={() => { setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('ui') }}><div className="outfit-swatch"><OutfitIllustration id={outfit.id} /></div><span className="outfit-preview-caption">{wearing ? 'Сейчас надет' : 'Нажми для примерки'}</span></button><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><div className="outfit-card-actions"><button className="outfit-details-button" onClick={() => setOutfitDetailsId(outfitDetailsId === outfit.id ? null : outfit.id)}>{outfitDetailsId === outfit.id ? 'Скрыть детали' : 'Подробнее'}</button><button disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); playSound('ui'); return } setCash((value) => value - outfit.price); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('deal'); setToast('Новый образ добавлен в гардероб') }}>{wearing ? 'На тебе' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></div>{outfitDetailsId === outfit.id && <div className="outfit-detail-panel"><strong>Что даёт этот образ</strong><p>{outfit.id === 'intern' ? 'Бесплатный стартовый комплект. Не даёт бонуса к первому впечатлению, зато сохраняет деньги на важные покупки.' : outfit.id === 'classic' ? 'Деловой стиль для более убедительного образа на встречах. Это косметическое улучшение: знания компании и честность в ответах важнее одежды.' : 'Премиальный внешний вид для ролевого прогресса. Дороже остальных, но не гарантирует сделку и не заменяет подготовку.'}</p><span>{owned ? 'Уже куплено' : canAfford ? 'Можно купить сейчас' : 'Сначала накопи нужную сумму'}</span></div>}</article> })}</div></section>
                   <div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay; const detailsOpen = roomItemDetailsId === item.id; return <article className={(owned ? 'shop-item owned' : 'shop-item') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap"><RoomItemIllustration id={item.id} /><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохом качестве маски клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт для рабочего дня, без прямого бонуса к переговорам.' : item.id === 'desk-lamp' ? 'Небольшой бонус к первому впечатлению и качеству видео.' : 'Улучшает рабочую атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Доступно с ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'С ' + item.minDay + '-го дня' : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div>
-                  <div className="bottom-note"><Sparkles size={16} /><span>Установленные предметы сохраняются. Бонус от внешнего вида ограничен: подготовка к звонку и качество ответов важнее дорогого оборудования.</span></div>
+                  <div className="bottom-note"><Sparkles size={16} /><span>Каждая покупка имеет игровую функцию: свет, камера и микрофон повышают качество видеосвязи; фон и жильё влияют на первое впечатление; второй монитор помогает изучать данные. Оборудование даёт стартовое преимущество, но доверие всё равно нужно заработать в разговоре.</span></div>
                 </div>
               )}
 
@@ -1218,6 +1173,7 @@ export default function App() {
                 <div className="calls-page">
                   <div className="page-heading"><div><div className="eyebrow">ОТДЕЛ ПРОДАЖ · ЛИНИЯ 01</div><h2>Клиенты и звонки</h2><p>Слушай клиента, выбери точный ответ и закрой сделку без пустых обещаний. Репутация открывает клиентов крупнее, а деньги улучшают жильё и рабочее место.</p></div><div className={callStatus === 'active' ? 'call-live-badge active' : 'call-live-badge'}><span className="live-dot" /> {callStatus === 'active' ? 'ЗВОНОК ИДЁТ' : 'ЛИНИЯ СВОБОДНА'}</div></div>
                   {callStatus === 'idle' && <div className="precall-briefing">
+                    <DailyMissionPanel company={dailyQuotaCompany} day={day} quotaShares={dailyQuotaShares} quotaAmount={dailyQuotaAmount} soldShares={dailySalesShares} soldAmount={dailySalesAmount} onOpenResearch={() => { setSelectedCompany(dailyQuotaCompany.ticker); setTab('market') }} />
                     <div className="call-planning-section"><div className="call-planning-heading"><span className="eyebrow">ШАГ 1 · ВЫБЕРИ КЛИЕНТА</span><strong>Кому сегодня предложим инвестицию?</strong><small>В первый день доступны два клиента. Новые лиды открываются с ростом репутации и прогрессом карьеры.</small></div><div className="call-client-picker">{CLIENTS.map((client) => { const unlocked = availableClients.some((candidate) => candidate.id === client.id); return <button key={client.id} disabled={!unlocked} className={'call-client-option' + (selectedClientId === client.id ? ' selected' : '') + (!unlocked ? ' locked' : '')} onClick={() => setSelectedClientId(client.id)}><span className="call-client-avatar">{unlocked ? client.initials : '🔒'}</span><span className="call-client-option-copy"><strong>{client.name}</strong><small>{unlocked ? client.profession + ' · уровень ' + client.tier : 'Пока недоступен'}</small><em>{unlocked ? 'Капитал до ' + client.budget.toLocaleString('ru-RU') + ' ₽' : 'Развивай карьеру'}</em></span></button>})}</div><div className="call-planning-heading stock-planning-heading"><span className="eyebrow">ШАГ 2 · ПОРУЧЕНИЕ ДНЯ</span><strong>Сегодня продаём {dailyQuotaCompany.name} ({dailyQuotaCompany.ticker})</strong><small>Акцию назначил руководитель. Твоя задача — разобраться в бизнесе, подобрать аргументы для клиента и честно ответить на вопросы о слабых местах.</small></div><div className="mission-stock-brief"><div className="mission-stock-top"><span className={'company-logo ' + dailyQuotaCompany.ticker.toLowerCase()}>{dailyQuotaCompany.ticker.slice(0, 2)}</span><div><strong>{dailyQuotaCompany.name}</strong><small>{dailyQuotaCompany.sector} · цена {getDisplayedPrice(dailyQuotaCompany)}</small></div><em className={dailyQuotaCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(dailyQuotaCompany)}</em></div><p>{dailyQuotaCompany.description}</p><div className="mission-stock-columns"><section><small>ЧТО МОЖНО ПРОДАТЬ</small><p>{dailyQuotaCompany.advantages}</p></section><section><small>ЧТО КЛИЕНТ МОЖЕТ ОСПОРИТЬ</small><p>{dailyQuotaCompany.risks}</p></section></div><div className="mission-stock-actions"><span>План: {dailyQuotaShares} акций · оборот {dailyQuotaAmount.toLocaleString('ru-RU')} ₽</span><button className="secondary-action" onClick={() => { setSelectedCompany(dailyQuotaCompany.ticker); setTab('market') }}>Изучить отчёт <ChevronRight size={14} /></button></div></div></div><div className="briefing-copy"><span className="eyebrow">ЗАЧЕМ НУЖЕН ЗВОНОК</span><strong>Ты не продаёшь акцию вслепую — ты помогаешь принять решение</strong><p>У {activeClient.name} есть собственные цели и отношение к риску. Назначенная акция — часть задания: объясни, кому она может подойти, что может пойти не так и когда разумнее отказаться от сделки.</p><div className="call-goal-list"><span>1. Разобраться в бизнесе</span><span>2. Проверить свежие новости</span><span>3. Обсудить риски с клиентом</span></div><small>Подготовка к рынку и новостям добавляет +4 к начальному доверию за каждый изученный раздел.</small></div>
                     <div className="briefing-actions">
                       <button className={marketReviewed ? 'briefing-action complete' : 'briefing-action'} onClick={() => setTab('market')}><TrendingUp size={15} /><span><strong>Отчёт компании</strong><small>{marketReviewed ? 'Изучено · +4 доверия' : 'Финансы и риски'}</small></span><span className="briefing-check">{marketReviewed ? '✓' : '↗'}</span></button>
@@ -1280,14 +1236,14 @@ export default function App() {
                           <div className="negotiation-video-tile client-tile"><div className="negotiation-video-label"><span>СОБЕСЕДНИК</span><span>● LIVE</span></div><div className="negotiation-client-video"><ClientPortrait3D tier={activeClient.tier} mood={trust >= 70 ? 'interested' : trust >= 45 ? 'neutral' : 'skeptical'}/></div><div className="negotiation-video-caption"><strong>{activeClient.name}</strong><small>{activeClient.profession}</small></div></div>
                           <div className="negotiation-video-tile self-tile"><div className="negotiation-video-label"><span>ВАШ КАДР</span><span>● ЛОКАЛЬНО</span></div><div className="negotiation-self-video"><ClientPortrait3D tier={0} variant="player" outfit={selectedOutfit}/><span>ВЫ</span></div><div className="negotiation-video-caption"><strong>Ваш брокер</strong><small>Камера персонажа</small></div></div>
                         </div>
-                        <div className="negotiation-current-question"><div><span className="negotiation-section-label">ВОПРОС КЛИЕНТА · ЭТАП {Math.min(questionIndex + 1, activeQuestions.length)} ИЗ {activeQuestions.length}</span><strong>{activeQuestion?.title ?? 'Обсудите условия сделки'}</strong><p className="negotiation-tactic">{activeQuestion?.hint ?? 'Уточни потребности, проверь риски и не обещай гарантированную доходность.'}</p></div><span className="negotiation-timer">{timeLeft}<small>СЕК</small></span></div>
-                        <div className="negotiation-answers"><div className="negotiation-answer-heading"><strong>Как ответить?</strong><small>Выбери вариант · клавиши 1–3</small></div>{displayedChoices.map((choice, choiceIndex) => <button key={choiceIndex} className="negotiation-answer" onClick={() => answerQuestion(choice.label, choice.delta)}><kbd>{choiceIndex + 1}</kbd><span>{choice.label}</span><small className={choice.delta >= 0 ? 'positive' : 'negative'}>{choice.delta > 0 ? '+' : ''}{choice.delta} доверия</small></button>)}</div>
+                        <div className="negotiation-current-question"><div><span className="negotiation-section-label">ВОПРОС КЛИЕНТА · ЭТАП {Math.min(questionIndex + 1, activeQuestions.length)} ИЗ {activeQuestions.length}</span><strong>{activeQuestion?.title ?? 'Обсудите условия сделки'}</strong><p className="negotiation-tactic">{activeQuestion?.hint ?? 'Уточни потребности, проверь риски и не обещай гарантированную доходность.'}</p></div><span className={'negotiation-timer ' + (timeLeft <= 15 ? 'urgent' : timeLeft <= 30 ? 'warning' : '')} style={{ '--timer-progress': (Math.max(0, timeLeft) / 75 * 100) + '%' } as React.CSSProperties}><span className="negotiation-timer-value">{timeLeft}</span><small>СЕК</small></span></div>
+                        <div className="negotiation-answers"><div className="negotiation-answer-heading"><strong>Как ответить?</strong><small>Выбери вариант · клавиши 1–3</small></div>{displayedChoices.map((choice, choiceIndex) => <button key={choiceIndex} className="negotiation-answer" onClick={() => answerQuestion(choice.label, choice.delta)}><kbd>{choiceIndex + 1}</kbd><span>{choice.label}</span></button>)}</div>
                         <div className="negotiation-call-controls"><span><i className="negotiation-live-dot"/> Соединение стабильно</span><button className="os-call-end" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={14}/> Завершить звонок</button></div>
                       </div>
                       <aside className="negotiation-goals">
                         <div className="negotiation-goal-card"><span className="negotiation-section-label">ЦЕЛЬ ПЕРЕГОВОРОВ</span><strong>{activeCompany.name}</strong><small>{activeCompany.ticker} · {activeCompany.sector}</small><div className="negotiation-goal-price">{getDisplayedPrice(activeCompany)} <span className={activeCompany.positive ? 'positive' : 'negative'}>{getDisplayedChange(activeCompany)}</span></div><p>{activeCompany.description}</p></div>
                         <div className="negotiation-earnings-card"><span className="negotiation-section-label">ЭКОНОМИКА ЗВОНКА</span><div className="negotiation-earnings-main"><small>ВОЗМОЖНЫЙ БОНУС ТЕБЕ</small><strong>+{projectedDeal.playerBonus.toLocaleString('ru-RU')} ₽</strong></div><div className="negotiation-earnings-row"><span>Сумма сделки</span><b>{projectedDeal.ticket.toLocaleString('ru-RU')} ₽</b></div><div className="negotiation-earnings-row"><span>Комиссия фирмы</span><b>{projectedDeal.firmRevenue.toLocaleString('ru-RU')} ₽</b></div><p>Бонус начисляется только после успешной сделки. Зарплата и премия за план смены считаются отдельно.</p></div><div className="negotiation-live-quota"><span className="negotiation-section-label">ПЛАН СМЕНЫ · {dailyQuotaCompany.ticker}</span><div className="negotiation-live-quota-row"><span>Продано акций</span><b>{dailySalesShares} / {dailyQuotaShares}</b></div><div className="negotiation-quota-track"><span style={{width: Math.min(100, dailySalesShares / dailyQuotaShares * 100) + '%'}} /></div><div className="negotiation-live-quota-row"><span>Оборот</span><b>{dailySalesAmount.toLocaleString('ru-RU')} / {dailyQuotaAmount.toLocaleString('ru-RU')} ₽</b></div><div className="negotiation-quota-track"><span style={{width: Math.min(100, dailySalesAmount / dailyQuotaAmount * 100) + '%'}} /></div><small>Сделки по другим акциям не засчитываются в обязательный план.</small></div><div className="negotiation-goal-card"><span className="negotiation-section-label">ЧТО ВАЖНО КЛИЕНТУ</span><strong>{activeClient.goal}</strong><div className="negotiation-client-facts"><span>Бюджет <b>{activeClient.budget.toLocaleString('ru-RU')} ₽</b></span><span>План сделки <b>{activeClient.ticket.toLocaleString('ru-RU')} ₽</b></span><span>Опыт <b>{activeClient.experience}</b></span></div></div>
-                        <div className="negotiation-trust-card"><div><span>Доверие</span><strong>{trust}%</strong></div><div className="negotiation-meter"><span style={{width: trust + '%'}}/></div><div><span>Терпение</span><strong>{patience}%</strong></div><div className="negotiation-meter patience"><span style={{width: patience + '%'}}/></div><div className="negotiation-stage">{trustLabel}</div></div>
+                        <div className="negotiation-trust-card negotiation-trust-redesign"><div className="negotiation-trust-heading"><div><span className="negotiation-section-label">ДОВЕРИЕ КЛИЕНТА</span><strong>{trust}%</strong></div><span className="negotiation-trust-target">ЦЕЛЬ {58 + activeClient.tier * 2}%</span></div><div className="negotiation-trust-track"><span className="negotiation-trust-fill" style={{width: trust + '%'}}/><i className="negotiation-trust-threshold" style={{left: (58 + activeClient.tier * 2) + '%'}}/></div><div className="negotiation-trust-scale"><span>Сомнение</span><span>Интерес</span><span>Готов к сделке</span></div><div className="negotiation-trust-next">{trust >= 58 + activeClient.tier * 2 ? 'Порог доверия достигнут — сохрани терпение клиента.' : 'До нужного уровня осталось ' + ((58 + activeClient.tier * 2) - trust) + ' пунктов доверия.'}</div><div className="negotiation-patience-row"><span>Терпение клиента</span><div className="negotiation-patience-track"><span style={{width: patience + '%'}}/></div><strong>{patience}%</strong></div><div className="negotiation-stage">{trustLabel}</div></div>
                         <div className="negotiation-risk-note"><strong>Проверь перед сделкой</strong><p>{activeCompany.advantages}</p><p className="risk-copy">{activeCompany.risks}</p></div>
                       </aside>
                     </div>}
@@ -1320,7 +1276,7 @@ export default function App() {
         </div>
       )}
 
-      {menuSettings && !mainMenu && <div className="pause-backdrop"><section className="pause-menu pause-settings-panel" role="dialog" aria-modal="true" aria-label="Настройки"><span className="pause-kicker">ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><p>Управляй визуальными эффектами. Прогресс сохраняется автоматически.</p><div className="settings-row"><span><strong>Звуковые эффекты</strong><small>Кнопки, шаги и действия.</small></span><button className={'settings-toggle' + (soundEnabled ? ' on' : '')} onClick={() => setSoundEnabled((value) => !value)}>{soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Шум города и дождь</strong><small>Меняется при закрытии штор.</small></span><button className={'settings-toggle' + (ambienceEnabled ? ' on' : '')} onClick={() => setAmbienceEnabled((value) => !value)}>{ambienceEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Снижает интенсивность декоративных движений.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><button className="pause-primary" onClick={() => setMenuSettings(false)}>Готово</button></section></div>}
+      {menuSettings && !mainMenu && <div className="pause-backdrop"><section className="pause-menu pause-settings-panel" role="dialog" aria-modal="true" aria-label="Настройки"><span className="pause-kicker">ПАРАМЕТРЫ ИГРЫ</span><h2>Настройки</h2><p>Управляй визуальными эффектами. Прогресс сохраняется автоматически.</p><div className="settings-row"><span><strong>Звуковые эффекты</strong><small>Кнопки, шаги и действия.</small></span><button className={'settings-toggle' + (soundEnabled ? ' on' : '')} onClick={() => setSoundEnabled((value) => !value)}>{soundEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Звуки окружения</strong><small>Фоновая атмосфера комнаты и города.</small></span><button className={'settings-toggle' + (ambienceEnabled ? ' on' : '')} onClick={() => setAmbienceEnabled((value) => !value)}>{ambienceEnabled ? 'ВКЛ' : 'ВЫКЛ'}</button></div><div className="settings-row"><span><strong>Уменьшить анимации</strong><small>Снижает интенсивность декоративных движений.</small></span><button className={'settings-toggle' + (reducedMotion ? ' on' : '')} onClick={toggleReducedMotion} aria-pressed={reducedMotion}>{reducedMotion ? 'ВКЛ' : 'ВЫКЛ'}</button></div><button className="pause-primary" onClick={() => setMenuSettings(false)}>Готово</button></section></div>}
 
       {pauseOpen && !mainMenu && <div className="pause-backdrop"><section className="pause-menu" role="dialog" aria-modal="true" aria-label="Пауза"><span className="pause-kicker">ИГРА ПРИОСТАНОВЛЕНА</span><h2>Передохнём?</h2><p>Время остановлено. Карьера сохраняется автоматически.</p><button className="pause-primary" onClick={() => setPauseOpen(false)}><Play size={17} fill="currentColor" /> Вернуться в игру</button><button onClick={() => { setPauseOpen(false); setMainMenu(true); setOfflineMenu(true); setConfirmNewCareer(true) }}><RotateCcw size={16} /> Начать заново</button><button onClick={() => { setPauseOpen(false); setMenuSettings(true) }}><Settings size={16} /> Настройки</button><button className="pause-exit" onClick={() => { setPauseOpen(false); setPanel('room'); setCallStatus('idle'); setMainMenu(true); setOfflineMenu(false) }}><ArrowLeft size={16} /> В главное меню</button><small>ESC — продолжить игру</small></section></div>}
 
