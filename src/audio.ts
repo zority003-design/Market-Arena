@@ -25,18 +25,72 @@ let settings: AudioSettings = {
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
-let musicPlayer: HTMLAudioElement | null = null
-let musicTrackIndex = 0
-const MUSIC_TRACKS = ['/audio/Endless%20Solitude.mp3', '/audio/Market%20Pulse.mp3']
-
-// Browsers often block background audio until the first real user gesture.
-// Retry playback from that gesture instead of silently leaving the soundtrack stopped.
+// Procedural background soundtrack: no external MP3 files or network requests required.
+let musicBus: GainNode | null = null
+let musicTimer: number | null = null
+let musicStep = 0
 let musicUnlockInstalled = false
+const musicNotes = [110, 164.81, 220, 164.81, 130.81, 196, 261.63, 196, 98, 146.83, 196, 146.83, 123.47, 185, 246.94, 185]
+
+function playMusicNote(frequency: number, startAt: number, duration: number, volume: number, type: OscillatorType = 'triangle') {
+  if (!context || !musicBus) return
+  const oscillator = context.createOscillator()
+  const envelope = context.createGain()
+  oscillator.type = type
+  oscillator.frequency.setValueAtTime(frequency, startAt)
+  envelope.gain.setValueAtTime(0.0001, startAt)
+  envelope.gain.linearRampToValueAtTime(volume, startAt + 0.08)
+  envelope.gain.setTargetAtTime(0.0001, startAt + duration * 0.55, Math.max(0.08, duration * 0.22))
+  oscillator.connect(envelope)
+  envelope.connect(musicBus)
+  oscillator.start(startAt)
+  oscillator.stop(startAt + duration + 0.2)
+}
+
+function startProceduralMusic() {
+  if (!context || musicTimer !== null) return
+  musicBus = context.createGain()
+  musicBus.gain.value = 0.0001
+  musicBus.connect(context.destination)
+  musicBus.gain.setTargetAtTime(Math.max(0, Math.min(1, settings.musicVolume)) * 0.42, context.currentTime, 0.35)
+  musicStep = 0
+  const schedule = () => {
+    if (!context || !musicBus || !settings.music || settings.paused) return
+    if (context.state === 'suspended') void context.resume().catch(() => {})
+    const now = context.currentTime + 0.04
+    const note = musicNotes[musicStep % musicNotes.length]
+    playMusicNote(note, now, 1.65, 0.095)
+    playMusicNote(note * 2, now + 0.04, 1.25, 0.026, 'sine')
+    if (musicStep % 4 === 0) {
+      playMusicNote(note * 0.5, now, 2.9, 0.055, 'sine')
+      playMusicNote(note * 1.5, now + 0.12, 1.8, 0.018, 'sine')
+    }
+    musicStep += 1
+  }
+  schedule()
+  musicTimer = window.setInterval(schedule, 720)
+}
+
+function stopProceduralMusic() {
+  if (musicTimer !== null && typeof window !== 'undefined') window.clearInterval(musicTimer)
+  musicTimer = null
+  if (musicBus && context) {
+    musicBus.gain.setTargetAtTime(0.0001, context.currentTime, 0.12)
+    const oldBus = musicBus
+    window.setTimeout(() => { try { oldBus.disconnect() } catch {} }, 900)
+  }
+  musicBus = null
+}
+
 function installMusicUnlock() {
   if (typeof window === 'undefined' || musicUnlockInstalled) return
   musicUnlockInstalled = true
   const unlock = () => {
-    updateMusic()
+    if (settings.music && !settings.paused) {
+      const ctx = ensureAudio()
+      if (ctx?.state === 'suspended') void ctx.resume().catch(() => {})
+      startProceduralMusic()
+    }
     window.removeEventListener('pointerdown', unlock, true)
     window.removeEventListener('keydown', unlock, true)
   }
@@ -46,23 +100,14 @@ function installMusicUnlock() {
 
 function updateMusic() {
   if (typeof window === 'undefined') return
-  const shouldPlay = settings.music && !settings.paused
-  if (!musicPlayer) {
-    musicPlayer = new Audio()
-    musicPlayer.loop = false
-    musicPlayer.preload = 'auto'
-    musicPlayer.addEventListener('ended', () => {
-      musicTrackIndex = (musicTrackIndex + 1) % MUSIC_TRACKS.length
-      if (musicPlayer) {
-        musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
-        if (settings.music && !settings.paused) void musicPlayer.play().catch(() => {})
-      }
-    })
-    musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
+  if (settings.music && !settings.paused) {
+    const ctx = ensureAudio()
+    if (ctx?.state === 'suspended') void ctx.resume().catch(() => {})
+    startProceduralMusic()
+    if (musicBus && context) musicBus.gain.setTargetAtTime(Math.max(0, Math.min(1, settings.musicVolume)) * 0.42, context.currentTime, 0.18)
+  } else {
+    stopProceduralMusic()
   }
-  musicPlayer.volume = Math.max(0, Math.min(1, settings.musicVolume))
-  if (shouldPlay) void musicPlayer.play().catch(() => {})
-  else musicPlayer.pause()
 }
 
 function ensureAudio() {
