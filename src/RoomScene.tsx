@@ -388,9 +388,15 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
-      <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#222b34" />
-      {/* The back wall is now uninterrupted; the window belongs on the left wall. */}
+      <Box position={[0, 3.35, 0]} size={[8, 0.16, 8]} color="#5b4434" roughness={0.82} textureKind="wood" />
+      {/* A wooden ceiling matching the floorboards, with thick exposed beams for a readable silhouette. */}
+      {Array.from({ length: 16 }, (_, i) => <Box key={'ceiling-board-' + i} position={[-3.64 + i * 0.485, 3.255, 0]} size={[0.455, 0.045, 7.76]} color={woodPalette[(i + 2) % woodPalette.length]} roughness={0.78} textureKind="wood" />)}
+      {[-2.65, 0, 2.65].map((z, i) => <Box key={'ceiling-beam-' + i} position={[0, 3.18, z]} size={[7.84, 0.14, 0.18]} color={i === 1 ? '#61442f' : '#6b4c35'} roughness={0.82} textureKind="wood" />)}
+      {/* The rear wall has a contrasting finish and visible wood panelling so it cannot disappear into the background. */}
       <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} textureKind="plaster" />
+      <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color="#72533c" roughness={0.9} textureKind="wood" />
+      <Box position={[0, 0.91, -3.82]} size={[7.78, 0.045, 0.045]} color="#b18b5e" roughness={0.65} textureKind="wood" />
+      <Box position={[0, 1.24, -3.82]} size={[7.78, 0.035, 0.045]} color="#b18b5e" roughness={0.65} textureKind="wood" />
       {/* Left-side window opening, with a proper sill and dark metal frame. */}
       <Box position={[-3.98, 1.62, -3.15]} size={[0.18, 3.4, 1.7]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 1.62, 2.0]} size={[0.18, 3.4, 4.0]} color={backWallColor} textureKind="plaster" />
