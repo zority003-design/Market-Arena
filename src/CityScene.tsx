@@ -115,27 +115,34 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     <ambientLight intensity={night ? 0.34 : 1.05} />
     <hemisphereLight args={[night ? '#8298bd' : '#e1eff2', '#4a5548', night ? 0.45 : 1.25]} />
     <directionalLight position={[-12, 18, 8]} intensity={night ? 0.55 : 2.1} color={evening ? '#f0d1a6' : '#fff2dc'} castShadow shadow-mapSize={[2048, 2048]} />
-    <Block position={[0, -0.22, -4]} size={[48, 0.4, 44]} color="#59625d" />
-    <Block position={[0, -0.01, -4]} size={[8.5, 0.08, 40]} color="#343e43" roughness={0.98} />
-    <Block position={[-6.1, 0.015, -4]} size={[3.6, 0.12, 40]} color="#8b9085" />
-    <Block position={[6.1, 0.015, -4]} size={[3.6, 0.12, 40]} color="#8b9085" />
-    <Block position={[0, 0.035, -4]} size={[0.13, 0.02, 40]} color="#d9c9a3" />
-    {Array.from({ length: 10 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, 13 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
-    <Block position={[-6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
-    <Block position={[6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
-    {/* Modular sidewalk slabs, curbs, crosswalk and drain details break up the toy-like flat ground. */}
-    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
-    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {/* The street ends before the house. Keep the front yard pedestrian-only so asphalt never cuts through the building. */}
+    <Block position={[0, -0.22, -10]} size={[48, 0.4, 26]} color="#59625d" />
+    <Block position={[0, -0.01, -10]} size={[8.5, 0.08, 26]} color="#343e43" roughness={0.98} />
+    <Block position={[-6.1, 0.015, -10]} size={[3.6, 0.12, 26]} color="#8b9085" />
+    <Block position={[6.1, 0.015, -10]} size={[3.6, 0.12, 26]} color="#8b9085" />
+    <Block position={[0, 0.035, -10]} size={[0.13, 0.02, 26]} color="#d9c9a3" />
+    {Array.from({ length: 7 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, 2 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
+    <Block position={[-6.2, 0.06, -10]} size={[0.08, 0.03, 26]} color="#b8b8a5" />
+    <Block position={[6.2, 0.06, -10]} size={[0.08, 0.03, 26]} color="#b8b8a5" />
+    {/* Sidewalk tiles, curbs and drain stay on the street side of the front yard. */}
+    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, -0.3 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 14 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, -0.3 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, -1.1 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 12 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, -1.1 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
     {Array.from({ length: 5 }, (_, i) => <RoadDetail key={'crosswalk-' + i} position={[-2.2 + i * 1.1, 0.052, -1.2]} size={[0.64, 0.025, 2.8]} color="#d3d1c4" />)}
-    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, 0.82]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
+    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, -0.35]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
 
     {/* The player's small home is the same landmark that anchors the entrance back into the interior. */}
     <group position={[0, 0, 5.2]}>
       <Block position={[0, 1.65, 0]} size={[6.2, 3.3, 4.4]} color="#c0b29a" />
       <Block position={[0, 3.36, 0]} size={[6.45, 0.22, 4.65]} color="#554b43" />
       <Block position={[0, 3.7, 0]} size={[6.7, 0.52, 4.9]} color="#3c4548" />
+      {/* Rear facade: the house has its own finished wall, not the distant map barrier. */}
+      <Block position={[0, 1.65, 2.22]} size={[6.18, 3.28, 0.12]} color="#b7a991" roughness={0.9} />
+      <Block position={[-1.72, 2.02, 2.30]} size={[0.84, 0.94, 0.06]} color="#9ec1c9" roughness={0.25} metalness={0.05} />
+      <Block position={[1.72, 2.02, 2.30]} size={[0.84, 0.94, 0.06]} color="#9ec1c9" roughness={0.25} metalness={0.05} />
+      <Block position={[0, 0.19, 2.31]} size={[6.22, 0.18, 0.08]} color="#55483e" />
+
       <Block position={[0, 0.95, -2.23]} size={[1.25, 1.95, 0.13]} color="#3b3029" />
       <Block position={[0, 1.04, -2.31]} size={[0.12, 2.05, 0.08]} color="#d0b78c" />
       <Block position={[-1.72, 2.0, -2.25]} size={[0.82, 0.92, 0.1]} color="#a9cbd2" roughness={0.22} />
