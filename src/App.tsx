@@ -947,6 +947,8 @@ export default function App() {
       const nextDay = day + 1
       setDay(nextDay)
       setCallsToday(0)
+      setMarketReviewed(false)
+      setNewsReviewed(false)
       setDailySalesAmount(0)
       setDailySalesShares(0)
       setShiftReport(null)
