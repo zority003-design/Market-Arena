@@ -1,4 +1,4 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep' | 'typing' | 'murmur'
 
 type AudioSettings = {
   enabled: boolean
@@ -31,7 +31,7 @@ const MUSIC_TRACKS = ['/audio/Endless%20Solitude.mp3', '/audio/Market%20Pulse.mp
 
 function updateMusic() {
   if (typeof window === 'undefined') return
-  const shouldPlay = settings.enabled && settings.music && !settings.paused
+  const shouldPlay = settings.music && !settings.paused
   if (!musicPlayer) {
     musicPlayer = new Audio()
     musicPlayer.loop = false
@@ -45,7 +45,7 @@ function updateMusic() {
     })
     musicPlayer.src = MUSIC_TRACKS[musicTrackIndex]
   }
-  musicPlayer.volume = Math.max(0, Math.min(1, settings.volume * settings.musicVolume))
+  musicPlayer.volume = Math.max(0, Math.min(1, settings.musicVolume))
   if (shouldPlay) void musicPlayer.play().catch(() => {})
   else musicPlayer.pause()
 }
@@ -205,6 +205,18 @@ export function playSound(kind: SoundKind, intensity = 1) {
     case 'sleep':
       tone(330, 0.22, 'sine', 0.05, 220)
       break
+    case 'typing': {
+      const frequency = 720 + Math.random() * 620
+      tone(frequency, 0.018 + Math.random() * 0.012, 'square', 0.012, frequency * 0.78)
+      break
+    }
+    case 'murmur': {
+      // Soft, non-verbal voice-like background texture: deliberately quiet and short.
+      const base = 115 + Math.random() * 65
+      tone(base, 0.22, 'triangle', 0.012, base * (0.88 + Math.random() * 0.16))
+      window.setTimeout(() => tone(base * (1.15 + Math.random() * 0.18), 0.16, 'triangle', 0.009, base * 0.92), 110)
+      break
+    }
   }
 }
 
