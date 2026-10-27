@@ -111,3 +111,6 @@
 @media (max-width: 850px) {
   .arena-os-v2 { background: linear-gradient(145deg,#111b27,#1a2c39 55%,#101923); }
 }
+
+.pixel-client-avatar { image-rendering:pixelated; }
+.arena-os-video-tile>svg.pixel-client-avatar,.arena-os-preview-face>svg.pixel-client-avatar { image-rendering:pixelated; }
