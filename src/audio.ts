@@ -1,4 +1,4 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'sleep'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'sleep' | 'wardrobe' | 'keyboard'
 
 type AudioSettings = {
   enabled: boolean
@@ -171,6 +171,13 @@ export function playSound(kind: SoundKind) {
       break
     case 'sleep':
       tone(330, 0.22, 'sine', 0.05, 220)
+      break
+    case 'wardrobe':
+      tone(145, 0.16, 'triangle', 0.055, 92)
+      window.setTimeout(() => tone(260, 0.075, 'triangle', 0.025, 210), 75)
+      break
+    case 'keyboard':
+      tone(760 + Math.random() * 180, 0.018, 'square', 0.012, 520)
       break
   }
 }
