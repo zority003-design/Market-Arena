@@ -924,7 +924,7 @@ export default function App() {
         <div className="sleep-bed-silhouette"><span className="sleep-pillow" /><span className="sleep-blanket" /><span className="sleep-head" /><span className="sleep-eye left" /><span className="sleep-eye right" /></div>
         <div className="sleep-eyelid sleep-eyelid-top" /><div className="sleep-eyelid sleep-eyelid-bottom" />
         <div className="sleep-transition-caption"><span>{sleepTransition === 'sleeping' ? 'КОНЕЦ ДНЯ' : '07:00 · НОВЫЙ ДЕНЬ'}</span><strong>{sleepTransition === 'sleeping' ? 'Ты ложишься спать…' : 'Будильник. Пора вставать.'}</strong><small>{sleepTransition === 'sleeping' ? 'Закрываешь глаза, город за окном затихает.' : 'Глаза открываются. Впереди новая смена брокера.'}</small></div>
-      </div>
+      </div>}
       <div className="scene-layer" aria-label="3D-комната общежития">
         <RoomScene onInteract={openComputer} onExitCity={() => {}} onCanExitCityChange={() => {}} onCanInteractChange={setCanInteractWithComputer} onInteractObject={interactWithRoomObject} onNearbyObjectChange={setNearbyRoomObject} introActive={introActive} onIntroComplete={finishIntro} active={!mainMenu && panel === 'room'} ownedItems={ownedItems} housingId={housingId} gameMinutes={gameMinutes} onCanSleepChange={setCanSleep} onSleepInteract={sleepNow} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
       </div>
