@@ -407,6 +407,12 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={backWallColor} textureKind="plaster" />
+      {/* Clearly visible feature wall on the side opposite the desk: deep slate panel, warm vertical battens and a thin teal light reveal. */}
+      <Box position={[-3.865, 1.58, 2.05]} size={[0.045, 2.52, 3.05]} color="#172a35" roughness={0.84} />
+      <Box position={[-3.82, 1.58, 2.05]} size={[0.035, 2.56, 0.035]} color="#3e8d83" emissive="#236b63" emissiveIntensity={0.35} roughness={0.5} />
+      {Array.from({ length: 11 }, (_, i) => <Box key={'side-feature-batten-' + i} position={[-3.815, 1.58, 0.72 + i * 0.266]} size={[0.055, 2.38, 0.075]} color={i % 2 ? '#344c58' : '#263d49'} roughness={0.76} />)}
+      <Box position={[-3.805, 2.86, 2.05]} size={[0.07, 0.035, 3.12]} color="#a9c5c4" roughness={0.45} metalness={0.25} />
+      <Box position={[-3.805, 0.3, 2.05]} size={[0.07, 0.035, 3.12]} color="#a9c5c4" roughness={0.45} metalness={0.25} />
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
 
