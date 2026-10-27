@@ -108,7 +108,6 @@ function BrokerModel({ identity, outfit }: { identity: string; outfit: string })
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
     <Canvas camera={{ position: [0, compact ? 0.35 : 0.28, compact ? 7.8 : 6.9], fov: compact ? 32 : 30, near: 0.1, far: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
-      <color attach="background" args={['#e9f0f7']} />
       <ambientLight intensity={1.55} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.5]} />
       <directionalLight position={[-3, 5, 4]} intensity={2.5} castShadow />
