@@ -751,7 +751,12 @@ export default function App() {
     const nextPatience = Math.max(0, patience - 4)
     setTrust(nextTrust)
     setPatience(nextPatience)
-    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
+    const clientReaction = delta >= 9
+      ? ['Ладно, это уже похоже на разговор с брокером, а не с ведущим телемагазина. Продолжайте.', 'Хорошо. Вы назвали не только красивую сторону, но и то, что может пойти не так.', 'Цифры и условия — уже лучше лозунгов. Давайте копнём глубже.'][questionIndex % 3]
+      : delta >= 4
+        ? ['Звучит разумно. Но я всё ещё не собираюсь покупать акцию только за уверенный голос.', 'Допустим. Теперь объясните, что должно случиться, чтобы вы признали ошибку.', 'Неплохо. Только без фокусов: где здесь главный риск?'][questionIndex % 3]
+        : ['Подождите. Это было обещание или у вас есть доказательства?', 'Вот так обычно и начинается фраза «я же говорил, что риски были». Попробуем ещё раз.', 'Слишком гладко звучит. Что вы недоговариваете?'][questionIndex % 3]
+    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне и стал внимательнее проверять твои слова. Доверие −7.' }] : []), { from: 'client', text: clientReaction }, ...(questionIndex < activeQuestions.length - 1 ? [{ from: 'client' as const, text: activeQuestions[questionIndex + 1].title }] : [])])
     setFreeAnswer('')
     if (questionIndex >= activeQuestions.length - 1) {
       resolveCall(nextTrust, nextPatience)
