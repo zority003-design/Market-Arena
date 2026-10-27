@@ -186,23 +186,6 @@ function WindowBuilding({ x, z, width, depth, height, color, night }: { x: numbe
   </group>
 }
 
-function WindowCar({ index }: { index: number }) {
-  const car = useRef<THREE.Group>(null)
-  useFrame(({ clock }) => {
-    if (!car.current) return
-    const direction = index % 2 === 0 ? 1 : -1
-    const travel = clock.elapsedTime * direction * .72 + index * 4.8 - 10
-    car.current.position.x = ((travel + 12) % 24 + 24) % 24 - 12
-  })
-  return <group ref={car} position={[0, .13, index % 2 ? 2.65 : 3.82]}>
-    <Block position={[0, .18, 0]} size={[1.28, .34, .62]} color={['#6b7779','#8a5b4d','#435c61','#b6a67e','#42514b'][index]} roughness={.55} metalness={.18} />
-    <Block position={[0, .4, -.035]} size={[.72, .24, .48]} color="#6c8b92" roughness={.28} metalness={.08} />
-    <Block position={[-.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
-    <Block position={[.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
-    {[-1,1].map(side => <mesh key={side} position={[side * .38, -.015, .31]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.12,.12,.06,14]} /><meshStandardMaterial color="#20272a" roughness={.85} /></mesh>)}
-  </group>
-}
-
 function WindowRain() {
   const rain = useRef<THREE.Group>(null)
   useFrame(({ clock }) => {
