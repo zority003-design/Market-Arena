@@ -85,7 +85,7 @@ function makeRoomTexture(kind: RoomTextureKind) {
   for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) {
     const i = (y * 256 + x) * 4
     const seed = (x * 374761393 + y * 668265263 + x * y * 1442695041) >>> 0
-    const grain = ((seed ^ (seed >>> 13)) % 17) - 8
+    const grain = ((seed ^ (seed >>> 13)) % 25) - 12
     const woodGrain = kind === 'wood' ? Math.sin(y * 0.17 + Math.sin(x * 0.04) * 3) * 11 + (x % 29 === 0 ? -9 : 0) : 0
     const fabricWeave = kind === 'fabric' ? ((x % 4 === 0 ? -8 : 0) + (y % 4 === 0 ? -7 : 0)) : 0
     const value = Math.max(0, Math.min(255, (kind === 'plaster' ? 238 : 232) + grain + woodGrain + fabricWeave))
@@ -319,7 +319,7 @@ function Box({ position, size, color, roughness = 0.8, metalness = 0, rotation, 
   return (
     <mesh position={position} rotation={rotation} castShadow receiveShadow>
       <boxGeometry args={size} />
-      <meshStandardMaterial color={color} map={surfaceTexture ?? undefined} bumpMap={surfaceTexture ?? undefined} bumpScale={textureKind === 'wood' ? 0.045 : textureKind === 'fabric' ? 0.025 : 0.012} roughness={roughness} metalness={metalness} emissive={emissive} emissiveIntensity={emissiveIntensity} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
+      <meshStandardMaterial color={color} map={surfaceTexture ?? undefined} bumpMap={surfaceTexture ?? undefined} bumpScale={textureKind === 'wood' ? 0.045 : textureKind === 'fabric' ? 0.025 : 0.028} roughness={roughness} metalness={metalness} emissive={emissive} emissiveIntensity={emissiveIntensity} transparent={transparent} opacity={opacity} depthWrite={!transparent} />
     </mesh>
   )
 }
@@ -402,10 +402,13 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Warm wood skirting, consistent around the room. */}
       <Box position={[0, 0.14, -3.86]} size={[7.76, 0.17, 0.09]} color="#624a38" roughness={0.74} textureKind="wood" />
-      <Box position={[-3.86, 0.14, 0]} size={[0.09, 0.17, 7.76]} color="#624a38" roughness={0.74} textureKind="wood" />
+      {/* Split the window-wall trim around the opening so it cannot create a pale stripe across the glass. */}
+      <Box position={[-3.86, 0.14, -3.15]} size={[0.09, 0.17, 1.7]} color="#624a38" roughness={0.74} textureKind="wood" />
+      <Box position={[-3.86, 0.14, 2.0]} size={[0.09, 0.17, 4.0]} color="#624a38" roughness={0.74} textureKind="wood" />
       <Box position={[3.86, 0.14, 0]} size={[0.09, 0.17, 7.76]} color="#624a38" roughness={0.74} textureKind="wood" />
       <Box position={[0, 0.255, -3.86]} size={[7.76, 0.035, 0.085]} color="#a88963" roughness={0.58} textureKind="wood" />
-      <Box position={[-3.86, 0.255, 0]} size={[0.085, 0.035, 7.76]} color="#a88963" roughness={0.58} textureKind="wood" />
+      <Box position={[-3.86, 0.255, -3.15]} size={[0.085, 0.035, 1.7]} color="#a88963" roughness={0.58} textureKind="wood" />
+      <Box position={[-3.86, 0.255, 2.0]} size={[0.085, 0.035, 4.0]} color="#a88963" roughness={0.58} textureKind="wood" />
       <Box position={[3.86, 0.255, 0]} size={[0.085, 0.035, 7.76]} color="#a88963" roughness={0.58} textureKind="wood" />
 
       {/* One clean framed illustration; old chart meshes are removed completely. */}
