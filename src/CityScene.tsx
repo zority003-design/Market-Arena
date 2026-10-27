@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Text } from '@react-three/drei'
 import * as THREE from 'three'
+import { playSound } from './audio'
 
 type LocationId = 'office' | 'exchange' | 'cafe' | 'newsstand'
 type CitySceneProps = {
@@ -209,6 +210,10 @@ function WindowRain() {
 export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: { night: boolean; wall?: 'left' | 'back'; gameMinutes?: number }) {
   const position: [number, number, number] = wall === 'back' ? [0.72, 0.16, -6.55] : [-5.72, 0.38, -1.15]
   const rotation: [number, number, number] = wall === 'back' ? [0, 0, 0] : [0, Math.PI / 2, 0]
+  const cloudMotion = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (cloudMotion.current) cloudMotion.current.position.x = Math.sin(clock.elapsedTime * 0.025) * 0.65
+  })
   const weather = Math.floor((gameMinutes + 360) / 180) % 4
   const rainy = weather === 2
   const overcast = weather === 1 || rainy
@@ -228,10 +233,12 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
       <mesh position={[7.8, 8.2, -16.65]}><sphereGeometry args={[.56, 20, 16]} /><meshBasicMaterial color="#d9e3df" /></mesh>
       {Array.from({ length: 18 }, (_, i) => <mesh key={'star-' + i} position={[-10 + (i * 31 % 190) / 10, 5.2 + (i * 17 % 47) / 10, -16.6]}><sphereGeometry args={[.025 + (i % 3) * .008, 8, 6]} /><meshBasicMaterial color="#e5eee8" transparent opacity={.65} /></mesh>)}
     </group>}
+    <group ref={cloudMotion}>
     {[-7, -1.5, 4.2, 9.2].map((x, i) => <group key={'cloud-' + i} position={[x, 6.4 + (i % 2) * 1.1, -15.7 - (i % 2)]}>
       <mesh position={[-.5, 0, 0]} scale={[1.2, .34, .12]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
       <mesh position={[.12, .16, 0]} scale={[.7, .42, .13]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
     </group>)}
+    </group>
     {skyline.map((b, i) => <WindowBuilding key={'skyline-' + i} x={b.x} z={b.z} width={b.width} depth={1.7 + (i % 3) * .5} height={b.height} color={b.color} night={night} />)}
     <DistantBlock position={[-12.5, 0, -19.8]} size={[7.4, 12.5, 3.4]} color={night ? '#233543' : '#9aa8a8'} />
     <DistantBlock position={[-4.2, 0, -21.4]} size={[6.1, 8.4, 3.1]} color={night ? '#263947' : '#acb8b5'} />
@@ -335,6 +342,7 @@ function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySc
     if (keys.current.d) move.add(right.current)
     if (keys.current.a) move.sub(right.current)
     if (move.lengthSq()) {
+      playSound('step')
       move.normalize().multiplyScalar((keys.current.shift ? 5.2 : 3.2) * dt)
       const nx = THREE.MathUtils.clamp(camera.position.x + move.x, -13.5, 13.5)
       const nz = THREE.MathUtils.clamp(camera.position.z + move.z, -15.8, 9.3)
