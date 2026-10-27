@@ -256,6 +256,19 @@ export default function ArenaOS(props: Props) {
   const startCall = (id=clientId) => {
     if (props.callsToday >= dailyCallLimit) { setNotice('Лимит звонков на сегодня исчерпан (' + dailyCallLimit + '). Развивай сеть клиентов или возвращайся завтра.'); return }
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
+    if (activeStock) {
+      const selectedFit = getClientStockFit(selected.id, activeStock.ticker)
+      if (!selectedFit.suitable) {
+        props.setCallsToday(value => value + 1)
+        setClientId(selected.id); setStockPicker(false); setDialogueTurn(0); setFirstDealGuide(false); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
+        setTrust(Math.max(0, (props.clientTrustScores[selected.id] ?? selected.baseTrust) - 12))
+        props.setClientTrustScores(scores => ({ ...scores, [selected.id]: Math.max(0, (scores[selected.id] ?? selected.baseTrust) - 12) }))
+        props.setReputation(value => Math.max(0, value - 2)); setPatience(Math.max(0, selected.patience - 18)); setLastChance(0); setCallState('lost')
+        setCallLog([selected.name + ' подключился к звонку.', 'Ты: «Я предлагаю рассмотреть ' + activeStock.name + ' (' + activeStock.ticker + ')».', selected.name + ': «Эта акция не подходит моей задаче. ' + selectedFit.reason + ' Я не буду тратить время на переговоры о неподходящем продукте».', 'ОШИБКА: сделка сорвана сразу после выбора акции. Доверие −12, репутация −2, бонус не начислен.'])
+        setNotice('Неподходящая акция отклонена до переговоров: доверие −12, репутация −2.')
+        return
+      }
+    }
     props.setCallsToday(value => value + 1)
     setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
