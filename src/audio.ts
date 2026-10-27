@@ -1,4 +1,4 @@
-type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep' | 'typing' | 'murmur'
+type SoundKind = 'ui' | 'step' | 'computer' | 'alarm' | 'deal' | 'decline' | 'hangup' | 'notification' | 'tick' | 'countdown' | 'lamp' | 'curtain' | 'wardrobe' | 'sleep' | 'typing' | 'murmur' | 'street'
 
 type AudioSettings = {
   enabled: boolean
@@ -248,6 +248,28 @@ export function playSound(kind: SoundKind, intensity = 1) {
       const base = 115 + Math.random() * 65
       tone(base, 0.22, 'triangle', 0.012, base * (0.88 + Math.random() * 0.16))
       window.setTimeout(() => tone(base * (1.15 + Math.random() * 0.18), 0.16, 'triangle', 0.009, base * 0.92), 110)
+      break
+    }
+    case 'street': {
+      // A passing-car wash: soft filtered road noise, kept below dialogue and UI sounds.
+      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 1.8), ctx.sampleRate)
+      const data = buffer.getChannelData(0)
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.22
+      const source = ctx.createBufferSource()
+      source.buffer = buffer
+      const filter = ctx.createBiquadFilter()
+      filter.type = 'lowpass'
+      filter.frequency.setValueAtTime(520, ctx.currentTime)
+      filter.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 1.65)
+      const gain = ctx.createGain()
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime)
+      gain.gain.linearRampToValueAtTime(0.055, ctx.currentTime + 0.55)
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.8)
+      source.connect(filter)
+      filter.connect(gain)
+      gain.connect(master!)
+      source.start()
+      source.stop(ctx.currentTime + 1.85)
       break
     }
   }
