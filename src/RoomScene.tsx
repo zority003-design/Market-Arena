@@ -409,7 +409,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Small desk plant and personal items make the room feel lived-in. */}
       <mesh position={[1.12, 1.01, -2.2]} castShadow><cylinderGeometry args={[0.105, 0.13, 0.2, 24]} /><meshStandardMaterial color="#c28e68" roughness={0.84} /></mesh>
       <mesh position={[1.12, 1.115, -2.2]} castShadow><cylinderGeometry args={[0.09, 0.09, 0.018, 24]} /><meshStandardMaterial color="#332b23" roughness={1} /></mesh>
-      {[-1, 0, 1].map((side) => <mesh key={'desk-leaf-' + side} position={[1.12 + side * 0.09, 1.24 + (side === 0 ? 0.06 : 0), -2.2]} rotation={[0, 0, side * -0.35]} castShadow><sphereGeometry args={[0.095, 20, 16]} scale={[0.65, 1.45, 0.38]} /><meshStandardMaterial color={side === 0 ? "#4d9970" : "#377d5c"} roughness={0.9} /></mesh>)}
+      {[-1, 0, 1].map((side) => <mesh key={'desk-leaf-' + side} position={[1.12 + side * 0.09, 1.24 + (side === 0 ? 0.06 : 0), -2.2]} rotation={[0, 0, side * -0.35]} scale={[0.65, 1.45, 0.38]} castShadow><sphereGeometry args={[0.095, 20, 16]} /><meshStandardMaterial color={side === 0 ? "#4d9970" : "#377d5c"} roughness={0.9} /></mesh>)}
       <Box position={[0.93, 0.976, -2.57]} size={[0.26, 0.045, 0.18]} color="#8b6045" roughness={0.86} />
       <Box position={[0.91, 1.01, -2.57]} size={[0.25, 0.025, 0.17]} color="#e0d3b9" roughness={0.92} />
       <Box position={[0.9, 1.033, -2.57]} size={[0.23, 0.02, 0.16]} color="#567b70" roughness={0.9} />
