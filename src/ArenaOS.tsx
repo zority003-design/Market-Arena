@@ -10,6 +10,14 @@ import ClientAvatar2D from './ClientAvatar2D'
 import PixelAvatar from './PixelAvatar'
 
 type OutfitId = 'intern' | 'classic' | 'premium'
+type SpeechResultLike = { transcript: string }
+type SpeechEventLike = { results: ArrayLike<ArrayLike<SpeechResultLike>> }
+type SpeechRecognizerLike = {
+  lang: string; interimResults: boolean; maxAlternatives: number
+  onresult: ((event: SpeechEventLike) => void) | null
+  onerror: (() => void) | null; onend: (() => void) | null
+  start: () => void
+}
 type AppId = 'home' | 'calls' | 'market' | 'clients' | 'wardrobe' | 'equipment' | 'tasks'
 type Stock = { ticker: string; name: string; price: number; risk: 'Низкий' | 'Средний' | 'Высокий'; upside: string; downside: string; fit: string }
 type Props = {
@@ -124,6 +132,23 @@ export default function ArenaOS(props: Props) {
       setCallLog(prev=>[...prev,'Клиент завершил звонок. Сделки нет; репутация просела.'])
     }
   }
+  const startDictation = () => {
+    const speechWindow = window as unknown as { SpeechRecognition?: new () => SpeechRecognizerLike; webkitSpeechRecognition?: new () => SpeechRecognizerLike }
+    const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition
+    if (!Recognition) { setNotice('Распознавание речи не поддерживается этим браузером. Введи ответ текстом.'); return }
+    const recognition = new Recognition()
+    recognition.lang = 'ru-RU'
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+    recognition.onresult = event => {
+      const transcript = event.results[0]?.[0]?.transcript?.trim() ?? ''
+      if (transcript) setMessage(previous => previous ? previous + ' ' + transcript : transcript)
+    }
+    recognition.onerror = () => setNotice('Не удалось распознать речь. Проверь разрешение на микрофон или введи ответ текстом.')
+    recognition.onend = () => setNotice('Распознавание речи завершено.')
+    try { recognition.start(); setNotice('Слушаю… Говори ответ клиенту.') }
+    catch { setNotice('Не удалось запустить микрофон. Попробуй ещё раз или введи ответ текстом.') }
+  }
   const buyOutfit = (id:OutfitId,price:number) => {
     if(props.ownedOutfits.includes(id)) { props.setSelectedOutfit(id); setNotice('Образ изменён.'); return }
     if(props.cash<price) { setNotice('Не хватает денег. Сначала заработай на переговорах.'); return }
@@ -154,7 +179,7 @@ export default function ArenaOS(props: Props) {
             {callState!=='active' && <div className="arena-os-call-start"><div className="arena-os-client-list">{unlockedClients.slice(0,8).map(c=><button key={c.id} className={'arena-os-client-row '+(clientId===c.id?'active':'')} onClick={()=>setClientId(c.id)}><span className="arena-os-client-avatar"><ClientAvatar2D tier={c.tier} mood="neutral"/></span><span><b>{c.name}</b><small>{c.profession}</small><em>{c.temperament} · капитал {money(c.budget)}</em></span><ChevronRight size={16}/></button>)}</div><div className="arena-os-call-preview"><div className="arena-os-preview-face"><ClientAvatar2D tier={client.tier} mood="skeptical"/></div><span className="arena-os-kicker">ВХОДЯЩИЙ КЛИЕНТ</span><h2>{client.name}</h2><p>{client.quote}</p><div className="arena-os-tags"><span>Уровень {client.tier}</span><span>{client.experience}</span><span>{client.temperament}</span></div><button className="arena-os-primary" onClick={()=>startCall(client.id)}><PhoneCall size={17}/> Принять звонок</button></div></div>}
             {callState==='active' && <div className="arena-os-live-call"><div className="arena-os-call-video"><div className="arena-os-video-tile"><span>КЛИЕНТ · {client.name}</span><ClientAvatar2D tier={client.tier} mood={trust>65?'interested':trust<30?'angry':'skeptical'}/></div><div className="arena-os-video-tile self"><span>ВАША КАМЕРА</span><PixelAvatar outfit={props.selectedOutfit} mode="full"/><small>{props.ownedItems.includes('camera')?'HD-камера':'Встроенная камера'} · {props.ownedItems.includes('mic')?'USB-микрофон':'Встроенный микрофон'}</small></div></div><div className="arena-os-call-metrics"><div><span>Вероятность сделки</span><b>{lastChance||chance}%</b><div className="arena-os-progress"><i style={{width:(lastChance||chance)+'%'}}/></div><small>{qualityPenalty>0?'Слабое оборудование снижает первое впечатление. ':'Оборудование в порядке. '}{client.tier>=3?'Клиент требовательный: сначала докажи компетентность.':'Подстрой аргументы под цель клиента.'}</small></div><div><span>Доверие</span><b>{trust}/100</b><div className="arena-os-progress trust"><i style={{width:trust+'%'}}/></div></div><div><span>Терпение</span><b>{patience}/100</b><div className="arena-os-progress patience"><i style={{width:patience+'%'}}/></div></div></div>
               <div className="arena-os-dialogue"><div className="arena-os-dialogue-log">{callLog.slice(-8).map((line,i)=><p key={i} className={line.startsWith('Ты:')?'player-line':line.startsWith('СДЕЛКА')?'system-line':'client-line'}>{line}</p>)}</div>
-                {stockPicker || !activeStock ? <div className="arena-os-stock-picker"><b>Клиент заинтересовался идеей. Выбери акцию и изучи аргументы.</b><div className="arena-os-stock-picker-grid">{STOCKS.map(s=><button key={s.ticker} onClick={()=>chooseStock(s)}><b>{s.name}</b><small>{s.ticker} · риск {s.risk.toLowerCase()}</small></button>)}</div></div> : <div className="arena-os-argument-panel"><div><b>{activeStock.name} · {activeStock.ticker}</b><p><strong>Плюс:</strong> {activeStock.upside}</p><p><strong>Минус:</strong> {activeStock.downside}</p></div><div className="arena-os-response-actions"><button onClick={()=>respond('benefit')}>Объяснить потенциал</button><button onClick={()=>respond('risk')}>Честно разобрать риски</button><button className="bad" onClick={()=>respond('absurd')}>Сказать что-нибудь нелепое</button></div><form onSubmit={e=>{e.preventDefault();respond('free',message)}} className="arena-os-free-text"><input value={message} onChange={e=>setMessage(e.target.value)} placeholder="Ответить своими словами… (например, потенциал есть, но долг растёт)" /><button type="submit" disabled={!message.trim()}>Отправить</button></form><small>Свободный текст оценивается по смысловым маркерам в этой версии; для полностью живого диалога понадобится подключённая языковая модель.</small></div>}
+                {stockPicker || !activeStock ? <div className="arena-os-stock-picker"><b>Клиент заинтересовался идеей. Выбери акцию и изучи аргументы.</b><div className="arena-os-stock-picker-grid">{STOCKS.map(s=><button key={s.ticker} onClick={()=>chooseStock(s)}><b>{s.name}</b><small>{s.ticker} · риск {s.risk.toLowerCase()}</small></button>)}</div></div> : <div className="arena-os-argument-panel"><div><b>{activeStock.name} · {activeStock.ticker}</b><p><strong>Плюс:</strong> {activeStock.upside}</p><p><strong>Минус:</strong> {activeStock.downside}</p></div><div className="arena-os-response-actions"><button onClick={()=>respond('benefit')}>Объяснить потенциал</button><button onClick={()=>respond('risk')}>Честно разобрать риски</button><button className="bad" onClick={()=>respond('absurd')}>Сказать что-нибудь нелепое</button></div><form onSubmit={e=>{e.preventDefault();respond('free',message)}} className="arena-os-free-text"><input value={message} onChange={e=>setMessage(e.target.value)} placeholder="Ответить своими словами… (например, потенциал есть, но долг растёт)" /><button type="button" className="arena-os-mic-button" onClick={startDictation}><Mic size={14}/> Диктовать</button><button type="submit" disabled={!message.trim()}>Отправить</button></form><small>Свободный текст оценивается по смысловым маркерам в этой версии; для полностью живого диалога понадобится подключённая языковая модель.</small></div>}
               </div><button className="arena-os-hangup" onClick={()=>{setCallState('idle');setActiveStock(null);setStockPicker(false);setCallLog([])}}><X size={15}/> Завершить звонок</button></div>}
             {(callState==='won'||callState==='lost') && <div className="arena-os-call-result"><h2>{callState==='won'?'Отличная работа.':'Клиент положил трубку.'}</h2><p>{callState==='won'?'Комиссия за сделку зачислена. Теперь можно вложить часть заработка в оборудование или одежду.':'Сделки нет. Разбери возражения и попробуй снова — или подготовься лучше.'}</p><button className="arena-os-primary" onClick={()=>{setCallState('idle');setActiveStock(null);setCallLog([]);setActiveApp('calls')}}>Следующий клиент <ChevronRight size={16}/></button></div>}
           </section>}
