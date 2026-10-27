@@ -8,6 +8,7 @@ import {
 import { CLIENTS, type ClientProfile } from './game/economy'
 import ClientAvatar2D from './ClientAvatar2D'
 import PixelAvatar from './PixelAvatar'
+import { playSound } from './audio'
 
 type OutfitId = 'intern' | 'classic' | 'premium'
 type SpeechResultLike = { transcript: string }
@@ -77,6 +78,7 @@ export default function ArenaOS(props: Props) {
   const qualityPenalty = (props.ownedItems.includes('mic')?0:8) + (props.ownedItems.includes('camera')?0:5) + (props.ownedItems.includes('backdrop')?0:3)
   const chance = Math.max(5,Math.min(92,Math.round(30 + trust*.48 + props.reputation*.12 + equipmentBonus + outfitBonus - qualityPenalty + (activeStock && activeStock.risk === 'Низкий' && client.tier >= 2 ? 4 : 0) - Math.max(0,client.tier-1)*9)))
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-last-app',activeApp) } catch {} },[activeApp])
+  useEffect(()=>{ if(incoming) playSound('notification') },[incoming])
   const startCall = (id=clientId) => {
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
     setClientId(selected.id); setActiveStock(null); setStockPicker(true); setCallState('active')
