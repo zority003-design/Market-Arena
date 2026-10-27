@@ -7,7 +7,7 @@ import { CityWindowView } from './CityScene'
 
 type RoomTextureKind = 'wood' | 'fabric' | 'plaster'
 
-function makeKittenArtTexture() {
+function makeBossHippoArtTexture() {
   const canvas = document.createElement('canvas')
   canvas.width = 768
   canvas.height = 768
@@ -365,7 +365,7 @@ function FloorBoards() {
 
 function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
-  const kittenArtTexture = useMemo(() => makeKittenArtTexture(), [])
+  const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
   const backWallColor = housingId === 'dorm' ? '#50636b' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#b4a58b'
@@ -388,13 +388,14 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Room shell */}
       <Box position={[0, -0.12, 0]} size={[8, 0.24, 8]} color="#4a3a32" roughness={0.95} />
-      {/* Modern ceiling: a clean graphite acoustic surface, recessed linear LEDs and slim dark rails. */}
-      <Box position={[0, 3.22, 0]} size={[7.98, 0.16, 7.98]} color="#202831" roughness={0.88} />
-      {Array.from({ length: 8 }, (_, i) => <Box key={'ceiling-acoustic-panel-' + i} position={[-3.42 + i * 0.975, 3.13, 0]} size={[0.86, 0.035, 7.72]} color={i % 2 ? '#29343e' : '#242e37'} roughness={0.94} />)}
-      {[-3.2, 0, 3.2].map((x, i) => <Box key={'ceiling-led-' + i} position={[x, 3.105, 0]} size={[0.045, 0.025, 6.4]} color="#b9f5e6" emissive="#55d9b5" emissiveIntensity={i === 1 ? 1.4 : 0.8} roughness={0.35} />)}
-      {[-3.35, 3.35].map((x, i) => <Box key={'ceiling-rail-' + i} position={[x, 3.105, 0]} size={[0.055, 0.045, 7.65]} color="#111820" roughness={0.6} metalness={0.35} />)}
-      {/* The rear wall has a contrasting finish and visible wood panelling so it cannot disappear into the background. */}
-      <Box position={[0, 1.62, -3.98]} size={[8, 3.4, 0.18]} color={backWallColor} roughness={0.92} textureKind="plaster" />
+      {/* Classic matte-white ceiling, slim perimeter trim and warm recessed downlights. */}
+      <Box position={[0, 3.22, 0]} size={[7.98, 0.2, 7.98]} color="#f2f0e9" roughness={0.97} />
+      <Box position={[0, 3.105, 0]} size={[7.84, 0.035, 7.84]} color="#dedbd2" roughness={0.9} />
+      <Box position={[0, 3.082, 0]} size={[7.72, 0.025, 7.72]} color="#fbfaf5" roughness={0.92} />
+      {[-2.55, 0, 2.55].flatMap((x) => [-2.55, 0, 2.55].map((z) => <group key={'ceiling-downlight-' + x + '-' + z} position={[x, 3.055, z]}><Cylinder position={[0, 0, 0]} radius={0.16} height={0.025} color="#d5d1c7" metalness={0.12} roughness={0.6} /><Cylinder position={[0, -0.016, 0]} radius={0.105} height={0.012} color="#fff7df" emissive="#fff0c2" emissiveIntensity={0.8} roughness={0.3} /></group>))}
+      {[-3.78, 3.78].map((x) => <Box key={'ceiling-perimeter-' + x} position={[x, 3.095, 0]} size={[0.055, 0.08, 7.76]} color="#c9c5ba" roughness={0.84} />)}
+      {/* Front wall opposite the desk: deliberately overlaps the floor edge to seal the exterior slit. */}
+      <Box position={[0, 1.57, -3.94]} size={[8, 3.54, 0.26]} color={backWallColor} roughness={0.92} textureKind="plaster" />
       {/* Rear wall uses the same plaster texture as the side walls, with warm timber wainscoting and clear panel seams. */}
       <Box position={[0, 0.55, -3.865]} size={[7.76, 0.66, 0.055]} color="#806044" roughness={0.9} textureKind="wood" />
       {Array.from({ length: 15 }, (_, i) => <Box key={'rear-wall-panel-' + i} position={[-3.72 + i * 0.53, 0.55, -3.825]} size={[0.025, 0.58, 0.025]} color="#4e3b2d" roughness={0.88} textureKind="wood" />)}
@@ -407,12 +408,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, 2.3]} color={backWallColor} textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={backWallColor} textureKind="plaster" />
-      {/* Clearly visible feature wall on the side opposite the desk: deep slate panel, warm vertical battens and a thin teal light reveal. */}
-      <Box position={[-3.865, 1.58, 2.05]} size={[0.045, 2.52, 3.05]} color="#172a35" roughness={0.84} />
-      <Box position={[-3.82, 1.58, 2.05]} size={[0.035, 2.56, 0.035]} color="#3e8d83" emissive="#236b63" emissiveIntensity={0.35} roughness={0.5} />
-      {Array.from({ length: 11 }, (_, i) => <Box key={'side-feature-batten-' + i} position={[-3.815, 1.58, 0.72 + i * 0.266]} size={[0.055, 2.38, 0.075]} color={i % 2 ? '#344c58' : '#263d49'} roughness={0.76} />)}
-      <Box position={[-3.805, 2.86, 2.05]} size={[0.07, 0.035, 3.12]} color="#a9c5c4" roughness={0.45} metalness={0.25} />
-      <Box position={[-3.805, 0.3, 2.05]} size={[0.07, 0.035, 3.12]} color="#a9c5c4" roughness={0.45} metalness={0.25} />
+
       <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards />
 
