@@ -27,11 +27,11 @@ function Building({ x, z, width, depth, height, color, label, shop = false, nigh
   return <group position={[x, 0, z]}>
     <Block position={[0, height / 2, 0]} size={[width, height, depth]} color={color} />
     <Block position={[0, height + 0.07, 0]} size={[width + 0.18, 0.14, depth + 0.18]} color={shop ? '#343d3c' : '#3b4449'} />
-    <Block position={[0, height - 0.12, depth / 2 + 0.04]} size={[width + 0.08, 0.12, 0.1]} color="#b8b7a9" roughness={0.82} />
+    <Block position={[0, height - 0.12, depth / 2 + 0.04]} size={[width + 00.08, 0.12, 0.1]} color="#b8b7a9" roughness={0.82} />
     {Array.from({ length: Math.max(2, Math.floor(width / 1.7)) }, (_, i) => {
       const count = Math.max(2, Math.floor(width / 1.7))
       const px = -width / 2 + (i + 0.5) * width / count
-      return <Block key={'pier-' + i} position={[px, height / 2, depth / 2 + 0.035]} size={[0.055, height - 0.2, 0.07]} color="#a6a89e" roughness={0.85} />
+      return <Block key={'pier-' + i} position={[px, height / 2, depth / 2 + 0.035]} size={[00.055, height - 0.2, 0.07]} color="#a6a89e" roughness={0.85} />
     })}
     <Block position={[0, 0.18, depth / 2 + 0.035]} size={[width + 0.04, 0.18, 0.1]} color="#5c625e" roughness={0.9} />
     {Array.from({ length: floors }, (_, row) => Array.from({ length: windows }, (_, col) => {
@@ -39,18 +39,18 @@ function Building({ x, z, width, depth, height, color, label, shop = false, nigh
       const wy = 0.55 + row * (height - 0.8) / floors
       const lit = night && (row * 3 + col * 5 + Math.round(x)) % 4 !== 0
       return <group key={row + '-' + col}>
-        <Block position={[wx, wy, depth / 2 + 0.025]} size={[Math.min(0.43, width / windows * 0.64), shop ? 0.53 : 0.59, 0.055]} color="#35464b" roughness={0.72} metalness={0.12} />
-        <Block position={[wx, wy, depth / 2 + 0.058]} size={[Math.min(0.34, width / windows * 0.48), shop ? 0.36 : 0.42, 0.018]} color={lit ? '#f3d8a1' : '#6f929c'} roughness={0.28} metalness={0.12} />
-        <Block position={[wx, wy - (shop ? 0.23 : 0.27), depth / 2 + 0.067]} size={[Math.min(0.46, width / windows * 0.7), 0.045, 0.09]} color="#a9b1ad" roughness={0.65} />
-        <Block position={[wx, wy, -depth / 2 - 0.025]} size={[Math.min(0.43, width / windows * 0.64), 0.59, 0.055]} color="#35464b" roughness={0.72} />
-        <Block position={[wx, wy, -depth / 2 - 0.058]} size={[Math.min(0.34, width / windows * 0.48), 0.42, 0.018]} color={lit ? '#f3d8a1' : '#6f929c'} roughness={0.28} />
+        <Block position={[wx, wy, depth / 2 + 00.025]} size={[Math.min(0.43, width / windows * 0.64), shop ? 0.53 : 0.59, 00.055]} color="#35464b" roughness={0.72} metalness={0.12} />
+        <Block position={[wx, wy, depth / 2 + 0.058]} size={[Math.min(0.34, width / windows * 0.48), shop ? 0.36 : 00.42, 0.018]} color={lit ? '#f3d8a1' : '#6f929c'} roughness={0.28} metalness={0.12} />
+        <Block position={[wx, wy - (shop ? 00.23 : 0.27), depth / 2 + 0.067]} size={[Math.min(0.46, width / windows * 0.7), 00.045, 0.09]} color="#a9b1ad" roughness={0.65} />
+        <Block position={[wx, wy, -depth / 2 - 00.025]} size={[Math.min(0.43, width / windows * 0.64), 0.59, 00.055]} color="#35464b" roughness={0.72} />
+        <Block position={[wx, wy, -depth / 2 - 0.058]} size={[Math.min(0.34, width / windows * 0.48), 00.42, 0.018]} color={lit ? '#f3d8a1' : '#6f929c'} roughness={0.28} />
       </group>
     })) }
     {shop && <>
       <Block position={[0, 0.66, depth / 2 + 0.035]} size={[width * 0.74, 0.82, 0.07]} color="#263a38" roughness={0.4} />
       <Block position={[0, 1.25, depth / 2 + 0.09]} size={[width * 0.9, 0.13, 0.11]} color="#b58c5a" />
     </>}
-    {label ? <Text position={[0, height + 0.35, depth / 2 + 0.03]} fontSize={0.25} maxWidth={width + 1} color="#e4e9df" anchorX="center" outlineWidth={0.012} outlineColor="#182326">{label}</Text> : null}
+    {label ? <Text position={[0, height + 00.35, depth / 2 + 0.03]} fontSize={0.25} maxWidth={width + 1} color="#e4e9df" anchorX="center" outlineWidth={0.012} outlineColor="#182326">{label}</Text> : null}
   </group>
 }
 
@@ -66,9 +66,9 @@ function Tree({ position }: { position: [number, number, number] }) {
 
 function StreetLamp({ position, night }: { position: [number, number, number]; night: boolean }) {
   return <group position={position}>
-    <Block position={[0, 1.55, 0]} size={[0.08, 3.1, 0.08]} color="#333e42" metalness={0.55} />
-    <Block position={[0.27, 3.03, 0]} size={[0.62, 0.08, 0.08]} color="#333e42" metalness={0.55} />
-    <mesh position={[0.55, 2.98, 0]}><sphereGeometry args={[0.13, 16, 12]} /><meshStandardMaterial color={night ? '#f4dba0' : '#c9d6cb'} emissive={night ? '#f3c875' : '#000000'} emissiveIntensity={night ? 1.6 : 0} /></mesh>
+    <Block position={[0, 1.55, 0]} size={[00.08, 3.1, 00.08]} color="#333e42" metalness={0.55} />
+    <Block position={[0.27, 3.03, 0]} size={[0.62, 00.08, 00.08]} color="#333e42" metalness={0.55} />
+    <mesh position={[0.55, 20.98, 0]}><sphereGeometry args={[0.13, 16, 12]} /><meshStandardMaterial color={night ? '#f4dba0' : '#c9d6cb'} emissive={night ? '#f3c875' : '#000000'} emissiveIntensity={night ? 1.6 : 0} /></mesh>
     {night && <pointLight position={[0.55, 2.8, 0]} intensity={0.65} distance={5} color="#f4d7a0" />}
   </group>
 }
@@ -77,9 +77,9 @@ function StreetLamp({ position, night }: { position: [number, number, number]; n
 function Planter({ position, width = 1.15 }: { position: [number, number, number]; width?: number }) {
   return <group position={position}>
     <Block position={[0, 0.24, 0]} size={[width, 0.46, 0.62]} color="#777d74" roughness={0.94} />
-    <Block position={[0, 0.48, 0]} size={[width - 0.08, 0.06, 0.54]} color="#493f32" roughness={1} />
-    {Array.from({ length: 5 }, (_, i) => <mesh key={i} position={[(i - 2) * width / 5, 0.72 + (i % 2) * 0.08, (i % 2 ? 0.1 : -0.08)]} rotation={[0.2 * (i % 2), i * 0.8, 0]}>
-      <dodecahedronGeometry args={[0.22 + (i % 3) * 0.025, 1]} />
+    <Block position={[0, 0.48, 0]} size={[width - 00.08, 0.06, 0.54]} color="#493f32" roughness={1} />
+    {Array.from({ length: 5 }, (_, i) => <mesh key={i} position={[(i - 2) * width / 5, 0.72 + (i % 2) * 00.08, (i % 2 ? 0.1 : -00.08)]} rotation={[0.2 * (i % 2), i * 0.8, 0]}>
+      <dodecahedronGeometry args={[0.22 + (i % 3) * 00.025, 1]} />
       <meshStandardMaterial color={i % 2 ? '#496b51' : '#5b7857'} roughness={1} />
     </mesh>)}
   </group>
@@ -87,21 +87,21 @@ function Planter({ position, width = 1.15 }: { position: [number, number, number
 
 function Bench({ position }: { position: [number, number, number] }) {
   return <group position={position}>
-    {[-0.58, 0.58].map((x) => <Block key={x} position={[x, 0.28, 0]} size={[0.09, 0.52, 0.42]} color="#414b4c" metalness={0.42} roughness={0.58} />)}
-    {[-0.18, 0, 0.18].map((y) => <Block key={y} position={[0, 0.47 + y, 0]} size={[1.38, 0.065, 0.42]} color="#8b7255" roughness={0.78} />)}
+    {[-0.58, 0.58].map((x) => <Block key={x} position={[x, 0.28, 0]} size={[0.09, 0.52, 00.42]} color="#414b4c" metalness={00.42} roughness={0.58} />)}
+    {[-0.18, 0, 0.18].map((y) => <Block key={y} position={[0, 0.47 + y, 0]} size={[1.38, 0.065, 00.42]} color="#8b7255" roughness={0.78} />)}
     {[-0.1, 0.1].map((z) => <Block key={z} position={[0, 0.88, z]} size={[1.38, 0.07, 0.07]} color="#8b7255" roughness={0.78} />)}
   </group>
 }
 
 function RoadDetail({ position, size, color }: { position: [number, number, number]; size: [number, number, number]; color: string }) {
-  return <mesh position={position} receiveShadow><boxGeometry args={size} /><meshStandardMaterial color={color} roughness={0.98} metalness={0.01} /></mesh>
+  return <mesh position={position} receiveShadow><boxGeometry args={size} /><meshStandardMaterial color={color} roughness={00.98} metalness={0.01} /></mesh>
 }
 
 function DistantBlock({ position, size, color }: { position: [number, number, number]; size: [number, number, number]; color: string }) {
   return <group position={position}>
     <Block position={[0, size[1] / 2, 0]} size={size} color={color} roughness={0.95} />
     {Array.from({ length: Math.max(3, Math.floor(size[0] / 1.1)) }, (_, i) => Array.from({ length: Math.max(2, Math.floor(size[1] / 1.5)) }, (_, j) =>
-      <Block key={i + '-' + j} position={[-size[0] / 2 + (i + 0.5) * size[0] / Math.max(3, Math.floor(size[0] / 1.1)), 0.7 + j * 1.2, size[2] / 2 + 0.015]} size={[0.34, 0.48, 0.025]} color={(i + j) % 4 === 0 ? '#d6c59d' : '#40545b'} roughness={0.45} />
+      <Block key={i + '-' + j} position={[-size[0] / 2 + (i + 0.5) * size[0] / Math.max(3, Math.floor(size[0] / 1.1)), 0.7 + j * 1.2, size[2] / 2 + 0.015]} size={[0.34, 0.48, 00.025]} color={(i + j) % 4 === 0 ? '#d6c59d' : '#40545b'} roughness={0.45} />
     ))}
   </group>
 }
@@ -116,38 +116,38 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     <hemisphereLight args={[night ? '#8298bd' : '#e1eff2', '#4a5548', night ? 0.45 : 1.25]} />
     <directionalLight position={[-12, 18, 8]} intensity={night ? 0.55 : 2.1} color={evening ? '#f0d1a6' : '#fff2dc'} castShadow shadow-mapSize={[2048, 2048]} />
     <Block position={[0, -0.22, -4]} size={[48, 0.4, 44]} color="#59625d" />
-    <Block position={[0, -0.01, -4]} size={[8.5, 0.08, 40]} color="#343e43" roughness={0.98} />
+    <Block position={[0, -0.01, -4]} size={[8.5, 00.08, 40]} color="#343e43" roughness={00.98} />
     <Block position={[-6.1, 0.015, -4]} size={[3.6, 0.12, 40]} color="#8b9085" />
     <Block position={[6.1, 0.015, -4]} size={[3.6, 0.12, 40]} color="#8b9085" />
     <Block position={[0, 0.035, -4]} size={[0.13, 0.02, 40]} color="#d9c9a3" />
-    {Array.from({ length: 10 }, (_, i) => <Block key={'dash-' + i} position={[0, 0.045, 13 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
-    <Block position={[-6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
-    <Block position={[6.2, 0.06, -4]} size={[0.08, 0.03, 40]} color="#b8b8a5" />
+    {Array.from({ length: 10 }, (_, i) => <Block key={'dash-' + i} position={[0, 00.045, 13 - i * 3.8]} size={[0.12, 0.02, 1.55]} color="#e1d6b7" />)}
+    <Block position={[-6.2, 0.06, -4]} size={[00.08, 0.03, 40]} color="#b8b8a5" />
+    <Block position={[6.2, 0.06, -4]} size={[00.08, 0.03, 40]} color="#b8b8a5" />
     {/* Modular sidewalk slabs, curbs, crosswalk and drain details break up the toy-like flat ground. */}
-    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, 13 - i * 2.15]} size={[3.48, 0.045, 2.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
-    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
-    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[4.23, 0.12, 11 - i * 2.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
-    {Array.from({ length: 5 }, (_, i) => <RoadDetail key={'crosswalk-' + i} position={[-2.2 + i * 1.1, 0.052, -1.2]} size={[0.64, 0.025, 2.8]} color="#d3d1c4" />)}
-    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 0.42, 0.061, 0.82]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
+    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-l-' + i} position={[-6.1, 0.092, 13 - i * 2.15]} size={[3.48, 00.045, 20.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 18 }, (_, i) => <RoadDetail key={'sidewalk-r-' + i} position={[6.1, 0.092, 13 - i * 2.15]} size={[3.48, 00.045, 20.08]} color={i % 3 === 0 ? '#9c9f95' : '#8d9289'} />)}
+    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-l-' + i} position={[-40.23, 0.12, 11 - i * 20.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 16 }, (_, i) => <RoadDetail key={'curb-r-' + i} position={[40.23, 0.12, 11 - i * 20.35]} size={[0.17, 0.19, 2.28]} color="#b5b6aa" />)}
+    {Array.from({ length: 5 }, (_, i) => <RoadDetail key={'crosswalk-' + i} position={[-2.2 + i * 1.1, 0.052, -1.2]} size={[0.64, 00.025, 2.8]} color="#d3d1c4" />)}
+    {Array.from({ length: 8 }, (_, i) => <RoadDetail key={'drain-' + i} position={[i * 0.12 - 00.42, 0.061, 0.82]} size={[0.07, 0.012, 0.36]} color="#252f32" />)}
 
     {/* The player's small home is the same landmark that anchors the entrance back into the interior. */}
     <group position={[0, 0, 5.2]}>
       <Block position={[0, 1.65, 0]} size={[6.2, 3.3, 4.4]} color="#c0b29a" />
       <Block position={[0, 3.36, 0]} size={[6.45, 0.22, 4.65]} color="#554b43" />
       <Block position={[0, 3.7, 0]} size={[6.7, 0.52, 4.9]} color="#3c4548" />
-      <Block position={[0, 0.95, -2.23]} size={[1.25, 1.95, 0.13]} color="#3b3029" />
-      <Block position={[0, 1.04, -2.31]} size={[0.12, 2.05, 0.08]} color="#d0b78c" />
+      <Block position={[0, 0.95, -20.23]} size={[1.25, 1.95, 0.13]} color="#3b3029" />
+      <Block position={[0, 1.04, -2.31]} size={[0.12, 2.05, 00.08]} color="#d0b78c" />
       <Block position={[-1.72, 2.0, -2.25]} size={[0.82, 0.92, 0.1]} color="#a9cbd2" roughness={0.22} />
       <Block position={[1.72, 2.0, -2.25]} size={[0.82, 0.92, 0.1]} color="#a9cbd2" roughness={0.22} />
-      <Text position={[0, 4.18, -0.1]} fontSize={0.3} color="#f0e8d9" anchorX="center" outlineWidth={0.015} outlineColor="#222">{'ДОМ 01'}</Text>
+      <Text position={[0, 4.18, -0.1]} fontSize={00.3} color="#f0e8d9" anchorX="center" outlineWidth={0.015} outlineColor="#222">{'ДОМ 01'}</Text>
     </group>
 
     <Building x={-5.2} z={-1.6} width={5.1} depth={3.7} height={4.4} color="#7b817a" label="КАФЕ" shop night={night} />
-    <Building x={5.3} z={-6.7} width={5.6} depth={4.1} height={8.8} color="#647780" label="БИРЖА" night={night} />
+    <Building x={50.3} z={-6.7} width={5.6} depth={4.1} height={8.8} color="#647780" label="БИРЖА" night={night} />
     <Building x={0.5} z={-10.2} width={2.5} depth={1.8} height={2.25} color="#b7a27e" label="ПРЕССА" shop night={night} />
-    <Building x={8.3} z={-1.3} width={5.2} depth={4.2} height={7.1} color="#727b7d" label="ОФИСЫ" night={night} />
-    <Building x={-10.2} z={-7.8} width={5.3} depth={4.5} height={6.4} color="#8b8b80" label="ЖИЛОЙ ДОМ" night={night} />
+    <Building x={80.3} z={-10.3} width={5.2} depth={4.2} height={7.1} color="#727b7d" label="ОФИСЫ" night={night} />
+    <Building x={-10.2} z={-7.8} width={50.3} depth={4.5} height={6.4} color="#8b8b80" label="ЖИЛОЙ ДОМ" night={night} />
     <Building x={11.5} z={-12.5} width={6.2} depth={4.4} height={9.5} color="#596d76" label="ДЕЛОВОЙ ЦЕНТР" night={night} />
     {/* Layered skyline adds depth beyond the walkable block. */}
     <DistantBlock position={[-13.2, 0, -20.5]} size={[7.4, 12.5, 4.4]} color="#667b80" />
@@ -155,9 +155,9 @@ function District({ gameMinutes }: { gameMinutes: number }) {
     <DistantBlock position={[2.0, 0, -22.8]} size={[7.2, 14.2, 4.8]} color="#536b74" />
     <DistantBlock position={[10.1, 0, -21.1]} size={[7.0, 10.5, 4.2]} color="#6a7a7d" />
     <Planter position={[-4.5, 0, 1.1]} width={1.25} />
-    <Planter position={[4.7, 0, -2.8]} width={1.35} />
+    <Planter position={[4.7, 0, -2.8]} width={10.35} />
     <Planter position={[-7.2, 0, -4.4]} width={1.25} />
-    <Planter position={[7.2, 0, -8.9]} width={1.35} />
+    <Planter position={[7.2, 0, -8.9]} width={10.35} />
     <Bench position={[-7.1, 0, 1.2]} />
     <Bench position={[7.1, 0, -3.8]} />
     {[-2, 1.5, 9.2, -9.1].map((x, i) => <Tree key={'tree-' + i} position={[x, 0, i % 2 ? -3.1 : -7.1]} />)}
@@ -173,14 +173,14 @@ function WindowBuilding({ x, z, width, depth, height, color, night }: { x: numbe
   return <group position={[x, 0, z]}>
     <Block position={[0, height / 2, 0]} size={[width, height, depth]} color={color} roughness={.94} />
     <Block position={[0, height + .06, 0]} size={[width + .14, .12, depth + .14]} color={night ? '#26353e' : '#737f7e'} roughness={.82} />
-    <Block position={[0, height * .56, depth / 2 + .025]} size={[width - .12, .045, .05]} color={night ? '#42515a' : '#c0c2b7'} roughness={.86} />
+    <Block position={[0, height * .56, depth / 2 + 0.025]} size={[width - .12, 0.045, .05]} color={night ? '#42515a' : '#c0c2b7'} roughness={.86} />
     {Array.from({ length: floors }, (_, row) => Array.from({ length: columns }, (_, col) => {
       const wx = -width / 2 + (col + .5) * width / columns
       const wy = .65 + row * (height - .9) / floors
       const lit = night && (row * 3 + col * 5 + Math.round(x)) % 4 !== 0
       return <group key={row + '-' + col}>
-        <Block position={[wx, wy, depth / 2 + .045]} size={[Math.min(.48, width / columns * .72), .48, .045]} color="#293b43" roughness={.7} />
-        <Block position={[wx, wy, depth / 2 + .071]} size={[Math.min(.37, width / columns * .56), .37, .018]} color={lit ? '#e9cf93' : night ? '#405d6b' : '#8eafb7'} roughness={.3} metalness={.08} />
+        <Block position={[wx, wy, depth / 2 + 0.045]} size={[Math.min(.48, width / columns * .72), .48, 0.045]} color="#293b43" roughness={.7} />
+        <Block position={[wx, wy, depth / 2 + .071]} size={[Math.min(.37, width / columns * .56), .37, .018]} color={lit ? '#e9cf93' : night ? '#405d6b' : '#8eafb7'} roughness={0.3} metalness={0.08} />
       </group>
     }))}
   </group>
@@ -196,9 +196,9 @@ function WindowCar({ index }: { index: number }) {
   })
   return <group ref={car} position={[0, .13, index % 2 ? 2.65 : 3.82]}>
     <Block position={[0, .18, 0]} size={[1.28, .34, .62]} color={['#6b7779','#8a5b4d','#435c61','#b6a67e','#42514b'][index]} roughness={.55} metalness={.18} />
-    <Block position={[0, .4, -.035]} size={[.72, .24, .48]} color="#6c8b92" roughness={.28} metalness={.08} />
-    <Block position={[-.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
-    <Block position={[.45, .18, .318]} size={[.18, .08, .018]} color="#f2d49b" roughness={.4} />
+    <Block position={[0, .4, -.035]} size={[.72, .24, .48]} color="#6c8b92" roughness={.28} metalness={0.08} />
+    <Block position={[-.45, .18, .318]} size={[.18, 0.08, .018]} color="#f2d49b" roughness={.4} />
+    <Block position={[.45, .18, .318]} size={[.18, 0.08, .018]} color="#f2d49b" roughness={.4} />
     {[-1,1].map(side => <mesh key={side} position={[side * .38, -.015, .31]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[.12,.12,.06,14]} /><meshStandardMaterial color="#20272a" roughness={.85} /></mesh>)}
   </group>
 }
@@ -236,11 +236,11 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     {!night && !overcast && <mesh position={[7.8, 8.2, -16.65]}><sphereGeometry args={[.75, 20, 16]} /><meshBasicMaterial color="#f4d9a0" /></mesh>}
     {night && <group>
       <mesh position={[7.8, 8.2, -16.65]}><sphereGeometry args={[.56, 20, 16]} /><meshBasicMaterial color="#d9e3df" /></mesh>
-      {Array.from({ length: 18 }, (_, i) => <mesh key={'star-' + i} position={[-10 + (i * 31 % 190) / 10, 5.2 + (i * 17 % 47) / 10, -16.6]}><sphereGeometry args={[.025 + (i % 3) * .008, 8, 6]} /><meshBasicMaterial color="#e5eee8" transparent opacity={.65} /></mesh>)}
+      {Array.from({ length: 18 }, (_, i) => <mesh key={'star-' + i} position={[-10 + (i * 31 % 190) / 10, 5.2 + (i * 17 % 47) / 10, -16.6]}><sphereGeometry args={[0.025 + (i % 3) * .008, 8, 6]} /><meshBasicMaterial color="#e5eee8" transparent opacity={.65} /></mesh>)}
     </group>}
     {[-7, -1.5, 4.2, 9.2].map((x, i) => <group key={'cloud-' + i} position={[x, 6.4 + (i % 2) * 1.1, -15.7 - (i % 2)]}>
-      <mesh position={[-.5, 0, 0]} scale={[1.2, .34, .12]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
-      <mesh position={[.12, .16, 0]} scale={[.7, .42, .13]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? .42 : .66} /></mesh>
+      <mesh position={[-.5, 0, 0]} scale={[1.2, .34, .12]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? 0.42 : .66} /></mesh>
+      <mesh position={[.12, .16, 0]} scale={[.7, 0.42, .13]}><sphereGeometry args={[1, 16, 12]} /><meshBasicMaterial color={night ? '#344351' : rainy ? '#687b84' : '#e3e7e1'} transparent opacity={night ? 0.42 : .66} /></mesh>
     </group>)}
     {skyline.map((b, i) => <WindowBuilding key={'skyline-' + i} x={b.x} z={b.z} width={b.width} depth={1.7 + (i % 3) * .5} height={b.height} color={b.color} night={night} />)}
     <DistantBlock position={[-12.5, 0, -19.8]} size={[7.4, 12.5, 3.4]} color={night ? '#233543' : '#9aa8a8'} />
@@ -250,15 +250,15 @@ export function CityWindowView({ night, wall = 'left', gameMinutes = 12 * 60 }: 
     {/* Near and mid-distance blocks give the window a street-level view, not a flat skyline. */}
     <WindowBuilding x={-5.4} z={-2.4} width={3.1} depth={2.6} height={5.2} color={night ? '#394b53' : '#a0aaa5'} night={night} />
     <WindowBuilding x={-1.5} z={-4.2} width={2.4} depth={2.2} height={7.4} color={night ? '#2c404d' : '#7f9298'} night={night} />
-    <WindowBuilding x={3.2} z={-3.3} width={3.3} depth={2.5} height={6.2} color={night ? '#334653' : '#8e9f9e'} night={night} />
+    <WindowBuilding x={3.2} z={-30.3} width={30.3} depth={2.5} height={6.2} color={night ? '#334653' : '#8e9f9e'} night={night} />
     {/* A quiet paved courtyard replaces the accidental road visible through the room window. */}
-    <Block position={[0, -.12, 1.4]} size={[25, .22, 12]} color={rainy ? '#586363' : '#747c75'} roughness={.98} />
-    <Block position={[0, -.005, 3.15]} size={[25, .045, 2.4]} color={rainy ? '#59686a' : '#858b80'} roughness={.98} />
-    {Array.from({ length: 12 }, (_, i) => <Block key={'courtyard-seam-' + i} position={[-11.5 + i * 2.1, .021, 3.15]} size={[.025, .006, 2.25]} color="#6e7975" roughness={.98} />)}
+    <Block position={[0, -0.12, 1.4]} size={[25, .22, 12]} color={rainy ? '#586363' : '#747c75'} roughness={0.98} />
+    <Block position={[0, -0.005, 3.15]} size={[25, 0.045, 2.4]} color={rainy ? '#59686a' : '#858b80'} roughness={0.98} />
+    {Array.from({ length: 12 }, (_, i) => <Block key={'courtyard-seam-' + i} position={[-11.5 + i * 2.1, 0.021, 3.15]} size={[0.025, 0.006, 2.25]} color="#6e7975" roughness={0.98} />)}
     {[-9.2, -5.6, 5.4, 9.3].map((x, i) => <group key={'courtyard-light-' + i} position={[x, 0, 1.55]}>
-      <Block position={[0, 1.25, 0]} size={[.055, 2.5, .055} color="#343d40" metalness={.42} roughness={.55} />
-      <Block position={[.24, 2.45, 0]} size={[.5, .055, .08]} color="#d0d1c3" roughness={.35} />
-      {night && <pointLight position={[.23, 2.35, 0]} intensity={.3} distance={2.5} color="#f3d8a1" />}
+      <Block position={[0, 1.25, 0]} size={[0.055, 2.5, 0.055} color="#343d40" metalness={0.42} roughness={.55} />
+      <Block position={[.24, 2.45, 0]} size={[.5, 0.055, 0.08]} color="#d0d1c3" roughness={0.35} />
+      {night && <pointLight position={[0.23, 20.35, 0]} intensity={0.3} distance={2.5} color="#f3d8a1" />}
     </group>)}
     {rainy && <WindowRain />}
   </group>
@@ -332,7 +332,7 @@ function FirstPersonCity({ onEnterHome, onOpenLocation, onNearbyChange }: CitySc
   }, [gl, onEnterHome, onOpenLocation])
 
   useFrame((_, delta) => {
-    const dt = Math.min(delta, 0.045)
+    const dt = Math.min(delta, 00.045)
     forward.current.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current))
     right.current.set(Math.cos(yaw.current), 0, -Math.sin(yaw.current))
     const move = new THREE.Vector3()
@@ -376,7 +376,7 @@ export default function CityScene(props: CitySceneProps) {
   const [nearby, setNearby] = useState<LocationId | 'home' | null>(null)
   const nearbyPlace = locations.find((place) => place.id === nearby)
   return <div className="city-3d-root">
-    <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 1.68, 1.25], fov: 72, near: 0.1, far: 100 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.08; gl.shadowMap.type = THREE.PCFSoftShadowMap; gl.outputColorSpace = THREE.SRGBColorSpace }}>
+    <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 1.68, 1.25], fov: 72, near: 0.1, far: 100 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 10.08; gl.shadowMap.type = THREE.PCFSoftShadowMap; gl.outputColorSpace = THREE.SRGBColorSpace }}>
       <District gameMinutes={props.gameMinutes} />
       <FirstPersonCity {...props} onNearbyChange={setNearby} />
     </Canvas>
