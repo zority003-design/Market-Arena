@@ -216,9 +216,9 @@ export default function ArenaOS(props: Props) {
     const starterTrust = Math.max(12,Math.min(72,selected.baseTrust - Math.max(0,selected.tier-1)*5 - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
     setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
-    if (!props.ownedItems.includes('mic')) lines.push('Клиент: «У вас микрофон из коробки с лапшой? Половину фразы съедает шум».')
-    if (!props.ownedItems.includes('camera')) lines.push('Клиент: «Картинка мыльная. Надеюсь, финансовые расчёты у вас в фокусе лучше».')
-    if (!props.ownedItems.includes('backdrop')) lines.push('Клиент оглядывает комнату: «Фон атмосферный. Это офис или место преступления?»')
+    if (!props.ownedItems.includes('mic') && (selected.tier >= 2 || Math.random() < 0.45)) lines.push('Клиент: «Звук немного глухой. Надеюсь, финансовые расчёты у вас звучат убедительнее микрофона».')
+    if (!props.ownedItems.includes('camera') && (selected.tier >= 1 || Math.random() < 0.4)) lines.push('Клиент: «Картинка мыльная. Для небольшой суммы переживу, но с крупным капиталом хотелось бы видеть, с кем обсуждаю деньги».')
+    if (!props.ownedItems.includes('backdrop') && (selected.tier >= 2 || Math.random() < 0.25)) lines.push('Клиент оглядывает комнату: «Обстановка домашняя. Для первого разговора сойдёт, но для серьёзной суммы я ожидал бы офис посолиднее».')
     lines.push(selected.quote)
     setCallLog(lines); setMessage(''); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
   }
