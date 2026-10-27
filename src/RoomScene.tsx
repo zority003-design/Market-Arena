@@ -13,68 +13,72 @@ function makeBossHippoArtTexture() {
   canvas.height = 768
   const ctx = canvas.getContext('2d')
   if (!ctx) return new THREE.CanvasTexture(canvas)
-  const bg = ctx.createRadialGradient(360, 260, 20, 384, 384, 560)
-  bg.addColorStop(0, '#d6bd8d'); bg.addColorStop(.58, '#a77f57'); bg.addColorStop(1, '#503d31')
+  // A dark, cinematic framed portrait of the game's underworld "boss hippo".
+  const bg = ctx.createLinearGradient(0, 0, 768, 768)
+  bg.addColorStop(0, '#160c0a'); bg.addColorStop(.52, '#3a1913'); bg.addColorStop(1, '#080909')
   ctx.fillStyle = bg; ctx.fillRect(0, 0, 768, 768)
-  for (let i = 0; i < 950; i++) {
-    const x = (i * 137.5) % 768, y = (i * 263.7) % 768
-    ctx.strokeStyle = i % 3 ? 'rgba(245,218,166,.075)' : 'rgba(45,29,22,.09)'
-    ctx.lineWidth = 1 + (i % 4); ctx.beginPath(); ctx.moveTo(x, y)
-    ctx.quadraticCurveTo(x + 5 + (i % 9), y - 4, x + 13 + (i % 12), y + 2); ctx.stroke()
+  ctx.fillStyle = '#4d1714'; ctx.fillRect(36, 30, 696, 700)
+  ctx.fillStyle = '#120b0a'; ctx.fillRect(62, 55, 644, 652)
+  // Leather booth and smoky lounge background.
+  const leather = ctx.createLinearGradient(0, 260, 0, 720)
+  leather.addColorStop(0, '#401715'); leather.addColorStop(.5, '#240d0d'); leather.addColorStop(1, '#080909')
+  ctx.fillStyle = leather; ctx.fillRect(78, 275, 612, 410)
+  for (let x = 100; x < 700; x += 145) {
+    ctx.fillStyle = '#5a211b'; ctx.beginPath(); ctx.ellipse(x, 430, 64, 155, 0, 0, Math.PI * 2); ctx.fill()
+    ctx.strokeStyle = 'rgba(205,128,75,.22)'; ctx.lineWidth = 5; ctx.stroke()
   }
-  for (let i = 0; i < 24; i++) {
-    const x = 70 + (i * 83) % 630, y = 100 + (i * 47) % 470
-    ctx.fillStyle = i % 2 ? 'rgba(51,76,55,.22)' : 'rgba(221,183,117,.18)'
-    ctx.beginPath(); ctx.ellipse(x, y, 32 + (i % 4) * 8, 14 + (i % 3) * 7, (i % 5) * .3, 0, Math.PI * 2); ctx.fill()
+  // Broad shoulders and suit.
+  const suit = ctx.createLinearGradient(160, 500, 610, 740)
+  suit.addColorStop(0, '#171b1c'); suit.addColorStop(.5, '#050707'); suit.addColorStop(1, '#29211d')
+  ctx.fillStyle = suit; ctx.beginPath(); ctx.moveTo(94, 710); ctx.quadraticCurveTo(110, 540, 235, 500); ctx.lineTo(315, 470); ctx.lineTo(454, 470); ctx.lineTo(540, 510); ctx.quadraticCurveTo(666, 552, 682, 710); ctx.closePath(); ctx.fill()
+  // Neck and ears.
+  const skin = ctx.createRadialGradient(360, 300, 25, 390, 380, 340)
+  skin.addColorStop(0, '#a96e50'); skin.addColorStop(.55, '#68402f'); skin.addColorStop(1, '#2c1b17')
+  ctx.fillStyle = skin
+  ctx.beginPath(); ctx.ellipse(384, 354, 246, 255, 0, 0, Math.PI * 2); ctx.fill()
+  ctx.beginPath(); ctx.ellipse(203, 203, 62, 70, -.25, 0, Math.PI * 2); ctx.ellipse(565, 203, 62, 70, .25, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = '#3c211b'; ctx.beginPath(); ctx.ellipse(203, 208, 30, 38, -.2, 0, Math.PI * 2); ctx.ellipse(565, 208, 30, 38, .2, 0, Math.PI * 2); ctx.fill()
+  // Heavy brow and eyes.
+  ctx.fillStyle = '#2a1915'; ctx.beginPath(); ctx.ellipse(284, 286, 86, 39, -.12, 0, Math.PI * 2); ctx.ellipse(484, 286, 86, 39, .12, 0, Math.PI * 2); ctx.fill()
+  for (const x of [284, 484]) {
+    ctx.fillStyle = '#d2a66c'; ctx.beginPath(); ctx.ellipse(x, 301, 33, 37, 0, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = '#120f0d'; ctx.beginPath(); ctx.ellipse(x, 303, 12, 29, 0, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = 'rgba(255,238,202,.9)'; ctx.beginPath(); ctx.arc(x - 9, 290, 8, 0, Math.PI * 2); ctx.fill()
   }
-  const coat = ctx.createLinearGradient(190, 470, 590, 720)
-  coat.addColorStop(0, '#34463a'); coat.addColorStop(.48, '#657050'); coat.addColorStop(1, '#26392f')
-  ctx.fillStyle = coat; ctx.beginPath(); ctx.moveTo(145, 740); ctx.quadraticCurveTo(165, 560, 285, 520); ctx.quadraticCurveTo(384, 480, 483, 520); ctx.quadraticCurveTo(610, 565, 630, 740); ctx.closePath(); ctx.fill()
-  const fur = ctx.createRadialGradient(310, 310, 18, 384, 355, 260)
-  fur.addColorStop(0, '#d4ad77'); fur.addColorStop(.58, '#b37e4e'); fur.addColorStop(1, '#684733')
-  ctx.fillStyle = fur
-  ctx.beginPath(); ctx.moveTo(230, 310); ctx.quadraticCurveTo(178, 220, 194, 126); ctx.quadraticCurveTo(274, 158, 316, 225); ctx.closePath(); ctx.fill()
-  ctx.beginPath(); ctx.moveTo(452, 225); ctx.quadraticCurveTo(494, 158, 574, 126); ctx.quadraticCurveTo(590, 220, 538, 310); ctx.closePath(); ctx.fill()
-  ctx.fillStyle = '#b97d72'
-  ctx.beginPath(); ctx.moveTo(230, 250); ctx.quadraticCurveTo(215, 205, 218, 173); ctx.quadraticCurveTo(258, 196, 279, 235); ctx.closePath(); ctx.fill()
-  ctx.beginPath(); ctx.moveTo(489, 235); ctx.quadraticCurveTo(510, 196, 550, 173); ctx.quadraticCurveTo(553, 205, 538, 250); ctx.closePath(); ctx.fill()
-  ctx.fillStyle = fur
-  ctx.beginPath(); ctx.moveTo(220, 280); ctx.quadraticCurveTo(238, 205, 326, 204); ctx.quadraticCurveTo(384, 174, 442, 204); ctx.quadraticCurveTo(530, 205, 548, 280); ctx.quadraticCurveTo(565, 400, 493, 480); ctx.quadraticCurveTo(440, 536, 384, 535); ctx.quadraticCurveTo(328, 536, 275, 480); ctx.quadraticCurveTo(203, 400, 220, 280); ctx.closePath(); ctx.fill()
-  const muzzle = ctx.createRadialGradient(384, 407, 8, 384, 414, 120)
-  muzzle.addColorStop(0, '#f1dfbf'); muzzle.addColorStop(1, '#c6a17b')
-  ctx.fillStyle = muzzle; ctx.beginPath(); ctx.ellipse(384, 421, 119, 83, 0, 0, Math.PI * 2); ctx.fill()
-  for (const side of [-1, 1]) for (let i = 0; i < 52; i++) {
-    const x = 384 + side * (34 + (i % 13) * 9), y = 250 + Math.floor(i / 13) * 43 + (i % 4) * 3
-    ctx.strokeStyle = i % 3 ? 'rgba(70,43,28,.2)' : 'rgba(250,224,175,.32)'
-    ctx.lineWidth = 1.5 + (i % 3); ctx.beginPath(); ctx.moveTo(x, y)
-    ctx.quadraticCurveTo(x + side * 7, y + 10, x + side * 5, y + 19); ctx.stroke()
-  }
-  for (const side of [-1, 1]) {
-    const x = 384 + side * 75
-    ctx.fillStyle = '#342e24'; ctx.beginPath(); ctx.ellipse(x, 337, 28, 38, side * -.08, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = '#9b8651'; ctx.beginPath(); ctx.ellipse(x, 340, 17, 27, 0, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = '#171d19'; ctx.beginPath(); ctx.ellipse(x, 341, 9, 21, 0, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = 'rgba(255,246,220,.92)'; ctx.beginPath(); ctx.arc(x - 6, 328, 6, 0, Math.PI * 2); ctx.fill()
-    ctx.strokeStyle = 'rgba(66,43,30,.8)'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(x - 29, 290); ctx.quadraticCurveTo(x, 274, x + 24, 293); ctx.stroke()
-  }
-  ctx.fillStyle = '#654137'; ctx.beginPath(); ctx.moveTo(365, 396); ctx.quadraticCurveTo(384, 383, 403, 396); ctx.quadraticCurveTo(390, 418, 384, 418); ctx.quadraticCurveTo(378, 418, 365, 396); ctx.fill()
-  ctx.strokeStyle = '#795243'; ctx.lineWidth = 4; ctx.lineCap = 'round'
-  ctx.beginPath(); ctx.moveTo(384, 416); ctx.quadraticCurveTo(365, 437, 346, 426); ctx.moveTo(384, 416); ctx.quadraticCurveTo(403, 437, 422, 426); ctx.stroke()
-  ctx.strokeStyle = 'rgba(245,229,199,.9)'; ctx.lineWidth = 2.2
-  for (const side of [-1, 1]) for (let i = 0; i < 3; i++) {
-    const y = 405 + i * 15; ctx.beginPath(); ctx.moveTo(384 + side * 92, y)
-    ctx.quadraticCurveTo(384 + side * 150, y - 10 + i * 8, 384 + side * 205, y - 23 + i * 21); ctx.stroke()
-  }
-  ctx.fillStyle = 'rgba(247,220,173,.045)'; ctx.fillRect(0, 0, 768, 768)
-  for (let i = 0; i < 700; i++) {
-    ctx.fillStyle = i % 2 ? 'rgba(255,241,209,.05)' : 'rgba(35,22,17,.045)'
-    ctx.fillRect((i * 197) % 768, (i * 311) % 768, 1 + i % 2, 1 + i % 3)
-  }
+  // Wide hippo muzzle, nostrils and stern mouth.
+  const muzzle = ctx.createRadialGradient(365, 392, 10, 384, 425, 195)
+  muzzle.addColorStop(0, '#b98567'); muzzle.addColorStop(.6, '#865741'); muzzle.addColorStop(1, '#4b2d23')
+  ctx.fillStyle = muzzle; ctx.beginPath(); ctx.ellipse(384, 411, 195, 136, 0, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = '#281914'; ctx.beginPath(); ctx.ellipse(315, 378, 17, 23, -.2, 0, Math.PI * 2); ctx.ellipse(453, 378, 17, 23, .2, 0, Math.PI * 2); ctx.fill()
+  ctx.strokeStyle = '#3b211a'; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(304, 477); ctx.quadraticCurveTo(384, 502, 464, 477); ctx.stroke()
+  ctx.strokeStyle = 'rgba(232,185,143,.24)'; ctx.lineWidth = 3
+  for (let i = 0; i < 18; i++) { const x = 225 + i * 18; ctx.beginPath(); ctx.moveTo(x, 355 + (i % 3) * 12); ctx.quadraticCurveTo(x + 5, 405, x - 2, 442); ctx.stroke() }
+  // White shirt and black bow tie.
+  ctx.fillStyle = '#e0d6c4'; ctx.beginPath(); ctx.moveTo(294, 525); ctx.lineTo(384, 585); ctx.lineTo(474, 525); ctx.lineTo(445, 700); ctx.lineTo(323, 700); ctx.closePath(); ctx.fill()
+  ctx.fillStyle = '#090b0c'; ctx.beginPath(); ctx.moveTo(384, 545); ctx.lineTo(326, 516); ctx.lineTo(332, 568); ctx.lineTo(384, 553); ctx.lineTo(436, 568); ctx.lineTo(442, 516); ctx.closePath(); ctx.fill()
+  ctx.fillStyle = '#bd2934'; ctx.beginPath(); ctx.ellipse(545, 565, 44, 56, -.45, 0, Math.PI * 2); ctx.ellipse(590, 565, 42, 52, .45, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = '#6f101a'; ctx.beginPath(); ctx.ellipse(568, 591, 28, 38, 0, 0, Math.PI * 2); ctx.fill()
+  ctx.strokeStyle = '#315332'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(566, 536); ctx.quadraticCurveTo(535, 515, 521, 533); ctx.moveTo(566, 536); ctx.quadraticCurveTo(590, 510, 606, 526); ctx.stroke()
+  // Cigar and glowing ember.
+  ctx.save(); ctx.translate(520, 390); ctx.rotate(-.22)
+  ctx.fillStyle = '#30201a'; ctx.fillRect(-12, -14, 172, 28)
+  ctx.fillStyle = '#b88a5c'; ctx.fillRect(8, -14, 13, 28)
+  ctx.fillStyle = '#e7a84f'; ctx.beginPath(); ctx.arc(161, 0, 14, 0, Math.PI * 2); ctx.fill()
+  ctx.fillStyle = '#ff4b20'; ctx.beginPath(); ctx.arc(164, 0, 7, 0, Math.PI * 2); ctx.fill()
+  ctx.restore()
+  // Smoke curls.
+  ctx.strokeStyle = 'rgba(224,213,202,.34)'; ctx.lineWidth = 7
+  for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(660 + i * 8, 365); ctx.bezierCurveTo(615 + i * 10, 315, 702 - i * 4, 290, 661 + i * 6, 230 - i * 18); ctx.stroke() }
+  // Gold frame highlights and vignette.
+  const vignette = ctx.createRadialGradient(384, 350, 180, 384, 384, 500)
+  vignette.addColorStop(.5, 'rgba(0,0,0,0)'); vignette.addColorStop(1, 'rgba(0,0,0,.68)')
+  ctx.fillStyle = vignette; ctx.fillRect(0, 0, 768, 768)
+  ctx.strokeStyle = '#c5a06a'; ctx.lineWidth = 5; ctx.strokeRect(36, 30, 696, 700)
+  ctx.strokeStyle = 'rgba(255,220,151,.45)'; ctx.lineWidth = 2; ctx.strokeRect(48, 42, 672, 676)
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8
   return texture
 }
-
 function makeRoomTexture(kind: RoomTextureKind) {
   const canvas = document.createElement('canvas')
   canvas.width = 256
