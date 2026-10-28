@@ -10,6 +10,7 @@ import ClientAvatar2D from './ClientAvatar2D'
 import BrokerAvatar3D from './BrokerAvatar3D'
 import { playSound } from './audio'
 import { evaluateFreeReply, getEquipmentOpening } from './game/dialogue'
+import { clampWindowPosition } from './game/windowGeometry'
 
 type OutfitId = 'intern' | 'classic' | 'premium'
 type SpeechResultLike = { transcript: string }
@@ -368,12 +369,13 @@ export default function ArenaOS(props: Props) {
       const windowEl=workspace.querySelector<HTMLElement>('.arena-os-window.restored')
       const width=windowEl?.offsetWidth ?? 780
       const height=windowEl?.offsetHeight ?? 620
-      const maxX=Math.max(0,workspace.clientWidth-width-8)
-      const maxY=Math.max(0,workspace.clientHeight-Math.min(74,height))
-      setWindowPosition({
-        x:Math.max(0,Math.min(maxX,drag.originX+event.clientX-drag.pointerX)),
-        y:Math.max(0,Math.min(maxY,drag.originY+event.clientY-drag.pointerY))
-      })
+      setWindowPosition(clampWindowPosition(
+        {x:drag.originX,y:drag.originY},
+        {x:drag.pointerX,y:drag.pointerY},
+        {x:event.clientX,y:event.clientY},
+        {width:workspace.clientWidth,height:workspace.clientHeight},
+        {width,height}
+      ))
     }
     const stop=()=>{windowDragRef.current=null}
     window.addEventListener('pointermove',move)
