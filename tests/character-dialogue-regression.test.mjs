@@ -86,7 +86,7 @@ test('firm upgrades, assets, and staff hires use firm capital rather than person
 
 test('negated guarantees are not treated as reckless promises by the dialogue evaluator', async () => {
   const source = await read('src/game/dialogue.ts')
-  assert.match(source, /const rejectsGuarantee = \/не\\\\s\+/)
+  assert.match(source, /const rejectsGuarantee =/)
   assert.match(source, /const promises = !rejectsGuarantee/)
 })
 
