@@ -129,8 +129,8 @@ test('Catalot is a fictional real-estate developer, not a drone company', async 
   assert.match(arena, /застройщик жилых кварталов/)
   assert.match(app, /name: 'Каталёт', sector: 'Девелопмент'/)
   assert.match(economy, /KOTL: \{ label:'Рост и девелопмент'/)
-  assert.doesNotMatch(arena.slice(arena.indexOf('const RESPONSE_BANK'), arena.indexOf('const STOCK_DOSSIERS')), /Котолёт|800 роботов|дронами/)
-  assert.doesNotMatch(app.slice(app.indexOf('const scenarios:'), app.indexOf('const scenario = scenarios')), /Котолёт|800 роботов|дронами/)
+  assert.doesNotMatch(arena, /Котолёт|800 роботов|дронами/)
+  assert.doesNotMatch(app, /Котолёт|800 роботов|дронами/)
 })
 
 test('company negotiation dossiers contain business models, pros, cons, valuation checks, and argumentation', async () => {
@@ -143,4 +143,13 @@ test('company negotiation dossiers contain business models, pros, cons, valuatio
   assert.match(source, /Что проверить в оценке:/)
   assert.match(source, /Аргумент для переговоров:/)
   assert.match(source, /fit\.reason/)
+})
+
+
+test('displayed stock risk labels match the suitability catalog', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const economy = await read('src/game/economy.ts')
+  assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
+  assert.match(arena, /ticker:'TAPK', name:'ТапокТех', price:64, risk:'Очень высокий'/)
+  assert.match(economy, /OGUR: \{ label:'Прибыль и повторные покупки'.*risk:'Средний'/)
 })
