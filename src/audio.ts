@@ -22,7 +22,7 @@ let rainGain: GainNode | null = null
 let noiseSource: AudioBufferSourceNode | null = null
 let rainSource: AudioBufferSourceNode | null = null
 let settings: AudioSettings = {
-  enabled: true, ambience: true, music: true, musicVolume: 0.42, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72,
+  enabled: true, ambience: true, music: true, musicVolume: 0.42, voice: false, curtainsOpen: true, inRoom: true, inCall: false, paused: false, volume: 0.72, rainy: false,
 }
 let cityOscillator: OscillatorNode | null = null
 let lastStepAt = 0
