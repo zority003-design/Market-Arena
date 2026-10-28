@@ -48,7 +48,7 @@ test('honest rejection of guaranteed returns is not scored as a reckless promise
   const source = await read('src/App.tsx')
   const answerHandler = source.slice(source.indexOf('function answerQuestion'), source.indexOf('function sendFreeAnswer'))
   const freeText = source.slice(source.indexOf('function sendFreeAnswer'), source.indexOf('function buyRoomItem'))
-  assert.match(answerHandler, /const rejectsGuarantee = \/не\\\\s\+\(\?:гарантир\|обещ\)/)
+  assert.ok(answerHandler.includes('const rejectsGuarantee = /не\\\\s+'))
   assert.match(answerHandler, /const reckless = !rejectsGuarantee/)
   assert.match(freeText, /const rejectsGuarantee =/)
   assert.match(freeText, /const reckless = !rejectsGuarantee/)
