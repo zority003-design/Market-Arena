@@ -100,6 +100,17 @@ export const ROOM_ITEMS: RoomItem[] = [
  { id:'partner-desk', name:'Дополнительный рабочий стол', price:5800, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'work', description:'Отдельное место для сотрудника или подготовки отчётов. Стол физически появится справа от твоего рабочего места; аккуратная рабочая зона немного повышает первое впечатление.' },
  { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, minLevel:4, category:'video', description:'Профессиональный звук для сложных переговоров.' },
 ]
+export function getClientEquipmentAccess(client: ClientProfile, ownedItems: string[]): { available: boolean; reason: string } {
+ const hasMic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
+ const hasCamera = ownedItems.includes('hd-camera')
+ const hasProfessionalBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
+ if (client.tier < 2) return { available: true, reason: '' }
+ if (!hasMic) return { available: false, reason: 'Нужна гарнитура или профессиональный микрофон' }
+ if (!hasCamera) return { available: false, reason: 'Нужна HD-веб-камера' }
+ if (client.tier >= 3 && !hasProfessionalBackground) return { available: false, reason: 'Для крупного клиента нужен аккуратный фон' }
+ return { available: true, reason: '' }
+}
+
 export function getAvailableClients(day:number, reputation:number):ClientProfile[] {
  // Keep high-ticket prospects behind a real progression gate: a new broker should earn trust before meeting wealthy clients.
  const progressionDay = (client: ClientProfile) => client.tier >= 4 ? 12 : client.tier >= 3 ? 8 : client.tier >= 2 ? 5 : client.tier >= 1 ? 2 : 1

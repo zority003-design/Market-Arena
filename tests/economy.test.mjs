@@ -11,7 +11,7 @@ const compiled = ts.transpileModule(source, {
 const economy = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'))
 const {
   CLIENTS, HOUSING, ROOM_ITEMS, calculateDeal, getAvailableClients, getBackgroundModifier,
-  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, STOCK_PROFILES, getClientStockFit, getClientTrustRequirement, BUSINESS_ASSETS, getBusinessDailyNetIncome, BROKER_HIRES, getStaffDailyNetIncome,
+  getDailyLeadIds, getFirstImpression, getOutfitModifier, getVideoQuality, STOCK_PROFILES, getClientStockFit, getClientTrustRequirement, getClientEquipmentAccess, BUSINESS_ASSETS, getBusinessDailyNetIncome, BROKER_HIRES, getStaffDailyNetIncome,
 } = economy
 
 test('career starts with a viable, known baseline', () => {
@@ -162,4 +162,20 @@ test('staff hiring has transparent net daily income and supports five office rol
   assert.equal(getStaffDailyNetIncome(['junior-broker']), 700)
   assert.equal(getStaffDailyNetIncome(['junior-broker', 'broker-specialist']), 2200)
   assert.equal(BROKER_HIRES.length, 5)
+})
+
+
+test('premium prospects require better call equipment while starter clients remain reachable', () => {
+  const starter = CLIENTS.find(client => client.tier === 0)
+  const mid = CLIENTS.find(client => client.tier === 2)
+  const executive = CLIENTS.find(client => client.tier >= 3)
+  assert.ok(starter && mid && executive)
+  assert.equal(getClientEquipmentAccess(starter, []).available, true)
+  assert.equal(getClientEquipmentAccess(mid, []).available, false)
+  assert.match(getClientEquipmentAccess(mid, []).reason, /гарнитура|микрофон/i)
+  assert.equal(getClientEquipmentAccess(mid, ['headset']).available, false)
+  assert.match(getClientEquipmentAccess(mid, ['headset']).reason, /HD-веб-камера/i)
+  assert.equal(getClientEquipmentAccess(mid, ['headset', 'hd-camera']).available, true)
+  assert.equal(getClientEquipmentAccess(executive, ['headset', 'hd-camera']).available, false)
+  assert.equal(getClientEquipmentAccess(executive, ['headset', 'hd-camera', 'neutral-backdrop']).available, true)
 })
