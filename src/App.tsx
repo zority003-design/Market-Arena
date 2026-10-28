@@ -1293,13 +1293,16 @@ export default function App() {
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
       const businessNetIncome = getBusinessDailyNetIncome(ownedBusinessAssets)
       const staffNetIncome = getStaffDailyNetIncome(ownedEmployees)
-      // Salary is the player's personal income; employee and business operations belong to firm capital.
-      setCash((value) => Math.max(0, value + DAILY_SALARY))
-      setFirmCapital((value) => Math.max(0, value + businessNetIncome + staffNetIncome))
+      const housingDailyCost = HOUSING.find((home) => home.id === housingId)?.dailyCost ?? 0
+      const officeRent = housingId === 'office' ? housingDailyCost : 0
+      const personalHousingCost = housingId === 'office' ? 0 : housingDailyCost
+      // Salary is personal income; office rent and business operations belong to firm capital.
+      setCash((value) => Math.max(0, value + DAILY_SALARY - personalHousingCost))
+      setFirmCapital((value) => Math.max(0, value + businessNetIncome + staffNetIncome - officeRent))
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
-      setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Жильё оплачено при покупке — ежедневной аренды нет.')
+      setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Квартира не требует ежедневной аренды. ' + (officeRent > 0 ? 'Аренда офиса: −' + officeRent.toLocaleString('ru-RU') + ' ₽ из капитала фирмы.' : '') + '')
       window.setTimeout(() => setToast(''), 5200)
       setPanel('room')
       setCallStatus('idle')
