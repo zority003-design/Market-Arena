@@ -38,6 +38,8 @@ test('free-text scoring and company replies cover jokes and all listed stocks', 
   const freeText = source.slice(source.indexOf('function sendFreeAnswer'), source.indexOf('function buyRoomItem'))
   assert.match(answerHandler, /const tickerReplies: Record<string, string\[\]> = \{/)
   assert.match(answerHandler, /if \(companyReplies\.length\)/)
+  assert.match(answerHandler, /companyReplies\[questionIndex % companyReplies\.length\]/)
+  assert.doesNotMatch(answerHandler, /companyReplies\[\(questionIndex \+ seed\)/)
   assert.match(freeText, /const joke =/)
   assert.match(freeText, /A joke is not automatically a bad answer/)
   assert.match(answerHandler, /rejectsGuarantee/)
