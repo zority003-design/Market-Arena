@@ -62,3 +62,18 @@ test('business and employee income is credited to firm capital, not the broker w
   assert.match(sleep, /setFirmCapital\(\(value\) => Math\.max\(0, value \+ businessNetIncome \+ staffNetIncome\)\)/)
   assert.doesNotMatch(sleep, /const available = cash \+ DAILY_SALARY \+ businessNetIncome \+ staffNetIncome/)
 })
+
+
+test('firm upgrades, assets, and staff hires use firm capital rather than personal cash', async () => {
+  const source = await read('src/ArenaOS.tsx')
+  const upgradeHandler = source.slice(source.indexOf('const buyBusinessUpgrade'), source.indexOf('const buyBusinessAsset'))
+  const assetHandler = source.slice(source.indexOf('const buyBusinessAsset'), source.indexOf('const hireBroker'))
+  const hireHandler = source.slice(source.indexOf('const hireBroker'), source.indexOf('const buyGear'))
+  assert.match(upgradeHandler, /props\.firmCapital < upgrade\.price/)
+  assert.match(upgradeHandler, /props\.setFirmCapital/)
+  assert.match(assetHandler, /props\.firmCapital < asset\.price/)
+  assert.match(assetHandler, /props\.setFirmCapital/)
+  assert.match(hireHandler, /props\.firmCapital < employee\.price/)
+  assert.match(hireHandler, /props\.setFirmCapital/)
+  assert.match(source, /КАПИТАЛ ФИРМЫ/)
+})
