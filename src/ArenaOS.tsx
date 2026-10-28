@@ -5,7 +5,7 @@ import {
   PhoneCall, Search, ShieldCheck, ShoppingBag, Sparkles, Users,
   Video, Wallet, X
 } from 'lucide-react'
-import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, getBusinessDailyNetIncome, getBusinessPayoutCap, getFirstImpression, getStaffDailyNetIncome, getClientStockFit, getClientTrustRequirement, getClientInvestmentPreference, STOCK_PROFILES, type ClientProfile } from './game/economy'
+import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, getBusinessDailyNetIncome, getBusinessPayoutCap, getFirstImpression, getStaffDailyNetIncome, getClientEquipmentAccess, getClientStockFit, getClientTrustRequirement, getClientInvestmentPreference, STOCK_PROFILES, type ClientProfile } from './game/economy'
 import ClientAvatar2D from './ClientAvatar2D'
 import BrokerAvatar3D from './BrokerAvatar3D'
 import { playSound } from './audio'
@@ -343,7 +343,7 @@ export default function ArenaOS(props: Props) {
   const [lastChance,setLastChance] = useState(0)
   const [completed,setCompleted] = useState(0)
   const client = useMemo(() => (CLIENTS.find(c => c.id === clientId) ?? CLIENTS[0]) as ClientProfile,[clientId])
-  const unlockedClients = useMemo(() => CLIENTS.filter(c => newContacts.includes(c.id) || (props.day >= 3 && c.minDay <= props.day && c.minReputation <= props.reputation) || (props.businessUpgrades.includes('lead-network') && c.minDay <= props.day + 2 && c.minReputation <= props.reputation + 10) || (props.businessUpgrades.includes('client-crm') && c.minDay <= props.day + 3 && c.minReputation <= props.reputation + 15)),[props.day,props.reputation,newContacts,props.businessUpgrades])
+  const unlockedClients = useMemo(() => CLIENTS.filter(c => getClientEquipmentAccess(c, props.ownedItems).available && (newContacts.includes(c.id) || (props.day >= 3 && c.minDay <= props.day && c.minReputation <= props.reputation) || (props.businessUpgrades.includes('lead-network') && c.minDay <= props.day + 2 && c.minReputation <= props.reputation + 10) || (props.businessUpgrades.includes('client-crm') && c.minDay <= props.day + 3 && c.minReputation <= props.reputation + 15))),[props.day,props.reputation,newContacts,props.businessUpgrades,props.ownedItems])
   const equipmentBonus = GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0)
   const currentHousing = HOUSING.find(home => home.id === props.housingId) ?? HOUSING[0]
   const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client)
