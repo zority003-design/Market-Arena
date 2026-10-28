@@ -316,6 +316,15 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const panoramicWindow = housingId === 'premium-apartment' || officeRoom
   const dormRoom = housingId === 'dorm'
   const showStaffDesks = ownedItems.includes('partner-desk') || ownedEmployees.length > 0 || ownedBusinessAssets.includes('referral-desk') || businessUpgrades.includes('partner-office')
+  useEffect(() => {
+    if (!active || !showStaffDesks || ownedEmployees.length === 0) return
+    // Quiet, occasional office activity: typing and low background chatter, not a constant loop.
+    const interval = window.setInterval(() => {
+      if (Math.random() > 0.24) playSound('typing', 0.22)
+      if (Math.random() > 0.78) playSound('murmur', 0.16)
+    }, 4200)
+    return () => window.clearInterval(interval)
+  }, [active, showStaffDesks, ownedEmployees.length])
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
@@ -442,6 +451,15 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
         const z = -2.25 + index * 1.1
         const employeeId = ownedEmployees[index]
         return <group key={'staff-workstation-' + index}>
+          {/* A proper office chair sits under every hired broker, rather than leaving the character floating. */}
+          <group position={[2.48, 0, z + 0.82]}>
+            <Box position={[0, 0.48, 0.12]} size={[0.58, 0.12, 0.55]} color="#253943" roughness={0.75} />
+            <Box position={[0, 0.79, 0.36]} size={[0.58, 0.58, 0.12]} color="#2c4652" roughness={0.7} />
+            <Box position={[-0.35, 0.58, 0.12]} size={[0.09, 0.25, 0.44]} color="#344d57" roughness={0.7} />
+            <Box position={[0.35, 0.58, 0.12]} size={[0.09, 0.25, 0.44]} color="#344d57" roughness={0.7} />
+            <Box position={[0, 0.26, 0.12]} size={[0.07, 0.38, 0.07]} color="#657780" metalness={0.6} />
+            {[-1, 0, 1].flatMap((dx) => [-1, 1].map((dz) => <Box key={dx + ':' + dz} position={[dx * 0.22, 0.07, 0.12 + dz * 0.18]} size={[0.12, 0.055, 0.09]} color="#1e2930" roughness={0.55} />))}
+          </group>
           <Box position={[2.48, 0.88, z]} size={[1.28, 0.12, 0.76]} color="#5d4636" roughness={0.55} textureKind="wood" />
           {[-0.52, 0.52].flatMap((dx) => [-0.27, 0.27].map((dz) => <Box key={dx + '-' + dz} position={[2.48 + dx, 0.44, z + dz]} size={[0.055, 0.78, 0.055]} color="#38434a" metalness={0.62} />))}
           <Box position={[2.48, 1.18, z - 0.22]} size={[0.66, 0.46, 0.06]} color="#151e24" metalness={0.3} roughness={0.3} />

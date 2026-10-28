@@ -919,3 +919,27 @@
 @media (prefers-reduced-motion: reduce) {
   .arena-os-response-actions > button { transition: none; }
 }
+
+
+/* Final desktop fit pass: the OS shell stays flush to the monitor, with no floating taskbar or sidebar scrollbar. */
+.arena-os-v2{overflow:hidden;box-sizing:border-box}
+.arena-os-desktop{padding:8px 8px 0;gap:8px;min-height:0}
+.arena-os-workspace{min-width:0;min-height:0;overflow:hidden}
+.arena-os-desktop-icons{overflow:hidden;overscroll-behavior:contain;scrollbar-width:none;gap:5px;padding:2px 0}
+.arena-os-desktop-icons::-webkit-scrollbar{display:none}
+.arena-os-desktop-icon{flex:0 0 auto;min-height:64px}
+.arena-os-taskbar{margin:0!important;width:100%;min-height:46px;height:46px;flex:0 0 46px;box-sizing:border-box;border-radius:0!important;padding-left:14px;padding-right:14px}
+.arena-os-window-title{cursor:grab;touch-action:none;user-select:none}
+.arena-os-window-title:active{cursor:grabbing}
+.arena-os-window.restored{overflow:hidden}
+.arena-os-window-content{min-width:0;scrollbar-gutter:stable;overscroll-behavior:contain}
+.arena-os-video-tile.self{justify-content:center;padding-top:28px;box-sizing:border-box}
+.arena-os-video-tile.self .arena-os-self-avatar{width:min(100%,180px);height:155px;display:block;object-fit:contain;flex:0 1 auto}
+.arena-os-video-tile.self .arena-os-self-avatar svg{width:100%;height:100%;display:block;object-fit:contain}
+.arena-os-video-tile.self small{margin-top:auto;text-align:center;max-width:100%;line-height:1.35}
+@media(max-width:560px){
+ .arena-os-desktop{padding:4px 4px 0;gap:4px}
+ .arena-os-taskbar{height:42px;min-height:42px;flex-basis:42px}
+ .arena-os-desktop-icon{min-height:54px}
+ .arena-os-video-tile.self .arena-os-self-avatar{height:120px;width:100%}
+}
