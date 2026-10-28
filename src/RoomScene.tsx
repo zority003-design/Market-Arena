@@ -573,7 +573,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Removed misplaced floor props to keep the entry path clear. */}
 
-      {!dormRoom && <>
+      {!dormRoom && !officeRoom && <>
       {/* Bed aligned to the room axis: headboard and pillows at the window end, clear footboard at the opposite end. */}
       <Box position={[2.55, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" textureKind="wood" />
       <Box position={[2.55, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} textureKind="fabric" />
