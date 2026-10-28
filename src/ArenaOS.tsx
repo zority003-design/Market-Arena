@@ -43,6 +43,8 @@ type Props = {
   clientTrustScores: Record<string, number>; setClientTrustScores: Dispatch<SetStateAction<Record<string, number>>>
   onClose: () => void
   onEndDay: () => void
+  onCallStarted: (clientId:string) => void
+  onDealCompleted: (clientId:string,ticker:string,amount:number,shares:number) => void
   initialApp?: AppId
   sessionId?: number
   saveSlot?: number
@@ -390,6 +392,7 @@ export default function ArenaOS(props: Props) {
     if (props.callsToday >= dailyCallLimit) { setNotice('Лимит звонков на сегодня исчерпан (' + dailyCallLimit + '). Развивай сеть клиентов или возвращайся завтра.'); return }
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
     props.setCallsToday(value => value + 1)
+    props.onCallStarted(selected.id)
     setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
     const relationshipTrustBase = props.clientTrustScores[selected.id] ?? selected.baseTrust
@@ -452,6 +455,7 @@ export default function ArenaOS(props: Props) {
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
       props.setCash(v=>v+playerBonus); props.setFirmCapital(v=>v+firmCommission); props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
+      props.onDealCompleted(client.id, activeStock!.ticker, client.ticket, Math.max(1, Math.floor(client.ticket / Math.max(1, activeStock!.price))))
       setLastPayout(playerBonus); setLastFirmCommission(firmCommission); setLastClientTicket(client.ticket); setLastXpReward(45); setLastReputationReward(Math.min(2,100-props.reputation)); setLastContactName(client.name)
       const referralId = client.id==='alex-vorontsov'?'pavel-smirnov':client.id==='maria-sokolova'?'natalia-orlova':client.id==='pavel-smirnov'?'maksim-sobolev':'igor-melnikov'
       setLastReferralName(CLIENTS.find(person=>person.id===referralId)?.name ?? 'новый контакт')
