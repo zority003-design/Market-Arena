@@ -229,7 +229,7 @@ test('the broker can end the shift early after serving two clients and reach the
   const app = await read('src/App.tsx')
   assert.match(arena, /props\.callsToday>=2/)
   assert.match(arena, /onClick=\{props\.onEndDay\}/)
-  assert.match(arena, /можешь продолжить до дневного лимита/)
+  assert.match(arena, /Можешь продолжить до дневного лимита/)
   assert.match(app, /onEndDay=\{endDay\}/)
   assert.match(app, /function endDay\(\)/)
 })
