@@ -101,3 +101,16 @@ test('dialogue memory varies by fictional company instead of repeating generic j
   assert.match(construction.reply, /рендер|этаж|балкон|денежный поток/i)
   assert.match(software.reply, /подписка|сервер|контракт|клиент/i)
 })
+
+
+test('negotiation length scales with wealth, tier, and missing equipment', () => {
+ const good=['headset','hd-camera','neutral-backdrop','ring-light']; const poor=[]
+ const small={...client('Осторожный'),tier:0,ticket:1000,budget:2000}; const rich={...client('Аналитический'),tier:4,ticket:50000,budget:100000}
+ assert.ok(dialogue.getNegotiationDifficulty(small,good)<dialogue.getNegotiationDifficulty(small,poor))
+ assert.ok(dialogue.getNegotiationDifficulty(rich,good)>dialogue.getNegotiationDifficulty(small,good))
+ assert.ok(dialogue.getNegotiationDifficulty(rich,poor)>dialogue.getNegotiationDifficulty(rich,good))
+})
+test('low-trust wealthy clients demand specific evidence',()=>{
+ const result=dialogue.evaluateFreeReply('У компании есть потенциал роста.',{...client('Аналитический'),tier:4,ticket:50000,budget:100000},stock,3,['headset','hd-camera','neutral-backdrop'],{trust:15,patience:70})
+ assert.match(result.reply,/не готов верить|недостаточно общего впечатления|сравните идею/i); assert.ok(result.delta<6)
+})
