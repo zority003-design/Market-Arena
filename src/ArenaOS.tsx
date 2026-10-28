@@ -457,7 +457,7 @@ export default function ArenaOS(props: Props) {
       setLastReferralName(CLIENTS.find(person=>person.id===referralId)?.name ?? 'новый контакт')
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,referralId])))
       setCallState('won'); setCompleted(v=>v+1)
-      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+' в капитал компании. Твой личный бонус брокера: +'+money(playerBonus)+'. Капитал клиента остаётся его деньгами; фирма получает комиссию, а ты — бонус за сделку.',client.name+': '+clientClosingLine(client,activeStock!)])
+      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Общий доход владельца от сделки: +'+money(firmCommission+playerBonus)+'. Из него '+money(firmCommission)+' — комиссия компании, '+money(playerBonus)+' — бонус за работу брокера. Капитал клиента не является доходом фирмы.',client.name+': '+clientClosingLine(client,activeStock!)])
     } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
       setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)])
     } else if(newTrust<=8 || newPatience<=8) {
@@ -575,7 +575,7 @@ export default function ArenaOS(props: Props) {
                 {stockPicker || !activeStock ? <div className="arena-os-stock-picker"><b>Подбери акцию под конкретного человека — не просто под сумму сделки.</b><p className="arena-os-client-goal">Цель: {client.goal}</p><div className="arena-os-call-offer-summary">
                   <div><small>СУММА СДЕЛКИ</small><strong>{money(client.ticket)}</strong><span>из капитала {money(client.budget)}</span></div>
                   <div className="player-estimate"><small>ТВОЙ ВОЗМОЖНЫЙ БОНУС</small><strong>до {money(estimatedBonus)}</strong><span>зависит от доверия и переговоров</span></div>
-                  <div><small>КОМИССИЯ ФИРМЫ</small><strong>{money(estimatedFirmCommission)}</strong><span>идёт на баланс фирмы, не тебе лично</span></div>
+                  <div><small>ОБЩИЙ ДОХОД СДЕЛКИ</small><strong>{money(estimatedFirmCommission+estimatedBonus)}</strong><span>комиссия компании + бонус владельца</span></div>
                 </div>
                 <div className="arena-os-client-profile">
                   <div className="arena-os-risk-profile"><small>ПРОФИЛЬ РИСКА</small><strong>{getClientInvestmentPreference(client.id).riskLabel}</strong><span>Горизонт: {getClientInvestmentPreference(client.id).horizon}</span></div>
