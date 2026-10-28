@@ -222,3 +222,14 @@ test('client dialogue no longer appends the same generic plan-B suffix to every 
   assert.match(arena, /function clientClosingLine/)
   assert.match(arena, /const start = \(turn \* 2 \+ \(client\.id\.length % bank\.length\)\)/)
 })
+
+
+test('the broker can end the shift early after serving two clients and reach the sleep flow', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const app = await read('src/App.tsx')
+  assert.match(arena, /props\.callsToday>=2/)
+  assert.match(arena, /onClick=\{props\.onEndDay\}/)
+  assert.match(arena, /можешь продолжить до дневного лимита/)
+  assert.match(app, /onEndDay=\{endDay\}/)
+  assert.match(app, /function endDay\(\)/)
+})
