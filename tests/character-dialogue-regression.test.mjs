@@ -82,3 +82,18 @@ test('firm upgrades, assets, and staff hires use firm capital rather than person
   assert.match(hireHandler, /props\.setFirmCapital/)
   assert.match(source, /КАПИТАЛ ФИРМЫ/)
 })
+
+
+test('negated guarantees are not treated as reckless promises by the dialogue evaluator', async () => {
+  const source = await read('src/game/dialogue.ts')
+  assert.match(source, /const rejectsGuarantee = \/не\\\\s\+/)
+  assert.match(source, /const promises = !rejectsGuarantee/)
+})
+
+test('stock suitability does not alias unrelated companies into one another', async () => {
+  const source = await read('src/game/economy.ts')
+  assert.match(source, /const canonicalTicker = ticker === 'KTLT' \? 'KOTL' : ticker/)
+  assert.doesNotMatch(source, /SBRX: 'OGUR'|NEFT: 'BTRAN'|MEDX: 'DUST'|GROV: 'TAPK'/)
+  assert.match(source, /stock.risk === 'Низкий'/)
+  assert.match(source, /stock.risk === 'Высокий' \|\| stock.risk === 'Очень высокий'/)
+})
