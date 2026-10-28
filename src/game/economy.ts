@@ -157,20 +157,52 @@ export function getDailyLeadIds(
 }
 
 
+export type ClientInvestmentPreference = {
+  riskLevel: 0 | 1 | 2 | 3
+  riskLabel: string
+  horizon: string
+  priorities: string[]
+  avoids: string[]
+}
+export const CLIENT_INVESTMENT_PREFERENCES: Record<string, ClientInvestmentPreference> = {
+ 'alex-vorontsov': { riskLevel:0, riskLabel:'Осторожный новичок', horizon:'3–5 лет, небольшими суммами', priorities:['понятный бизнес','положительная прибыль','небольшая первая позиция'], avoids:['обещания быстрого роста','компании без выручки'] },
+ 'maria-sokolova': { riskLevel:1, riskLabel:'Любознательная умеренная', horizon:'3–5 лет', priorities:['понятная бизнес-модель','рост продаж','продукт, который можно объяснить'], avoids:['сложные финансовые схемы','необоснованный хайп'] },
+ 'igor-melnikov': { riskLevel:1, riskLabel:'Рациональный умеренный', horizon:'2–4 года', priorities:['цифры и маржа','сценарий убытка','сохранение резерва'], avoids:['непрозрачный долг','обещания без расчётов'] },
+ 'elena-borisova': { riskLevel:1, riskLabel:'Предприниматель с приоритетом ликвидности', horizon:'1–3 года', priorities:['денежный поток','ликвидность','диверсификация'], avoids:['долгая заморозка капитала','чрезмерная доля одной идеи'] },
+ 'sergey-romanov': { riskLevel:2, riskLabel:'Опытный прагматик', horizon:'2–5 лет', priorities:['денежный поток','долг и покрытие процентов','стресс-сценарии'], avoids:['бизнес без доказанной экономики','концентрация'] },
+ 'diana-volkova': { riskLevel:1, riskLabel:'Профессионал с жёстким контролем риска', horizon:'1–3 года с регулярным пересмотром', priorities:['контроль рисков','ликвидность','проверяемые допущения'], avoids:['неподтверждённые прогнозы','неограниченный downside'] },
+ 'pavel-smirnov': { riskLevel:1, riskLabel:'Технически любознательный новичок', horizon:'3–5 лет', priorities:['понятная технология','реальные клиенты','путь к прибыли'], avoids:['технология ради технологии','неподтверждённый запуск'] },
+ 'natalia-orlova': { riskLevel:0, riskLabel:'Осторожная, ценит время', horizon:'1–3 года', priorities:['простота объяснения','устойчивый спрос','понятный выход'], avoids:['сложные истории','необходимость постоянно следить за рынком'] },
+ 'timur-garipov': { riskLevel:2, riskLabel:'Предприниматель, склонный к риску', horizon:'1–3 года', priorities:['рост капитала','сохранение оборотных денег','понятный план выхода'], avoids:['рисковать деньгами на операционные расходы'] },
+ 'olga-belova': { riskLevel:1, riskLabel:'Консервативный финансовый контролёр', horizon:'2–4 года', priorities:['отчётность','комиссии и налоги','сценарий потерь'], avoids:['непроверенные цифры','скрытые расходы'] },
+ 'roman-kiselev': { riskLevel:1, riskLabel:'Умеренный переговорщик', horizon:'2–4 года', priorities:['соотношение риска и цены','прозрачные комиссии','понятные условия'], avoids:['переплата за хайп','необоснованные оценки'] },
+ 'irina-zueva': { riskLevel:1, riskLabel:'Умеренная, важна ликвидность', horizon:'1–3 года', priorities:['доступ к деньгам','устойчивый денежный поток','контроль размера позиции'], avoids:['долгая заморозка средств'] },
+ 'andrey-morozov': { riskLevel:2, riskLabel:'Аналитик, готовый к умеренному риску', horizon:'3–5 лет', priorities:['сравнение с индексом','оценка бизнеса','катализатор роста'], avoids:['рост без причины','игнорирование альтернатив'] },
+ 'svetlana-krylova': { riskLevel:1, riskLabel:'Статусная, но осторожная', horizon:'2–4 года', priorities:['устойчивость','качественный сервис','понятная отчётность'], avoids:['непрозрачные компании','чрезмерная волатильность'] },
+ 'viktor-lebedev': { riskLevel:1, riskLabel:'Консервативный собственник', horizon:'3–5 лет', priorities:['сохранение капитала','долговая нагрузка','ликвидность'], avoids:['спекулятивные истории','непонятный выход'] },
+ 'alina-fedorova': { riskLevel:3, riskLabel:'Соревновательный инвестор, высокий риск', horizon:'2–5 лет', priorities:['асимметрия роста','проверяемый катализатор','чёткий критерий ошибки'], avoids:['риск без потенциальной отдачи','бессрочное усреднение убытка'] },
+ 'maksim-sobolev': { riskLevel:0, riskLabel:'Осторожный после плохого опыта', horizon:'2–4 года', priorities:['защита денег на зарплаты','простая модель бизнеса','честное объяснение риска'], avoids:['гарантии доходности','спекуляции на последние деньги'] },
+ 'ekaterina-mironova': { riskLevel:2, riskLabel:'Профессиональный аналитик', horizon:'2–5 лет', priorities:['методология оценки','денежный поток','сценарии и критерии выхода'], avoids:['непроверяемые допущения','эмоциональные аргументы'] },
+ 'boris-zhukov': { riskLevel:0, riskLabel:'Очень осторожный инвестор', horizon:'1–3 года', priorities:['сохранение накоплений','понимание максимального убытка','простые компании'], avoids:['высокая волатильность','покупка на слухах'] },
+ 'yaroslav-nikitin': { riskLevel:3, riskLabel:'Азартный и нетерпеливый', horizon:'Короткий, но нуждается в ограничителях риска', priorities:['понятный катализатор','лимит потерь','не ставить весь капитал'], avoids:['ставка всем капиталом на одну акцию'] },
+}
+export function getClientInvestmentPreference(clientId: string): ClientInvestmentPreference {
+ return CLIENT_INVESTMENT_PREFERENCES[clientId] ?? { riskLevel:1, riskLabel:'Умеренный профиль', horizon:'2–4 года', priorities:['понятная бизнес-модель','контроль риска'], avoids:['необоснованные обещания'] }
+}
+
 export const STOCK_PROFILES: Record<string, { label: string; color: string; description: string; risk: string }> = {
- KOTL: { label: 'Рост', color: '#3b82f6', description: 'Рост выручки и будущая прибыль; сейчас компания убыточна.', risk: 'Высокий' },
- KTLT: { label: 'Рост', color: '#3b82f6', description: 'Доставка дронами и роботами; важно подтвердить заказы и путь к прибыли.', risk: 'Высокий' },
- OGUR: { label: 'Прибыль и повторные продажи', color: '#16a34a', description: 'Действующая прибыль и понятный спрос; следи за маржой.', risk: 'Средний' },
- SBRX: { label: 'Устойчивый бизнес', color: '#16a34a', description: 'Регулярная выручка и цифровые сервисы; рост может замедлиться.', risk: 'Средний' },
- TAPK: { label: 'Спекулятивное восстановление', color: '#dc4b5b', description: 'Ставка на исправление продукта; возвраты и убытки могут продолжиться.', risk: 'Очень высокий' },
- GROV: { label: 'Рискованный рост', color: '#dc4b5b', description: 'Онлайн-торговля растёт, но скидки и доставка съедают прибыль.', risk: 'Высокий' },
- BYTE: { label: 'Ставка на запуск', color: '#9333ea', description: 'Потенциал нового продукта без подтверждённых продаж.', risk: 'Высокий' },
- DUST: { label: 'Защитная', color: '#0d9488', description: 'Долгосрочные контракты и денежный поток; потенциал роста спокойнее.', risk: 'Низкий' },
- MEDX: { label: 'Защитная', color: '#0d9488', description: 'Устойчивый спрос на медуслуги, но расширение требует капитала.', risk: 'Низкий' },
- GRID: { label: 'Инфраструктура', color: '#0d9488', description: 'Регулируемый спрос; тарифы и капзатраты ограничивают рост.', risk: 'Низкий' },
- BTRAN: { label: 'Денежный поток', color: '#d97706', description: 'Сеть АЗС и дополнительные сервисы; важны маржа, трафик и окупаемость.', risk: 'Средний' },
- NEFT: { label: 'Циклический денежный поток', color: '#d97706', description: 'Экспорт и добыча зависят от сырьевых цен, курса и логистики.', risk: 'Средний' },
- LOGI: { label: 'Операционный бизнес', color: '#d97706', description: 'Контракты и доставка; расходы на топливо и зарплаты давят на маржу.', risk: 'Средний' },
+ KOTL: { label:'Рост и девелопмент', color:'#3b82f6', description:'Региональный застройщик жилых кварталов; рост зависит от продаж, эскроу, стоимости стройматериалов и ставок по проектному финансированию.', risk:'Высокий' },
+ OGUR: { label:'Прибыль и повторные покупки', color:'#16a34a', description:'Производитель напитков и соков с региональной дистрибуцией; ключевые факторы — повторный спрос, цена сырья и место на полке.', risk:'Низкий' },
+ SBRX: { label:'Корпоративное ПО', color:'#16a34a', description:'Независимый разработчик корпоративного ПО и систем документооборота; не связан с реальными банками и не является их подразделением.', risk:'Средний' },
+ TAPK: { label:'Спекулятивное восстановление', color:'#dc4b5b', description:'Производитель умных тапочек; возвраты и гарантийные расходы пока мешают доказать устойчивую экономику продукта.', risk:'Очень высокий' },
+ GROV: { label:'Рискованный рост', color:'#dc4b5b', description:'Онлайн-магазин товаров для дома; рост заказов пока частично съедают скидки, возвраты и доставка.', risk:'Высокий' },
+ BYTE: { label:'Ставка на запуск', color:'#9333ea', description:'Разработчик ПО для управления небольшими предприятиями; основной продукт ещё должен доказать спрос платящих клиентов.', risk:'Высокий' },
+ DUST: { label:'Контрактный денежный поток', color:'#0d9488', description:'Сервисная компания по обслуживанию коммерческих зданий с долгосрочными договорами и умеренным ростом.', risk:'Низкий' },
+ MEDX: { label:'Медицинские услуги', color:'#0d9488', description:'Сеть диагностических центров; спрос устойчив, но новые филиалы требуют капитала и времени на выход к полной загрузке.', risk:'Низкий' },
+ GRID: { label:'Городская инфраструктура', color:'#0d9488', description:'Оператор локальных электросетей; тарифы и инфраструктурные вложения сдерживают рост, но спрос относительно предсказуем.', risk:'Низкий' },
+ BTRAN: { label:'Топливо и транспортные сервисы', color:'#d97706', description:'Сеть автозаправок «Банан Транс» с магазинами, мойками и зарядными станциями; результат зависит от трафика и маржи на топливе.', risk:'Средний' },
+ NEFT: { label:'Циклический денежный поток', color:'#d97706', description:'Независимая нефтедобывающая компания; результат зависит от мировых цен, налогов, курса и доступности экспортной логистики.', risk:'Средний' },
+ LOGI: { label:'Логистика и контракты', color:'#d97706', description:'Региональный перевозчик для сетевой торговли; топливо, зарплаты, простой автопарка и продление контрактов определяют маржу.', risk:'Средний' },
 }
 const CLIENT_STOCK_FIT: Record<string, string[]> = {
  'alex-vorontsov': ['KOTL','OGUR','DUST'], 'maria-sokolova': ['KOTL','OGUR','BTRAN'],
@@ -194,16 +226,21 @@ const CLIENT_TRUST_REQUIREMENTS: Record<string, number> = {
 export function getClientStockFit(clientId: string, ticker: string): { suitable: boolean; reason: string } {
  const canonicalTicker = ticker === 'KTLT' ? 'KOTL' : ticker
  const suitableTickers = CLIENT_STOCK_FIT[clientId]
- const stock = STOCK_PROFILES[ticker] ?? STOCK_PROFILES[canonicalTicker]
- if (!stock) return { suitable: false, reason: 'Эта акция отсутствует в каталоге.' }
- if (suitableTickers?.includes(canonicalTicker)) return { suitable: true, reason: 'Тип акции соответствует цели клиента и его отношению к риску.' }
- const client = CLIENTS.find(item => item.id === clientId)
- const tier = client?.tier ?? 0
- if (stock.risk === 'Низкий') return { suitable: true, reason: 'У компании относительно защитный профиль; всё равно проверьте цену, долг и инвестиционный горизонт.' }
- if (stock.risk === 'Средний' && tier >= 1) return { suitable: true, reason: 'Умеренный риск допустим для этого клиента, если размер позиции соответствует его цели и горизонту.' }
- if ((stock.risk === 'Высокий' || stock.risk === 'Очень высокий') && tier >= 3) return { suitable: true, reason: 'Клиент имеет достаточный опыт для рискованной идеи, но позицию нужно ограничить и заранее определить условия выхода.' }
- if (stock.risk === 'Высокий' || stock.risk === 'Очень высокий') return { suitable: false, reason: 'Высокий риск и неподтверждённый сценарий роста не соответствуют текущему профилю клиента.' }
- return { suitable: false, reason: 'Профиль риска акции не совпадает с целью клиента и его допустимым уровнем риска.' }
+ const stock = STOCK_PROFILES[canonicalTicker] ?? STOCK_PROFILES[ticker]
+ if (!stock) return { suitable:false, reason:'Эта акция отсутствует в каталоге.' }
+ const preference = getClientInvestmentPreference(clientId)
+ const riskScore: Record<string, number> = { 'Низкий':0, 'Средний':1, 'Высокий':2, 'Очень высокий':3 }
+ const score = riskScore[stock.risk] ?? 2
+ if (score > preference.riskLevel) {
+   return { suitable:false, reason:`Риск ${stock.risk.toLowerCase()} выше профиля «${preference.riskLabel}». Клиент ценит: ${preference.priorities.slice(0,2).join(', ')}.` }
+ }
+ if (suitableTickers?.includes(canonicalTicker)) {
+   return { suitable:true, reason:`Совпадает с профилем «${preference.riskLabel}»: ${preference.priorities.slice(0,2).join(', ')}. Риск всё равно нужно объяснить.` }
+ }
+ if (score <= preference.riskLevel) {
+   return { suitable:true, reason:`По уровню риска акция допустима для профиля «${preference.riskLabel}», но это не автоматическая рекомендация: сравните ${preference.priorities[0]} и риск ${stock.risk.toLowerCase()}.` }
+ }
+ return { suitable:false, reason:'Акция не соответствует индивидуальному отношению клиента к риску.' }
 }
 export function getClientTrustRequirement(client: ClientProfile): number {
  return CLIENT_TRUST_REQUIREMENTS[client.id] ?? (client.statusSensitive ? 66 : 52)
