@@ -92,6 +92,29 @@ const GEAR = [
 ]
 const money = (n:number) => Math.round(n).toLocaleString('ru-RU') + ' ₽'
 
+function clientClosingLine(client:ClientProfile, stock:Stock) {
+  if (client.id === 'alex-vorontsov') return '«Ладно, теперь хотя бы понятно, что именно я покупаю и где могу ошибиться. Я сохраню ваш контакт и расскажу о вас паре знакомых — но следующий отчёт вместе проверим, договорились?»'
+  if (client.id === 'yaroslav-nikitin') return '«Окей, я ожидал очередную ракету на графике, а вы хотя бы объяснили, где тормоз. Контакт сохраню, друзьям расскажу — только не превращайте мой портфель в киберспортивную ставку».'
+  const temperament = client.temperament.toLowerCase()
+  if (client.tier >= 3 || temperament.includes('скептич') || temperament.includes('аналит')) return '«Решение принято. Я сохраню ваши расчёты и контакт. Коллегам могу вас порекомендовать, если вы и дальше будете отделять факты от красивых обещаний».'
+  if (temperament.includes('дотош') || temperament.includes('требователь')) return '«Хорошо, оформляем. Пришлите итоговые условия и список рисков письменно. Если отчёт подтвердит тезис, порекомендую вас партнёрам».'
+  if (temperament.includes('импульсив') || temperament.includes('азарт')) return '«Договорились! Но если меня снова потянет поставить всё на одну бумагу — напомните мне этот разговор. Контактом поделюсь с друзьями».'
+  if (temperament.includes('осторож') || temperament.includes('недовер')) return '«Мне спокойнее, когда не скрывают неприятные сценарии. Начнём с этой суммы и будем следить за условиями. Если всё пойдёт честно, порекомендую вас знакомым».'
+  return '«Договорились. Мне понравилось, что вы не продавали мечту, а объяснили и плюсы, и риски. Сохраню контакт и порекомендую вас знакомым, если будете так же работать дальше».'
+}
+function clientHesitationLine(client:ClientProfile, stock:Stock, turn:number) {
+  const temperament = client.temperament.toLowerCase()
+  const lines = client.tier >= 3
+    ? ['«Логика понятна, но я не принимаю решение за один разговор. Пришлите сравнение с альтернативами и вернёмся к этому после отчёта».','«Не хватает основания для сделки сегодня. Хочу увидеть, как цена выглядит относительно прибыли и долга».','«Вы ответили на возражение, но не на вопрос о цене ошибки. Дайте мне время сопоставить сценарии».']
+    : temperament.includes('осторож') || temperament.includes('недовер')
+      ? ['«Звучит разумно, но я не готов сразу рисковать деньгами. Дайте мне переварить и перечитать условия».','«Мне нужно подумать, особенно о том, сколько я могу потерять. Не торопите меня».','«Я услышал аргументы. Пока начну с паузы, а не с покупки — так мне спокойнее».']
+      : temperament.includes('импульсив') || temperament.includes('нетерпел')
+        ? ['«Честно? Я уже почти нажал “купить”, но хочу ещё раз посмотреть, не увлёкся ли перспективой».','«Звучит интересно. Дайте короткую выжимку, а то я сейчас переключусь на что-то другое».','«Я почти готов, но хочу сравнить с другой идеей, прежде чем решать».']
+        : ['«Аргумент понял. Но хочу сравнить эту идею с альтернативой, прежде чем размещать деньги».','«Мне нравится логика, но пока не хватает одного подтверждения. Вернёмся к этому после ближайшего отчёта».','«Я не против идеи, просто не хочу принимать решение под конец разговора. Дайте мне время».']
+  return lines[(turn + client.id.length + stock.ticker.length) % lines.length]
+}
+
+
 const RESPONSE_BANK: Record<string, {label:string;text:string}[]> = {
   KOTL: [
     {label:'Проверить распроданность, а не только красивые рендеры',text:'У «Каталёта» новые жилые кварталы, но рендеры не равны сделкам. Я проверю бронирования, ипотечные договоры и темп продаж очереди.'},
@@ -192,21 +215,13 @@ const RESPONSE_BANK: Record<string, {label:string;text:string}[]> = {
 }
 function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
   const bank = RESPONSE_BANK[stock.ticker] ?? RESPONSE_BANK.OGUR
-  const angle = [
-    { prefix: 'Проверка цифр: ', suffix: ' На ближайшем отчёте сверю тезис с денежным потоком и маржой.' },
-    { prefix: 'План Б: ', suffix: ' Если условие не выполнится, пересмотрю позицию, а не буду усреднять убыток.' },
-    { prefix: 'Без презентационного дыма: ', suffix: ' Сначала проверю факт, затем определю размер позиции.' },
-    { prefix: 'Условия выхода: ', suffix: ' Заранее назову показатель, при котором откажусь от идеи.' },
-    { prefix: 'Вопрос к директору: ', suffix: ' Сравню эту версию с альтернативой и ценой ошибки.' },
-  ][turn % 5]
-  const options = [0,1,2].map(index => {
-    const base = bank[(turn * 3 + index) % bank.length]
-    const temperamentPrefix = client.temperament.includes('Нетерпелив') || client.temperament.includes('Занятая') ? 'Коротко и по делу: ' :
-      client.temperament.includes('Холодно') || client.temperament.includes('требователь') ? 'Сначала доказательства: ' :
-      client.temperament.includes('Импульсив') || client.temperament.includes('азарт') ? 'Без FOMO: ' : ''
-    return { label: angle.prefix + temperamentPrefix + base.label, text: base.text + angle.suffix + ' С учётом задачи клиента «' + client.goal.toLowerCase() + '».' }
+  // Keep each option's actual argument distinct; no generic suffix pasted onto every reply.
+  const start = (turn * 2 + (client.id.length % bank.length)) % bank.length
+  return [0,1,2].map(index => {
+    const base = bank[(start + index) % bank.length]
+    const concise = client.temperament.includes('Нетерпел') || client.temperament.includes('Занятая')
+    return { label: concise && base.label.length > 58 ? base.label.slice(0,55).trimEnd() + '…' : base.label, text: base.text }
   })
-  return options
 }
 
 export default function ArenaOS(props: Props) {
@@ -339,9 +354,9 @@ export default function ArenaOS(props: Props) {
       setLastPayout(playerBonus); setLastContactName(client.name)
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,...(client.id==='alex-vorontsov'?['pavel-smirnov']:client.id==='maria-sokolova'?['natalia-orlova']:client.id==='pavel-smirnov'?['maksim-sobolev']:['igor-melnikov'])])))
       setCallState('won'); setCompleted(v=>v+1)
-      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+' в капитал компании. Твой личный бонус брокера: +'+money(playerBonus)+'. Капитал клиента остаётся его деньгами; фирма получает комиссию, а ты — бонус за сделку. Клиент: «Ой, это здорово! Мне понравилось, как вы работали: вы не только рассказали о перспективах, но и не стали скрывать риски. Как мне теперь к вам обращаться — как называется ваша брокерская фирма? Я сохраню контакт и порекомендую вас знакомым».'])
+      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+' в капитал компании. Твой личный бонус брокера: +'+money(playerBonus)+'. Капитал клиента остаётся его деньгами; фирма получает комиссию, а ты — бонус за сделку.',client.name+': '+clientClosingLine(client,activeStock!)])
     } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
-      setCallLog(prev=>[...prev,client.name+': «Аргументы звучат убедительно, но я пока не готов принять решение. Мне нужно проверить детали».'])
+      setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)])
     } else if(newTrust<=8 || newPatience<=8) {
       setCallState('lost'); props.setReputation(v=>Math.max(0,v-2)); props.setXp(v=>v+5)
       setCallLog(prev=>[...prev,'Клиент завершил звонок. Сделки нет; репутация просела.'])
