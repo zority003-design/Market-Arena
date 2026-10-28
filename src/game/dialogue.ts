@@ -73,6 +73,36 @@ export function getEquipmentOpening(client: ClientProfile, ownedItems: string[] 
 
 export type NegotiationContext = { trust?: number; patience?: number }
 
+function simplifyForBeginner(reply: string, client: ClientProfile) {
+  if (client.tier > 1) return reply
+  const plain: Array<[RegExp, string]> = [
+    [/катализатор/gi, 'событие, которое может помочь'],
+    [/материализуется/gi, 'проявится'],
+    [/ликвидность/gi, 'как быстро можно вернуть деньги'],
+    [/ликвидный/gi, 'который легко продать'],
+    [/тезис/gi, 'наша идея'],
+    [/драйвер/gi, 'причина для роста'],
+    [/красный флаг/gi, 'тревожный знак'],
+    [/денежный поток/gi, 'сколько денег остаётся у компании'],
+    [/выручка/gi, 'деньги от продаж'],
+    [/маржа/gi, 'сколько остаётся после расходов'],
+    [/диверсификация/gi, 'разделение денег между разными вариантами'],
+    [/волатильность/gi, 'сильные скачки цены'],
+    [/котировка/gi, 'цена акции'],
+    [/капитал/gi, 'деньги'],
+    [/инвестиционный/gi, 'связанный с вложением денег'],
+    [/финансовый драйвер/gi, 'причина для роста'],
+    [/аудит/gi, 'проверка отчётов'],
+    [/комплаенс/gi, 'проверка правил'],
+    [/сценарий/gi, 'вариант развития событий'],
+    [/материализуется/gi, 'проявится'],
+  ]
+  let result = reply
+  for (const [pattern, replacement] of plain) result = result.replace(pattern, replacement)
+  return result
+}
+
+
 export function getNegotiationDifficulty(client: ClientProfile, ownedItems: string[]) {
   const mic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
   const camera = ownedItems.includes('hd-camera')
@@ -301,5 +331,5 @@ export function evaluateFreeReply(
     reply = reply.replace(/[»”]$/, '') + ' ' + issue.line + '»'
   }
 
-  return { delta: Math.max(-18, Math.min(14, delta)), reply, equipmentPenalty: issue?.penalty ?? 0 }
+  return { delta: Math.max(-18, Math.min(14, delta)), reply: simplifyForBeginner(reply, client), equipmentPenalty: issue?.penalty ?? 0 }
 }
