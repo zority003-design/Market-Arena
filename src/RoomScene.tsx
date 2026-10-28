@@ -327,10 +327,11 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
     <>
       <color attach="background" args={['#101922']} />
       <fog attach="fog" args={['#101922', 8, 18]} />
-      <ambientLight intensity={roomLightOn ? 0.55 : 0.16} />
-      <hemisphereLight args={['#b8d7ed', '#25252a', roomLightOn ? 1.05 : 0.32]} />
-      <directionalLight position={[-3.8, 6, 2]} intensity={roomLightOn ? 2.25 : 0.45} color="#ffe2bd" castShadow shadow-mapSize={[1536, 1536]} />
-      <pointLight position={[-3.2, 2.2, -1.5]} intensity={2.2} distance={7} color="#7bb7d9" />
+      <ambientLight intensity={roomLightOn ? 0.62 : 0.2} />
+      <hemisphereLight args={['#b8d7ed', '#25252a', roomLightOn ? 0.72 : 0.28]} />
+      {/* Daylight comes from the left-side window; avoid the oversized shadow beam that looked like a sun-ray cone inside the room. */}
+      <directionalLight position={[-5.2, 3.8, -0.4]} intensity={roomLightOn ? 0.72 : 0.12} color="#fff0d5" />
+      <pointLight position={[-3.35, 2.0, -0.25]} intensity={roomLightOn ? 1.15 : 0.12} distance={5.2} color="#ffe2bd" />
       <pointLight ref={glowRef} position={[0, 1.55, -2.12]} intensity={1.2} distance={2.8} color="#31d6a0" />
 
       {/* Room shell */}
