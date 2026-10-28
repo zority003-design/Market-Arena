@@ -438,10 +438,11 @@ export default function ArenaOS(props: Props) {
     const newPatience = Math.max(0,patience-(kind==='risk'?3:kind==='free'?4:5))
     setTrust(newTrust); setPatience(newPatience); props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, Math.min(100, (scores[client.id] ?? client.baseTrust) + delta)) })); setCallLog(prev=>[...prev,'Ты: '+(kind==='free'?text:kind==='benefit'?'Объясняешь потенциальную выгоду':kind==='risk'?'Честно раскрываешь риски':'Отвечаешь невпопад'),client.name+': '+reply,'РАЗБОР: доверие '+(delta>0?'+':'')+delta+' ('+trust+' → '+newTrust+'); терпение −'+(patience-newPatience)+' ('+patience+' → '+newPatience+'). '+(delta>=8?'Аргументы с фактами и планом помогают клиенту проверить рекомендацию.':delta<0?'Ответ не снял возражение или содержал обещание без доказательств.':'Нужен более конкретный факт, риск или условие выхода.')])
     setMessage('')
-    if(kind==='free') setDialogueTurn(turn=>turn+1)
+    // Every answer is a negotiation turn. A single lucky click must never close a deal.
+    setDialogueTurn(turn=>turn+1)
     const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
     setLastChance(newChance)
-    if(newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
+    if(dialogueTurn >= 2 && newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
       const firmCommission = Math.round(client.ticket * client.commissionRate)
       const qualityMultiplier = newTrust >= 75 ? 1.25 : newTrust >= 62 ? 1.1 : 1
       const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
