@@ -1116,16 +1116,17 @@ export default function App() {
 
   function answerQuestion(text: string, delta: number) {
     if (callStatus !== 'active') return
+    const lower = text.toLocaleLowerCase('ru').replace(/ё/g, 'е')
+    const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(lower)
+    const reckless = !rejectsGuarantee && /гарантирую|гарантированно выраст|без риска|точно выраст|не может упасть|удво|100\s*%\s*(?:доход|прибыл)?/.test(lower)
     const backgroundCaught = videoEnabled && videoBackground === 'luxury' && activeClient.statusSensitive && getVideoQuality(ownedItems) < 4 && questionIndex === 0
-    const appliedDelta = Math.max(-15, Math.min(10, delta - (backgroundCaught ? 7 : 0)))
+    const safeDelta = reckless ? -15 : delta
+    const appliedDelta = Math.max(-15, Math.min(10, safeDelta - (backgroundCaught ? 7 : 0)))
     const nextTrust = Math.max(0, Math.min(100, trust + appliedDelta))
     const patienceCost = appliedDelta >= 7 ? 2 : appliedDelta <= -8 ? 9 : appliedDelta < 0 ? 6 : 4
     const nextPatience = Math.max(0, patience - patienceCost)
     setTrust(nextTrust); setPatience(nextPatience)
     setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, Math.min(100, (scores[activeClient.id] ?? activeClient.baseTrust) + appliedDelta)) }))
-    const lower = text.toLowerCase()
-    const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(lower)
-    const reckless = !rejectsGuarantee && /гарантирую|гарантированно выраст|без риска|точно выраст|не может упасть|удво|100% доход/.test(lower)
     const evidence = /риск|убыт|марж|денеж|контракт|возврат|сценар|подтверж|провер|если|огранич|критер|дивиденд|прибыл/.test(lower)
     const clientTone = activeClient.temperament.toLowerCase()
     const strong = ['«Вот теперь разговор предметный. Я вижу не только красивую сторону, но и то, что может сломать идею».','«Хорошо: вы не пытаетесь продать мне единственный правильный ответ. Продолжайте».','«Запишу это в заметки. Наконец-то аргумент, который можно проверить, а не повесить в рамке».','«Это звучит разумнее презентации директора. Но я всё ещё оставляю за собой право передумать».','«Ладно, вы хотя бы знаете, где у этой истории слабое место. Это уже редкость на рынке».']
@@ -1195,7 +1196,8 @@ export default function App() {
     const riskHits = ['риск','убыт','расход','денежный поток','марж','провер','сценар','подтверж','огранич','долг','возврат','налог','конкурен','просад'].filter((term) => normalized.includes(term)).length
     const evidenceHits = ['цифр','отчет','отчёт','данн','факт','провер','сравн','метрик','порог','критер','услов','если','план','лимит','срок','доля','прибыл','выруч','контракт','спрос','клиент'].filter((term) => normalized.includes(term)).length
     const upsideHits = ['рост','выруч','прибыл','спрос','контракт','дивиденд','драйвер','масштаб','эффектив','повторн','рентабель','марж'].filter((term) => normalized.includes(term)).length
-    const reckless = /гарантир|без риска|точно выраст|не может упасть|удвоим|сто процентов|100\s*%|верняк|беспроигрыш|не потеряете|всегда раст/.test(normalized)
+    const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(normalized)
+    const reckless = !rejectsGuarantee && /гарантир|без риска|точно выраст|не может упасть|удвоим|сто процентов|100\s*%|верняк|беспроигрыш|не потеряете|всегда раст/.test(normalized)
     const joke = /ахах|хаха|лол|рофл|шутк|мем|кот|тапоч|банан|огурц|ракета|на луну|единорог|магия|волшеб|вечн.*двигател|прибыл.*из воздуха|деньги сами|если бы|ага конечно/.test(normalized)
     const negated = /не\s+(будет|станет|гарантир|обещ|знаю|понимаю|вижу)|никак|вряд ли|сомневаюсь|не факт|сарказм/.test(normalized)
     let delta = 0
@@ -1291,8 +1293,9 @@ export default function App() {
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
       const businessNetIncome = getBusinessDailyNetIncome(ownedBusinessAssets)
       const staffNetIncome = getStaffDailyNetIncome(ownedEmployees)
-      const available = cash + DAILY_SALARY + businessNetIncome + staffNetIncome
-      setCash(Math.max(0, available))
+      // Salary is the player's personal income; employee and business operations belong to firm capital.
+      setCash((value) => Math.max(0, value + DAILY_SALARY))
+      setFirmCapital((value) => Math.max(0, value + businessNetIncome + staffNetIncome))
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
