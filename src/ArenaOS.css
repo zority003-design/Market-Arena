@@ -619,3 +619,12 @@
 .arena-os-window-title:active { cursor:grabbing; }
 .arena-os-window-title button { cursor:pointer; }
 .arena-os-desktop-icon { user-select:none; }
+
+.arena-os-end-shift-card { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:14px 0; padding:16px 18px; border:1px solid #c5d9eb; border-radius:11px; background:linear-gradient(120deg,#f2f8ff,#e5f3ff); }
+.arena-os-end-shift-card>div { display:grid; gap:5px; }
+.arena-os-end-shift-card>div>b { color:#183d61; font-size:16px; }
+.arena-os-end-shift-card p { margin:0; color:#4d667d; font-size:12px; line-height:1.55; }
+.arena-os-end-shift-card .arena-os-primary { flex:none; }
+.arena-os-desktop-icon { cursor:grab; }
+.arena-os-desktop-icon:active { cursor:grabbing; }
+@media(max-width:620px) { .arena-os-end-shift-card { align-items:stretch; flex-direction:column; } }
