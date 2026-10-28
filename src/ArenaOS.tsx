@@ -428,7 +428,10 @@ export default function ArenaOS(props: Props) {
       setNotice('Акция не подходит клиенту. Доверие −12, репутация −2. В следующий раз сверяй тип акции с его целью.')
       return
     }
-    setCallLog(prev=>[...prev, 'Ты: «Я предлагаю рассмотреть акцию '+stock.name+' ('+stock.ticker+'). '+stock.upside+' При этом важно учитывать и обратную сторону: '+stock.downside+'»', client.name+': '+clientStockReaction(client,stock,true)])
+    const pitch = client.tier <= 1
+      ? 'Давай посмотрим на эту компанию. Она может вырасти, если будет больше клиентов и продаж. Но если расходы вырастут или покупателей станет меньше, цена акции может упасть.'
+      : stock.upside + ' При этом важно учитывать и обратную сторону: ' + stock.downside
+    setCallLog(prev=>[...prev, 'Ты: «Я предлагаю рассмотреть акцию '+stock.name+' ('+stock.ticker+'). '+pitch+'»', client.name+': '+clientStockReaction(client,stock,true)])
     setTrust(v=>Math.max(0,Math.min(100,v+4)))
     props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.min(100, (scores[client.id] ?? client.baseTrust) + 4) }))
   }
