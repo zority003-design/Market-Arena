@@ -1299,7 +1299,7 @@ export default function App() {
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
-      setToast('Доброе утро! День ' + nextDay + '. Оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, чистый доход фирмы +' + businessNetIncome.toLocaleString('ru-RU') + ' ₽. Жильё оплачено при покупке — ежедневной аренды нет.')
+      setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Жильё оплачено при покупке — ежедневной аренды нет.')
       window.setTimeout(() => setToast(''), 5200)
       setPanel('room')
       setCallStatus('idle')
