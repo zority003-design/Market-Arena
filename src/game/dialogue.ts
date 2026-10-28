@@ -56,7 +56,6 @@ function equipmentIssue(client: ClientProfile, ownedItems: string[], turn: numbe
 }
 
 export function getEquipmentOpening(client: ClientProfile, ownedItems: string[] = []) {
-  const clientName = client.name || 'Клиент'
   const hasMic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
   const hasCamera = ownedItems.includes('hd-camera')
   const hasBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
