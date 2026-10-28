@@ -98,13 +98,6 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
     if ((temperament.includes('дотош') || temperament.includes('аналит') || temperament.includes('требователь')) && !concrete) delta -= 2
     if (temperament.includes('статус') && hasPlan && hasRisk) delta += 1
   }
-  const angle = [
-    ' На ближайшем отчёте сверю тезис с ' + (stock ? stock.catalyst.toLowerCase() : 'проверяемыми финансовыми показателями') + '.',
-    ' Если проявится ' + (stock ? stock.redFlags.toLowerCase() : 'ухудшение денежного потока') + ', я пересмотрю рекомендацию, а не буду усреднять убыток.',
-    ' С учётом вашей цели — «' + client.goal.toLowerCase() + '» — размер позиции должен соответствовать цене ошибки.',
-    ' Сравню идею с альтернативой и заранее назову факт, который заставит меня передумать.',
-    ' И да: график в форме ракеты не считается доказательством, даже если дизайнер очень старался.',
-  ]
   if (s && promises) {
     const warningReplies = [
       '«Обещание гарантированной доходности — красный флаг. Назовите сценарий убытка, а не рекламный слоган».',
@@ -123,9 +116,6 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
       '«Креатив засчитан. Теперь покажите, почему клиенту стоит рисковать деньгами, а не только слухом».',
     ]
     reply = absurdReplies[Math.abs(turn) % absurdReplies.length]
-  } else if (s) {
-    const extra = angle[Math.abs(turn) % angle.length]
-    reply = reply.endsWith('»') ? reply.slice(0, -1) + extra + '»' : reply + extra
   }
   return { delta: Math.max(-18, Math.min(14, delta)), reply }
 }
