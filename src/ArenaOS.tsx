@@ -261,6 +261,36 @@ const RESPONSE_BANK: Record<string, {label:string;text:string}[]> = {
     {label:'Ограничить ставку на сырьевой цикл',text:'Топливная маржа зависит от закупочных цен и конкуренции. Проверю плохой сценарий и не буду называть сеть неуязвимой только потому, что людям нужно ездить.'}
   ]
 }
+
+function clientStockReaction(client:ClientProfile, stock:Stock, suitable:boolean) {
+  const concerns:Record<string,string> = {
+    KOTL:'Застройщик — понятно, но меня волнуют ипотека и темп продаж. Что будет, если квартиры станут покупать медленнее?',
+    VECT:'Корпоративное ПО звучит перспективно, но подписки нужно продлевать. Почему клиенты не уйдут к конкуренту после первого года?',
+    NEFT:'Нефть я понимаю, но цена сырья и экспортная логистика не под нашим контролем. Как компания переживёт плохой год?',
+    MEDX:'Медицинские услуги нужны всегда, но новые клиники стоят дорого. Когда они начнут приносить деньги, а не только счета?',
+    GROV:'Онлайн-магазин может быстро расти, но доставка и скидки съедают маржу. Компания зарабатывает на заказе или просто гонится за оборотом?',
+    GRID:'Сети нужны всем, но тарифы определяет не сама компания. Хватит ли денежного потока на ремонт и новые подключения?',
+    BYTE:'Новый продукт может выстрелить, а может так и остаться презентацией. Есть ли уже платящие клиенты, не только регистрации?',
+    LOGI:'Доставка нужна бизнесу, но топливо и зарплаты дорожают. Можно ли повышать тарифы, не теряя крупных заказчиков?',
+    OGUR:'Напитки — понятный товар. Но торговые сети выжимают скидки, а упаковка дорожает. Что защищает маржу?',
+    TAPK:'Умные тапочки звучат забавно, но возвраты настораживают. Есть доказательства, что новая версия действительно стала лучше?',
+    DUST:'Обслуживание зданий — стабильная услуга, но люди стоят денег. Насколько легко компания заменит потерянный контракт?',
+    BTRAN:'АЗС зарабатывает не только на топливе. Покажите, сколько дают магазин, мойка и другие услуги после всех расходов.'
+  }
+  const temperament = client.temperament.toLowerCase()
+  const concern = concerns[stock.ticker] ?? 'Объясните, откуда у этой компании деньги и что может испортить её план.'
+  if (!suitable) {
+    if (temperament.includes('осторож') || temperament.includes('недовер')) return '«Я понимаю, почему вы выбрали эту бумагу, но для моих денег это слишком нервная история. ' + concern + ' Есть вариант поспокойнее?»'
+    if (temperament.includes('азарт') || temperament.includes('импульсив')) return '«Звучит бодро, но я не хочу спутать азарт с инвестицией. ' + concern + ' Что я упускаю?»'
+    return '«Не уверен, что это для меня. ' + concern + ' Давайте сравним с более подходящей альтернативой».'
+  }
+  if (client.id === 'alex-vorontsov') return '«Хм, звучит интересно. Но я не хочу купить красивую историю и потом обнаружить подвох. ' + concern + ' Можете объяснить без брокерского жаргона?»'
+  if (temperament.includes('дотош') || temperament.includes('аналит') || temperament.includes('холодно')) return '«Тему понял. Но прежде чем обсуждать сделку, хочу проверить одну вещь: ' + concern.charAt(0).toLowerCase() + concern.slice(1).replace(/[«»]/g,'') + '»'
+  if (temperament.includes('нетерпел') || temperament.includes('быстрая на решения')) return '«Коротко: идея мне понятна. Но ' + concern.charAt(0).toLowerCase() + concern.slice(1).replace(/[«»]/g,'') + ' Что самое важное здесь не пропустить?»'
+  if (temperament.includes('статус')) return '«Хорошо, продолжайте. Я хочу понимать не только потенциал, но и как эта история выглядит на фоне альтернатив. ' + concern + '»'
+  return '«Ладно, готов выслушать. Но ' + concern + ' Что вы ответите на это возражение?»'
+}
+
 function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
   const bank = RESPONSE_BANK[stock.ticker] ?? RESPONSE_BANK.OGUR
   // Keep each option's actual argument distinct; no generic suffix pasted onto every reply.
@@ -362,11 +392,11 @@ export default function ArenaOS(props: Props) {
       props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, (scores[client.id] ?? client.baseTrust) - 12) }))
       props.setReputation(value => Math.max(0, value - 2))
       setLastChance(0); setCallState('lost')
-      setCallLog(prev => [...prev, 'Ты: «Я предлагаю рассмотреть ' + stock.name + ' (' + stock.ticker + ')».', client.name + ': «Вы даже не сопоставили продукт с моей задачей? ' + fit.reason + ' На этом разговор окончен».', 'Сделка сорвана до обсуждения условий: доверие −12, репутация −2, бонус не начислен.'])
+      setCallLog(prev => [...prev, 'Ты: «Я предлагаю рассмотреть ' + stock.name + ' (' + stock.ticker + ')».', client.name + ': '+clientStockReaction(client,stock,false)', 'Сделка сорвана до обсуждения условий: доверие −12, репутация −2, бонус не начислен.'])
       setNotice('Акция не подходит клиенту. Доверие −12, репутация −2. В следующий раз сверяй тип акции с его целью.')
       return
     }
-    setCallLog(prev=>[...prev, 'Ты: «Я предлагаю рассмотреть акцию '+stock.name+' ('+stock.ticker+'). '+stock.upside+' При этом важно учитывать и обратную сторону: '+stock.downside+'»', client.name+': «'+fit.reason+' Расскажите, как вы ограничите риск и какой факт заставит вас изменить рекомендацию».'])
+    setCallLog(prev=>[...prev, 'Ты: «Я предлагаю рассмотреть акцию '+stock.name+' ('+stock.ticker+'). '+stock.upside+' При этом важно учитывать и обратную сторону: '+stock.downside+'»', client.name+': '+clientStockReaction(client,stock,true)])
     setTrust(v=>Math.max(0,Math.min(100,v+4)))
     props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.min(100, (scores[client.id] ?? client.baseTrust) + 4) }))
   }
