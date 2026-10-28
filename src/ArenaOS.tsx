@@ -399,7 +399,7 @@ export default function ArenaOS(props: Props) {
     const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
     setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
-    lines.push(...getEquipmentOpening(selected, props.ownedItems).map(line => line.startsWith('Клиент:') ? line : 'Клиент: ' + line))
+    lines.push(...getEquipmentOpening(selected, props.ownedItems).map(line => line.startsWith('Клиент') ? line : 'Клиент: ' + line))
     lines.push(selected.quote)
     setCallLog(lines); setMessage(''); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
   }
