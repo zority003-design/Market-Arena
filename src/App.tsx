@@ -1161,8 +1161,8 @@ export default function App() {
   function sendFreeAnswer() {
     const text = freeAnswer.trim()
     if (!text || callStatus !== 'active') return
-    const normalized = text.toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[^\\p{L}\\p{N}%?+.-]+/gu, ' ').trim()
-    const words = normalized.split(/\\s+/).filter(Boolean)
+    const normalized = text.toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[^\p{L}\p{N}%?+.-]+/gu, ' ').trim()
+    const words = normalized.split(/\s+/).filter(Boolean)
     const hasAny = (terms: string[]) => terms.some((term) => normalized.includes(term))
     const questionTerms: Record<string, string[][]> = {
       KOTL:[['рост','заказ','убыт','расход','денеж','прибыл','марж','контракт'],['контракт','подпис','отказ','срыв','сценар','подтверж','огранич','заказчик'],['марж','денеж','постав','метрик','критер','прибыл','убыт'],['сервис','ремонт','батар','обслужив','расход','стоимость'],['конкур','дешев','патент','себестоим','удерж','повторн']],
@@ -1191,9 +1191,9 @@ export default function App() {
     const riskHits = ['риск','убыт','расход','денежный поток','марж','провер','сценар','подтверж','огранич','долг','возврат','налог','конкурен','просад'].filter((term) => normalized.includes(term)).length
     const evidenceHits = ['цифр','отчет','отчёт','данн','факт','провер','сравн','метрик','порог','критер','услов','если','план','лимит','срок','доля','прибыл','выруч','контракт','спрос','клиент'].filter((term) => normalized.includes(term)).length
     const upsideHits = ['рост','выруч','прибыл','спрос','контракт','дивиденд','драйвер','масштаб','эффектив','повторн','рентабель','марж'].filter((term) => normalized.includes(term)).length
-    const reckless = /гарантир|без риска|точно выраст|не может упасть|удвоим|сто процентов|100\\s*%|верняк|беспроигрыш|не потеряете|всегда раст/.test(normalized)
+    const reckless = /гарантир|без риска|точно выраст|не может упасть|удвоим|сто процентов|100\s*%|верняк|беспроигрыш|не потеряете|всегда раст/.test(normalized)
     const joke = /ахах|хаха|лол|рофл|шутк|мем|кот|тапоч|банан|огурц|ракета|на луну|единорог|магия|волшеб|вечн.*двигател|прибыл.*из воздуха|деньги сами|если бы|ага конечно/.test(normalized)
-    const negated = /не\\s+(будет|станет|гарантир|обещ|знаю|понимаю|вижу)|никак|вряд ли|сомневаюсь|не факт|сарказм/.test(normalized)
+    const negated = /не\s+(будет|станет|гарантир|обещ|знаю|понимаю|вижу)|никак|вряд ли|сомневаюсь|не факт|сарказм/.test(normalized)
     let delta = 0
     if (questionHits >= 2) delta += 4
     else if (questionHits === 1) delta += 2
