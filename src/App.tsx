@@ -1019,7 +1019,7 @@ export default function App() {
     if (!availableClients.some((client) => client.id === activeClient.id)) { setToast('Этот лид сейчас недоступен. Выбери клиента из списка актуальных предложений.'); return }
     const assignedCompany = companies.find((company) => company.ticker === selectedCompany) ?? dailyQuotaCompany
     const fit = getClientStockFit(activeClient.id, assignedCompany.ticker)
-    if (!fit.suitable) {
+    if (!fit.suitable && day <= 2) {
       setCallCompanyTicker(assignedCompany.ticker); setSelectedCompany(assignedCompany.ticker); setCallClientId(activeClient.id)
       setCallsToday((count) => count + 1); setClientLastContactDay((items) => ({ ...items, [activeClient.id]: day }))
       setTrust(Math.max(0, (clientTrustScores[activeClient.id] ?? activeClient.baseTrust) - 12)); setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, (scores[activeClient.id] ?? activeClient.baseTrust) - 12) })); setPatience(Math.max(0, activeClient.patience - 18))
@@ -1087,11 +1087,9 @@ export default function App() {
       setClientInvested((invested) => ({ ...invested, [activeClient.id]: (invested[activeClient.id] ?? 0) + payout.ticket }))
       const soldPrice = Number(activeCompany.price.replace(/[^0-9,.-]/g, '').replace(',', '.')) * (1 + (newsImpacts[activeCompany.ticker] ?? 0) / 100)
       const soldShares = Math.floor(payout.ticket / Math.max(0.01, soldPrice))
-      const quotaTargetCompany = companies[(day - 1) % companies.length]
-      if (activeCompany.ticker === quotaTargetCompany.ticker) {
-        setDailySalesAmount((value) => value + payout.ticket)
-        setDailySalesShares((value) => value + soldShares)
-      }
+      // Every completed placement contributes to the daily sales quota; the rotating ticker is a market focus, not a hidden pass/fail trap.
+      setDailySalesAmount((value) => value + payout.ticket)
+      setDailySalesShares((value) => value + soldShares)
       setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. ТВОЙ личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; комиссия фирмы: ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после выплаты бонуса фирме остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.' + (deals === 0 ? ' ПЕРВАЯ СДЕЛКА! Деньги на балансе — твой заработок, а не вся сумма клиентского капитала. Следующий разумный шаг: гарнитура за 4 500 ₽ улучшит звук и добавит стартового доверия; лампа за 1 200 ₽ улучшит свет; дополнительный стол нужен, когда появится сотрудник. Не нанимай работника до устойчивого потока сделок: его чистый доход начисляется каждый игровой день, но цена найма сразу списывается с твоего баланса.' : ' Чем выше доверие клиента, тем больше шанс закрыть крупную сделку и получить бонус.'))
       const quotaNote = activeCompany.ticker === quotaTargetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + quotaTargetCompany.ticker + '.' : ' Внимание: дневной план по ' + quotaTargetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Клиентский капитал ' + payout.ticket.toLocaleString('ru-RU') + ' ₽ не зачисляется тебе. Твой личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽. Фирма получила комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после бонуса остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽.' + quotaNote + (deals === 0 ? ' Первый заработок! Открой оборудование: гарнитура за 4 500 ₽ улучшает звук и повышает стартовое доверие; лампа за 1 200 ₽ улучшает свет; дополнительный стол за 9 500 ₽ нужен, когда появится сотрудник. Найм окупается не мгновенно — чистый доход приходит в конце каждого игрового дня.' : '') }])
@@ -1259,7 +1257,8 @@ export default function App() {
     const shiftTargetCompany = companies[(day - 1) % companies.length]
     const targetShares = 25 + day * 10
     const targetAmount = 8000 + day * 4000
-    const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
+    // The shift quota is based on money placed with clients, not a second hidden share-count gate.
+    const success = dailySalesAmount >= targetAmount
     const reward = success ? 1000 + day * 250 : 0
     const penalty = success ? 0 : 750
     if (success) { setCash((value) => value + reward); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
