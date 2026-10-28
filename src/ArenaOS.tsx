@@ -310,18 +310,20 @@ export default function ArenaOS(props: Props) {
     const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
     setLastChance(newChance)
     if(newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
-      const payout = Math.min(getBusinessPayoutCap(props.businessUpgrades),Math.max(350,Math.round(client.ticket*(client.commissionRate+client.bonusRate*.25))))
+      const firmCommission = Math.round(client.ticket * client.commissionRate)
+      const qualityMultiplier = newTrust >= 75 ? 1.25 : newTrust >= 62 ? 1.1 : 1
+      const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
       let firstSuccessfulDeal = false
       try {
         firstSuccessfulDeal = localStorage.getItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1)) !== 'true'
         if (firstSuccessfulDeal) localStorage.setItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1),'true')
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
-      props.setCash(v=>v+payout); props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
-      setLastPayout(payout); setLastContactName(client.name)
+      props.setCash(v=>v+playerBonus); props.setFirmCapital(v=>v+firmCommission); props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
+      setLastPayout(playerBonus); setLastContactName(client.name)
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,...(client.id==='alex-vorontsov'?['pavel-smirnov']:client.id==='maria-sokolova'?['natalia-orlova']:client.id==='pavel-smirnov'?['maksim-sobolev']:['igor-melnikov'])])))
       setCallState('won'); setCompleted(v=>v+1)
-      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Твой личный бонус брокера: +'+money(payout)+'. Капитал клиента остаётся его деньгами; этот бонус — сумма, которая зачислена на твой баланс. Клиент: «Ой, это здорово! Мне понравилось, как вы работали: вы не только рассказали о перспективах, но и не стали скрывать риски. Как мне теперь к вам обращаться — как называется ваша брокерская фирма? Я сохраню контакт и порекомендую вас знакомым».'])
+      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+' в капитал компании. Твой личный бонус брокера: +'+money(playerBonus)+'. Капитал клиента остаётся его деньгами; фирма получает комиссию, а ты — бонус за сделку. Клиент: «Ой, это здорово! Мне понравилось, как вы работали: вы не только рассказали о перспективах, но и не стали скрывать риски. Как мне теперь к вам обращаться — как называется ваша брокерская фирма? Я сохраню контакт и порекомендую вас знакомым».'])
     } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
       setCallLog(prev=>[...prev,client.name+': «Аргументы звучат убедительно, но я пока не готов принять решение. Мне нужно проверить детали».'])
     } else if(newTrust<=8 || newPatience<=8) {
