@@ -9,7 +9,7 @@ import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, get
 import ClientAvatar2D from './ClientAvatar2D'
 import BrokerAvatar3D from './BrokerAvatar3D'
 import { playSound } from './audio'
-import { evaluateFreeReply, getEquipmentOpening } from './game/dialogue'
+import { evaluateFreeReply, getEquipmentOpening, getNegotiationDifficulty } from './game/dialogue'
 import { clampWindowPosition } from './game/windowGeometry'
 
 type OutfitId = 'intern' | 'classic' | 'premium'
@@ -437,7 +437,7 @@ export default function ArenaOS(props: Props) {
     const text = custom.trim()
     let delta = 0; let reply = ''
     if(kind==='free') {
-      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems)
+      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience })
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
@@ -449,14 +449,15 @@ export default function ArenaOS(props: Props) {
       delta = -12; reply = '«Я позвонил за инвестиционной идеей, а не на кастинг в цирк. Вернёмся к делу».'
     }
     const newTrust = Math.max(0,Math.min(100,trust+delta))
-    const newPatience = Math.max(0,patience-(kind==='risk'?3:kind==='free'?4:5))
+    const gearMissing = Number(!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')))+Number(!props.ownedItems.includes('hd-camera'))+Number(!(props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) && (client.tier>=2 || client.statusSensitive))
+    const newPatience = Math.max(0,patience-Math.max(1,(kind==='risk'?2:kind==='free'?3:4)+Math.ceil(client.tier/2)+gearMissing))
     setTrust(newTrust); setPatience(newPatience); props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, Math.min(100, (scores[client.id] ?? client.baseTrust) + delta)) })); setCallLog(prev=>[...prev,'Ты: '+(kind==='free'?text:kind==='benefit'?'Объясняешь потенциальную выгоду':kind==='risk'?'Честно раскрываешь риски':'Отвечаешь невпопад'),client.name+': '+reply,'РАЗБОР: доверие '+(delta>0?'+':'')+delta+' ('+trust+' → '+newTrust+'); терпение −'+(patience-newPatience)+' ('+patience+' → '+newPatience+'). '+(delta>=8?'Аргументы с фактами и планом помогают клиенту проверить рекомендацию.':delta<0?'Ответ не снял возражение или содержал обещание без доказательств.':'Нужен более конкретный факт, риск или условие выхода.')])
     setMessage('')
     // Every answer is a negotiation turn. A single lucky click must never close a deal.
     setDialogueTurn(turn=>turn+1)
     const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
     setLastChance(newChance)
-    if(dialogueTurn >= 2 && newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
+    if(dialogueTurn >= getNegotiationDifficulty(client, props.ownedItems)-1 && newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
       const firmCommission = Math.round(client.ticket * client.commissionRate)
       const qualityMultiplier = newTrust >= 75 ? 1.25 : newTrust >= 62 ? 1.1 : 1
       const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
@@ -473,8 +474,8 @@ export default function ArenaOS(props: Props) {
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,referralId])))
       setCallState('won'); setCompleted(v=>v+1)
       setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+'. Личный бонус: +'+money(playerBonus)+'. Общий доход владельца от сделки: +'+money(firmCommission+playerBonus)+'. Капитал клиента не является доходом фирмы.',client.name+': '+clientClosingLine(client,activeStock!)])
-    } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
-      setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)])
+    } else if(newTrust>=getClientTrustRequirement(client) || dialogueTurn < getNegotiationDifficulty(client, props.ownedItems)-1) {
+      setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)+(newTrust<getClientTrustRequirement(client)?' Доверие '+newTrust+'/100; требуется '+getClientTrustRequirement(client)+'.':'')+(dialogueTurn<getNegotiationDifficulty(client,props.ownedItems)-1?' Одного удачного ответа недостаточно: нужен ещё один существенный аргумент.':'')])
     } else if(newTrust<=8 || newPatience<=8) {
       setCallState('lost'); setLastXpReward(5); setLastReputationReward(-Math.min(2,props.reputation)); setLastFirmCommission(0); setLastClientTicket(0); props.setReputation(v=>Math.max(0,v-2)); props.setXp(v=>v+5)
       setCallLog(prev=>[...prev,'Клиент завершил звонок. Сделки нет; репутация просела.'])
