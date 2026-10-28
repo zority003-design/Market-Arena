@@ -11,6 +11,7 @@ type AudioSettings = {
   inCall: boolean
   paused: boolean
   volume: number
+  rainy: boolean
 }
 
 let context: AudioContext | null = null
