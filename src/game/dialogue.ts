@@ -77,7 +77,7 @@ export function getNegotiationDifficulty(client: ClientProfile, ownedItems: stri
   const mic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
   const camera = ownedItems.includes('hd-camera')
   const background = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
-  const missing = Number(!mic) + Number(!camera) + Number(!background && (client.tier >= 2 || client.statusSensitive))
+  const missing = Number(!mic) + Number(!camera) + Number(!background)
   return Math.max(3, Math.min(8, 3 + Math.ceil(client.tier / 1.5) + missing))
 }
 
@@ -173,15 +173,7 @@ export function evaluateFreeReply(
     ][Math.abs(turn + clientName.length) % 3]
   }
 
-  const trust = Math.max(0, Math.min(100, context.trust ?? client.baseTrust))
-  const patience = Math.max(0, Math.min(100, context.patience ?? client.patience))
-  if (trust < 30 && !hasRisk) { delta -= 3; reply = reply.replace(/[»”]$/, '') + ' «После прошлых ответов я пока не готов верить на слово. Назовите риск и конкретный сигнал, по которому мы заметим, что он реализуется».»' }
-  else if (trust >= 65 && hasRisk && hasPlan) delta += 2
-  if (client.ticket >= 10000 || client.budget >= 50000) {
-    if (!concrete) delta -= 2
-    if (turn >= 2 && !(hasRisk && hasPlan)) reply = reply.replace(/[»”]$/, '') + ' «Для такой суммы мне недостаточно общего впечатления. Сравните идею с альтернативой, назовите цену ошибки и объясните, при каком факте вы сами откажетесь от сделки».»'
-  }
-  if (patience < 25 && text.length > 160) { delta -= 2; reply = reply.replace(/[»”]$/, '') + ' «Я теряю терпение. Ответьте на последнее возражение в паре ясных предложений».»' }
+
 
   if (stock && /конкур|клиент|продукт|спрос|контракт|выруч|рынок|марж|денежн/.test(s) && hasUpside) delta += 1
   if ((voice === 'skeptic') && !hasRisk) delta -= 2
@@ -223,6 +215,16 @@ export function evaluateFreeReply(
       ? reply.slice(0, lastQuestion).trimEnd() + ' ' + followUp + '»'
       : reply.replace(/[»”]$/, '') + ' ' + followUp + '»'
   }
+
+  const trust = Math.max(0, Math.min(100, context.trust ?? client.baseTrust))
+  const patience = Math.max(0, Math.min(100, context.patience ?? client.patience))
+  if (trust < 30 && !hasRisk) { delta -= 3; reply = reply.replace(/[»”]$/, '') + ' «После прошлых ответов я пока не готов верить на слово. Назовите риск и конкретный сигнал, по которому мы заметим, что он реализуется».»' }
+  else if (trust >= 65 && hasRisk && hasPlan) delta += 2
+  if (client.ticket >= 10000 || client.budget >= 50000) {
+    if (!concrete) delta -= 2
+    if (turn >= 2 && !(hasRisk && hasPlan)) reply = reply.replace(/[»”]$/, '') + ' «Для такой суммы мне недостаточно общего впечатления. Сравните идею с альтернативой, назовите цену ошибки и объясните, при каком факте вы сами откажетесь от сделки».»'
+  }
+  if (patience < 25 && text.length > 160) { delta -= 2; reply = reply.replace(/[»”]$/, '') + ' «Я теряю терпение. Ответьте на последнее возражение в паре ясных предложений».»' }
 
   // A small "conversation memory" layer adds occasional company-specific satire.
   // It deliberately runs only on selected later turns so the joke never replaces the actual negotiation logic.
