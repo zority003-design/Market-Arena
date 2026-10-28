@@ -32,6 +32,7 @@ type Props = {
   day: number
   gameMinutes: number
   callsToday: number; setCallsToday: Dispatch<SetStateAction<number>>
+  clientLastContactDay: Record<string,number>
   businessUpgrades: string[]; setBusinessUpgrades: Dispatch<SetStateAction<string[]>>
   ownedBusinessAssets: string[]; setOwnedBusinessAssets: Dispatch<SetStateAction<string[]>>
   ownedEmployees: string[]; setOwnedEmployees: Dispatch<SetStateAction<string[]>>
@@ -345,7 +346,7 @@ export default function ArenaOS(props: Props) {
   const [lastChance,setLastChance] = useState(0)
   const [completed,setCompleted] = useState(0)
   const client = useMemo(() => (CLIENTS.find(c => c.id === clientId) ?? CLIENTS[0]) as ClientProfile,[clientId])
-  const unlockedClients = useMemo(() => CLIENTS.filter(c => newContacts.includes(c.id) || (props.day >= 3 && c.minDay <= props.day && c.minReputation <= props.reputation) || (props.businessUpgrades.includes('lead-network') && c.minDay <= props.day + 2 && c.minReputation <= props.reputation + 10) || (props.businessUpgrades.includes('client-crm') && c.minDay <= props.day + 3 && c.minReputation <= props.reputation + 15)),[props.day,props.reputation,newContacts,props.businessUpgrades])
+  const unlockedClients = useMemo(() => CLIENTS.filter(c => { const unlocked = newContacts.includes(c.id) || (props.day >= 3 && c.minDay <= props.day && c.minReputation <= props.reputation) || (props.businessUpgrades.includes('lead-network') && c.minDay <= props.day + 2 && c.minReputation <= props.reputation + 10) || (props.businessUpgrades.includes('client-crm') && c.minDay <= props.day + 3 && c.minReputation <= props.reputation + 15); const calledToday = props.clientLastContactDay[c.id] === props.day; return unlocked && (!calledToday || (c.id === clientId && callState !== 'idle')) }),[props.day,props.reputation,newContacts,props.businessUpgrades,props.clientLastContactDay,clientId,callState])
   const equipmentBonus = GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0)
   const currentHousing = HOUSING.find(home => home.id === props.housingId) ?? HOUSING[0]
   const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client)
@@ -391,6 +392,7 @@ export default function ArenaOS(props: Props) {
   const startCall = (id=clientId) => {
     if (props.callsToday >= dailyCallLimit) { setNotice('Лимит звонков на сегодня исчерпан (' + dailyCallLimit + '). Развивай сеть клиентов или возвращайся завтра.'); return }
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
+    if (props.clientLastContactDay[selected.id] === props.day) { setNotice(selected.name + ' уже говорил с тобой сегодня. Выбери другого клиента или вернись завтра.'); return }
     props.setCallsToday(value => value + 1)
     props.onCallStarted(selected.id)
     setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
