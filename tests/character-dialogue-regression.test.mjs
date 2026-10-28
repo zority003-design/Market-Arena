@@ -233,3 +233,18 @@ test('the broker can end the shift early after serving two clients and reach the
   assert.match(app, /onEndDay=\{endDay\}/)
   assert.match(app, /function endDay\(\)/)
 })
+
+
+test('ARENA OS calls and successful deals update the persistent career ledger and shift goals', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const app = await read('src/App.tsx')
+  assert.match(arena, /props\.onCallStarted\(selected\.id\)/)
+  assert.match(arena, /props\.onDealCompleted\(client\.id, activeStock!\.ticker, client\.ticket/)
+  assert.match(arena, /props\.clientLastContactDay\[selected\.id\] === props\.day/)
+  assert.match(app, /function recordArenaCall\(clientId: string\)/)
+  assert.match(app, /function recordArenaDeal\(clientId: string, ticker: string, amount: number, shares: number\)/)
+  assert.match(app, /setClientDealCounts\(\(counts\) => \(\{ \.\.\.counts, \[clientId\]: \(counts\[clientId\] \?\? 0\) \+ 1 \}\)\)/)
+  assert.match(app, /setDailySalesAmount\(\(value\) => value \+ amount\)/)
+  assert.match(app, /setDailySalesShares\(\(value\) => value \+ shares\)/)
+  assert.match(app, /const shiftTargetCompany = \{ ticker: 'ALL', name: 'Все акции' \}/)
+})
