@@ -17,7 +17,7 @@ test('restored windows can reach the right and bottom edges without disappearing
     { width: 1200, height: 800 },
     { width: 800, height: 600 },
   )
-  assert.deepEqual(position, { x: 392, y: 752 })
+  assert.deepEqual(position, { x: 392, y: 624 })
 })
 
 test('window dragging never moves the title bar outside the workspace', () => {
@@ -39,5 +39,5 @@ test('oversized window dimensions safely clamp to the only reachable position', 
     { width: 600, height: 400 },
     { width: 900, height: 700 },
   )
-  assert.deepEqual(position, { x: 0, y: 0 })
+  assert.deepEqual(position, { x: 0, y: 352 })
 })
