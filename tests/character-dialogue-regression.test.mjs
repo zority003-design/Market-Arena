@@ -94,8 +94,9 @@ test('stock suitability does not alias unrelated companies into one another', as
   const source = await read('src/game/economy.ts')
   assert.match(source, /const canonicalTicker = ticker === 'KTLT' \? 'KOTL' : ticker/)
   assert.doesNotMatch(source, /SBRX: 'OGUR'|NEFT: 'BTRAN'|MEDX: 'DUST'|GROV: 'TAPK'/)
-  assert.match(source, /stock.risk === 'Низкий'/)
-  assert.match(source, /stock.risk === 'Высокий' \|\| stock.risk === 'Очень высокий'/)
+  assert.match(source, /const riskScore: Record<string, number>/)
+  assert.match(source, /getClientInvestmentPreference\(clientId\)/)
+  assert.match(source, /score > preference\.riskLevel/)
 })
 
 
@@ -105,4 +106,41 @@ test('successful negotiation credits firm commission and personal bonus separate
   assert.match(source, /const playerBonus = Math\.min\(getBusinessPayoutCap/)
   assert.match(source, /props\.setCash\(v=>v\+playerBonus\); props\.setFirmCapital\(v=>v\+firmCommission\)/)
   assert.match(source, /Комиссия фирмы:/)
+})
+
+
+test('clients have explicit individual risk preferences and stock fit explains mismatches', async () => {
+  const source = await read('src/game/economy.ts')
+  assert.match(source, /export const CLIENT_INVESTMENT_PREFERENCES/)
+  for (const id of ['alex-vorontsov', 'yaroslav-nikitin', 'diana-volkova', 'andrey-morozov']) {
+    assert.match(source, new RegExp("'" + id + "': \\{ riskLevel:"))
+  }
+  assert.match(source, /riskLabel:/)
+  assert.match(source, /priorities:/)
+  assert.match(source, /avoids:/)
+  assert.match(source, /Риск .* выше профиля/)
+})
+
+test('Catalot is a fictional real-estate developer, not a drone company', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const app = await read('src/App.tsx')
+  const economy = await read('src/game/economy.ts')
+  assert.match(arena, /ticker:'KOTL', name:'Каталёт'/)
+  assert.match(arena, /застройщик жилых кварталов/)
+  assert.match(app, /name: 'Каталёт', sector: 'Девелопмент'/)
+  assert.match(economy, /KOTL: \{ label:'Рост и девелопмент'/)
+  assert.doesNotMatch(arena.slice(arena.indexOf('const RESPONSE_BANK'), arena.indexOf('const STOCK_DOSSIERS')), /Котолёт|800 роботов|дронами/)
+  assert.doesNotMatch(app.slice(app.indexOf('const scenarios:'), app.indexOf('const scenario = scenarios')), /Котолёт|800 роботов|дронами/)
+})
+
+test('company negotiation dossiers contain business models, pros, cons, valuation checks, and argumentation', async () => {
+  const source = await read('src/ArenaOS.tsx')
+  assert.match(source, /const STOCK_DOSSIERS: Record/)
+  assert.match(source, /advantages: string\[\]/)
+  assert.match(source, /disadvantages: string\[\]/)
+  assert.match(source, /valuation: string/)
+  assert.match(source, /argument: string/)
+  assert.match(source, /Что проверить в оценке:/)
+  assert.match(source, /Аргумент для переговоров:/)
+  assert.match(source, /fit\.reason/)
 })
