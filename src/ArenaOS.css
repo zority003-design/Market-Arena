@@ -636,3 +636,95 @@
 .arena-os-volume-panel input[type="range"] { width:100%; accent-color:#1e7b56; cursor:pointer; }
 .arena-os-sound-toggle { padding:8px 10px; border:1px solid #b7cddd; border-radius:7px; background:#edf5fb; color:#1b4667; font-size:12px; font-weight:750; cursor:pointer; }
 .arena-os-sound-toggle:hover { background:#dceefa; }
+
+
+/* Accessibility + polished workstation pass: larger type, stable contrast, clear window chrome. */
+.arena-os-v2 { font-size: 14px; color: #172b40; }
+.arena-os-topbar { min-height: 52px; height: 52px; gap: 14px; }
+.arena-os-brand b { font-size: 13px; letter-spacing: .09em; }
+.arena-os-brand small { font-size: 11px; }
+.arena-os-system-status { font-size: 12px; }
+.arena-os-desktop { gap: 12px; padding: 14px; }
+.arena-os-desktop-icons { width: 96px; gap: 8px; }
+.arena-os-desktop-icon { width: 92px; min-height: 82px; gap: 7px; padding: 7px 5px; font-size: 12px; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.arena-os-app-icon { width: 42px; height: 40px; }
+.arena-os-workspace { min-width: 0; min-height: 0; isolation: isolate; }
+.arena-os-window { border: 1px solid #b9c9d9; border-radius: 12px; background: #f6f9fc; box-shadow: 0 24px 70px rgba(0,0,0,.35), 0 3px 12px rgba(0,0,0,.15); }
+.arena-os-window.restored { width: min(900px,calc(100% - 12px)); height: min(700px,calc(100% - 12px)); min-width: min(320px,100%); min-height: 280px; max-width: calc(100% - 4px); max-height: calc(100% - 4px); margin: 0; }
+.arena-os-window-title { height: 48px; min-height: 48px; padding: 0 12px 0 15px; background: linear-gradient(180deg,#fff 0%,#eef4f9 100%); border-bottom: 1px solid #d1dce6; color: #16334e; touch-action: none; }
+.arena-os-window-title>div:first-child { gap: 10px; font-size: 15px; }
+.arena-os-window-title>div:first-child b { font-size: 15px; font-weight: 750; }
+.arena-os-app-icon.mini { width: 30px; height: 30px; }
+.arena-os-window-controls { gap: 5px; }
+.arena-os-window-controls button { width: 34px; height: 30px; font-size: 18px; color: #294b68; }
+.arena-os-window-controls button:hover { background: #dce9f4; }
+.arena-os-window-controls button:last-child:hover { background: #b93643; color: white; }
+.arena-os-window-content { padding: 24px clamp(18px,3vw,38px) 34px; color: #18334c; font-size: 14px; line-height: 1.55; }
+.arena-os-window-content p { line-height: 1.65; }
+.arena-os-window-content small { font-size: 12px; line-height: 1.5; }
+.arena-os-window-content button { line-height: 1.4; }
+.arena-os-kicker { font-size: 11px; letter-spacing: .11em; }
+.arena-os-welcome p,.arena-os-page-heading p { font-size: 15px; line-height: 1.7; color: #405b73; }
+.arena-os-welcome h1,.arena-os-page-heading h1 { line-height: 1.15; }
+.arena-os-section-heading h2,.arena-os-page-heading h2 { font-size: 25px; line-height: 1.25; }
+.arena-os-stat-grid article small { font-size: 13px; color: #49647d; }
+.arena-os-stat-grid article strong { font-size: 23px; }
+.arena-os-taskbar { height: 48px; min-height: 48px; margin-top: 8px; gap: 7px; padding: 0 12px; }
+.arena-os-taskbar button { min-width: 38px; height: 36px; }
+.arena-os-taskbar-label { font-size: 11px; letter-spacing: .1em; }
+.arena-os-tray { font-size: 12px; }
+.arena-os-chat-row { max-width: 92%; gap: 10px; }
+.arena-os-chat-avatar { width: 32px; height: 32px; font-size: 11px; }
+.arena-os-chat-bubble { min-width: 120px; padding: 11px 14px 8px; border-radius: 14px 14px 14px 4px; }
+.arena-os-chat-bubble.player-line { border-radius: 14px 14px 4px 14px; background: #dcefe9; border-color: #a8d5c6; color: #173e36; }
+.arena-os-chat-bubble.system-line { background: #e8f4eb; color: #20543b; }
+.arena-os-chat-bubble>small { margin-bottom: 5px; color: #506a7f; font-size: 11px; }
+.arena-os-chat-bubble>p { font-size: 15px; line-height: 1.65; color: inherit; }
+.arena-os-chat-bubble>time { font-size: 10px; color: #5b7286; }
+.arena-os-dialogue-log { gap: 13px; max-height: min(40vh,360px); padding: 16px; background: #f2f6f9; border: 1px solid #d4e0e9; border-radius: 12px; }
+.arena-os-dialogue-log p { font-size: 15px; line-height: 1.65; }
+.arena-os-free-text { gap: 10px; padding: 12px; border-color: #c3d3df; background: #f8fbfd; }
+.arena-os-free-text textarea { min-height: 76px; padding: 12px 14px; border-color: #aebfce; background: #fff; color: #17324a; font-size: 15px; line-height: 1.6; }
+.arena-os-free-text textarea::placeholder { color: #61788c; opacity: 1; }
+.arena-os-response-actions button { font-size: 15px; line-height: 1.55; }
+.arena-os-response-actions button small { font-size: 13px; line-height: 1.5; }
+.arena-os-client-goal { font-size: 15px; line-height: 1.65; }
+.arena-os-stock-picker-grid button b { font-size: 17px; }
+.arena-os-stock-picker-grid button small,.arena-os-stock-picker-grid button p,.arena-os-stock-picker-grid button em { font-size: 14px; line-height: 1.55; }
+.arena-os-call-metrics span,.arena-os-call-metrics small { font-size: 13px; }
+.arena-os-call-metrics b { font-size: 26px; }
+.arena-os-call-offer-summary small,.arena-os-client-profile>div>small { font-size: 12px; }
+.arena-os-call-offer-summary span,.arena-os-client-profile p { font-size: 14px; line-height: 1.6; }
+.arena-os-end-shift-card p { font-size: 14px; }
+.arena-os-end-shift-card>div>b { font-size: 17px; }
+.arena-os-volume-panel { color: #17324a; }
+.arena-os-desktop-icon:focus-visible,.arena-os-taskbar button:focus-visible,.arena-os-window-controls button:focus-visible,.arena-os-back:focus-visible { outline: 3px solid #74cdb4; outline-offset: 2px; }
+@media(max-width:850px) {
+ .arena-os-topbar { padding: 0 9px; gap: 8px; }
+ .arena-os-system-status { gap: 4px; font-size: 11px; }
+ .arena-os-desktop { padding: 8px; gap: 8px; }
+ .arena-os-desktop-icons { width: 76px; }
+ .arena-os-desktop-icon { width: 72px; font-size: 11px; }
+ .arena-os-window-content { padding: 18px 16px 24px; }
+ .arena-os-window.restored { width: min(760px,calc(100% - 4px)); }
+}
+@media(max-width:620px) {
+ .arena-os-topbar { min-height: 46px; height: 46px; }
+ .arena-os-brand small { display: none; }
+ .arena-os-brand b { font-size: 11px; }
+ .arena-os-system-status { font-size: 10px; }
+ .arena-os-desktop { padding: 5px; gap: 5px; }
+ .arena-os-desktop-icons { width: 58px; }
+ .arena-os-desktop-icon { width: 56px; min-height: 66px; font-size: 10px; }
+ .arena-os-app-icon { width: 34px; height: 32px; }
+ .arena-os-window.restored { width: calc(100% - 2px); height: calc(100% - 2px); min-width: 0; min-height: 0; }
+ .arena-os-window-title { height: 44px; min-height: 44px; }
+ .arena-os-window-title>div:first-child,.arena-os-window-title>div:first-child b { font-size: 13px; }
+ .arena-os-window-content { padding: 14px 11px 20px; }
+ .arena-os-chat-row { max-width: 100%; }
+ .arena-os-chat-bubble>p { font-size: 14px; }
+ .arena-os-dialogue-log { max-height: 34vh; padding: 10px; }
+ .arena-os-free-text textarea { font-size: 14px; }
+ .arena-os-taskbar { height: 42px; min-height: 42px; padding: 0 4px; }
+ .arena-os-taskbar button { min-width: 30px; }
+}
