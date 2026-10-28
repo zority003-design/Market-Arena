@@ -26,6 +26,7 @@ function clientVoice(client: ClientProfile) {
 }
 
 function equipmentIssue(client: ClientProfile, ownedItems: string[], turn: number) {
+  const clientName = client.name || 'Клиент'
   const hasMic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
   const hasCamera = ownedItems.includes('hd-camera')
   const hasBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
@@ -35,26 +36,27 @@ function equipmentIssue(client: ClientProfile, ownedItems: string[], turn: numbe
     '«Простите, вы сказали “денежный поток” или “денежный кот”? У меня в наушниках сейчас финансовый джаз».',
     '«Я слышу вас так, будто вы звоните из стиральной машины. Можно цифры ещё раз, но уже из цивилизации?»',
     '«Звук хрипит. Если это специальный эффект для разговора о рисках — получилось слишком убедительно».',
-  ][(client.name.length + turn) % 3] })
+  ][(clientName.length + turn) % 3] })
   if (!hasCamera) issues.push({ key: 'camera', penalty: client.tier >= 2 || client.statusSensitive ? 4 : 2, line: [
     '«Камера показывает вас в разрешении “свидетель под защитой”. Для крупной сделки хотелось бы увидеть лицо, а не легенду».',
     '«У вас лицо распалось на пиксели. Надеюсь, финансовая модель собрана лучше, чем изображение».',
     '«Картинка такая мыльная, что я уже не уверен, вы брокер или воспоминание о брокере».',
-  ][(client.name.length + turn + 1) % 3] })
+  ][(clientName.length + turn + 1) % 3] })
   if (!hasBackground && (client.tier >= 2 || client.statusSensitive)) issues.push({ key: 'background', penalty: 2, line: [
     '«На заднем плане сушится полотенце. Это диверсификация интерьера или часть инвестиционной стратегии?»',
     '«Вижу сушилку, коробки и, кажется, финансовую независимость. Давайте хотя бы начнём с цифр».',
     '«Обстановка домашняя. Я не против удалёнки, но кот на шкафу выглядит старшим партнёром вашей фирмы».',
-  ][(client.name.length + turn + 2) % 3] })
+  ][(clientName.length + turn + 2) % 3] })
   if (!hasLight && client.tier >= 3) issues.push({ key: 'light', penalty: 1, line: '«У вас лицо в тени. Это драматическая подача риска или просто пора купить лампу?»' })
   if (!issues.length) return null
   // Missing equipment matters, but it should not interrupt every single turn.
-  const chosen = issues[(client.name.length + turn) % issues.length]
-  if (turn === 0 || (turn + client.name.length) % 3 !== 0) return null
+  const chosen = issues[(clientName.length + turn) % issues.length]
+  if (turn === 0 || (turn + clientName.length) % 3 !== 0) return null
   return chosen
 }
 
 export function getEquipmentOpening(client: ClientProfile, ownedItems: string[] = []) {
+  const clientName = client.name || 'Клиент'
   const hasMic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
   const hasCamera = ownedItems.includes('hd-camera')
   const hasBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
@@ -77,6 +79,7 @@ export function evaluateFreeReply(
   turn = 0,
   ownedItems: string[] = [],
 ): DialogueResult {
+  const clientName = client.name || 'Клиент'
   const s = normalize(text)
   const temperament = normalize(client.temperament)
   const voice = clientVoice(client)
@@ -95,7 +98,7 @@ export function evaluateFreeReply(
   let delta = -3
   let reply = ''
 
-  if (!s) return { delta: -2, reply: '«Алло? Связь есть, аргумента нет. Я пока не списываю это в убыток, но секундомер уже начал нервничать».' }
+  if (!s) return { delta: -2, reply: '«Алло? Связь есть, аргумента пока нет. Я пока не списываю это в убыток, но секундомер уже начал нервничать».' }
 
   if (promises) {
     delta = -16
@@ -111,7 +114,7 @@ export function evaluateFreeReply(
       '«Это звучит как питч после трёх энергетиков и одного очень странного сна. Где выручка, риск и план?»',
       '«Ставлю шутке 8/10, инвестиционному обоснованию — “приложите документ”. Что приносит компании деньги?»',
       '«Креатив засчитан. Но я вкладываю деньги, а не подписываюсь на сезон вашего подкаста. Где факты?»',
-    ][Math.abs(turn + client.name.length) % 4]
+    ][Math.abs(turn + clientName.length) % 4]
   } else if (hasRisk && hasUpside && hasPlan) {
     delta = concrete ? 13 : 10
     const proof = stock ? stock.catalyst : 'квартальные отчёты и денежный поток'
@@ -125,7 +128,7 @@ export function evaluateFreeReply(
     delta = concrete ? 10 : 8
     reply = voice === 'skeptic'
       ? `«Наконец-то вы не продаёте мне бессмертие в рассрочку. ${stock ? stock.name + ': ' + stock.catalyst : 'Теперь нужен проверяемый катализатор'}. А что первым сломает эту историю: ${stock ? stock.downside.toLowerCase() : 'какой конкретный риск'}?»`
-      : `«Потенциал и обратная сторона в одном разговоре — редкий вид брокерской фауны. ${stock ? stock.name + ': ' + stock.catalyst : 'Теперь нужен проверяемый катализатор'}. Что заставит вас признать, что тезис не работает?»`
+      : `«Потенциал и обратная сторона в одном разговоре — редкий вид финансовой брокерской фауны. ${stock ? stock.name + ': ' + stock.catalyst : 'Теперь нужен проверяемый катализатор'}. Что заставит вас признать, что тезис не работает?»`
   } else if (hasRisk && hasPlan) {
     delta = 8
     reply = needsLiquidity
@@ -161,7 +164,7 @@ export function evaluateFreeReply(
       `«Я услышал слова, но не инвестиционную мысль. Моя цель — ${client.goal.toLowerCase()}. Объясните, почему ${stock ? stock.name : 'эта компания'} может сработать и что способно испортить план».`,
       `«Сейчас это было похоже на трейлер к фильму: интрига есть, сюжета пока нет. Моя цель — ${client.goal.toLowerCase()}. Дайте главный аргумент и главный риск».`,
       `«Я записал это в категорию “звучит уверенно”. Теперь нужна категория “можно проверить”. Моя цель — ${client.goal.toLowerCase()}; что вы предлагаете?»`,
-    ][Math.abs(turn + client.name.length) % 3]
+    ][Math.abs(turn + clientName.length) % 3]
   }
 
   if (stock && /конкур|клиент|продукт|спрос|контракт|выруч|рынок|марж|денежн/.test(s) && hasUpside) delta += 1
@@ -197,7 +200,7 @@ export function evaluateFreeReply(
       stock ? `Назовите красный флаг: ${stock.redFlags.toLowerCase()}. При каком условии вы откажетесь от рекомендации?` : 'При каком условии вы откажетесь от рекомендации?',
       'А если у конкурента окажется предложение дешевле и проще — почему клиенту останется смысл в этой идее?',
     ]
-    const followUp = followUps[Math.abs(turn + client.name.length) % followUps.length]
+    const followUp = followUps[Math.abs(turn + clientName.length) % followUps.length]
     const lastQuestion = reply.lastIndexOf('?')
     // Replace the previous generic question instead of stacking two questions into a wall of text.
     reply = lastQuestion >= 0
