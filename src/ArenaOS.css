@@ -579,3 +579,36 @@
  .arena-os-taskbar button { min-width:28px; }
  .arena-os-gear-grid article { grid-template-columns:60px minmax(0,1fr); }
 }
+
+
+.arena-os-call-offer-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.arena-os-call-offer-summary>div { display:flex; flex-direction:column; gap:5px; min-width:0; padding:15px; border:1px solid #cbddec; border-radius:11px; background:linear-gradient(145deg,#fff,#f0f6fc); }
+.arena-os-call-offer-summary>div.player-estimate { border-color:#8bc8a5; background:linear-gradient(145deg,#f4fff8,#dff7e8); }
+.arena-os-call-offer-summary small,.arena-os-client-profile>div>small { color:#526d84; font-size:11px; font-weight:850; letter-spacing:.055em; }
+.arena-os-call-offer-summary strong { color:#153d60; font-size:clamp(20px,2.4vw,30px); line-height:1.2; }
+.arena-os-call-offer-summary span { color:#4e657b; font-size:12px; line-height:1.4; }
+.arena-os-client-profile { display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:10px; }
+.arena-os-client-profile>div { min-width:0; padding:13px; border:1px solid #d1e0ed; border-radius:10px; background:#fff; }
+.arena-os-client-profile p { margin:7px 0 0; color:#344e67; font-size:13px; line-height:1.55; }
+.arena-os-risk-profile { display:flex; flex-direction:column; gap:7px; background:#e9f3ff!important; border-color:#9ec7ed!important; }
+.arena-os-risk-profile strong { color:#123e67; font-size:clamp(18px,2vw,24px); line-height:1.25; }
+.arena-os-risk-profile span { color:#355a7b; font-size:12px; line-height:1.5; }
+.arena-os-home-avatar .broker-avatar-3d { width:100%; height:100%; }
+.arena-os-home .arena-os-welcome h1 { font-size:clamp(28px,3vw,40px); }
+.arena-os-stat-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.arena-os-stat-grid article { min-height:104px; padding:16px; }
+.arena-os-stat-grid article small { font-size:12px; }
+.arena-os-stat-grid article strong { font-size:22px; }
+.arena-os-call-result .arena-os-contact-unlock { margin:14px 0; }
+.arena-os-call-result .arena-os-contact-unlock p { font-size:13px; line-height:1.6; }
+.arena-os-result-metrics article p { margin:6px 0 0; font-size:12px; line-height:1.5; color:#526b83; }
+.arena-os-gear-art.gear-art-desk { background:linear-gradient(145deg,#f8f0e3,#d5e5f1); }
+.arena-os-gear-art.gear-art-mic { background:linear-gradient(145deg,#eaf8fa,#d7e6f5); }
+.arena-os-gear-art.gear-art-camera { background:linear-gradient(145deg,#e9f4ff,#c9dce9); }
+.arena-os-gear-art.gear-art-light { background:linear-gradient(145deg,#fff6d8,#e7e5d5); }
+.arena-os-gear-art.gear-art-background { background:linear-gradient(145deg,#e4f4ef,#d7e5ee); }
+@media(max-width:850px) {
+ .arena-os-call-offer-summary { grid-template-columns:1fr; }
+ .arena-os-client-profile { grid-template-columns:1fr; }
+ .arena-os-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
