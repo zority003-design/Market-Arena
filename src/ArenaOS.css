@@ -482,3 +482,30 @@
 @media(max-width:620px) { .arena-os-stock-picker-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
 .arena-os-client-goal { margin:8px 0 12px; padding:10px 12px; border-left:3px solid #d6a64f; border-radius:0 8px 8px 0; background:#fff7e5; color:#4b3b20; font-size:12px; line-height:1.55; }
+
+
+/* Client-specific investment fit and expanded company research dossier */
+.arena-os-fit-reason {
+  display: block;
+  margin-top: 7px;
+  color: #9fb7b0;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: normal;
+}
+.arena-os-stock-choice {
+  height: auto;
+  min-height: 185px;
+  align-content: start;
+}
+.arena-os-stock-dossier ul {
+  margin: 5px 0 12px;
+  padding-left: 20px;
+}
+.arena-os-stock-dossier li {
+  margin: 4px 0;
+  line-height: 1.5;
+}
+.arena-os-client-goal {
+  line-height: 1.55;
+}
