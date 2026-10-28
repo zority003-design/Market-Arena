@@ -65,6 +65,7 @@ test('business and employee income is credited to firm capital, not the broker w
   assert.match(sleep, /setCash\(\(value\) => Math\.max\(0, value \+ DAILY_SALARY\)\)/)
   assert.match(sleep, /setFirmCapital\(\(value\) => Math\.max\(0, value \+ businessNetIncome \+ staffNetIncome\)\)/)
   assert.doesNotMatch(sleep, /const available = cash \+ DAILY_SALARY \+ businessNetIncome \+ staffNetIncome/)
+  assert.match(sleep, /businessNetIncome \+ staffNetIncome/)
 })
 
 
