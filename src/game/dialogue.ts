@@ -198,7 +198,11 @@ export function evaluateFreeReply(
       'А если у конкурента окажется предложение дешевле и проще — почему клиенту останется смысл в этой идее?',
     ]
     const followUp = followUps[Math.abs(turn + client.name.length) % followUps.length]
-    reply = reply.replace(/[»”]$/, '') + ' ' + followUp + '»'
+    const lastQuestion = reply.lastIndexOf('?')
+    // Replace the previous generic question instead of stacking two questions into a wall of text.
+    reply = lastQuestion >= 0
+      ? reply.slice(0, lastQuestion).trimEnd() + ' ' + followUp + '»'
+      : reply.replace(/[»”]$/, '') + ' ' + followUp + '»'
   }
 
   const issue = equipmentIssue(client, ownedItems, turn)
