@@ -86,7 +86,7 @@ export const CLIENTS: ClientProfile[] = [
 export const HOUSING: HousingOption[] = [
  { id:'studio', name:'Маленькая квартира', price:0, dailyCost:0, firstImpression:0, comfort:1, minDay:1, minReputation:0, description:'Твоя стартовая квартира: скромная, но отдельная. Есть место для кровати, компьютера и первых улучшений; никаких общежитий.' },
  { id:'city-apartment', name:'Хорошая квартира', price:65000, dailyCost:0, firstImpression:3, comfort:4, minDay:4, minReputation:12, description:'Больше пространства, аккуратный интерьер и более солидный фон для видеозвонков. Покупка/переезд — разовая игровая трата.' },
- { id:'office', name:'Небольшой брокерский офис', price:145000, dailyCost:0, firstImpression:4, comfort:4, minDay:8, minReputation:28, description:'Отдельная рабочая локация с профессиональной атмосферой. Помогает впечатлению клиентов и подчёркивает переход от одиночки к фирме.' },
+ { id:'office', name:'Небольшой брокерский офис', price:30000, dailyCost:1200, firstImpression:4, comfort:4, minDay:8, minReputation:28, description:'Съёмный офис с отдельной переговорной зоной. Входной платёж — 30 000 ₽, затем 1 200 ₽ за каждый игровой день из капитала фирмы.' },
  { id:'premium-apartment', name:'Апартаменты с панорамным видом', price:320000, dailyCost:0, firstImpression:5, comfort:6, minDay:13, minReputation:48, description:'Просторное жильё с панорамным окном и статусным интерьером — награда за устойчивую карьеру.' },
 ]
 export const ROOM_ITEMS: RoomItem[] = [
