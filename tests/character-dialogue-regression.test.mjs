@@ -25,7 +25,7 @@ test('every listed stock has its own negotiation scenario and follow-up question
   const source = await read('src/App.tsx')
   const scenarios = source.slice(source.indexOf('const scenarios:'), source.indexOf('const scenario = scenarios'))
   const followUps = source.slice(source.indexOf('const followUps:'), source.indexOf('const baseQuestions'))
-  for (const ticker of ['KOTL', 'OGUR', 'TAPK', 'BTRAN', 'DUST', 'SBRX', 'NEFT', 'MEDX', 'GROV', 'GRID', 'BYTE', 'LOGI']) {
+  for (const ticker of ['KOTL', 'OGUR', 'TAPK', 'BTRAN', 'DUST', 'VECT', 'NEFT', 'MEDX', 'GROV', 'GRID', 'BYTE', 'LOGI']) {
     assert.match(scenarios, new RegExp('\\n    ' + ticker + ': \\{'), ticker + ' needs its own scenario')
     assert.match(followUps, new RegExp('\\n    ' + ticker + ': \\['), ticker + ' needs follow-up questions')
   }
@@ -93,9 +93,10 @@ test('negated guarantees are not treated as reckless promises by the dialogue ev
 test('stock suitability does not alias unrelated companies into one another', async () => {
   const source = await read('src/game/economy.ts')
   assert.match(source, /const canonicalTicker = ticker === 'KTLT' \? 'KOTL' : ticker/)
-  assert.doesNotMatch(source, /SBRX: 'OGUR'|NEFT: 'BTRAN'|MEDX: 'DUST'|GROV: 'TAPK'/)
-  assert.match(source, /stock.risk === 'Низкий'/)
-  assert.match(source, /stock.risk === 'Высокий' \|\| stock.risk === 'Очень высокий'/)
+  assert.doesNotMatch(source, /VECT: 'OGUR'|NEFT: 'BTRAN'|MEDX: 'DUST'|GROV: 'TAPK'/)
+  assert.match(source, /const riskScore: Record<string, number>/)
+  assert.match(source, /getClientInvestmentPreference\(clientId\)/)
+  assert.match(source, /score > preference\.riskLevel/)
 })
 
 
@@ -105,4 +106,50 @@ test('successful negotiation credits firm commission and personal bonus separate
   assert.match(source, /const playerBonus = Math\.min\(getBusinessPayoutCap/)
   assert.match(source, /props\.setCash\(v=>v\+playerBonus\); props\.setFirmCapital\(v=>v\+firmCommission\)/)
   assert.match(source, /Комиссия фирмы:/)
+})
+
+
+test('clients have explicit individual risk preferences and stock fit explains mismatches', async () => {
+  const source = await read('src/game/economy.ts')
+  assert.match(source, /export const CLIENT_INVESTMENT_PREFERENCES/)
+  for (const id of ['alex-vorontsov', 'yaroslav-nikitin', 'diana-volkova', 'andrey-morozov']) {
+    assert.match(source, new RegExp("'" + id + "': \\{ riskLevel:"))
+  }
+  assert.match(source, /riskLabel:/)
+  assert.match(source, /priorities:/)
+  assert.match(source, /avoids:/)
+  assert.match(source, /Риск .* выше профиля/)
+})
+
+test('Catalot is a fictional real-estate developer, not a drone company', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const app = await read('src/App.tsx')
+  const economy = await read('src/game/economy.ts')
+  assert.match(arena, /ticker:'KOTL', name:'Каталёт'/)
+  assert.match(arena, /застройщик жилых кварталов/)
+  assert.match(app, /name: 'Каталёт', sector: 'Девелопмент'/)
+  assert.match(economy, /KOTL: \{ label:'Рост и девелопмент'/)
+  assert.doesNotMatch(arena, /Котолёт|800 роботов|дронами/)
+  assert.doesNotMatch(app, /Котолёт|800 роботов|дронами/)
+})
+
+test('company negotiation dossiers contain business models, pros, cons, valuation checks, and argumentation', async () => {
+  const source = await read('src/ArenaOS.tsx')
+  assert.match(source, /const STOCK_DOSSIERS: Record/)
+  assert.match(source, /advantages: string\[\]/)
+  assert.match(source, /disadvantages: string\[\]/)
+  assert.match(source, /valuation: string/)
+  assert.match(source, /argument: string/)
+  assert.match(source, /Что проверить в оценке:/)
+  assert.match(source, /Аргумент для переговоров:/)
+  assert.match(source, /fit\.reason/)
+})
+
+
+test('displayed stock risk labels match the suitability catalog', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const economy = await read('src/game/economy.ts')
+  assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
+  assert.match(arena, /ticker:'TAPK', name:'ТапокТех', price:64, risk:'Очень высокий'/)
+  assert.match(economy, /OGUR: \{ label:'Прибыль и повторные покупки'.*risk:'Средний'/)
 })
