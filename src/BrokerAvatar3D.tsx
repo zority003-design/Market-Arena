@@ -44,8 +44,10 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
   const palette = palettes[seed % palettes.length]
   const hairStyle = (seed >>> 3) % 4
   const formal = outfit === 'premium' || identity === 'team-lead' || identity === 'senior-broker'
-  const jacket = outfit === 'intern' && identity === 'player' ? '#46616b' : palette.suit
-  const trousers = outfit === 'intern' && identity === 'player' ? '#39474a' : '#293642'
+  const jacket = identity === 'player' ? (outfit === 'intern' ? '#62777c' : outfit === 'premium' ? '#17283f' : '#244d70') : palette.suit
+  const trousers = identity === 'player' ? (outfit === 'intern' ? '#465256' : outfit === 'premium' ? '#1d2633' : '#293642') : '#293642'
+  const shirtColor = identity === 'player' && outfit === 'premium' ? '#fffdf4' : palette.shirt
+  const tieColor = identity === 'player' ? (outfit === 'intern' ? '#a7b2b0' : outfit === 'premium' ? '#caa45b' : '#c55c45') : palette.tie
   const seated = pose === 'seated'
 
   useFrame(({ clock }) => {
@@ -77,12 +79,12 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
       {/* Tailored torso with overlapping cloth pieces rather than disconnected floating primitives. */}
       <RoundedBox position={[0, 1.56, 0]} args={[0.68, 0.82, 0.4]} radius={0.17} smoothness={7} castShadow receiveShadow><meshStandardMaterial color={jacket} roughness={0.64}/></RoundedBox>
       <RoundedBox position={[0, 1.2, 0.015]} args={[0.54, 0.2, 0.35]} radius={0.08} smoothness={5} castShadow><meshStandardMaterial color={jacket} roughness={0.68}/></RoundedBox>
-      <RoundedBox position={[0, 1.58, 0.209]} args={[0.25, 0.62, 0.025]} radius={0.035} smoothness={3}><meshStandardMaterial color={palette.shirt} roughness={0.52}/></RoundedBox>
+      <RoundedBox position={[0, 1.58, 0.209]} args={[0.25, 0.62, 0.025]} radius={0.035} smoothness={3}><meshStandardMaterial color={shirtColor} roughness={0.52}/></RoundedBox>
       <mesh position={[-0.1, 1.91, 0.235]} rotation={[0, 0, -0.12]}><boxGeometry args={[0.17, 0.14, 0.04]}/><meshStandardMaterial color={palette.shirt}/></mesh>
       <mesh position={[0.1, 1.91, 0.235]} rotation={[0, 0, 0.12]}><boxGeometry args={[0.17, 0.14, 0.04]}/><meshStandardMaterial color={palette.shirt}/></mesh>
       <mesh position={[-0.14, 1.65, 0.233]} rotation={[0, 0, -0.2]}><boxGeometry args={[0.18, 0.53, 0.035]}/><meshStandardMaterial color={jacket}/></mesh>
       <mesh position={[0.14, 1.65, 0.233]} rotation={[0, 0, 0.2]}><boxGeometry args={[0.18, 0.53, 0.035]}/><meshStandardMaterial color={jacket}/></mesh>
-      <mesh position={[0, 1.59, 0.258]}><shapeGeometry args={[new THREE.Shape().moveTo(-0.055,0.19).lineTo(0.055,0.19).lineTo(0.08,0.1).lineTo(0,-0.18).lineTo(-0.08,0.1).closePath()]}/><meshStandardMaterial color={palette.tie} roughness={0.42}/></mesh>
+      <mesh position={[0, 1.59, 0.258]}><shapeGeometry args={[new THREE.Shape().moveTo(-0.055,0.19).lineTo(0.055,0.19).lineTo(0.08,0.1).lineTo(0,-0.18).lineTo(-0.08,0.1).closePath()]}/><meshStandardMaterial color={tieColor} roughness={0.42}/></mesh>
       <mesh position={[0, 1.78, 0.263]}><boxGeometry args={[0.09, 0.055, 0.025]}/><meshStandardMaterial color={palette.tie}/></mesh>
       {[1.42,1.28,1.14].map((y) => <mesh key={y} position={[0.08,y,0.207]}><sphereGeometry args={[0.022,12,10]}/><meshStandardMaterial color={formal ? '#d5b15e' : '#c8d0d0'} metalness={0.5} roughness={0.35}/></mesh>)}
       <mesh position={[-0.26,1.65,0.213]}><boxGeometry args={[0.1,0.035,0.02]}/><meshStandardMaterial color={palette.accent} metalness={0.2}/></mesh>
@@ -126,7 +128,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
 
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
-    <Canvas camera={{ position: [0, 1.38, compact ? 6.2 : 5.9], fov: compact ? 33 : 34, near: 0.1, far: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+    <Canvas camera={{ position: [0, compact ? 2.15 : 1.8, compact ? 4.5 : 5.9], fov: compact ? 33 : 34, near: 0.1, far: 30 }} onCreated={({ camera }) => camera.lookAt(0, compact ? 1.72 : 1.28, 0)} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
       <ambientLight intensity={1.25} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.2]} />
       <directionalLight position={[-3, 5, 4]} intensity={2.4} castShadow />
