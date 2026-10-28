@@ -448,7 +448,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
           <Box position={[2.48, 1.18, z - 0.185]} size={[0.57, 0.36, 0.008]} color="#0d3d34" />
           <Box position={[2.39, 1.22, z - 0.178]} size={[0.24, 0.014, 0.005]} color="#47d7a4" />
           <Box position={[2.57, 1.12, z - 0.178]} size={[0.25, 0.012, 0.005]} color="#699a91" />
-          {employeeId && <group position={[2.48, 0, z + 0.78]}>
+          {employeeId && <group position={[2.48, 0, z + 0.78]} rotation={[0, Math.PI, 0]}>
             <BrokerModel identity={employeeId} outfit={employeeId.includes('senior') || employeeId.includes('team-lead') ? 'premium' : 'classic'} pose="seated" />
           </group>}
         </group>
