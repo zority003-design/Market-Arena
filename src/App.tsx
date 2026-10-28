@@ -1302,7 +1302,7 @@ export default function App() {
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
-      setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Квартира не требует ежедневной аренды. ' + (officeRent > 0 ? 'Аренда офиса: −' + officeRent.toLocaleString('ru-RU') + ' ₽ из капитала фирмы.' : '') + '')
+      setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Квартира не требует ежедневной аренды. ' + (officeRent > 0 ? 'Аренда офиса: −' + officeRent.toLocaleString('ru-RU') + ' ₽ из капитала фирмы.' : ''))
       window.setTimeout(() => setToast(''), 5200)
       setPanel('room')
       setCallStatus('idle')
