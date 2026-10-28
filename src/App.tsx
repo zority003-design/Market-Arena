@@ -1317,7 +1317,7 @@ export default function App() {
       {!mainMenu && introActive && <div key={day + '-wake-' + String(introActive)} className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(Math.floor(gameMinutes % 60)).padStart(2, '0')}</span><strong>Пора вставать.</strong><small>Новый день брокера начинается</small></div></div>}
       {sleepTransition && <div className={'sleep-transition ' + sleepTransition} role="status" aria-live="polite">
         <div className="sleep-room-glow" />
-        <div className="sleep-bed-silhouette"><span className="sleep-pillow" /><span className="sleep-blanket" /><span className="sleep-head" /><span className="sleep-eye left" /><span className="sleep-eye right" /></div>
+        {/* Reuse the eyelid-opening transition; no static cartoon of a person in bed. */}
         <div className="sleep-eyelid sleep-eyelid-top" /><div className="sleep-eyelid sleep-eyelid-bottom" />
         <div className="sleep-transition-caption"><span>{sleepTransition === 'sleeping' ? 'КОНЕЦ ДНЯ' : '07:00 · НОВЫЙ ДЕНЬ'}</span><strong>{sleepTransition === 'sleeping' ? 'Ты ложишься спать…' : 'Будильник. Пора вставать.'}</strong><small>{sleepTransition === 'sleeping' ? 'Закрываешь глаза, город за окном затихает.' : 'Глаза открываются. Впереди новая смена брокера.'}</small></div>
       </div>}
