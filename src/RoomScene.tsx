@@ -316,6 +316,15 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const panoramicWindow = housingId === 'premium-apartment' || officeRoom
   const dormRoom = housingId === 'dorm'
   const showStaffDesks = ownedItems.includes('partner-desk') || ownedEmployees.length > 0 || ownedBusinessAssets.includes('referral-desk') || businessUpgrades.includes('partner-office')
+  useEffect(() => {
+    if (!active || !showStaffDesks || ownedEmployees.length === 0) return
+    // Quiet, occasional office activity: typing and low background chatter, not a constant loop.
+    const interval = window.setInterval(() => {
+      if (Math.random() > 0.24) playSound('typing', 0.22)
+      if (Math.random() > 0.78) playSound('murmur', 0.16)
+    }, 4200)
+    return () => window.clearInterval(interval)
+  }, [active, showStaffDesks, ownedEmployees.length])
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
 
   useFrame(({ clock }) => {
