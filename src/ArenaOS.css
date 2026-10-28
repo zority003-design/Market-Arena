@@ -628,3 +628,8 @@
 .arena-os-desktop-icon { cursor:grab; }
 .arena-os-desktop-icon:active { cursor:grabbing; }
 @media(max-width:620px) { .arena-os-end-shift-card { align-items:stretch; flex-direction:column; } }
+
+.arena-os-volume-panel { display:grid; gap:9px; min-width:230px; }
+.arena-os-volume-panel input[type="range"] { width:100%; accent-color:#1e7b56; cursor:pointer; }
+.arena-os-sound-toggle { padding:8px 10px; border:1px solid #b7cddd; border-radius:7px; background:#edf5fb; color:#1b4667; font-size:12px; font-weight:750; cursor:pointer; }
+.arena-os-sound-toggle:hover { background:#dceefa; }
