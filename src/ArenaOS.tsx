@@ -148,7 +148,7 @@ function clientClosingLine(client:ClientProfile, stock:Stock) {
   if (temperament.includes('дотош') || temperament.includes('требователь')) return '«Хорошо, оформляем. Пришлите итоговые условия и список рисков письменно. Если отчёт подтвердит тезис, порекомендую вас партнёрам».'
   if (temperament.includes('импульсив') || temperament.includes('азарт')) return '«Договорились! Но если меня снова потянет поставить всё на одну бумагу — напомните мне этот разговор. Контактом поделюсь с друзьями».'
   if (temperament.includes('осторож') || temperament.includes('недовер')) return '«Мне спокойнее, когда не скрывают неприятные сценарии. Начнём с этой суммы и будем следить за условиями. Если всё пойдёт честно, порекомендую вас знакомым».'
-  return '«Договорились. Мне понравилось, что вы не продавали мечту, а объяснили и плюсы, и риски. Сохраню контакт и порекомендую вас знакомым, если будете так же работать дальше».'
+  return '«Договорились по «' + stock.name + '». Мне понравилось, что вы не продавали мечту, а объяснили и плюсы, и риски. Сохраню контакт и порекомендую вас знакомым, если будете так же работать дальше».'
 }
 function clientHesitationLine(client:ClientProfile, stock:Stock, turn:number) {
   const temperament = client.temperament.toLowerCase()
@@ -459,7 +459,7 @@ export default function ArenaOS(props: Props) {
     } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
       setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)])
     } else if(newTrust<=8 || newPatience<=8) {
-      setCallState('lost'); setLastXpReward(5); setLastReputationReward(-2); setLastFirmCommission(0); setLastClientTicket(0); props.setReputation(v=>Math.max(0,v-2)); props.setXp(v=>v+5)
+      setCallState('lost'); setLastXpReward(5); setLastReputationReward(-Math.min(2,props.reputation)); setLastFirmCommission(0); setLastClientTicket(0); props.setReputation(v=>Math.max(0,v-2)); props.setXp(v=>v+5)
       setCallLog(prev=>[...prev,'Клиент завершил звонок. Сделки нет; репутация просела.'])
     }
   }
