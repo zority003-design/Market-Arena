@@ -57,7 +57,9 @@ test('honest rejection of guaranteed returns is not scored as a reckless promise
 
 test('business and employee income is credited to firm capital, not the broker wallet', async () => {
   const source = await read('src/App.tsx')
-  const sleep = source.slice(source.indexOf('function sleepNow'), source.indexOf('  return ('))
+  const sleepStart = source.indexOf('function sleepNow')
+  const sleepEnd = source.indexOf('  return (\n    <main', sleepStart)
+  const sleep = source.slice(sleepStart, sleepEnd)
   assert.match(sleep, /setCash\(\(value\) => Math\.max\(0, value \+ DAILY_SALARY\)\)/)
   assert.match(sleep, /setFirmCapital\(\(value\) => Math\.max\(0, value \+ businessNetIncome \+ staffNetIncome\)\)/)
   assert.doesNotMatch(sleep, /const available = cash \+ DAILY_SALARY \+ businessNetIncome \+ staffNetIncome/)
