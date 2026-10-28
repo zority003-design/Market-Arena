@@ -437,8 +437,9 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[-1.57, 0.65, -1.912]} size={[0.035, 0.035, 0.01]} color="#43d9a4" roughness={0.25} />
 
       {/* Purchasable desk and hired brokers become real room furniture, not inventory-only icons. */}
-      {showStaffDesks && Array.from({ length: Math.max(1, Math.min(3, ownedEmployees.length || 1)) }, (_, index) => {
-        const z = -2.55 + index * 2.0
+      {showStaffDesks && Array.from({ length: Math.max(1, Math.min(5, ownedEmployees.length || 1)) }, (_, index) => {
+        // Five evenly spaced stations match the office capacity; no hired broker disappears off-screen.
+        const z = -2.25 + index * 1.1
         const employeeId = ownedEmployees[index]
         return <group key={'staff-workstation-' + index}>
           <Box position={[2.48, 0.88, z]} size={[1.28, 0.12, 0.76]} color="#5d4636" roughness={0.55} textureKind="wood" />
