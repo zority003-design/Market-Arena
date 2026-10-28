@@ -73,35 +73,25 @@ export function getEquipmentOpening(client: ClientProfile, ownedItems: string[] 
 
 export type NegotiationContext = { trust?: number; patience?: number }
 
-function simplifyForBeginner(reply: string, client: ClientProfile) {
+function simplifyForBeginner(reply: string, client: ClientProfile, text: string) {
   if (client.tier > 1) return reply
-  const plain: Array<[RegExp, string]> = [
-    [/катализатор/gi, 'событие, которое может помочь'],
-    [/материализуется/gi, 'проявится'],
-    [/ликвидность/gi, 'как быстро можно вернуть деньги'],
-    [/ликвидный/gi, 'который легко продать'],
-    [/тезис/gi, 'наша идея'],
-    [/драйвер/gi, 'причина для роста'],
-    [/красный флаг/gi, 'тревожный знак'],
-    [/денежный поток/gi, 'сколько денег остаётся у компании'],
-    [/выручка/gi, 'деньги от продаж'],
-    [/маржа/gi, 'сколько остаётся после расходов'],
-    [/диверсификация/gi, 'разделение денег между разными вариантами'],
-    [/волатильность/gi, 'сильные скачки цены'],
-    [/котировка/gi, 'цена акции'],
-    [/капитал/gi, 'деньги'],
-    [/инвестиционный/gi, 'связанный с вложением денег'],
-    [/финансовый драйвер/gi, 'причина для роста'],
-    [/аудит/gi, 'проверка отчётов'],
-    [/комплаенс/gi, 'проверка правил'],
-    [/сценарий/gi, 'вариант развития событий'],
-    [/материализуется/gi, 'проявится'],
-  ]
-  let result = reply
-  for (const [pattern, replacement] of plain) result = result.replace(pattern, replacement)
-  return result
+  const s = normalize(text)
+  const hasRisk = /риск|долг|убыт|потер|паден|комисс|минус|сниз|налог|просад|не гарант|конкурен|расход|санкц/.test(s)
+  const hasBenefit = /рост|прибыл|выруч|спрос|контракт|потенциал|дивиденд|продаж|клиент|проект|продукт|доход|заработ/.test(s)
+  const hasPlan = /если|когда|срок|стоп|выход|сравн|провер|отчет|контрол|частями|резерв|продад|план/.test(s)
+  const promise = /гарантирую|гарантированно выраст|без риска|не может упасть|верняк|беспроигрыш/.test(s)
+  const joke = /шут|ха-ха|хаха|юмор|мем|кот|пиксел|магия|единорог/.test(s)
+  if (promise) return 'Клиент: «Не обещай мне, что я точно заработаю. Такого никто не знает. Лучше скажи, что может пойти не так».'
+  if (hasRisk && hasBenefit && hasPlan) return 'Клиент: «Вот так понятнее: ты назвал и пользу, и риск, и план. А что будем делать, если цена пойдёт вниз?»'
+  if (hasRisk && hasBenefit) return 'Клиент: «Хорошо, ты рассказал и о хорошем, и о плохом. Как мы поймём, что пора передумать?»'
+  if (hasRisk) return 'Клиент: «Спасибо, что не скрываешь плохие стороны. А теперь объясни: почему эта компания вообще может заработать?»'
+  if (hasBenefit && hasPlan) return 'Клиент: «Звучит неплохо. Но что может помешать этому плану? Объясни без сложных слов».'
+  if (hasBenefit) return 'Клиент: «Интересно. А что может помешать компании добиться этого? Не хочу слышать только хорошие новости».'
+  if (hasPlan) return 'Клиент: «План есть. Объясни проще: на чём компания зарабатывает и что может ей помешать?»'
+  if (joke) return 'Клиент: «Ха, ладно, улыбнуло. А теперь по делу: почему эта компания может быть хорошей покупкой и что в ней опасно?»'
+  if (/\?|почему|как |сколько|что если|какой|какая|какие|когда|зачем/.test(s)) return 'Клиент: «Хороший вопрос. Давай разберёмся вместе: что нам нужно узнать перед тем, как вкладывать деньги?»'
+  return 'Клиент: «Я не совсем понял. Объясни как другу: чем занимается компания, как она зарабатывает и что может пойти не так?»'
 }
-
 
 export function getNegotiationDifficulty(client: ClientProfile, ownedItems: string[]) {
   const mic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
@@ -331,5 +321,5 @@ export function evaluateFreeReply(
     reply = reply.replace(/[»”]$/, '') + ' ' + issue.line + '»'
   }
 
-  return { delta: Math.max(-18, Math.min(14, delta)), reply: simplifyForBeginner(reply, client), equipmentPenalty: issue?.penalty ?? 0 }
+  return { delta: Math.max(-18, Math.min(14, delta)), reply: simplifyForBeginner(reply, client, text), equipmentPenalty: issue?.penalty ?? 0 }
 }
