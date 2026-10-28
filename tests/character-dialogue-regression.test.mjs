@@ -97,3 +97,12 @@ test('stock suitability does not alias unrelated companies into one another', as
   assert.match(source, /stock.risk === 'Низкий'/)
   assert.match(source, /stock.risk === 'Высокий' \|\| stock.risk === 'Очень высокий'/)
 })
+
+
+test('successful negotiation credits firm commission and personal bonus separately', async () => {
+  const source = await read('src/ArenaOS.tsx')
+  assert.match(source, /const firmCommission = Math\.round\(client\.ticket \* client\.commissionRate\)/)
+  assert.match(source, /const playerBonus = Math\.min\(getBusinessPayoutCap/)
+  assert.match(source, /props\.setCash\(v=>v\+playerBonus\); props\.setFirmCapital\(v=>v\+firmCommission\)/)
+  assert.match(source, /Комиссия фирмы:/)
+})
