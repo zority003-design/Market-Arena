@@ -4,12 +4,14 @@ import { readFile } from 'node:fs/promises'
 
 const read = (path) => readFile(new URL('../' + path, import.meta.url), 'utf8')
 
-test('3D avatar animation preserves the full-body vertical offset', async () => {
+test('3D avatar uses a stable floor origin and frames the full body', async () => {
   const source = await read('src/BrokerAvatar3D.tsx')
-  assert.match(source, /root\.current\.position\.y\s*=\s*-1\.05\s*\+/)
   assert.match(source, /export function BrokerModel/)
   assert.match(source, /pose === 'seated'/)
-  assert.match(source, /camera=\{\{ position: \[0, compact \? 0\.25 : 0\.22, compact \? 5\.9 : 5\.35\]/)
+  assert.match(source, /position=\{seated \? \[0, -0\.15, 0\] : \[0, 0, 0\]\}/)
+  assert.match(source, /scale=\{seated \? 0\.72 : 1\}/)
+  assert.doesNotMatch(source, /root\.current\.position\.y\s*=/)
+  assert.match(source, /camera=\{\{ position: \[0, 1\.38, compact \? 6\.2 : 5\.9\]/)
 })
 
 test('hired staff use the same detailed model as the player', async () => {
@@ -27,4 +29,16 @@ test('every listed stock has its own negotiation scenario and follow-up question
     assert.match(scenarios, new RegExp('\\n    ' + ticker + ': \\{'), ticker + ' needs its own scenario')
     assert.match(followUps, new RegExp('\\n    ' + ticker + ': \\['), ticker + ' needs follow-up questions')
   }
+})
+
+
+test('free-text scoring and company replies cover jokes and all listed stocks', async () => {
+  const source = await read('src/App.tsx')
+  const answerHandler = source.slice(source.indexOf('function answerQuestion'), source.indexOf('function sendFreeAnswer'))
+  const freeText = source.slice(source.indexOf('function sendFreeAnswer'), source.indexOf('function buyRoomItem'))
+  assert.match(answerHandler, /const tickerReplies: Record<string, string\[\]> = \{/)
+  assert.match(answerHandler, /if \(companyReplies\.length\)/)
+  assert.match(freeText, /const joke =/)
+  assert.match(freeText, /A joke is not automatically a bad answer/)
+  assert.match(answerHandler, /rejectsGuarantee/)
 })
