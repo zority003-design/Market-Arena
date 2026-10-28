@@ -345,7 +345,7 @@ export default function ArenaOS(props: Props) {
   const equipmentBonus = GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0)
   const currentHousing = HOUSING.find(home => home.id === props.housingId) ?? HOUSING[0]
   const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client)
-  const estimatedBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * (trust >= 75 ? 1.25 : trust >= 62 ? 1.1 : 1))))
+  const estimatedBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * 1.25)))
   const estimatedFirmCommission = Math.round(client.ticket * client.commissionRate)
   const businessTrustBonus = BUSINESS_UPGRADES.filter(upgrade => props.businessUpgrades.includes(upgrade.id)).reduce((sum, upgrade) => sum + upgrade.trustBonus, 0)
   const dailyCallLimit = (props.reputation >= 60 ? 4 : props.reputation >= 35 ? 3 : 2) + (props.businessUpgrades.includes('lead-network') ? 1 : 0) + (props.businessUpgrades.includes('client-crm') ? 1 : 0)
@@ -450,7 +450,7 @@ export default function ArenaOS(props: Props) {
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
       props.setCash(v=>v+playerBonus); props.setFirmCapital(v=>v+firmCommission); props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
-      setLastPayout(playerBonus); setLastFirmCommission(firmCommission); setLastClientTicket(client.ticket); setLastXpReward(45); setLastReputationReward(2); setLastContactName(client.name)
+      setLastPayout(playerBonus); setLastFirmCommission(firmCommission); setLastClientTicket(client.ticket); setLastXpReward(45); setLastReputationReward(Math.min(2,100-props.reputation)); setLastContactName(client.name)
       const referralId = client.id==='alex-vorontsov'?'pavel-smirnov':client.id==='maria-sokolova'?'natalia-orlova':client.id==='pavel-smirnov'?'maksim-sobolev':'igor-melnikov'
       setLastReferralName(CLIENTS.find(person=>person.id===referralId)?.name ?? 'новый контакт')
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,referralId])))
@@ -595,7 +595,7 @@ export default function ArenaOS(props: Props) {
                   <article><small>КАПИТАЛ КЛИЕНТА</small><b>{money(lastClientTicket)}</b><p>Сумма размещения клиента — не твой заработок.</p></article>
                   <article><small>РЕПУТАЦИЯ</small><b>+{lastReputationReward}</b><p>Помогает открывать новые контакты и сделки.</p></article>
                   <article><small>ОПЫТ БРОКЕРА</small><b>+{lastXpReward} XP</b><p>Продвигает карьерный ранг. XP нельзя потратить как деньги.</p></article>
-                  <article><small>КЛИЕНТСКАЯ БАЗА</small><b>+2 контакта</b><p>Клиент и новый потенциальный знакомый добавлены в CRM.</p></article>
+                  <article><small>КЛИЕНТСКАЯ БАЗА</small><b>{newContacts.length} контактов</b><p>Всего доступно в CRM после рекомендации.</p></article>
                 </div>
                 <div className="arena-os-contact-unlock"><Users size={22}/><div><b>{lastContactName} рекомендует тебя знакомым</b><p>В разговоре клиент согласился поделиться контактом. Новый потенциальный клиент: <strong>{lastReferralName}</strong>. Открой клиентскую базу, чтобы посмотреть его профиль и выбрать следующий звонок.</p></div></div>
                 {!props.companyName.trim() ? <form className="arena-os-firm-naming" onSubmit={event=>{event.preventDefault();const name=companyNameDraft.trim().slice(0,42);if(name){props.setCompanyName(name);setNotice('Фирма «'+name+'» зарегистрирована в твоей карьере.')}}}><span className="arena-os-kicker">СЛЕДУЮЩИЙ ШАГ · ТВОЯ ФИРМА</span><h3>Дай брокерской фирме название</h3><p>Это название появится в профиле, разделе команды и отчётах. Оно не даёт бонусов само по себе — репутацию нужно заработать.</p><input value={companyNameDraft} onChange={event=>setCompanyNameDraft(event.target.value)} maxLength={42} placeholder="Например, ООО «Бычий огурец»"/><button className="arena-os-primary" type="submit" disabled={!companyNameDraft.trim()}>Сохранить название</button></form> : <div className="arena-os-firm-banner"><span className="arena-os-kicker">ТВОЯ БРОКЕРСКАЯ ФИРМА</span><strong>{props.companyName}</strong><p>Следующая цель — реинвестировать комиссию в развитие компании, не путая её с личными деньгами.</p></div>}
