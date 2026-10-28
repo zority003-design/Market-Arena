@@ -36,6 +36,7 @@ function Limb({ start, end, radius, color }: { start: [number, number, number]; 
 export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity: string; outfit: string; pose?: Pose }) {
   const root = useRef<THREE.Group>(null)
   const torso = useRef<THREE.Group>(null)
+  const typingArms = useRef<THREE.Group>(null)
   const seed = useMemo(() => {
     let hash = 2166136261
     for (const char of identity) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 16777619) }
@@ -55,6 +56,11 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
     // Keep a stable floor-level origin: idle animation never overwrites the model's vertical placement.
     if (root.current) root.current.rotation.y = Math.sin(t * 0.46 + (seed % 17)) * 0.035
     if (torso.current) torso.current.scale.y = 1 + Math.sin(t * 1.55 + seed % 9) * 0.003
+    if (typingArms.current) {
+      const typing = seated ? Math.sin(t * 8.5 + seed % 5) * 0.035 : 0
+      typingArms.current.rotation.z = typing
+      typingArms.current.position.y = seated ? Math.abs(Math.sin(t * 8.5 + seed % 5)) * 0.018 : 0
+    }
   })
 
   return <group ref={root} position={seated ? [0, -0.15, 0] : [0, 0, 0]} scale={seated ? 0.72 : 1} rotation={[0, 0, 0]}>
@@ -89,12 +95,14 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
       {[1.42,1.28,1.14].map((y) => <mesh key={y} position={[0.08,y,0.207]}><sphereGeometry args={[0.022,12,10]}/><meshStandardMaterial color={formal ? '#d5b15e' : '#c8d0d0'} metalness={0.5} roughness={0.35}/></mesh>)}
       <mesh position={[-0.26,1.65,0.213]}><boxGeometry args={[0.1,0.035,0.02]}/><meshStandardMaterial color={palette.accent} metalness={0.2}/></mesh>
       {/* Shoulder caps, upper arms, forearms and hands are joined at elbows and wrists. */}
+      <group ref={typingArms}>
       <mesh position={[-0.36,1.86,0]} scale={[0.19,0.19,0.22]} castShadow><sphereGeometry args={[1,20,16]}/><meshStandardMaterial color={jacket} roughness={0.65}/></mesh>
       <mesh position={[0.36,1.86,0]} scale={[0.19,0.19,0.22]} castShadow><sphereGeometry args={[1,20,16]}/><meshStandardMaterial color={jacket} roughness={0.65}/></mesh>
       <Limb start={[-0.39,1.82,0]} end={seated ? [-0.42,1.45,0.29] : [-0.47,1.18,0.06]} radius={0.135} color={jacket}/>
       <Limb start={[0.39,1.82,0]} end={seated ? [0.42,1.45,0.29] : [0.47,1.18,0.06]} radius={0.135} color={jacket}/>
       <Limb start={seated ? [-0.42,1.45,0.29] : [-0.47,1.18,0.06]} end={seated ? [-0.42,1.22,0.47] : [-0.48,0.93,0.16]} radius={0.105} color={palette.skin}/>
       <Limb start={seated ? [0.42,1.45,0.29] : [0.47,1.18,0.06]} end={seated ? [0.42,1.22,0.47] : [0.48,0.93,0.16]} radius={0.105} color={palette.skin}/>
+      </group>
       <mesh position={seated ? [-0.42,1.17,0.48] : [-0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight} roughness={0.82}/></mesh>
       <mesh position={seated ? [0.42,1.17,0.48] : [0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight} roughness={0.82}/></mesh>
       {/* Neck sinks into the collar and jaw to remove the old floating-head look. */}
