@@ -1124,7 +1124,8 @@ export default function App() {
     setTrust(nextTrust); setPatience(nextPatience)
     setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, Math.min(100, (scores[activeClient.id] ?? activeClient.baseTrust) + appliedDelta)) }))
     const lower = text.toLowerCase()
-    const reckless = /гарантир|без риска|точно выраст|не может упасть|удво|100% доход/.test(lower)
+    const rejectsGuarantee = /не\\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(lower)
+    const reckless = !rejectsGuarantee && /гарантирую|гарантированно выраст|без риска|точно выраст|не может упасть|удво|100% доход/.test(lower)
     const evidence = /риск|убыт|марж|денеж|контракт|возврат|сценар|подтверж|провер|если|огранич|критер|дивиденд|прибыл/.test(lower)
     const clientTone = activeClient.temperament.toLowerCase()
     const strong = ['«Вот теперь разговор предметный. Я вижу не только красивую сторону, но и то, что может сломать идею».','«Хорошо: вы не пытаетесь продать мне единственный правильный ответ. Продолжайте».','«Запишу это в заметки. Наконец-то аргумент, который можно проверить, а не повесить в рамке».','«Это звучит разумнее презентации директора. Но я всё ещё оставляю за собой право передумать».','«Ладно, вы хотя бы знаете, где у этой истории слабое место. Это уже редкость на рынке».']
@@ -1147,7 +1148,10 @@ export default function App() {
     const seed = (activeClient.id + activeCompany.ticker + questionIndex + text).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
     let clientReaction = appliedDelta >= 7 ? strong[(seed + questionIndex) % strong.length] : appliedDelta <= -8 ? weak[(seed + questionIndex) % weak.length] : mixed[(seed + questionIndex) % mixed.length]
     const companyReplies = tickerReplies[activeCompany.ticker] ?? []
-    if (companyReplies.length && questionIndex % 2 === 0 && appliedDelta >= 3) clientReaction = companyReplies[(seed + questionIndex) % companyReplies.length]
+    if (companyReplies.length) {
+      clientReaction = companyReplies[(questionIndex + seed) % companyReplies.length]
+      if (appliedDelta < 3) clientReaction = '«Пока это не снимает мои сомнения. Давайте вернёмся к проверяемым цифрам». ' + clientReaction
+    }
     if (reckless) clientReaction = '«Вы только что назвали риск гарантированным нулём. Для меня это не уверенность, а красный флаг. На этом рекомендацию прекращаем».'
     if (clientTone.includes('занят') || clientTone.includes('прямолин')) clientReaction = clientReaction.replace('«', '«Коротко: ')
     if (clientTone.includes('дотош') || clientTone.includes('аналит')) clientReaction += ' «И занесите допущение в расчёт, чтобы потом не делать вид, будто мы его не обсуждали».'
