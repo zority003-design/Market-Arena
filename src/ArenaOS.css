@@ -612,3 +612,10 @@
  .arena-os-client-profile { grid-template-columns:1fr; }
  .arena-os-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
+
+.arena-os-workspace { position:relative; }
+.arena-os-window.restored { position:absolute; left:90px; top:24px; width:min(780px,calc(100% - 110px)); height:min(620px,calc(100% - 36px)); z-index:8; resize:both; box-sizing:border-box; }
+.arena-os-window-title { cursor:grab; user-select:none; touch-action:none; }
+.arena-os-window-title:active { cursor:grabbing; }
+.arena-os-window-title button { cursor:pointer; }
+.arena-os-desktop-icon { user-select:none; }
