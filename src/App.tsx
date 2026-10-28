@@ -1116,31 +1116,43 @@ export default function App() {
 
   function answerQuestion(text: string, delta: number) {
     if (callStatus !== 'active') return
+    const lower = text.toLocaleLowerCase('ru').replace(/ё/g, 'е')
+    const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(lower)
+    const reckless = !rejectsGuarantee && /гарантирую|гарантированно выраст|без риска|точно выраст|не может упасть|удво|100\s*%\s*(?:доход|прибыл)?/.test(lower)
     const backgroundCaught = videoEnabled && videoBackground === 'luxury' && activeClient.statusSensitive && getVideoQuality(ownedItems) < 4 && questionIndex === 0
-    const appliedDelta = Math.max(-15, Math.min(10, delta - (backgroundCaught ? 7 : 0)))
+    const safeDelta = reckless ? -15 : delta
+    const appliedDelta = Math.max(-15, Math.min(10, safeDelta - (backgroundCaught ? 7 : 0)))
     const nextTrust = Math.max(0, Math.min(100, trust + appliedDelta))
     const patienceCost = appliedDelta >= 7 ? 2 : appliedDelta <= -8 ? 9 : appliedDelta < 0 ? 6 : 4
     const nextPatience = Math.max(0, patience - patienceCost)
     setTrust(nextTrust); setPatience(nextPatience)
     setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, Math.min(100, (scores[activeClient.id] ?? activeClient.baseTrust) + appliedDelta)) }))
-    const lower = text.toLowerCase()
-    const reckless = /гарантир|без риска|точно выраст|не может упасть|удво|100% доход/.test(lower)
     const evidence = /риск|убыт|марж|денеж|контракт|возврат|сценар|подтверж|провер|если|огранич|критер|дивиденд|прибыл/.test(lower)
     const clientTone = activeClient.temperament.toLowerCase()
     const strong = ['«Вот теперь разговор предметный. Я вижу не только красивую сторону, но и то, что может сломать идею».','«Хорошо: вы не пытаетесь продать мне единственный правильный ответ. Продолжайте».','«Запишу это в заметки. Наконец-то аргумент, который можно проверить, а не повесить в рамке».','«Это звучит разумнее презентации директора. Но я всё ещё оставляю за собой право передумать».','«Ладно, вы хотя бы знаете, где у этой истории слабое место. Это уже редкость на рынке».']
     const weak = ['«Вы сейчас продаёте мне уверенность в собственном голосе. А цифры где?»','«Это ответ из рекламной брошюры. Я спрашивал про свои деньги, а не про вашу мотивацию».','«Подождите. Вы пропустили самое неприятное место — именно поэтому я и спросил».','«С таким объяснением я пока не подпишусь. Даже коту с реактивным двигателем нужен тормоз».','«Слишком гладко. Когда брокер не называет риск, обычно риск называет его сам».']
     const mixed = ['«Часть ответа полезна, но я пока не понял, как это связано с моей задачей».','«Допустим. А теперь переведите это с брокерского на человеческий и покажите, что проверять».','«Не провал, но и не продажа века. Давайте отделим факт от надежды».','«Я услышал аргумент. Пока поставлю ему оценку “интересно, но не трогать без перчаток”».','«Вы на верном пути, но мне не хватает условия, при котором вы признаете ошибку».']
     const tickerReplies: Record<string, string[]> = {
-      KOTL:['«У роботов хотя бы есть маршрут. У вашей идеи теперь тоже появился критерий проверки».','«Если контракт не подпишут, хочу услышать план Б, а не мяуканье финансового директора».','«Рост выручки — хорошо. Покажите, когда он перестанет быть дорогим хобби».'],
-      OGUR:['«Хорошо, что вы не обещаете, будто огурцы спасут портфель от всех бед».','«Прибыль — приятно. Теперь выясним, сколько останется после упаковки и скидок».','«Убедительнее сока из презентации. Но маржу всё равно проверим».'],
-      TAPK:['«Ставка на умные тапочки — смело. Убедимся, что они не возвращаются умнее покупателя».','«Обновление — не чудо. Покажите статистику возвратов, прежде чем я вложу деньги в обувной Wi‑Fi».','«Хорошо, что у идеи появился стоп-кран. Тапочки без тормозов нам не нужны».'],
-      DUST:['«Стабильный контракт звучит скучно. Зато скучные цифры переживают громкие презентации».','«Уборка уборкой, но зарплаты сами себя не оплачивают. Маржу проверим отдельно».','«Наконец-то идея, которой не обязательно лететь на Луну, чтобы заработать».'],
-      BTRAN:['«Кофе на заправке может быть крепким, но тезис должен быть крепче».','«Считайте экономику одной станции, а не количество банановых вывесок».','«Трафик, маржа и окупаемость — вот бензин для этой идеи. Слоганы машину не заведут».'],
+      KOTL:['«У роботов хотя бы есть маршрут. У вашей идеи теперь тоже появился критерий проверки».','«Если контракт не подпишут, хочу услышать план Б, а не мяуканье финансового директора».','«Рост выручки — хорошо. Покажите, когда он перестанет быть дорогим хобби».','«Техническое чудо не отменяет стоимости ремонта. Посчитаем цену одного рабочего робота».','«Конкурент может скопировать корпус, но сможет ли он повторить себестоимость и сервис?»'],
+      OGUR:['«Хорошо, что вы не обещаете, будто огурцы спасут портфель от всех бед».','«Прибыль — приятно. Теперь выясним, сколько останется после упаковки и скидок».','«Убедительнее сока из презентации. Но маржу всё равно проверим».','«Полка в магазине — не вечная прописка. Что удержит сеть от смены поставщика?»','«Если покупатель вернётся без купона, вот тогда поговорим о настоящем спросе».'],
+      TAPK:['«Ставка на умные тапочки — смело. Убедимся, что они не возвращаются умнее покупателя».','«Обновление — не чудо. Покажите статистику возвратов, прежде чем я вложу деньги в обувной Wi‑Fi».','«Хорошо, что у идеи появился стоп-кран. Тапочки без тормозов нам не нужны».','«Если без телефона это просто дорогие тапочки, нужно честно посчитать ценность электроники».','«Повторная покупка убедительнее тысячи скачиваний приложения. Где эти цифры?»'],
+      DUST:['«Стабильный контракт звучит скучно. Зато скучные цифры переживают громкие презентации».','«Уборка уборкой, но зарплаты сами себя не оплачивают. Маржу проверим отдельно».','«Наконец-то идея, которой не обязательно лететь на Луну, чтобы заработать».','«Скидка ради логотипа клиента может сделать красивый контракт убыточным».','«Робот-пылесос тоже хочет зарплату — только в виде сервиса и запчастей. Включим их в расчёт».'],
+      BTRAN:['«Кофе на заправке может быть крепким, но тезис должен быть крепче».','«Считайте экономику одной станции, а не количество банановых вывесок».','«Трафик, маржа и окупаемость — вот бензин для этой идеи. Слоганы машину не заведут».','«Магазин иногда зарабатывает лучше колонки. Покажите прибыль на один визит».','«Зарядки выглядят перспективно, но пустая быстрая станция — дорогой фонарь».'],
+      SBRX:['«Подписка продлевается автоматически. Прибыль — нет. Проверим отток и стоимость удержания».','«Регистрации легко купить рекламой. Платящего клиента — гораздо сложнее».','«Если клиент уходит после скидки, возможно, мы купили не лояльность, а паузу».','«Когортный отчёт скучнее презентации, зато быстрее показывает, где бизнес теряет деньги».','«Большой корпоративный контракт полезен только после расходов на внедрение и поддержку».'],
+      NEFT:['«Нефть не читает наши прогнозы. Она просто падает в цене, когда у модели заканчивается оптимизм».','«Экспортная выручка красива до встречи с логистикой, налогами и курсом».','«Посчитаем цену безубыточности, прежде чем объявлять дивиденды вечными».','«Если маршрут дорожает, баррель не становится добрее. Нужен стресс-сценарий».','«Сырьевой цикл разворачивается быстрее уверенности инвестора. Какой у нас запас прочности?»'],
+      MEDX:['«Пациенту нужен врач, инвестору — окупаемость филиала. Не перепутаем эти два вида лечения».','«Новая клиника не становится прибыльной только потому, что у неё свежая вывеска».','«Сколько пациентов нужно в день, чтобы аренда и зарплаты перестали съедать капитал?»','«Хороший врач важен, но загрузка расписания тоже часть финансовой модели».','«Пять новых филиалов звучат амбициозно. Сначала докажем экономику одного».'],
+      GROV:['«Заказов много, денег мало. Похоже, бесплатная доставка бесплатна только для покупателя».','«Скидка умеет привлекать клиентов. Теперь выясним, кто оплатил праздник».','«Рост заказов без маржи — это беговая дорожка: быстро движешься, но остаёшься на месте».','«Если клиент не вернулся без промокода, удержание пока куплено рекламой».','«Доставка в дальний регион может увеличить выручку и одновременно ухудшить экономику заказа».'],
+      GRID:['«Сети надёжные, пока тариф и капитальные затраты не начинают играть в перетягивание каната».','«Регулятор не обязан исполнять наш финансовый прогноз. Пересчитаем модель по утверждённому тарифу».','«Новый кабель полезен городу, но инвестору важно знать, когда он окупится».','«Инвестпрограмма может быть необходимой и всё равно давить на дивиденды».','«Предсказуемый спрос не означает предсказуемую доходность капитала».'],
+      BYTE:['«Презентация уже вышла в релиз. Осталось дождаться самого продукта и платящих клиентов».','«Регистрация — не покупка. Покажите конверсию в оплату и стоимость привлечения».','«Уже потраченные деньги не делают следующий транш разумным автоматически».','«Срок релиза — не финансовый результат. Что делаем, если команда снова опоздает?»','«У технологии есть потенциал. Теперь нужна проверка, что рынок готов за неё платить».'],
+      LOGI:['«Груз доставили вовремя. Теперь выясним, доставили ли мы прибыль или только дизель с амортизацией».','«Пустой обратный рейс — это груз, который компания везёт за собственный счёт».','«Крупный контракт не спасает маржу, если топливо дорожает быстрее тарифа».','«Индексация цены должна быть в договоре, а не только в надежде менеджера».','«Покупать новые машины до загрузки старых — дорогой способ коллекционировать металл».'],
     }
     const seed = (activeClient.id + activeCompany.ticker + questionIndex + text).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
     let clientReaction = appliedDelta >= 7 ? strong[(seed + questionIndex) % strong.length] : appliedDelta <= -8 ? weak[(seed + questionIndex) % weak.length] : mixed[(seed + questionIndex) % mixed.length]
     const companyReplies = tickerReplies[activeCompany.ticker] ?? []
-    if (companyReplies.length && questionIndex % 2 === 0 && appliedDelta >= 3) clientReaction = companyReplies[(seed + questionIndex) % companyReplies.length]
+    if (companyReplies.length) {
+      clientReaction = companyReplies[questionIndex % companyReplies.length]
+      if (appliedDelta < 3) clientReaction = '«Пока это не снимает мои сомнения. Давайте вернёмся к проверяемым цифрам». ' + clientReaction
+    }
     if (reckless) clientReaction = '«Вы только что назвали риск гарантированным нулём. Для меня это не уверенность, а красный флаг. На этом рекомендацию прекращаем».'
     if (clientTone.includes('занят') || clientTone.includes('прямолин')) clientReaction = clientReaction.replace('«', '«Коротко: ')
     if (clientTone.includes('дотош') || clientTone.includes('аналит')) clientReaction += ' «И занесите допущение в расчёт, чтобы потом не делать вид, будто мы его не обсуждали».'
@@ -1154,121 +1166,54 @@ export default function App() {
   function sendFreeAnswer() {
     const text = freeAnswer.trim()
     if (!text || callStatus !== 'active') return
-    const lower = text.toLowerCase()
-    let delta = 0
+    const normalized = text.toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[^\p{L}\p{N}%?+.-]+/gu, ' ').trim()
+    const words = normalized.split(/\s+/).filter(Boolean)
+    const hasAny = (terms: string[]) => terms.some((term) => normalized.includes(term))
+    const questionTerms: Record<string, string[][]> = {
+      KOTL:[['рост','заказ','убыт','расход','денеж','прибыл','марж','контракт'],['контракт','подпис','отказ','срыв','сценар','подтверж','огранич','заказчик'],['марж','денеж','постав','метрик','критер','прибыл','убыт'],['сервис','ремонт','батар','обслужив','расход','стоимость'],['конкур','дешев','патент','себестоим','удерж','повторн']],
+      OGUR:[['прибыл','дистрибу','канал','рост','марж','полк','темп'],['сырь','упаков','себестоим','марж','поставщик','цен','спрос'],['доходн','дивид','горизонт','риск','гарант','прибыл'],['полк','регион','торгов','сеть','зависим','продаж'],['повторн','марж','промо','списан','реклам','продаж']],
+      TAPK:[['возврат','убыт','денеж','качест','марж','паден','позици'],['возврат','обновлен','статист','гарант','расход','подтверж'],['возврат','денеж','условие','выход','лимит','убыт','метрик'],['bluetooth','телефон','приложен','автоном','функц','возврат'],['повторн','себестоим','датчик','поддерж','пользователь']],
+      DUST:[['денеж','контракт','рост','прибыл','цен','темп','доход'],['зарплат','себестоим','марж','индексац','контракт','расход'],['критер','денеж','марж','цен','альтернатив','выход','риск'],['скид','расход','прибыл','объем','контракт','себестоим'],['робот','автоматиз','стоимость','окупаем','экономи','сервис']],
+      BTRAN:[['марж','топлив','магазин','мойк','заряд','чек','прибыл'],['оптов','закуп','марж','цен','трафик','сценар','контракт'],['окупаем','долг','денеж','станци','свободн','недозагруз'],['кофе','магазин','марж','чек','повтор'],['электромоб','заряд','стоимость','подключен','окупаем','локац','трафик']],
+      SBRX:[['подпис','удерж','повторн','стоимость привлечения','прибыл','клиент'],['скид','контракт','марж','сопровожд','цена','прибыл'],['затрат','рост','отток','денеж','удерж','сценар'],['когорт','удерж','отток','марж','сервис'],['прибыл','скид','повторн','марж','контракт']],
+      NEFT:[['сырь','цен','денеж','долг','покрыт','сценар'],['логист','курс','налог','экспорт','денеж','затрат'],['безубыточ','капитальн','расход','добыч','долг'],['курс','налог','экспорт','денеж','логист'],['цен','цикл','дивиденд','денеж','альтернатив']],
+      MEDX:[['загруз','прибыл','клиник','филиал','стоимость'],['безубыточ','загруз','срок','бюджет','филиал'],['долг','процент','окупаем','капитал','расширен'],['врач','чек','загруз','окупаем'],['прибыл','денеж','долг','филиал']],
+      GROV:[['заказ','марж','достав','скид','возврат','экономик'],['убыт','масштаб','заказ','денеж','марж'],['денеж','отток','риск','повторн','привлечен'],['повторн','заказ','удерж','скид','прибыл'],['цен','спрос','марж','регион','достав']],
+      GRID:[['тариф','инвестиц','денеж','расход','долг'],['регулятор','тариф','затрат','сценар'],['капитальн','окупаем','долг','денеж'],['инвестпрограмм','бюджет','денеж','дивиденд'],['цена','денеж','риск','альтернатив']],
+      BYTE:[['релиз','контракт','бюджет','денеж','разработ'],['задерж','график','бюджет','дата','расход'],['позици','размыв','провал','сценар','риск'],['платящ','конверси','оплат','марж','удерж'],['продукт','денеж','сценар','останов','финансирован']],
+      LOGI:[['маршрут','топлив','зарплат','обслужив','пробег'],['загруз','обратн','пробег','марж','заказ'],['марж','индексац','тариф','расход','контракт'],['топлив','индексац','тариф','прибыл'],['загруз','простой','стоимость','автопарк','расширен']],
+    }
     const companySignals: Record<string, string[]> = {
-      KOTL: ['контракт', 'заказ', 'робот', 'сервис', 'масштаб', 'денеж', 'убыт', 'поставк', 'марж'],
-      OGUR: ['сырь', 'упаков', 'марж', 'дистрибу', 'полк', 'прибыл', 'повторн', 'конкур'],
-      TAPK: ['возврат', 'обновлен', 'качест', 'гарант', 'датчик', 'приложен', 'подтверж', 'убыт', 'денеж'],
-      DUST: ['контракт', 'зарплат', 'себестоим', 'денеж', 'марж', 'уборк', 'окупаем', 'индексац'],
-      BTRAN: ['оптов', 'топлив', 'марж', 'трафик', 'заряд', 'станц', 'магазин', 'денеж', 'окупаем'],
-      SBRX: ['подпис', 'удерж', 'клиент', 'марж', 'цифров', 'разработ', 'денеж'],
-      NEFT: ['сырь', 'нефт', 'экспорт', 'курс', 'налог', 'логист', 'добыч', 'денеж'],
-      MEDX: ['клиник', 'врач', 'загруз', 'филиал', 'окупаем', 'долг', 'капитал'],
-      GROV: ['заказ', 'достав', 'скид', 'возврат', 'марж', 'повторн', 'привлечен'],
-      GRID: ['тариф', 'регуля', 'инвестпрограмм', 'капитальн', 'денеж', 'долг', 'инфраструктур'],
-      BYTE: ['релиз', 'продукт', 'разработ', 'платящ', 'задерж', 'бюджет', 'денеж'],
-      LOGI: ['топлив', 'маршрут', 'пробег', 'загруз', 'простой', 'контракт', 'зарплат'],
+      KOTL:['контракт','заказ','робот','сервис','масштаб','денеж','убыт','поставк','марж'], OGUR:['сырь','упаков','марж','дистрибу','полк','прибыл','повторн','конкур'],
+      TAPK:['возврат','обновлен','качест','гарант','датчик','приложен','подтверж','убыт','денеж'], DUST:['контракт','зарплат','себестоим','денеж','марж','уборк','окупаем','индексац'],
+      BTRAN:['оптов','топлив','марж','трафик','заряд','станц','магазин','денеж','окупаем'], SBRX:['подпис','удерж','клиент','марж','цифров','разработ','денеж'],
+      NEFT:['сырь','нефт','экспорт','курс','налог','логист','добыч','денеж'], MEDX:['клиник','врач','загруз','филиал','окупаем','долг','капитал'],
+      GROV:['заказ','достав','скид','возврат','марж','повторн','привлечен'], GRID:['тариф','регуля','инвестпрограмм','капитальн','денеж','долг','инфраструктур'],
+      BYTE:['релиз','продукт','разработ','платящ','задерж','бюджет','денеж'], LOGI:['топлив','маршрут','пробег','загруз','простой','контракт','зарплат'],
     }
-    const questionSignals: Record<string, string[][]> = {
-      KOTL: [
-        ['рост', 'заказ', 'убыт', 'расход', 'денеж', 'прибыл', 'марж'],
-        ['контракт', 'подпис', 'отказ', 'срыв', 'сценар', 'подтверж', 'огранич'],
-        ['марж', 'денеж', 'постав', 'метрик', 'критер', 'прибыл', 'убыт'],
-        ['сервис', 'ремонт', 'батар', 'обслужив', 'расход', 'жизненного цикла'],
-        ['конкур', 'дешев', 'патент', 'себестоим', 'удерж', 'повторн'],
-      ],
-      OGUR: [
-        ['прибыл', 'дистрибу', 'канал', 'рост', 'марж', 'полк', 'темп'],
-        ['сырь', 'упаков', 'себестоим', 'марж', 'поставщик', 'цен', 'спрос'],
-        ['доходн', 'дивид', 'горизонт', 'риск', 'гарант', 'прибыл'],
-        ['полк', 'регион', 'торгов', 'сеть', 'зависим', 'продаж'],
-        ['повторн', 'марж', 'промо', 'списан', 'реклам', 'продаж'],
-      ],
-      TAPK: [
-        ['возврат', 'убыт', 'денеж', 'качест', 'марж', 'паден', 'позици'],
-        ['возврат', 'статист', 'обновлен', 'гарант', 'расход', 'подтверж'],
-        ['возврат', 'денеж', 'условие', 'выход', 'лимит', 'убыт', 'метрик'],
-        ['bluetooth', 'телефон', 'приложен', 'автоном', 'возврат', 'функц'],
-        ['повторн', 'себестоим', 'датчик', 'поддерж', 'возврат', 'пользователь'],
-      ],
-      DUST: [
-        ['денежный поток', 'контракт', 'рост', 'прибыл', 'цен', 'темп', 'доход'],
-        ['зарплат', 'себестоим', 'марж', 'индексац', 'контракт', 'расход'],
-        ['критер', 'денежный поток', 'марж', 'цен', 'альтернатив', 'выход', 'риск'],
-        ['скид', 'расход', 'прибыл', 'объём', 'контракт', 'себестоим'],
-        ['робот', 'автоматиз', 'стоимость', 'окупаем', 'экономи', 'сервис'],
-      ],
-      BTRAN: [
-        ['марж', 'топлив', 'магазин', 'мойк', 'заряд', 'средний чек', 'прибыл'],
-        ['оптов', 'закуп', 'марж', 'цен', 'трафик', 'сценар', 'контракт'],
-        ['окупаем', 'долг', 'денежный поток', 'станци', 'свободный', 'недозагруз'],
-        ['кофе', 'магазин', 'марж', 'средний чек', 'повтор'],
-        ['электромоб', 'заряд', 'стоимость', 'подключен', 'окупаем', 'локац', 'трафик'],
-      ],
-      SBRX: [
-        ['подпис', 'удерж', 'повторн', 'стоимость привлечения', 'прибыл', 'клиент'],
-        ['скид', 'контракт', 'марж', 'сопровожд', 'цена', 'прибыл'],
-        ['затрат', 'рост', 'отток', 'денеж', 'удерж', 'сценар'],
-        ['когорт', 'удерж', 'отток', 'марж', 'сервис'],
-        ['прибыл', 'скид', 'повторн', 'марж', 'контракт'],
-      ],
-      NEFT: [
-        ['сырь', 'цен', 'денеж', 'долг', 'покрыт', 'сценар'],
-        ['логист', 'курс', 'налог', 'экспорт', 'денеж', 'затрат'],
-        ['безубыточ', 'капитальн', 'расход', 'добыч', 'долг'],
-        ['курс', 'налог', 'экспорт', 'денеж', 'логист'],
-        ['цен', 'цикл', 'дивиденд', 'денеж', 'альтернатив'],
-      ],
-      MEDX: [
-        ['загруз', 'прибыл', 'клиник', 'филиал', 'стоимость'],
-        ['безубыточ', 'загруз', 'срок', 'бюджет', 'филиал'],
-        ['долг', 'процент', 'окупаем', 'капитал', 'расширен'],
-        ['врач', 'средний чек', 'загруз', 'окупаем'],
-        ['прибыл', 'денеж', 'долг', 'филиал'],
-      ],
-      GROV: [
-        ['заказ', 'марж', 'достав', 'скид', 'возврат', 'экономик'],
-        ['убыт', 'масштаб', 'заказ', 'денеж', 'марж'],
-        ['денеж', 'отток', 'риск', 'повторн', 'привлечен'],
-        ['повторн', 'заказ', 'удерж', 'скид', 'прибыл'],
-        ['цен', 'спрос', 'марж', 'регион', 'достав'],
-      ],
-      GRID: [
-        ['тариф', 'инвестиц', 'денеж', 'расход', 'долг'],
-        ['регулятор', 'тариф', 'затрат', 'сценар'],
-        ['капитальн', 'окупаем', 'долг', 'денеж'],
-        ['инвестпрограмм', 'бюджет', 'денеж', 'дивиденд'],
-        ['цена', 'денежный поток', 'риск', 'альтернатив'],
-      ],
-      BYTE: [
-        ['релиз', 'контракт', 'бюджет', 'денеж', 'разработ'],
-        ['задерж', 'график', 'бюджет', 'дата', 'расход'],
-        ['позици', 'размыв', 'провал', 'сценар', 'риск'],
-        ['платящ', 'конверси', 'оплат', 'марж', 'удерж'],
-        ['продукт', 'денеж', 'сценар', 'останов', 'финансирован'],
-      ],
-      LOGI: [
-        ['маршрут', 'топлив', 'зарплат', 'обслужив', 'пробег'],
-        ['загруз', 'обратн', 'пробег', 'марж', 'заказ'],
-        ['марж', 'индексац', 'тариф', 'расход', 'контракт'],
-        ['топлив', 'индексац', 'тариф', 'прибыл'],
-        ['загруз', 'простой', 'стоимость', 'автопарк', 'расширен'],
-      ],
+    const activeSignals = questionTerms[activeCompany.ticker]?.[questionIndex] ?? []
+    const questionHits = activeSignals.filter((term) => normalized.includes(term)).length
+    const riskHits = ['риск','убыт','расход','денежный поток','марж','провер','сценар','подтверж','огранич','долг','возврат','налог','конкурен','просад'].filter((term) => normalized.includes(term)).length
+    const evidenceHits = ['цифр','отчет','отчёт','данн','факт','провер','сравн','метрик','порог','критер','услов','если','план','лимит','срок','доля','прибыл','выруч','контракт','спрос','клиент'].filter((term) => normalized.includes(term)).length
+    const upsideHits = ['рост','выруч','прибыл','спрос','контракт','дивиденд','драйвер','масштаб','эффектив','повторн','рентабель','марж'].filter((term) => normalized.includes(term)).length
+    const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(normalized)
+    const reckless = !rejectsGuarantee && /гарантир|без риска|точно выраст|не может упасть|удвоим|сто процентов|100\s*%|верняк|беспроигрыш|не потеряете|всегда раст/.test(normalized)
+    const joke = /ахах|хаха|лол|рофл|шутк|мем|кот|тапоч|банан|огурц|ракета|на луну|единорог|магия|волшеб|вечн.*двигател|прибыл.*из воздуха|деньги сами|если бы|ага конечно/.test(normalized)
+    const negated = /не\s+(будет|станет|гарантир|обещ|знаю|понимаю|вижу)|никак|вряд ли|сомневаюсь|не факт|сарказм/.test(normalized)
+    let delta = 0
+    if (questionHits >= 2) delta += 4
+    else if (questionHits === 1) delta += 2
+    if (hasAny(companySignals[activeCompany.ticker] ?? [])) delta += 2
+    delta += Math.min(3, riskHits) + Math.min(3, evidenceHits) + (upsideHits ? 1 : 0)
+    if (words.length < 3) delta -= 2
+    if (text.length > 420) delta -= 1
+    if (reckless) delta = -15
+    else {
+      // A joke is not automatically a bad answer: score its underlying point as well as its tone.
+      if (joke && riskHits + evidenceHits + upsideHits + questionHits > 0) delta += 1
+      if (negated && (riskHits > 0 || evidenceHits > 0)) delta += 1
+      if (delta === 0) delta = joke ? -1 : -2
     }
-    const activeQuestionSignals = questionSignals[activeCompany.ticker]?.[questionIndex] ?? []
-    const questionSignalHits = activeQuestionSignals.filter((word) => lower.includes(word)).length
-    if (questionSignalHits >= 2) delta += 5
-    else if (questionSignalHits === 1) delta += 3
-    const riskAndEvidence = ['риск', 'убыт', 'расход', 'денежный поток', 'марж', 'провер', 'сценар', 'подтверж', 'не обещ', 'огранич', 'если']
-    const recklessPromises = ['гарант', 'точно вырастет', 'без риска', '100%', 'удво', 'не может упасть', 'всегда раст', 'не потеряете']
-    if ((companySignals[activeCompany.ticker] ?? []).some((word) => lower.includes(word))) delta += 3
-    if (riskAndEvidence.some((word) => lower.includes(word))) delta += 3
-    if (['клиент', 'цель', 'горизонт', 'ликвид', 'доля', 'размер позиции', 'подходит'].some((word) => lower.includes(word))) delta += 2
-    if (recklessPromises.some((word) => lower.includes(word))) delta -= 15
-    if (text.length < 18) delta -= 2
-    if (text.length > 320) delta -= 2
-    if (delta === 0) delta = -1
     answerQuestion(text, Math.max(-15, Math.min(8, delta)))
   }
 
@@ -1348,12 +1293,13 @@ export default function App() {
       setDailyLeadIds(getDailyLeadIds(nextDay, reputation, clientLastContactDay, clientDealCounts, clientInvested))
       const businessNetIncome = getBusinessDailyNetIncome(ownedBusinessAssets)
       const staffNetIncome = getStaffDailyNetIncome(ownedEmployees)
-      const available = cash + DAILY_SALARY + businessNetIncome + staffNetIncome
-      setCash(Math.max(0, available))
+      // Salary is the player's personal income; employee and business operations belong to firm capital.
+      setCash((value) => Math.max(0, value + DAILY_SALARY))
+      setFirmCapital((value) => Math.max(0, value + businessNetIncome + staffNetIncome))
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
-      setToast('Доброе утро! День ' + nextDay + '. Оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽, чистый доход фирмы +' + businessNetIncome.toLocaleString('ru-RU') + ' ₽. Жильё оплачено при покупке — ежедневной аренды нет.')
+      setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Жильё оплачено при покупке — ежедневной аренды нет.')
       window.setTimeout(() => setToast(''), 5200)
       setPanel('room')
       setCallStatus('idle')
@@ -1494,7 +1440,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
@@ -1511,7 +1457,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
       {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">

@@ -192,14 +192,18 @@ const CLIENT_TRUST_REQUIREMENTS: Record<string, number> = {
  'maksim-sobolev': 54, 'ekaterina-mironova': 76, 'boris-zhukov': 55, 'yaroslav-nikitin': 52,
 }
 export function getClientStockFit(clientId: string, ticker: string): { suitable: boolean; reason: string } {
- const canonicalTicker = ({ KTLT: 'KOTL', SBRX: 'OGUR', NEFT: 'BTRAN', MEDX: 'DUST', GRID: 'DUST', LOGI: 'BTRAN', GROV: 'TAPK', BYTE: 'TAPK' } as Record<string, string>)[ticker] ?? ticker
+ const canonicalTicker = ticker === 'KTLT' ? 'KOTL' : ticker
  const suitableTickers = CLIENT_STOCK_FIT[clientId]
- if (!STOCK_PROFILES[ticker] && !STOCK_PROFILES[canonicalTicker]) return { suitable: false, reason: 'Эта акция отсутствует в каталоге.' }
- if (!suitableTickers) return { suitable: canonicalTicker !== 'TAPK', reason: canonicalTicker === 'TAPK' ? 'Слишком высокий риск без подтверждённого спроса.' : 'Сначала уточни цель клиента и допустимый риск.' }
- if (suitableTickers.includes(canonicalTicker)) return { suitable: true, reason: 'Тип акции соответствует цели клиента и его отношению к риску.' }
- if (canonicalTicker === 'TAPK') return { suitable: false, reason: 'Спекулятивное восстановление не подходит клиенту, который ценит предсказуемость.' }
- if (canonicalTicker === 'KOTL') return { suitable: false, reason: 'Это акция роста с текущим убытком, а клиенту важнее стабильность и сохранность капитала.' }
- return { suitable: false, reason: 'Профиль дохода и риска акции не совпадает с задачей клиента.' }
+ const stock = STOCK_PROFILES[ticker] ?? STOCK_PROFILES[canonicalTicker]
+ if (!stock) return { suitable: false, reason: 'Эта акция отсутствует в каталоге.' }
+ if (suitableTickers?.includes(canonicalTicker)) return { suitable: true, reason: 'Тип акции соответствует цели клиента и его отношению к риску.' }
+ const client = CLIENTS.find(item => item.id === clientId)
+ const tier = client?.tier ?? 0
+ if (stock.risk === 'Низкий') return { suitable: true, reason: 'У компании относительно защитный профиль; всё равно проверьте цену, долг и инвестиционный горизонт.' }
+ if (stock.risk === 'Средний' && tier >= 1) return { suitable: true, reason: 'Умеренный риск допустим для этого клиента, если размер позиции соответствует его цели и горизонту.' }
+ if ((stock.risk === 'Высокий' || stock.risk === 'Очень высокий') && tier >= 3) return { suitable: true, reason: 'Клиент имеет достаточный опыт для рискованной идеи, но позицию нужно ограничить и заранее определить условия выхода.' }
+ if (stock.risk === 'Высокий' || stock.risk === 'Очень высокий') return { suitable: false, reason: 'Высокий риск и неподтверждённый сценарий роста не соответствуют текущему профилю клиента.' }
+ return { suitable: false, reason: 'Профиль риска акции не совпадает с целью клиента и его допустимым уровнем риска.' }
 }
 export function getClientTrustRequirement(client: ClientProfile): number {
  return CLIENT_TRUST_REQUIREMENTS[client.id] ?? (client.statusSensitive ? 66 : 52)
