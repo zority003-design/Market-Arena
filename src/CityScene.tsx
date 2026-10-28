@@ -213,7 +213,7 @@ function WindowRain() {
     if (rain.current) rain.current.position.y = -((clock.elapsedTime * 2.4) % 1.25)
   })
   return <group ref={rain}>
-    {Array.from({ length: 42 }, (_, i) => <mesh key={i} position={[-9 + (i * 37 % 180) / 10, 1.1 + (i * 19 % 47) / 10, -1 + (i * 13 % 95) / 10]} rotation={[0, 0, -0.18]} frustumCulled={false}>
+    {Array.from({ length: 42 }, (_, i) => <mesh key={i} position={[-9 + (i * 37 % 180) / 10, 1.1 + (i * 19 % 47) / 10, -0.2]} rotation={[0, 0, -0.18]} frustumCulled={false}>
       <boxGeometry args={[0.018, 0.34, 0.012]} />
       <meshBasicMaterial color="#b9d4e1" transparent opacity={0.52} depthWrite={false} />
     </mesh>)}
