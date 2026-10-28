@@ -1087,13 +1087,10 @@ export default function App() {
       setClientInvested((invested) => ({ ...invested, [activeClient.id]: (invested[activeClient.id] ?? 0) + payout.ticket }))
       const soldPrice = Number(activeCompany.price.replace(/[^0-9,.-]/g, '').replace(',', '.')) * (1 + (newsImpacts[activeCompany.ticker] ?? 0) / 100)
       const soldShares = Math.floor(payout.ticket / Math.max(0.01, soldPrice))
-      const quotaTargetCompany = companies[(day - 1) % companies.length]
-      if (activeCompany.ticker === quotaTargetCompany.ticker) {
-        setDailySalesAmount((value) => value + payout.ticket)
-        setDailySalesShares((value) => value + soldShares)
-      }
+      setDailySalesAmount((value) => value + payout.ticket)
+      setDailySalesShares((value) => value + soldShares)
       setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. ТВОЙ личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; комиссия фирмы: ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после выплаты бонуса фирме остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.' + (deals === 0 ? ' ПЕРВАЯ СДЕЛКА! Деньги на балансе — твой заработок, а не вся сумма клиентского капитала. Следующий разумный шаг: гарнитура за 4 500 ₽ улучшит звук и добавит стартового доверия; лампа за 1 200 ₽ улучшит свет; дополнительный стол нужен, когда появится сотрудник. Не нанимай работника до устойчивого потока сделок: его чистый доход начисляется каждый игровой день, но цена найма сразу списывается с твоего баланса.' : ' Чем выше доверие клиента, тем больше шанс закрыть крупную сделку и получить бонус.'))
-      const quotaNote = activeCompany.ticker === quotaTargetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + quotaTargetCompany.ticker + '.' : ' Внимание: дневной план по ' + quotaTargetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
+      const quotaNote = ' В дневной план засчитано ' + soldShares + ' акций: все подходящие рекомендации учитываются, а не только один тикер.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Клиентский капитал ' + payout.ticket.toLocaleString('ru-RU') + ' ₽ не зачисляется тебе. Твой личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽. Фирма получила комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после бонуса остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽.' + quotaNote + (deals === 0 ? ' Первый заработок! Открой оборудование: гарнитура за 4 500 ₽ улучшает звук и повышает стартовое доверие; лампа за 1 200 ₽ улучшает свет; дополнительный стол за 9 500 ₽ нужен, когда появится сотрудник. Найм окупается не мгновенно — чистый доход приходит в конце каждого игрового дня.' : '') }])
     } else {
       playSound('decline')
@@ -1254,9 +1251,22 @@ export default function App() {
     window.setTimeout(() => setToast(''), 4000)
   }
 
+  function recordArenaCall(clientId: string) {
+    setClientLastContactDay((items) => ({ ...items, [clientId]: day }))
+  }
+
+  function recordArenaDeal(clientId: string, ticker: string, amount: number, shares: number) {
+    setDeals((value) => value + 1)
+    setClientDealCounts((counts) => ({ ...counts, [clientId]: (counts[clientId] ?? 0) + 1 }))
+    setClientInvested((invested) => ({ ...invested, [clientId]: (invested[clientId] ?? 0) + amount }))
+    // Every successful recommendation counts toward the shift plan. The player must never be rewarded for forcing an unsuitable ticker.
+    setDailySalesAmount((value) => value + amount)
+    setDailySalesShares((value) => value + shares)
+  }
+
   function endDay() {
     if (dayEnded) { setToast('Рабочий день уже завершён. Подойди к кровати и нажми E, чтобы поспать.'); return }
-    const shiftTargetCompany = companies[(day - 1) % companies.length]
+    const shiftTargetCompany = { ticker: 'ALL', name: 'Все акции' }
     const targetShares = 25 + day * 10
     const targetAmount = 8000 + day * 4000
     const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
@@ -1443,7 +1453,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onCallStarted={recordArenaCall} onDealCompleted={recordArenaDeal} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
@@ -1460,7 +1470,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onCallStarted={recordArenaCall} onDealCompleted={recordArenaDeal} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
       {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
