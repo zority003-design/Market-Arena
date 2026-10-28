@@ -55,7 +55,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
     if (torso.current) torso.current.scale.y = 1 + Math.sin(t * 1.55 + seed % 9) * 0.003
   })
 
-  return <group ref={root} position={[0, 0, 0]} rotation={[0, seated ? Math.PI : 0, 0]}>
+  return <group ref={root} position={seated ? [0, -0.15, 0] : [0, 0, 0]} scale={seated ? 0.72 : 1} rotation={[0, seated ? Math.PI : 0, 0]}>
     {/* Legs connect into a shaped pelvis. Standing and seated silhouettes share the same body proportions. */}
     {seated ? <>
       <Limb start={[-0.18, 1.12, 0]} end={[-0.19, 0.72, 0.36]} radius={0.145} color={trousers}/>
