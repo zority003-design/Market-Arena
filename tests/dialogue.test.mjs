@@ -81,3 +81,23 @@ test('jokes can build rapport without making financial promises', () => {
   assert.match(result.reply, /шут|креатив|ха|финансов|факт/i)
 })
 
+
+
+test('later turns add a restrained company-specific dark-humour aside without changing scoring rules', () => {
+  const constructionStock = { ...stock, name: 'Каталёт', ticker: 'KOTL' }
+  const answer = 'Выручка растёт на 12%, но долг и убытки остаются риском. Если квартальный отчёт не подтвердит рост, сократим долю и пересмотрим позицию.'
+  const first = dialogue.evaluateFreeReply(answer, client('Осторожный'), constructionStock, 0, ['headset', 'hd-camera', 'neutral-backdrop'])
+  const later = dialogue.evaluateFreeReply(answer, client('Осторожный'), constructionStock, 2, ['headset', 'hd-camera', 'neutral-backdrop'])
+  assert.notEqual(first.reply, later.reply)
+  assert.match(later.reply, /рендер|этаж|балкон|денежный поток/i)
+  assert.ok(later.delta > 0)
+})
+
+test('dialogue memory varies by fictional company instead of repeating generic jokes', () => {
+  const answer = 'Выручка растёт на 12%, но долг и убытки остаются риском. Если квартальный отчёт не подтвердит рост, сократим долю и пересмотрим позицию.'
+  const construction = dialogue.evaluateFreeReply(answer, client('Осторожный'), { ...stock, name: 'Каталёт', ticker: 'KOTL' }, 2, ['headset', 'hd-camera', 'neutral-backdrop'])
+  const software = dialogue.evaluateFreeReply(answer, client('Осторожный'), { ...stock, name: 'ВекторСофт', ticker: 'VECT' }, 2, ['headset', 'hd-camera', 'neutral-backdrop'])
+  assert.notEqual(construction.reply, software.reply)
+  assert.match(construction.reply, /рендер|этаж|балкон|денежный поток/i)
+  assert.match(software.reply, /подписка|сервер|контракт|клиент/i)
+})
