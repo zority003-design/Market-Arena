@@ -98,13 +98,6 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
     if ((temperament.includes('дотош') || temperament.includes('аналит') || temperament.includes('требователь')) && !concrete) delta -= 2
     if (temperament.includes('статус') && hasPlan && hasRisk) delta += 1
   }
-  const angle = [
-    ' На ближайшем отчёте сверю тезис с ' + (stock ? stock.catalyst.toLowerCase() : 'проверяемыми финансовыми показателями') + '.',
-    ' Если проявится ' + (stock ? stock.redFlags.toLowerCase() : 'ухудшение денежного потока') + ', я пересмотрю рекомендацию, а не буду усреднять убыток.',
-    ' С учётом вашей цели — «' + client.goal.toLowerCase() + '» — размер позиции должен соответствовать цене ошибки.',
-    ' Сравню идею с альтернативой и заранее назову факт, который заставит меня передумать.',
-    ' И да: график в форме ракеты не считается доказательством, даже если дизайнер очень старался.',
-  ]
   if (s && promises) {
     const warningReplies = [
       '«Обещание гарантированной доходности — красный флаг. Назовите сценарий убытка, а не рекламный слоган».',
@@ -123,9 +116,17 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
       '«Креатив засчитан. Теперь покажите, почему клиенту стоит рисковать деньгами, а не только слухом».',
     ]
     reply = absurdReplies[Math.abs(turn) % absurdReplies.length]
-  } else if (s) {
-    const extra = angle[Math.abs(turn) % angle.length]
-    reply = reply.endsWith('»') ? reply.slice(0, -1) + extra + '»' : reply + extra
+  }
+  if (s && !promises && !nonsense && turn > 0) {
+    const followUps = [
+      stock ? 'Следом разберём неприятную сторону: ' + stock.downside + ' Что здесь может ударить по результату первым?' : 'Какой недостаток этой идеи вы считаете самым серьёзным?',
+      'С учётом вашей цели — «' + client.goal.toLowerCase() + '» — какой размер позиции позволит не поставить под удар остальные планы?',
+      stock ? 'Главный катализатор — ' + stock.catalyst + ' Как поймём, что он действительно сработал, а не остался обещанием?' : 'Какое событие подтвердит, что идея работает?',
+      stock ? 'Красный флаг — ' + stock.redFlags + ' Какой из этих признаков заставит вас отказаться от рекомендации?' : 'Какой факт заставит вас отказаться от рекомендации?',
+      'Сравним с альтернативой: что должно произойти, чтобы эта акция оказалась лучше другого варианта для ваших денег?'
+    ]
+    const followUp = followUps[Math.abs(turn) % followUps.length]
+    reply = reply.endsWith('»') ? reply.slice(0, -1) + ' ' + followUp + '»' : reply + ' ' + followUp
   }
   return { delta: Math.max(-18, Math.min(14, delta)), reply }
 }

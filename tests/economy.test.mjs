@@ -49,8 +49,8 @@ test('every client has an explicit trust threshold and at least one suitable sto
     assert.ok(Object.keys(STOCK_PROFILES).some(ticker => getClientStockFit(client.id, ticker).suitable), client.id + ' must have a viable product')
   }
   assert.equal(getClientTrustRequirement(CLIENTS.find(c => c.id === 'diana-volkova')), 76)
-  assert.equal(getClientStockFit('alex-vorontsov', 'KOTL').suitable, true)
-  assert.equal(getClientStockFit('alex-vorontsov', 'KTLT').suitable, true, 'ARENA OS alias maps to the growth stock profile')
+  assert.equal(getClientStockFit('alex-vorontsov', 'KOTL').suitable, false, 'a cautious newcomer should not be pushed into a high-risk developer')
+  assert.equal(getClientStockFit('alex-vorontsov', 'KTLT').suitable, false, 'the alias keeps the same high-risk profile')
   assert.equal(getClientStockFit('boris-zhukov', 'TAPK').suitable, false)
   assert.equal(getClientStockFit('boris-zhukov', 'BYTE').suitable, false, 'speculative software launch should not suit a capital-preservation client')
   assert.equal(getClientStockFit('alina-fedorova', 'TAPK').suitable, true)
@@ -60,7 +60,7 @@ test('purchasable desk is a real work item with first-impression and call-qualit
   const desk = ROOM_ITEMS.find(item => item.id === 'partner-desk')
   assert.ok(desk)
   assert.equal(desk.category, 'work')
-  assert.equal(desk.price, 9500)
+  assert.equal(desk.price, 5800)
   assert.ok(desk.firstImpression > 0)
   assert.ok(desk.videoQuality > 0)
 })
@@ -99,14 +99,14 @@ test('high trust improves only the player bonus multiplier', () => {
   assert.ok(low.playerBonus <= good.playerBonus && good.playerBonus <= excellent.playerBonus)
 })
 
-test('room impression is bounded and ignores unknown item IDs', () => {
+test('room impression is bounded and ignores unknown item IDs in the new housing ladder', () => {
   const sensitive = CLIENTS.find(c => c.statusSensitive)
-  const home = HOUSING.find(h => h.id === 'dorm')
+  const home = HOUSING.find(h => h.id === 'studio')
   assert.ok(sensitive && home)
-  assert.equal(getFirstImpression('dorm', [], sensitive), -4)
-  assert.equal(getFirstImpression('not-a-home', ['unknown-item'], CLIENTS[0]), -2)
+  assert.equal(getFirstImpression('studio', [], sensitive), -2)
+  assert.equal(getFirstImpression('not-a-home', ['unknown-item'], CLIENTS[0]), getFirstImpression('studio', [], CLIENTS[0]))
   assert.ok(getFirstImpression('premium-apartment', ROOM_ITEMS.map(i => i.id), CLIENTS[0]) <= 8)
-  assert.ok(getFirstImpression('dorm', ROOM_ITEMS.map(i => i.id), CLIENTS[0]) >= -5)
+  assert.ok(getFirstImpression('studio', ROOM_ITEMS.map(i => i.id), CLIENTS[0]) >= -5)
 })
 
 test('video quality has a hard cap and ignores unknown items', () => {

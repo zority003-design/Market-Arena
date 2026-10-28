@@ -509,3 +509,127 @@
 .arena-os-client-goal {
   line-height: 1.55;
 }
+
+
+/* Persistent OS shell: the workspace and taskbar are siblings, so the dock survives closed windows. */
+.arena-os-desktop { display:flex; flex-direction:column; gap:0; padding:14px 16px 10px; overflow:hidden; }
+.arena-os-workspace { display:flex; flex:1; min-height:0; gap:14px; overflow:hidden; }
+.arena-os-desktop-icons { flex:none; }
+.arena-os-window { flex:1; min-width:0; min-height:0; }
+.arena-os-taskbar { position:relative; z-index:20; width:100%; box-sizing:border-box; margin-top:10px; flex:none; }
+.arena-os-volume-panel { z-index:50; }
+.arena-os-stock-picker { gap:14px; padding:18px!important; }
+.arena-os-stock-picker > b { font-size:18px!important; line-height:1.4; }
+.arena-os-client-goal { margin:0; padding:12px 14px; border-radius:9px; background:#e8f1fa; color:#1e3c59; font-size:15px; line-height:1.65; }
+.arena-os-stock-picker-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.arena-os-stock-picker-grid button { min-height:220px; padding:14px; gap:9px; border-radius:10px; }
+.arena-os-stock-picker-grid button b { font-size:16px; line-height:1.35; }
+.arena-os-stock-picker-grid button small { font-size:13px; line-height:1.5; }
+.arena-os-stock-picker-grid button p { font-size:13px; line-height:1.55; }
+.arena-os-stock-picker-grid button em { font-size:13px; line-height:1.4; font-style:normal; font-weight:800; }
+.arena-os-fit-reason { font-size:12px!important; line-height:1.5; }
+.arena-os-video-tile { height:290px; }
+.arena-os-call-metrics span { font-size:13px; }
+.arena-os-call-metrics b { font-size:24px; }
+.arena-os-call-metrics small { font-size:12px; }
+.arena-os-dialogue-log { max-height:280px; }
+.arena-os-dialogue-log p { font-size:14px; line-height:1.65; }
+.arena-os-response-actions button { font-size:14px; padding:14px; }
+.arena-os-response-actions button small { display:block; margin-top:5px; font-size:13px; line-height:1.5; font-weight:500; }
+.arena-os-free-text textarea { flex:1; min-width:0; padding:12px; border:1px solid #cbd9e8; border-radius:7px; font:inherit; font-size:14px; resize:vertical; }
+.arena-os-free-text button { font-size:13px; }
+.arena-os-call-result { padding:24px; }
+.arena-os-result-hero { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:14px; margin:18px 0; }
+.arena-os-result-hero > div { padding:18px; border:1px solid #d3e1ef; border-radius:12px; background:linear-gradient(145deg,#fff,#f0f7ff); }
+.arena-os-result-hero .primary-earning { border-color:#a4d9bd; background:linear-gradient(145deg,#f5fff8,#e1f8ea); }
+.arena-os-result-hero small { display:block; font-size:12px; font-weight:800; letter-spacing:.06em; color:#4d6680; }
+.arena-os-result-hero strong { display:block; margin:7px 0; font-size:clamp(24px,3vw,36px); color:#143e62; }
+.arena-os-result-hero p { margin:0; font-size:13px; line-height:1.55; }
+.arena-os-result-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:12px 0; }
+.arena-os-result-metrics article { padding:12px; border:1px solid #d4e1f0; border-radius:9px; background:#fff; }
+.arena-os-result-metrics small { display:block; font-size:11px; color:#526b83; }
+.arena-os-result-metrics b { display:block; margin-top:7px; font-size:18px; color:#173b62; }
+.arena-os-next-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:16px; }
+.arena-os-next-actions button { min-height:76px; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border:1px solid #c6d9eb; border-radius:9px; background:#f1f7fd; color:#1e4b72; font-size:13px; font-weight:800; cursor:pointer; }
+.arena-os-next-actions button:hover { border-color:#5ba2df; background:#e3f1ff; }
+.arena-os-gear-art { position:relative; display:grid; place-items:center; min-height:112px; overflow:hidden; border-radius:10px; background:radial-gradient(circle at 50% 35%,#f5fbff,#d9e8f7 72%,#c6d9ec); }
+.arena-os-gear-art svg { width:100%; height:100%; min-height:112px; }
+.arena-os-gear-grid article { grid-template-columns:100px minmax(0,1fr); gap:14px; }
+.arena-os-gear-grid article p { font-size:13px; line-height:1.55; }
+.arena-os-gear-grid article h3 { font-size:16px; }
+.arena-os-outfit-preview { background:radial-gradient(circle at 50% 20%,#f5faff,#d9e9f6 72%,#c2d8e8); }
+.arena-os-outfit-preview .broker-avatar-3d { height:190px; }
+.arena-os-outfit-grid article p { font-size:13px; line-height:1.5; }
+@media(max-width:850px) {
+ .arena-os-stock-picker-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .arena-os-result-hero { grid-template-columns:1fr; }
+ .arena-os-result-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .arena-os-next-actions { grid-template-columns:1fr; }
+ .arena-os-gear-grid article { grid-template-columns:76px minmax(0,1fr); }
+}
+@media(max-width:620px) {
+ .arena-os-desktop { padding:6px 6px 8px; }
+ .arena-os-workspace { gap:6px; }
+ .arena-os-desktop-icons { width:52px; }
+ .arena-os-desktop-icon { width:50px; }
+ .arena-os-stock-picker-grid { grid-template-columns:1fr; }
+ .arena-os-video-tile { height:200px; }
+ .arena-os-client-goal { font-size:13px; }
+ .arena-os-taskbar { gap:2px; padding:0 5px; }
+ .arena-os-taskbar button { min-width:28px; }
+ .arena-os-gear-grid article { grid-template-columns:60px minmax(0,1fr); }
+}
+
+
+.arena-os-call-offer-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.arena-os-call-offer-summary>div { display:flex; flex-direction:column; gap:5px; min-width:0; padding:15px; border:1px solid #cbddec; border-radius:11px; background:linear-gradient(145deg,#fff,#f0f6fc); }
+.arena-os-call-offer-summary>div.player-estimate { border-color:#8bc8a5; background:linear-gradient(145deg,#f4fff8,#dff7e8); }
+.arena-os-call-offer-summary small,.arena-os-client-profile>div>small { color:#526d84; font-size:11px; font-weight:850; letter-spacing:.055em; }
+.arena-os-call-offer-summary strong { color:#153d60; font-size:clamp(20px,2.4vw,30px); line-height:1.2; }
+.arena-os-call-offer-summary span { color:#4e657b; font-size:12px; line-height:1.4; }
+.arena-os-client-profile { display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:10px; }
+.arena-os-client-profile>div { min-width:0; padding:13px; border:1px solid #d1e0ed; border-radius:10px; background:#fff; }
+.arena-os-client-profile p { margin:7px 0 0; color:#344e67; font-size:13px; line-height:1.55; }
+.arena-os-risk-profile { display:flex; flex-direction:column; gap:7px; background:#e9f3ff!important; border-color:#9ec7ed!important; }
+.arena-os-risk-profile strong { color:#123e67; font-size:clamp(18px,2vw,24px); line-height:1.25; }
+.arena-os-risk-profile span { color:#355a7b; font-size:12px; line-height:1.5; }
+.arena-os-home-avatar .broker-avatar-3d { width:100%; height:100%; }
+.arena-os-home .arena-os-welcome h1 { font-size:clamp(28px,3vw,40px); }
+.arena-os-stat-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.arena-os-stat-grid article { min-height:104px; padding:16px; }
+.arena-os-stat-grid article small { font-size:12px; }
+.arena-os-stat-grid article strong { font-size:22px; }
+.arena-os-call-result .arena-os-contact-unlock { margin:14px 0; }
+.arena-os-call-result .arena-os-contact-unlock p { font-size:13px; line-height:1.6; }
+.arena-os-result-metrics article p { margin:6px 0 0; font-size:12px; line-height:1.5; color:#526b83; }
+.arena-os-gear-art.gear-art-desk { background:linear-gradient(145deg,#f8f0e3,#d5e5f1); }
+.arena-os-gear-art.gear-art-mic { background:linear-gradient(145deg,#eaf8fa,#d7e6f5); }
+.arena-os-gear-art.gear-art-camera { background:linear-gradient(145deg,#e9f4ff,#c9dce9); }
+.arena-os-gear-art.gear-art-light { background:linear-gradient(145deg,#fff6d8,#e7e5d5); }
+.arena-os-gear-art.gear-art-background { background:linear-gradient(145deg,#e4f4ef,#d7e5ee); }
+@media(max-width:850px) {
+ .arena-os-call-offer-summary { grid-template-columns:1fr; }
+ .arena-os-client-profile { grid-template-columns:1fr; }
+ .arena-os-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
+.arena-os-workspace { position:relative; }
+.arena-os-window.restored { position:absolute; left:90px; top:24px; width:min(780px,calc(100% - 110px)); height:min(620px,calc(100% - 36px)); z-index:8; resize:both; box-sizing:border-box; }
+.arena-os-window-title { cursor:grab; user-select:none; touch-action:none; }
+.arena-os-window-title:active { cursor:grabbing; }
+.arena-os-window-title button { cursor:pointer; }
+.arena-os-desktop-icon { user-select:none; }
+
+.arena-os-end-shift-card { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:14px 0; padding:16px 18px; border:1px solid #c5d9eb; border-radius:11px; background:linear-gradient(120deg,#f2f8ff,#e5f3ff); }
+.arena-os-end-shift-card>div { display:grid; gap:5px; }
+.arena-os-end-shift-card>div>b { color:#183d61; font-size:16px; }
+.arena-os-end-shift-card p { margin:0; color:#4d667d; font-size:12px; line-height:1.55; }
+.arena-os-end-shift-card .arena-os-primary { flex:none; }
+.arena-os-desktop-icon { cursor:grab; }
+.arena-os-desktop-icon:active { cursor:grabbing; }
+@media(max-width:620px) { .arena-os-end-shift-card { align-items:stretch; flex-direction:column; } }
+
+.arena-os-volume-panel { display:grid; gap:9px; min-width:230px; }
+.arena-os-volume-panel input[type="range"] { width:100%; accent-color:#1e7b56; cursor:pointer; }
+.arena-os-sound-toggle { padding:8px 10px; border:1px solid #b7cddd; border-radius:7px; background:#edf5fb; color:#1b4667; font-size:12px; font-weight:750; cursor:pointer; }
+.arena-os-sound-toggle:hover { background:#dceefa; }

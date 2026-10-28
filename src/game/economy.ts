@@ -84,11 +84,10 @@ export const CLIENTS: ClientProfile[] = [
 ]
 
 export const HOUSING: HousingOption[] = [
- { id:'dorm', name:'Общежитие', price:0, dailyCost:350, firstImpression:-2, comfort:0, minDay:1, minReputation:0, description:'Тесно и шумно, зато можно начать без депозита.' },
- { id:'shared-flat', name:'Комната в общей квартире', price:12000, dailyCost:500, firstImpression:0, comfort:1, minDay:3, minReputation:0, description:'Больше тишины и места для оборудования.' },
- { id:'studio', name:'Небольшая студия', price:45000, dailyCost:800, firstImpression:2, comfort:3, minDay:6, minReputation:20, description:'Приватность для видеозвонков и рабочее место.' },
- { id:'city-apartment', name:'Хорошая квартира', price:135000, dailyCost:1400, firstImpression:4, comfort:5, minDay:10, minReputation:40, description:'Солидный вид, но ежедневные расходы заметны.' },
- { id:'premium-apartment', name:'Премиальные апартаменты', price:480000, dailyCost:3200, firstImpression:5, comfort:6, minDay:16, minReputation:65, description:'Статус помогает в части встреч, содержание дорого.' },
+ { id:'studio', name:'Маленькая квартира', price:0, dailyCost:0, firstImpression:0, comfort:1, minDay:1, minReputation:0, description:'Твоя стартовая квартира: скромная, но отдельная. Есть место для кровати, компьютера и первых улучшений; никаких общежитий.' },
+ { id:'city-apartment', name:'Хорошая квартира', price:65000, dailyCost:0, firstImpression:3, comfort:4, minDay:4, minReputation:12, description:'Больше пространства, аккуратный интерьер и более солидный фон для видеозвонков. Покупка/переезд — разовая игровая трата.' },
+ { id:'office', name:'Небольшой брокерский офис', price:30000, dailyCost:1200, firstImpression:4, comfort:4, minDay:8, minReputation:28, description:'Съёмный офис с отдельной переговорной зоной. Входной платёж — 30 000 ₽, затем 1 200 ₽ за каждый игровой день из капитала фирмы.' },
+ { id:'premium-apartment', name:'Апартаменты с панорамным видом', price:320000, dailyCost:0, firstImpression:5, comfort:6, minDay:13, minReputation:48, description:'Просторное жильё с панорамным окном и статусным интерьером — награда за устойчивую карьеру.' },
 ]
 export const ROOM_ITEMS: RoomItem[] = [
  { id:'desk-lamp', name:'Настольная лампа', price:1200, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'comfort', description:'Ровнее свет на лице и меньше усталости вечером.' },
@@ -98,7 +97,7 @@ export const ROOM_ITEMS: RoomItem[] = [
  { id:'hd-camera', name:'HD-веб-камера', price:7500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Более чёткая картинка на видеозвонке.' },
  { id:'neutral-backdrop', name:'Нейтральный фон', price:8000, firstImpression:2, videoQuality:1, suspicion:0, minDay:3, category:'background', description:'Аккуратная обстановка без показной роскоши.' },
  { id:'chromakey-kit', name:'Хромакей-комплект', price:18000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, minLevel:3, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
- { id:'partner-desk', name:'Дополнительный рабочий стол', price:9500, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'work', description:'Отдельное место для сотрудника или подготовки отчётов. Стол физически появится справа от твоего рабочего места; аккуратная рабочая зона немного повышает первое впечатление.' },
+ { id:'partner-desk', name:'Дополнительный рабочий стол', price:5800, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'work', description:'Отдельное место для сотрудника или подготовки отчётов. Стол физически появится справа от твоего рабочего места; аккуратная рабочая зона немного повышает первое впечатление.' },
  { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, minLevel:4, category:'video', description:'Профессиональный звук для сложных переговоров.' },
 ]
 export function getAvailableClients(day:number, reputation:number):ClientProfile[] {

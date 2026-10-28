@@ -311,8 +311,9 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
   const interactable = useRef(false)
-  const backWallColor = housingId === 'dorm' ? '#425566' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#d8d7d1'
-  const panoramicWindow = housingId === 'premium-apartment'
+  const officeRoom = housingId === 'office'
+  const backWallColor = officeRoom ? '#536777' : housingId === 'dorm' ? '#425566' : housingId === 'shared-flat' ? '#6d817c' : housingId === 'studio' ? '#7c8a81' : housingId === 'city-apartment' ? '#9b9b8b' : '#d8d7d1'
+  const panoramicWindow = housingId === 'premium-apartment' || officeRoom
   const dormRoom = housingId === 'dorm'
   const showStaffDesks = ownedItems.includes('partner-desk') || ownedEmployees.length > 0 || ownedBusinessAssets.includes('referral-desk') || businessUpgrades.includes('partner-office')
   const handleCanInteractChange = useCallback((value: boolean) => { interactable.current = value; onCanInteractChange(value) }, [onCanInteractChange])
@@ -359,7 +360,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {/* Plain uninterrupted blue-gray wall opposite the bed; decorative seams removed at the user's request. */}
       <Box position={[0, 0.16, 3.80]} size={[7.76, 0.22, 0.08]} color="#344c59" roughness={0.9} textureKind="wood" />
 
-      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : housingId === "premium-apartment" ? "#b7a98f" : "#75644f"} roughness={0.98} textureKind="wood" />
+      <Box position={[0, 0.02, 0]} size={[7.8, 0.05, 7.8]} color={officeRoom ? "#3e4a55" : housingId === "dorm" ? "#30251f" : housingId === "shared-flat" ? "#4b3c32" : housingId === "studio" ? "#55483a" : housingId === "city-apartment" ? "#645747" : housingId === "premium-apartment" ? "#b7a98f" : "#75644f"} roughness={0.98} textureKind="wood" />
       <FloorBoards housingId={housingId} />
 
       {/* Warm wood skirting, consistent around the room. */}
@@ -572,7 +573,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Removed misplaced floor props to keep the entry path clear. */}
 
-      {!dormRoom && <>
+      {!dormRoom && !officeRoom && <>
       {/* Bed aligned to the room axis: headboard and pillows at the window end, clear footboard at the opposite end. */}
       <Box position={[2.55, 0.36, 0.95]} size={[1.9, 0.35, 3.1]} color="#493c36" textureKind="wood" />
       <Box position={[2.55, 0.59, 0.95]} size={[1.82, 0.16, 3.02]} color="#ded8cb" roughness={0.98} textureKind="fabric" />
@@ -582,6 +583,18 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[2.55, 0.17, 2.55]} size={[1.92, 0.24, 0.14]} color="#5b4436" />
       {[-0.72, 0.72].map((x) => [-1.32, 1.32].map((z) => <Box key={x + ":" + z} position={[2.55 + x, 0.17, 0.95 + z]} size={[0.1, 0.3, 0.1]} color="#49372e" roughness={0.82} />))}
       </>}
+      {officeRoom && <group>
+        {/* Office tier replaces the bed with a compact client meeting area. */}
+        <Box position={[-1.65,0.62,0.95]} size={[2.05,0.14,1.05]} color="#4b5965" textureKind="wood" roughness={0.62}/>
+        <Box position={[-2.48,0.32,0.95]} size={[0.12,0.56,0.12]} color="#303d49" metalness={0.25}/>
+        <Box position={[-0.82,0.32,0.95]} size={[0.12,0.56,0.12]} color="#303d49" metalness={0.25}/>
+        <Box position={[-1.65,0.34,0.95]} size={[0.12,0.56,0.12]} color="#303d49" metalness={0.25}/>
+        <Box position={[-1.65,0.76,0.92]} size={[0.58,0.035,0.38]} color="#263b4e" roughness={0.5}/>
+        <Box position={[-1.65,0.8,0.92]} size={[0.5,0.025,0.3]} color="#8db5cf" metalness={0.18} roughness={0.28}/>
+        <Box position={[-1.65,2.35,-3.74]} size={[1.42,0.48,0.06]} color="#263b4e" roughness={0.5}/>
+        <Box position={[-1.65,2.35,-3.7]} size={[1.2,0.28,0.025]} color="#8ec6e7" emissive="#174c6e" emissiveIntensity={0.15}/>
+        <Box position={[-1.65,1.93,-3.68]} size={[0.9,0.035,0.025]} color="#d6b76b" metalness={0.45}/>
+      </group>}
       {dormRoom && <group>
         {/* Shared dormitory bunk: cheap steel frame and two thin mattresses. */}
         <Box position={[2.55,0.34,0.95]} size={[1.82,0.18,2.92]} color="#303a42" metalness={0.48} roughness={0.58}/>

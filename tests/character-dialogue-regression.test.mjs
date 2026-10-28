@@ -11,7 +11,9 @@ test('3D avatar uses a stable floor origin and frames the full body', async () =
   assert.match(source, /position=\{seated \? \[0, -0\.15, 0\] : \[0, 0, 0\]\}/)
   assert.match(source, /scale=\{seated \? 0\.72 : 1\}/)
   assert.doesNotMatch(source, /root\.current\.position\.y\s*=/)
-  assert.match(source, /camera=\{\{ position: \[0, 1\.38, compact \? 6\.2 : 5\.9\]/)
+  assert.match(source, /camera=\{\{ position: \[0, compact \? 2\.15 : 1\.8, compact \? 4\.5 : 5\.9\]/)
+  assert.match(source, /camera\.lookAt\(0, compact \? 1\.72 : 1\.28, 0\)/)
+  assert.match(source, /outfit === 'premium' \? '#17283f'/)
 })
 
 test('hired staff use the same detailed model as the player', async () => {
@@ -62,8 +64,8 @@ test('business and employee income is credited to firm capital, not the broker w
   const sleepStart = source.indexOf('function sleepNow')
   const sleepEnd = source.indexOf('  return (\n    <main', sleepStart)
   const sleep = source.slice(sleepStart, sleepEnd)
-  assert.match(sleep, /setCash\(\(value\) => Math\.max\(0, value \+ DAILY_SALARY\)\)/)
-  assert.match(sleep, /setFirmCapital\(\(value\) => Math\.max\(0, value \+ businessNetIncome \+ staffNetIncome\)\)/)
+  assert.match(sleep, /setCash\(\(value\) => Math\.max\(0, value \+ DAILY_SALARY - personalHousingCost\)\)/)
+  assert.match(sleep, /setFirmCapital\(\(value\) => Math\.max\(0, value \+ businessNetIncome \+ staffNetIncome - officeRent\)\)/)
   assert.doesNotMatch(sleep, /const available = cash \+ DAILY_SALARY \+ businessNetIncome \+ staffNetIncome/)
   assert.match(sleep, /businessNetIncome \+ staffNetIncome/)
 })
@@ -152,4 +154,82 @@ test('displayed stock risk labels match the suitability catalog', async () => {
   assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
   assert.match(arena, /ticker:'TAPK', name:'ТапокТех', price:64, risk:'Очень высокий'/)
   assert.match(economy, /OGUR: \{ label:'Прибыль и повторные покупки'.*risk:'Средний'/)
+})
+
+
+test('the in-game day advances at a readable pace and clocks render whole minutes', async () => {
+  const app = await read('src/App.tsx')
+  const arena = await read('src/ArenaOS.tsx')
+  assert.match(app, /setGameMinutes\(\(value\) => \(value \+ 1\.6\) % \(24 \* 60\)\), 1000\)/)
+  assert.match(app, /Math\.floor\(gameMinutes % 60\)/)
+  assert.match(arena, /const gameClockLabel = String\(Math\.floor\(props\.gameMinutes \/ 60\) % 24\)/)
+})
+
+test('OS taskbar remains outside the app window and can control sound at all times', async () => {
+  const source = await read('src/ArenaOS.tsx')
+  const desktop = source.slice(source.indexOf('<div className="arena-os-desktop">'), source.indexOf('{startMenuOpen && <div className="arena-os-start-menu"'))
+  assert.match(desktop, /arena-os-workspace/)
+  assert.match(desktop, /\{windowOpen && <main/)
+  assert.match(desktop, /<footer className="arena-os-taskbar"/)
+  assert.match(desktop, /setGameVolume\(Number\(e\.target\.value\)\)/)
+  assert.match(desktop, /gameClockLabel/)
+  assert.match(source, /onDragStart=.*dataTransfer\.setData/)
+  assert.match(source, /windowDragRef\.current=/)
+})
+
+test('post-call results explain cash, firm commission, XP, reputation, referral, and next actions', async () => {
+  const source = await read('src/ArenaOS.tsx')
+  assert.match(source, /ТВОЙ ЛИЧНЫЙ ЗАРАБОТОК/)
+  assert.match(source, /КОМИССИЯ ФИРМЫ/)
+  assert.match(source, /КАПИТАЛ КЛИЕНТА/)
+  assert.match(source, /XP нельзя потратить как деньги/)
+  assert.match(source, /рекомендует тебя знакомым/)
+  assert.match(source, /Открыть клиентскую базу/)
+  assert.match(source, /Развивать фирму/)
+})
+
+test('housing progression starts in a small apartment and rents an office as level three', async () => {
+  const economy = await read('src/game/economy.ts')
+  const room = await read('src/RoomScene.tsx')
+  const app = await read('src/App.tsx')
+  assert.match(economy, /STARTING_HOUSING_ID = 'studio'/)
+  assert.match(economy, /id:'studio', name:'Маленькая квартира', price:0/)
+  assert.match(economy, /id:'city-apartment', name:'Хорошая квартира'/)
+  assert.match(economy, /id:'office', name:'Небольшой брокерский офис', price:30000, dailyCost:1200/)
+  assert.match(economy, /id:'premium-apartment', name:'Апартаменты с панорамным видом'/)
+  assert.doesNotMatch(economy.slice(economy.indexOf('export const HOUSING'), economy.indexOf('export const ROOM_ITEMS')), /name:'Общежитие'/)
+  assert.match(app, /data\.housingId === 'dorm' \? 'studio'/)
+  assert.match(room, /const officeRoom = housingId === 'office'/)
+  assert.match(room, /!dormRoom && !officeRoom/)
+})
+
+test('equipment has custom product illustrations and a desk affordable from starting cash', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const economy = await read('src/game/economy.ts')
+  assert.match(arena, /function GearIllustration/)
+  assert.match(arena, /gear-art-'\+g\.icon/)
+  assert.match(arena, /partner-desk',name:'Дополнительный рабочий стол',price:5800/)
+  assert.match(economy, /id:'partner-desk', name:'Дополнительный рабочий стол', price:5800/)
+})
+
+test('client dialogue no longer appends the same generic plan-B suffix to every answer', async () => {
+  const dialogue = await read('src/game/dialogue.ts')
+  const arena = await read('src/ArenaOS.tsx')
+  assert.doesNotMatch(dialogue, /На ближайшем отчёте сверю тезис/)
+  assert.doesNotMatch(arena, /План Б: /)
+  assert.match(arena, /function clientStockReaction/)
+  assert.match(arena, /function clientHesitationLine/)
+  assert.match(arena, /function clientClosingLine/)
+  assert.match(arena, /const start = \(turn \* 2 \+ \(client\.id\.length % bank\.length\)\)/)
+})
+
+
+test('the broker can end the shift early after serving two clients and reach the sleep flow', async () => {
+  const arena = await read('src/ArenaOS.tsx')
+  const app = await read('src/App.tsx')
+  assert.match(arena, /props\.callsToday>=2/)
+  assert.match(arena, /onClick=\{props\.onEndDay\}/)
+  assert.match(arena, /Можешь продолжить до дневного лимита/)
+  assert.match(app, /onEndDay=\{endDay\}/)
+  assert.match(app, /function endDay\(\)/)
 })
