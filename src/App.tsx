@@ -1150,7 +1150,7 @@ export default function App() {
     let clientReaction = appliedDelta >= 7 ? strong[(seed + questionIndex) % strong.length] : appliedDelta <= -8 ? weak[(seed + questionIndex) % weak.length] : mixed[(seed + questionIndex) % mixed.length]
     const companyReplies = tickerReplies[activeCompany.ticker] ?? []
     if (companyReplies.length) {
-      clientReaction = companyReplies[(questionIndex + seed) % companyReplies.length]
+      clientReaction = companyReplies[questionIndex % companyReplies.length]
       if (appliedDelta < 3) clientReaction = '«Пока это не снимает мои сомнения. Давайте вернёмся к проверяемым цифрам». ' + clientReaction
     }
     if (reckless) clientReaction = '«Вы только что назвали риск гарантированным нулём. Для меня это не уверенность, а красный флаг. На этом рекомендацию прекращаем».'
