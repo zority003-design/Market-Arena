@@ -1,132 +1,196 @@
 import type { ClientProfile } from './economy'
-type DialogueStock = { name: string; ticker: string; upside: string; downside: string; catalyst: string; redFlags: string }
 
-export function evaluateFreeReply(text: string, client: ClientProfile, stock: DialogueStock | null, turn = 0) {
-  const s = text.toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim()
-  const temperament = client.temperament.toLowerCase()
-  const hasRisk = /риск|долг|убыт|потер|волат|гарант|паден|комисс|минус|сниз|сценари|ликвид|ограничен|нестабил|непредсказ|резерв|налог|просад|не обещ|не гарант|конкурен|расход|возврат|санкц|зависим|дефицит/.test(s)
-  const hasUpside = /рост|вырос|прибыл|выруч|спрос|контракт|потенциал|развити|дивиденд|рынок|продаж|расшир|драйвер|преимущ|долгосроч|увелич|клиент|проект|продукт|марж|денежн|эффектив|рентабель|стабиль|сокращ|новый заказ|катализатор/.test(s)
-  const hasPlan = /если|когда|порог|лимит|доля|срок|пересмотр|стоп|выход|сравн|провер|отчет|контрол|раздел|частями|резерв|диверсиф|при услов|не подтверд|зафиксир|продад|ограничим|каждый квартал|раз в месяц/.test(s)
+type DialogueStock = {
+  name: string
+  ticker: string
+  upside: string
+  downside: string
+  catalyst: string
+  redFlags: string
+}
+
+type DialogueResult = { delta: number; reply: string; equipmentPenalty?: number }
+
+const normalize = (value: string) => value.toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim()
+
+function clientVoice(client: ClientProfile) {
+  const temperament = normalize(client.temperament)
+  if (/осторож|недовер|скептич/.test(temperament)) return 'skeptic'
+  if (/любозн|любопыт/.test(temperament)) return 'curious'
+  if (/требователь|аналит|дотош|холодно/.test(temperament)) return 'analyst'
+  if (/занят|прямолин|нетерпел/.test(temperament)) return 'busy'
+  if (/импульсив|эмоцион|азарт/.test(temperament)) return 'impulsive'
+  if (/торгу/.test(temperament)) return 'bargainer'
+  if (/статус/.test(temperament)) return 'status'
+  return 'dry'
+}
+
+function equipmentIssue(client: ClientProfile, ownedItems: string[], turn: number) {
+  const hasMic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
+  const hasCamera = ownedItems.includes('hd-camera')
+  const hasBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
+  const hasLight = ownedItems.includes('desk-lamp') || ownedItems.includes('ring-light')
+  const issues: Array<{ key: string; line: string; penalty: number }> = []
+  if (!hasMic) issues.push({ key: 'mic', penalty: client.tier >= 2 ? 4 : 2, line: [
+    '«Простите, вы сказали “денежный поток” или “денежный кот”? У меня в наушниках сейчас финансовый джаз».',
+    '«Я слышу вас так, будто вы звоните из стиральной машины. Можно цифры ещё раз, но уже из цивилизации?»',
+    '«Звук хрипит. Если это специальный эффект для разговора о рисках — получилось слишком убедительно».',
+  ][(client.name.length + turn) % 3] })
+  if (!hasCamera) issues.push({ key: 'camera', penalty: client.tier >= 2 || client.statusSensitive ? 4 : 2, line: [
+    '«Камера показывает вас в разрешении “свидетель под защитой”. Для крупной сделки хотелось бы увидеть лицо, а не легенду».',
+    '«У вас лицо распалось на пиксели. Надеюсь, финансовая модель собрана лучше, чем изображение».',
+    '«Картинка такая мыльная, что я уже не уверен, вы брокер или воспоминание о брокере».',
+  ][(client.name.length + turn + 1) % 3] })
+  if (!hasBackground && (client.tier >= 2 || client.statusSensitive)) issues.push({ key: 'background', penalty: 2, line: [
+    '«На заднем плане сушится полотенце. Это диверсификация интерьера или часть инвестиционной стратегии?»',
+    '«Вижу сушилку, коробки и, кажется, финансовую независимость. Давайте хотя бы начнём с цифр».',
+    '«Обстановка домашняя. Я не против удалёнки, но кот на шкафу выглядит старшим партнёром вашей фирмы».',
+  ][(client.name.length + turn + 2) % 3] })
+  if (!hasLight && client.tier >= 3) issues.push({ key: 'light', penalty: 1, line: '«У вас лицо в тени. Это драматическая подача риска или просто пора купить лампу?»' })
+  if (!issues.length) return null
+  // Missing equipment matters, but it should not interrupt every single turn.
+  const chosen = issues[(client.name.length + turn) % issues.length]
+  if (turn === 0 || (turn + client.name.length) % 3 !== 0) return null
+  return chosen
+}
+
+export function getEquipmentOpening(client: ClientProfile, ownedItems: string[] = []) {
+  const hasMic = ownedItems.includes('headset') || ownedItems.includes('pro-mic')
+  const hasCamera = ownedItems.includes('hd-camera')
+  const hasBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
+  const lines: string[] = []
+  if (!hasMic) lines.push(client.tier >= 2
+    ? 'Клиент: «Звук глухой. Я привык принимать решения по цифрам, а не по археологическим раскопкам в аудиодорожке».'
+    : 'Клиент: «У вас микрофон звучит так, будто он должен мне денег. Повторите, пожалуйста, последнее предложение».')
+  if (!hasCamera) lines.push(client.tier >= 2 || client.statusSensitive
+    ? 'Клиент: «Картинка мыльная. Для крупного капитала хотелось бы видеть собеседника, а не пиксельную реконструкцию».'
+    : 'Клиент: «Вы немного размыты. Это видеосвязь или мой прогноз на следующий квартал?»')
+  if (!hasBackground && (client.tier >= 2 || client.statusSensitive)) lines.push('Клиент оглядывается: «Вижу домашний офис. Надеюсь, кот за кадром не отвечает за комплаенс».')
+  // Keep the opening lively without flooding the chat with three complaints at once.
+  return lines.slice(0, client.tier >= 2 ? 2 : 1)
+}
+
+export function evaluateFreeReply(
+  text: string,
+  client: ClientProfile,
+  stock: DialogueStock | null,
+  turn = 0,
+  ownedItems: string[] = [],
+): DialogueResult {
+  const s = normalize(text)
+  const temperament = normalize(client.temperament)
+  const voice = clientVoice(client)
+  const hasRisk = /риск|долг|убыт|потер|волат|гарант|паден|комисс|минус|сниз|сценари|ликвид|ограничен|нестабил|непредсказ|резерв|налог|просад|не обещ|не гарант|конкурен|расход|возврат|санкц|зависим|дефицит|неудач/.test(s)
+  const hasUpside = /рост|вырос|прибыл|выруч|спрос|контракт|потенциал|развити|дивиденд|рынок|продаж|расшир|драйвер|преимущ|долгосроч|увелич|клиент|проект|продукт|марж|денежн|эффектив|рентабель|стабиль|сокращ|новый заказ|катализатор|доход/.test(s)
+  const hasPlan = /если|когда|порог|лимит|доля|срок|пересмотр|стоп|выход|сравн|провер|отчет|контрол|раздел|частями|резерв|диверсиф|при услов|не подтверд|зафиксир|продад|ограничим|каждый квартал|раз в месяц|план/.test(s)
   const hasQuestion = /\?|почему|как |сколько|что если|какой|какая|какие|когда|зачем/.test(s)
   const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать|не обещаю/.test(s)
   const promises = !rejectsGuarantee && /гарантирую|гарантированно выраст|точно вырастет|без риска|не может упасть|железно|сто процентов|100\s*%|удвоим|верняк|беспроигрыш|гарантированн(?:ый|ая|ое) доход/.test(s)
-  const nonsense = /инопланет|космос|ляля|бред|единорог|попугай|магия|проклят|сатан|похорон|морг|кладбищ|труп|покойник|золотой унитаз/.test(s)
-  const joke = /шут|ха-ха|хаха|юмор|мем|похорон|морг|кладбищ|труп|покойник|котол[её]т|золотой унитаз/.test(s)
+  const nonsense = /инопланет|космос|ляля|бред|единорог|попугай|магия|проклят|сатан|похорон|морг|кладбищ|труп|покойник|золотой унитаз|котол[её]т|единорог|ждун|шаман|космич/.test(s)
+  const joke = /шут|ха-ха|хаха|юмор|мем|похорон|морг|кладбищ|труп|покойник|котол[её]т|золотой унитаз|кот|сушилк|стиральн|пиксел/.test(s)
   const concrete = /\d|%|руб|₽|миллион|тысяч|срок|отч[её]т|выруч|долг|марж|прибыл|контракт|квартал|месяц|год|пункт/.test(s)
-  const goal = client.goal.toLowerCase()
-  const needsLiquidity = /быстро|ликвид|замороз|понадоб|оборотн|вернуть|снять/.test(goal + ' ' + client.quote.toLowerCase())
-  const needsSafety = /сохран|не потер|резерв|риск|налог|комисс|худш|провал/.test(goal + ' ' + client.quote.toLowerCase())
+  const goal = normalize(client.goal)
+  const needsLiquidity = /быстро|ликвид|замороз|понадоб|оборотн|вернуть|снять/.test(goal + ' ' + normalize(client.quote))
+  const needsSafety = /сохран|не потер|резерв|риск|налог|комисс|худш|провал/.test(goal + ' ' + normalize(client.quote))
   let delta = -3
   let reply = ''
 
-  if (!s) return { delta: -2, reply: '«Соединение есть, аргумента пока нет. Начните с одной мысли о компании — я не беру плату за паузы, только теряю терпение».' }
+  if (!s) return { delta: -2, reply: '«Алло? Связь есть, аргумента нет. Я пока не списываю это в убыток, но секундомер уже начал нервничать».' }
 
   if (promises) {
     delta = -16
-    reply = '«Обещание гарантированной доходности — красный флаг. Я просил рекомендацию, а не рекламный буклет с мелким шрифтом. Назовите сценарий убытка и условия, при которых вы откажетесь от идеи».'
+    reply = [
+      '«Гарантированная доходность? Прекрасно. Осталось гарантировать, что мой бухгалтер не расплачется. Покажите риск и условия выхода».',
+      '«Рынок не подписывал с вами договор о росте. Уберите магию из презентации и назовите сценарий убытка».',
+      '«Слово “гарантирую” прозвучало громче сирены. Кто покрывает убыток и где это написано?»',
+    ][Math.abs(turn) % 3]
   } else if (nonsense && !(hasUpside && hasRisk)) {
-    delta = -7
-    reply = joke
-      ? '«Юмор принят к сведению, капитал — категорически против участия в этом стендапе. Вернёмся к бизнесу: что приносит компании деньги и что может всё испортить?»'
-      : '«Не понял, как это связано с моими деньгами. Объясните на примере компании, а не космической программы».'
+    delta = joke ? -4 : -7
+    reply = [
+      '«Шутка принята. Финансовый директор внутри моей головы сейчас просит вызвать взрослого. Вернёмся к бизнесу».',
+      '«Это звучит как питч после трёх энергетиков и одного очень странного сна. Где выручка, риск и план?»',
+      '«Ставлю шутке 8/10, инвестиционному обоснованию — “приложите документ”. Что приносит компании деньги?»',
+      '«Креатив засчитан. Но я вкладываю деньги, а не подписываюсь на сезон вашего подкаста. Где факты?»',
+    ][Math.abs(turn + client.name.length) % 4]
   } else if (hasRisk && hasUpside && hasPlan) {
     delta = concrete ? 13 : 10
     const proof = stock ? stock.catalyst : 'квартальные отчёты и денежный поток'
     const failure = stock ? stock.redFlags : 'ухудшение выручки и рост долга'
-    reply = client.tier >= 3 || temperament.includes('скептич') || temperament.includes('аналит')
-      ? `«Это уже похоже на управляемое решение. Для ${stock ? stock.name : 'этой идеи'} проверяем ${proof.toLowerCase()} и заранее отказываемся от тезиса, если проявится ${failure.toLowerCase()}. Какой показатель смотрим первым и с какой периодичностью?»`
-      : `«Хорошо: есть причина для роста, неприятный сценарий и план, а не молитва котировке. Договорились: проверяем ${proof.toLowerCase()}, а если проявится ${failure.toLowerCase()} — пересматриваем позицию. Какой срок контроля ставим?»`
+    reply = voice === 'analyst'
+      ? `«Вот это уже можно занести в таблицу, а не в книгу пожеланий. Проверяем ${proof.toLowerCase()}, а при ${failure.toLowerCase()} пересматриваем тезис. Какой показатель контролируем первым?»`
+      : voice === 'busy'
+        ? `«Коротко, конкретно, с планом выхода — вы только что сэкономили мне кофе-брейк. Проверяем ${proof.toLowerCase()}; при ${failure.toLowerCase()} пересматриваем позицию. Срок контроля?»`
+        : `«Есть драйвер, риск и план, а не молитва котировке. Проверяем ${proof.toLowerCase()}, а при ${failure.toLowerCase()} меняем решение. Какой срок контроля ставим?»`
   } else if (hasRisk && hasUpside) {
     delta = concrete ? 10 : 8
-    reply = `«Баланс уже есть. ${stock ? stock.name + ': ' + stock.catalyst : 'Теперь нужен проверяемый катализатор'}. Но одного тезиса мало: ${stock ? stock.downside : 'назовите конкретное событие, которое способно сломать прогноз'}. Как поймём, что пора признать ошибку?»`
+    reply = voice === 'skeptic'
+      ? `«Наконец-то вы не продаёте мне бессмертие в рассрочку. ${stock ? stock.name + ': ' + stock.catalyst : 'Теперь нужен проверяемый катализатор'}. А что первым сломает эту историю: ${stock ? stock.downside.toLowerCase() : 'какой конкретный риск'}?»`
+      : `«Потенциал и обратная сторона в одном разговоре — редкий вид брокерской фауны. ${stock ? stock.name + ': ' + stock.catalyst : 'Теперь нужен проверяемый катализатор'}. Что заставит вас признать, что тезис не работает?»`
   } else if (hasRisk && hasPlan) {
     delta = 8
     reply = needsLiquidity
-      ? '«План выхода — полезно, особенно если деньги могут понадобиться внезапно. Но как идея заработает до выхода? Назовите источник дохода и срок, за который проверим результат».'
-      : `«Вы обозначили, как ограничить ущерб. Теперь привяжите план к фактам: ${stock ? stock.catalyst : 'какой показатель должен улучшиться'}, и что будем делать, если он ухудшится?»`
+      ? '«План выхода есть — хорошо. Мне бы хотелось, чтобы деньги не оказались в отпуске без обратного билета. За какой срок проверим результат и как быстро можно выйти?»'
+      : `«Вы хотя бы предусмотрели аварийный выход — уже лучше, чем “держим, пока не позеленеет”. ${stock ? stock.catalyst : 'Какой показатель должен улучшиться'}? Что делаем, если он ухудшится?»`
   } else if (hasUpside && hasPlan) {
     delta = 8
-    reply = `«Есть тезис и действия, но не хватает честной обратной стороны. ${stock ? stock.name + ' может столкнуться с тем, что ' + stock.downside.toLowerCase() : 'Что именно способно сорвать ваш прогноз?'} Назовите условие, при котором вы измените рекомендацию».`
+    reply = `«Есть идея и план, но не хватает честной обратной стороны. ${stock ? stock.name + ' может столкнуться с тем, что ' + stock.downside.toLowerCase() : 'Что именно способно сорвать прогноз?'} Назовите условие, при котором вы измените рекомендацию».`
   } else if (hasRisk) {
     delta = 5
-    reply = `«Риск не скрываете — это плюс. ${stock ? 'У ' + stock.name + ' потенциал связан с тем, что ' + stock.upside.charAt(0).toLowerCase() + stock.upside.slice(1) : 'Теперь объясните, за счёт чего идея может сработать'}. Что здесь главный драйвер, а не просто надежда?»`
+    reply = voice === 'curious'
+      ? `«Спасибо, что не прячете риск под ковёр. А теперь расскажите, за счёт чего идея вообще может сработать: ${stock ? stock.upside : 'какой здесь главный драйвер'}?»`
+      : `«Риск назван — это плюс. Но одним тормозом машину не разгонишь. ${stock ? stock.name + ': ' + stock.upside : 'За счёт чего идея может сработать'} Что здесь главный драйвер?»`
   } else if (hasUpside) {
     delta = concrete ? 6 : 4
     reply = needsSafety
-      ? `«Аргумент услышал, но моя главная задача — не потерять контроль над деньгами. ${stock ? 'У ' + stock.name + ' риск такой: ' + stock.downside : 'Назовите наиболее вероятный способ потерять деньги'}. Как ограничим ущерб, если прогноз не сбудется?»`
-      : `«Потенциал понятен, но рост выручки сам по себе не гарантирует рост акции. ${stock ? 'Красный флаг по ' + stock.name + ': ' + stock.redFlags : 'Какие факты опровергнут вашу идею?'} Какой сигнал заставит вас передумать?»`
+      ? `«Потенциал услышал, но моя цель — не потерять контроль над деньгами. ${stock ? stock.name + ': риск в том, что ' + stock.downside.toLowerCase() : 'Назовите наиболее вероятный способ потерять деньги'}. Как ограничим ущерб?»`
+      : `«Рост выручки — хорошая новость, но котировка не обязана аплодировать. ${stock ? 'Красный флаг по ' + stock.name + ': ' + stock.redFlags : 'Какие факты опровергнут идею?'} Что заставит вас передумать?»`
   } else if (hasPlan) {
     delta = 2
-    reply = '«Порядок действий есть, но пока непонятно, ради чего его запускать. Сформулируйте тезис в одном предложении: что должно улучшиться в бизнесе и почему рынок может этого недооценивать».'
+    reply = '«План действий есть, но пока это инструкция к шкафу без самого шкафа. Что именно должно улучшиться в бизнесе и почему рынок может этого не заметить?»'
   } else if (joke) {
-    delta = -3
-    reply = '«Улыбнулся, но комиссию за стендап я не плачу. Свяжите шутку с реальной бизнес-моделью: откуда выручка, где риск и что проверим?»'
+    delta = voice === 'dry' ? 0 : -2
+    reply = voice === 'impulsive'
+      ? '«Ха! Ладно, вы хотя бы живой человек. Теперь серьёзно: где деньги, где риск и как не купить билет на финансовые американские горки без ремня?»'
+      : '«Улыбнулся. Комиссию за стендап не плачу, но шанс на второй раунд дам. Свяжите шутку с выручкой, риском и проверяемым фактом».'
   } else if (hasQuestion) {
     delta = 0
-    reply = `«Хороший вопрос — и именно на него я жду ответ от брокера. Моя цель — ${client.goal.toLowerCase()}. Объясните, как выбранная идея помогает с этой задачей и какой у неё главный недостаток».`
+    reply = `«Вопрос хороший — но я нанял брокера не для того, чтобы мы вместе искали ответы в интернете. Моя цель: ${client.goal.toLowerCase()}. Как эта идея помогает и где её слабое место?»`
   } else {
     delta = -2
-    reply = `«Я понял вашу мысль не до конца. Моя задача — ${client.goal.toLowerCase()}. Давайте конкретно: почему ${stock ? stock.name : 'эта компания'} может оказаться удачной, что может пойти не так и какой факт заставит вас пересмотреть совет?»`
+    reply = [
+      `«Я услышал слова, но не инвестиционную мысль. Моя цель — ${client.goal.toLowerCase()}. Объясните, почему ${stock ? stock.name : 'эта компания'} может сработать и что способно испортить план».`,
+      `«Сейчас это было похоже на трейлер к фильму: интрига есть, сюжета пока нет. Моя цель — ${client.goal.toLowerCase()}. Дайте главный аргумент и главный риск».`,
+      `«Я записал это в категорию “звучит уверенно”. Теперь нужна категория “можно проверить”. Моя цель — ${client.goal.toLowerCase()}; что вы предлагаете?»`,
+    ][Math.abs(turn + client.name.length) % 3]
   }
 
   if (stock && /конкур|клиент|продукт|спрос|контракт|выруч|рынок|марж|денежн/.test(s) && hasUpside) delta += 1
-  if ((temperament.includes('скептич') || temperament.includes('недовер')) && !hasRisk) delta -= 2
-  if ((temperament.includes('занят') || temperament.includes('прямолин')) && text.length > 280) {
+  if ((voice === 'skeptic') && !hasRisk) delta -= 2
+  if ((voice === 'busy') && text.length > 280) {
     delta -= 2
-    reply = `«Слишком длинно. У меня конкретная цель: ${client.goal.toLowerCase()}. Скажите в двух фразах: главный аргумент и главный риск — без экскурсии на сорок минут».`
+    reply = `«Я просил две фразы, а получил аудиокнигу с бонусной главой. Моя цель — ${client.goal.toLowerCase()}. Главный аргумент и главный риск — коротко».`
   }
-  if (s && !promises && !nonsense) {
-    const opening =
-      temperament.includes('осторож') ? 'Давайте без обещаний: ' :
-      temperament.includes('любозн') || temperament.includes('любопыт') ? 'Хочу понять механику: ' :
-      temperament.includes('требователь') ? 'Зафиксирую критерии: ' :
-      temperament.includes('деловая') ? 'Мне важен практический результат: ' :
-      temperament.includes('скептич') ? 'Пока не убеждён: ' :
-      temperament.includes('занят') ? 'Коротко, пожалуйста: ' :
-      temperament.includes('импульсив') ? 'Остановите меня от поспешного решения: ' :
-      temperament.includes('дотош') ? 'Запишу это в расчёт: ' :
-      temperament.includes('торгу') ? 'А теперь к условиям: ' :
-      temperament.includes('быстрая на решения') ? 'Если цифры сходятся, не будем затягивать: ' :
-      temperament.includes('статус') ? 'Мне нужен отчёт, который можно показать партнёрам: ' :
-      temperament.includes('недоверчив') ? 'Проверю, что здесь не спрятано: ' :
-      temperament.includes('соревнов') ? 'Сравню результат с рынком: ' :
-      temperament.includes('эмоцион') ? 'Без обёртки: ' :
-      temperament.includes('аналит') || temperament.includes('холодно') ? 'Зафиксирую допущения: ' :
-      temperament.includes('нетерпелив') ? 'Назовите скорость и цену ошибки: ' : ''
-    if (opening) reply = reply.replace(/^«/, '«' + opening)
-    if ((temperament.includes('импульсив') || temperament.includes('нетерпелив')) && hasRisk && hasPlan) delta += 2
-    if ((temperament.includes('дотош') || temperament.includes('аналит') || temperament.includes('требователь')) && !concrete) delta -= 2
-    if (temperament.includes('статус') && hasPlan && hasRisk) delta += 1
-  }
-  if (s && promises) {
-    const warningReplies = [
-      '«Обещание гарантированной доходности — красный флаг. Назовите сценарий убытка, а не рекламный слоган».',
-      '«Гарантия доходности — красный флаг. Даже если произнести её голосом диктора, риск не исчезнет».',
-      '«Слово “гарантирую” — красный флаг. Кто покрывает убыток и на каком основании?»',
-      '«Это красный флаг: рынок не подписывал с вами договор о росте. Вернитесь к риску и условиям выхода».',
-      '«Красный флаг. Я не покупаю уверенность брокера — покажите факты, предел потерь и план пересмотра».',
-    ]
-    reply = warningReplies[Math.abs(turn) % warningReplies.length]
-  } else if (s && nonsense) {
-    const absurdReplies = [
-      '«Юмор понял, капитал не смеётся. Свяжите шутку с выручкой, риском и проверяемым фактом».',
-      '«Звучит как презентация после трёх энергетиков. Где денежный поток и что может сломать тезис?»',
-      '«Поставлю шутке семь из десяти, инвестиционному обоснованию — пока два. Вернёмся к цифрам».',
-      '«Если это метафора, переведите её на язык маржи, спроса и убытков. Если нет — тем более».',
-      '«Креатив засчитан. Теперь покажите, почему клиенту стоит рисковать деньгами, а не только слухом».',
-    ]
-    reply = absurdReplies[Math.abs(turn) % absurdReplies.length]
-  }
-  if (s && !promises && !nonsense && turn > 0) {
+  if ((voice === 'analyst') && !concrete) delta -= 2
+  if (voice === 'impulsive' && hasRisk && hasPlan) delta += 2
+
+  // Repeated turns ask a new, client-relevant question instead of appending the same lecture.
+  if (!promises && !nonsense && turn > 0) {
     const followUps = [
-      stock ? 'Следом разберём неприятную сторону: ' + stock.downside + ' Что здесь может ударить по результату первым?' : 'Какой недостаток этой идеи вы считаете самым серьёзным?',
-      'С учётом вашей цели — «' + client.goal.toLowerCase() + '» — какой размер позиции позволит не поставить под удар остальные планы?',
-      stock ? 'Главный катализатор — ' + stock.catalyst + ' Как поймём, что он действительно сработал, а не остался обещанием?' : 'Какое событие подтвердит, что идея работает?',
-      stock ? 'Красный флаг — ' + stock.redFlags + ' Какой из этих признаков заставит вас отказаться от рекомендации?' : 'Какой факт заставит вас отказаться от рекомендации?',
-      'Сравним с альтернативой: что должно произойти, чтобы эта акция оказалась лучше другого варианта для ваших денег?'
+      stock ? `И контрольный вопрос: ${stock.downside} Какой сигнал покажет, что риск уже материализуется?` : 'Какой сигнал покажет, что главный риск уже материализуется?',
+      `С учётом цели «${client.goal.toLowerCase()}», какую часть капитала разумно оставить в резерве?`,
+      stock ? `Что должно произойти, чтобы подтвердился катализатор: ${stock.catalyst.toLowerCase()}?` : 'Какой факт подтвердит, что идея работает?',
+      stock ? `Назовите красный флаг: ${stock.redFlags.toLowerCase()}. При каком условии вы откажетесь от рекомендации?` : 'При каком условии вы откажетесь от рекомендации?',
+      'А если у конкурента окажется предложение дешевле и проще — почему клиенту останется смысл в этой идее?',
     ]
-    const followUp = followUps[Math.abs(turn) % followUps.length]
-    reply = reply.endsWith('»') ? reply.slice(0, -1) + ' ' + followUp + '»' : reply + ' ' + followUp
+    const followUp = followUps[Math.abs(turn + client.name.length) % followUps.length]
+    reply = reply.replace(/[»”]$/, '') + ' ' + followUp + '»'
   }
-  return { delta: Math.max(-18, Math.min(14, delta)), reply }
+
+  const issue = equipmentIssue(client, ownedItems, turn)
+  if (issue && !promises) {
+    delta -= issue.penalty
+    reply = reply.replace(/[»”]$/, '') + ' ' + issue.line + '»'
+  }
+
+  return { delta: Math.max(-18, Math.min(14, delta)), reply, equipmentPenalty: issue?.penalty ?? 0 }
 }
