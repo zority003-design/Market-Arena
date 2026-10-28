@@ -173,6 +173,21 @@ export function evaluateFreeReply(
   if ((voice === 'analyst') && !concrete) delta -= 2
   if (voice === 'impulsive' && hasRisk && hasPlan) delta += 2
 
+  if (!promises && !nonsense) {
+    const opening =
+      temperament.includes('осторож') ? 'Давайте без обещаний: ' :
+      temperament.includes('соревнов') ? 'Сравню результат с рынком: ' :
+      temperament.includes('аналит') || temperament.includes('холодно') ? 'Зафиксирую допущения: ' :
+      temperament.includes('дотош') ? 'Запишу это в расчёт: ' :
+      temperament.includes('требователь') ? 'Зафиксирую критерии: ' :
+      temperament.includes('занят') ? 'Коротко, пожалуйста: ' :
+      temperament.includes('любозн') || temperament.includes('любопыт') ? 'Хочу понять механику: ' :
+      temperament.includes('деловая') ? 'Мне важен практический результат: ' :
+      temperament.includes('статус') ? 'Мне нужен отчёт для партнёров: ' :
+      temperament.includes('торгу') ? 'А теперь к условиям: ' : ''
+    if (opening) reply = reply.replace(/^«/, '«' + opening)
+  }
+
   // Repeated turns ask a new, client-relevant question instead of appending the same lecture.
   if (!promises && !nonsense && turn > 0) {
     const followUps = [
