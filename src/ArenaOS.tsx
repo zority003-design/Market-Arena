@@ -232,6 +232,11 @@ export default function ArenaOS(props: Props) {
   const [startMenuOpen,setStartMenuOpen] = useState(false)
   const [incoming,setIncoming] = useState(false)
   const [lastPayout,setLastPayout] = useState(0)
+  const [lastFirmCommission,setLastFirmCommission] = useState(0)
+  const [lastClientTicket,setLastClientTicket] = useState(0)
+  const [lastXpReward,setLastXpReward] = useState(0)
+  const [lastReputationReward,setLastReputationReward] = useState(0)
+  const [lastReferralName,setLastReferralName] = useState('')
   const [lastContactName,setLastContactName] = useState('')
   const [newContacts,setNewContacts] = useState<string[]>(() => { try { const saved = JSON.parse(localStorage.getItem('arena-os-v2-contacts') || 'null'); return Array.isArray(saved) ? Array.from(new Set(['alex-vorontsov','maria-sokolova',...saved.filter((id: unknown): id is string => typeof id === 'string')])) : ['alex-vorontsov','maria-sokolova'] } catch { return ['alex-vorontsov','maria-sokolova'] } })
   const [clientId,setClientId] = useState('alex-vorontsov')
@@ -351,14 +356,16 @@ export default function ArenaOS(props: Props) {
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
       props.setCash(v=>v+playerBonus); props.setFirmCapital(v=>v+firmCommission); props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
-      setLastPayout(playerBonus); setLastContactName(client.name)
-      setNewContacts(prev=>Array.from(new Set([...prev,client.id,...(client.id==='alex-vorontsov'?['pavel-smirnov']:client.id==='maria-sokolova'?['natalia-orlova']:client.id==='pavel-smirnov'?['maksim-sobolev']:['igor-melnikov'])])))
+      setLastPayout(playerBonus); setLastFirmCommission(firmCommission); setLastClientTicket(client.ticket); setLastXpReward(45); setLastReputationReward(2); setLastContactName(client.name)
+      const referralId = client.id==='alex-vorontsov'?'pavel-smirnov':client.id==='maria-sokolova'?'natalia-orlova':client.id==='pavel-smirnov'?'maksim-sobolev':'igor-melnikov'
+      setLastReferralName(CLIENTS.find(person=>person.id===referralId)?.name ?? 'новый контакт')
+      setNewContacts(prev=>Array.from(new Set([...prev,client.id,referralId])))
       setCallState('won'); setCompleted(v=>v+1)
       setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+' в капитал компании. Твой личный бонус брокера: +'+money(playerBonus)+'. Капитал клиента остаётся его деньгами; фирма получает комиссию, а ты — бонус за сделку.',client.name+': '+clientClosingLine(client,activeStock!)])
     } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
       setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)])
     } else if(newTrust<=8 || newPatience<=8) {
-      setCallState('lost'); props.setReputation(v=>Math.max(0,v-2)); props.setXp(v=>v+5)
+      setCallState('lost'); setLastXpReward(5); setLastReputationReward(-2); setLastFirmCommission(0); setLastClientTicket(0); props.setReputation(v=>Math.max(0,v-2)); props.setXp(v=>v+5)
       setCallLog(prev=>[...prev,'Клиент завершил звонок. Сделки нет; репутация просела.'])
     }
   }
