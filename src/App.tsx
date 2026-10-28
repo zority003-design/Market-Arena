@@ -690,10 +690,10 @@ export default function App() {
   // In-game time advances only while a career is actually being played.
   // One in-game day (24 hours) lasts 15 real minutes. The main menu and pause freeze time.
   useEffect(() => {
-    if (mainMenu || pauseOpen) return
+    if (mainMenu || pauseOpen || dayEnded) return
     const clock = window.setInterval(() => setGameMinutes((value) => (value + 1.6) % (24 * 60)), 1000)
     return () => window.clearInterval(clock)
-  }, [mainMenu, pauseOpen])
+  }, [mainMenu, pauseOpen, dayEnded])
 
   useEffect(() => {
     if (mainMenu) return

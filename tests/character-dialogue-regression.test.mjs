@@ -11,8 +11,10 @@ test('3D avatar uses a stable floor origin and frames the full body', async () =
   assert.match(source, /position=\{seated \? \[0, -0\.15, 0\] : \[0, 0, 0\]\}/)
   assert.match(source, /scale=\{seated \? 0\.72 : 1\}/)
   assert.doesNotMatch(source, /root\.current\.position\.y\s*=/)
-  assert.match(source, /camera=\{\{ position: \[0, compact \? 2\.15 : 1\.8, compact \? 4\.5 : 5\.9\]/)
-  assert.match(source, /camera\.lookAt\(0, compact \? 1\.72 : 1\.28, 0\)/)
+  assert.match(source, /camera=\{\{ position: \[0, compact \? 2\.05 : 1\.8, compact \? 3\.65 : 5\.9\]/)
+  assert.match(source, /camera\.lookAt\(0, compact \? 1\.48 : 1\.28, 0\)/)
+  assert.match(source, /rotation=\{\[0, 0, 0\]\}/)
+  assert.doesNotMatch(source, /rotation=\{\[0, seated \? Math\.PI : 0, 0\]\}/)
   assert.match(source, /outfit === 'premium' \? '#17283f'/)
 })
 
@@ -232,4 +234,13 @@ test('the broker can end the shift early after serving two clients and reach the
   assert.match(arena, /Можешь продолжить до дневного лимита/)
   assert.match(app, /onEndDay=\{endDay\}/)
   assert.match(app, /function endDay\(\)/)
+})
+
+
+test('seated broker portraits face the camera and use a closer upper-body frame', async () => {
+  const source = await read('src/BrokerAvatar3D.tsx')
+  assert.match(source, /rotation=\{\[0, 0, 0\]\}/)
+  assert.match(source, /compact \? 3\.65 : 5\.9/)
+  assert.match(source, /fov: compact \? 29 : 34/)
+  assert.match(source, /camera\.lookAt\(0, compact \? 1\.48 : 1\.28, 0\)/)
 })
