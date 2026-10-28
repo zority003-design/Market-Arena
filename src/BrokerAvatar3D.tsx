@@ -57,7 +57,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
     if (torso.current) torso.current.scale.y = 1 + Math.sin(t * 1.55 + seed % 9) * 0.003
   })
 
-  return <group ref={root} position={seated ? [0, -0.15, 0] : [0, 0, 0]} scale={seated ? 0.72 : 1} rotation={[0, seated ? Math.PI : 0, 0]}>
+  return <group ref={root} position={seated ? [0, -0.15, 0] : [0, 0, 0]} scale={seated ? 0.72 : 1} rotation={[0, 0, 0]}>
     {/* Legs connect into a shaped pelvis. Standing and seated silhouettes share the same body proportions. */}
     {seated ? <>
       <Limb start={[-0.18, 1.12, 0]} end={[-0.19, 0.72, 0.36]} radius={0.145} color={trousers}/>
@@ -128,7 +128,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
 
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
-    <Canvas camera={{ position: [0, compact ? 2.15 : 1.8, compact ? 4.5 : 5.9], fov: compact ? 33 : 34, near: 0.1, far: 30 }} onCreated={({ camera }) => camera.lookAt(0, compact ? 1.72 : 1.28, 0)} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+    <Canvas camera={{ position: [0, compact ? 2.05 : 1.8, compact ? 3.65 : 5.9], fov: compact ? 29 : 34, near: 0.1, far: 30 }} onCreated={({ camera }) => camera.lookAt(0, compact ? 1.48 : 1.28, 0)} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
       <ambientLight intensity={1.25} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.2]} />
       <directionalLight position={[-3, 5, 4]} intensity={2.4} castShadow />
