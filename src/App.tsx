@@ -624,7 +624,7 @@ export default function App() {
   }, [startNewCareerOnLoad])
 
   useEffect(() => {
-    configureAudio({ enabled: soundEnabled, ambience: ambienceEnabled, music: musicEnabled, musicVolume: musicVolume / 100, voice: false, curtainsOpen, inRoom: mainMenu || panel === 'room' || panel === 'computer' || panel === 'city', inCall: callStatus === 'active', paused: pauseOpen, volume: masterVolume / 100 })
+    configureAudio({ enabled: soundEnabled, ambience: ambienceEnabled, music: musicEnabled, musicVolume: musicVolume / 100, voice: false, curtainsOpen, inRoom: mainMenu || panel === 'room' || panel === 'computer' || panel === 'city', inCall: callStatus === 'active', paused: pauseOpen, volume: masterVolume / 100, rainy: Math.floor((gameMinutes + 360) / 180) % 4 === 2 })
     try {
       localStorage.setItem('na-vse-kotirovki-sound', String(soundEnabled))
       localStorage.setItem('na-vse-kotirovki-ambience', String(ambienceEnabled))
