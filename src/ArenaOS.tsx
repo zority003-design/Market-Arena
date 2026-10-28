@@ -438,10 +438,11 @@ export default function ArenaOS(props: Props) {
     const newPatience = Math.max(0,patience-(kind==='risk'?3:kind==='free'?4:5))
     setTrust(newTrust); setPatience(newPatience); props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, Math.min(100, (scores[client.id] ?? client.baseTrust) + delta)) })); setCallLog(prev=>[...prev,'Ты: '+(kind==='free'?text:kind==='benefit'?'Объясняешь потенциальную выгоду':kind==='risk'?'Честно раскрываешь риски':'Отвечаешь невпопад'),client.name+': '+reply,'РАЗБОР: доверие '+(delta>0?'+':'')+delta+' ('+trust+' → '+newTrust+'); терпение −'+(patience-newPatience)+' ('+patience+' → '+newPatience+'). '+(delta>=8?'Аргументы с фактами и планом помогают клиенту проверить рекомендацию.':delta<0?'Ответ не снял возражение или содержал обещание без доказательств.':'Нужен более конкретный факт, риск или условие выхода.')])
     setMessage('')
-    if(kind==='free') setDialogueTurn(turn=>turn+1)
+    // Every answer is a negotiation turn. A single lucky click must never close a deal.
+    setDialogueTurn(turn=>turn+1)
     const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
     setLastChance(newChance)
-    if(newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
+    if(dialogueTurn >= 2 && newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
       const firmCommission = Math.round(client.ticket * client.commissionRate)
       const qualityMultiplier = newTrust >= 75 ? 1.25 : newTrust >= 62 ? 1.1 : 1
       const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
@@ -457,7 +458,7 @@ export default function ArenaOS(props: Props) {
       setLastReferralName(CLIENTS.find(person=>person.id===referralId)?.name ?? 'новый контакт')
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,referralId])))
       setCallState('won'); setCompleted(v=>v+1)
-      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+' в капитал компании. Твой личный бонус брокера: +'+money(playerBonus)+'. Капитал клиента остаётся его деньгами; фирма получает комиссию, а ты — бонус за сделку.',client.name+': '+clientClosingLine(client,activeStock!)])
+      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+'. Личный бонус: +'+money(playerBonus)+'. Общий доход владельца от сделки: +'+money(firmCommission+playerBonus)+'. Капитал клиента не является доходом фирмы.',client.name+': '+clientClosingLine(client,activeStock!)])
     } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
       setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)])
     } else if(newTrust<=8 || newPatience<=8) {
@@ -575,7 +576,7 @@ export default function ArenaOS(props: Props) {
                 {stockPicker || !activeStock ? <div className="arena-os-stock-picker"><b>Подбери акцию под конкретного человека — не просто под сумму сделки.</b><p className="arena-os-client-goal">Цель: {client.goal}</p><div className="arena-os-call-offer-summary">
                   <div><small>СУММА СДЕЛКИ</small><strong>{money(client.ticket)}</strong><span>из капитала {money(client.budget)}</span></div>
                   <div className="player-estimate"><small>ТВОЙ ВОЗМОЖНЫЙ БОНУС</small><strong>до {money(estimatedBonus)}</strong><span>зависит от доверия и переговоров</span></div>
-                  <div><small>КОМИССИЯ ФИРМЫ</small><strong>{money(estimatedFirmCommission)}</strong><span>идёт на баланс фирмы, не тебе лично</span></div>
+                  <div><small>ОБЩИЙ ДОХОД СДЕЛКИ</small><strong>{money(estimatedFirmCommission+estimatedBonus)}</strong><span>комиссия компании + бонус владельца</span></div>
                 </div>
                 <div className="arena-os-client-profile">
                   <div className="arena-os-risk-profile"><small>ПРОФИЛЬ РИСКА</small><strong>{getClientInvestmentPreference(client.id).riskLabel}</strong><span>Горизонт: {getClientInvestmentPreference(client.id).horizon}</span></div>
@@ -619,7 +620,7 @@ export default function ArenaOS(props: Props) {
                   <button onClick={()=>{setCallState('idle');setActiveStock(null);setStockPicker(true);setCallLog([]);setActiveApp('calls')}}><PhoneCall size={18}/> Попробовать снова</button>
                 </div>
               </>}
-              <button className="arena-os-primary" onClick={()=>{setCallState('idle');setActiveStock(null);setStockPicker(true);setCallLog([]);setActiveApp('calls')}}>Следующий клиент <ChevronRight size={16}/></button>
+              <button className="arena-os-primary arena-os-next-client-button" onClick={()=>{setCallState('idle');setActiveStock(null);setStockPicker(true);setCallLog([]);setActiveApp('calls')}}>Следующий клиент <ChevronRight size={16}/></button>
             </div>}
           </section>}
           {activeApp==='clients' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">CRM · КЛИЕНТСКАЯ БАЗА</span><h1>Люди, а не кошельки</h1><p>У каждого клиента свои ожидания. Более высокий капитал не означает лёгкую сделку.</p></div><span className="arena-os-count">{unlockedClients.length} открыто / {CLIENTS.length}</span></div><div className="arena-os-all-clients">{CLIENTS.map(c=>{const open=newContacts.includes(c.id)||(c.minDay<=props.day&&c.minReputation<=props.reputation)||(props.businessUpgrades.includes('lead-network')&&c.minDay<=props.day+2&&c.minReputation<=props.reputation+10)||(props.businessUpgrades.includes('client-crm')&&c.minDay<=props.day+3&&c.minReputation<=props.reputation+15);return <article key={c.id} className={open?'':'locked'}><div className="arena-os-small-face"><ClientAvatar2D tier={c.tier} identity={c.id} mood="neutral"/></div><div><b>{open?c.name:'Закрытый контакт'}</b><small>{c.profession}</small><p>{open?c.goal:'Откроется на '+c.minDay+' дне при репутации '+c.minReputation+'.'}</p><span>{c.temperament} · {c.experience}</span></div><strong>{open?money(c.budget):<ShieldCheck size={17}/>}</strong><button disabled={!open} onClick={()=>{setClientId(c.id);setActiveApp('calls')}}>{open?'Выбрать':'Закрыт'}</button></article>})}</div></section>}

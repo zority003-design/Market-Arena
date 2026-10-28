@@ -101,7 +101,9 @@ export const ROOM_ITEMS: RoomItem[] = [
  { id:'pro-mic', name:'Микрофон и акустика', price:28000, firstImpression:1, videoQuality:4, suspicion:0, minDay:8, minLevel:4, category:'video', description:'Профессиональный звук для сложных переговоров.' },
 ]
 export function getAvailableClients(day:number, reputation:number):ClientProfile[] {
- return CLIENTS.filter(client => day>=client.minDay && reputation>=client.minReputation)
+ // Keep high-ticket prospects behind a real progression gate: a new broker should earn trust before meeting wealthy clients.
+ const progressionDay = (client: ClientProfile) => client.tier >= 4 ? 12 : client.tier >= 3 ? 8 : client.tier >= 2 ? 5 : client.tier >= 1 ? 2 : 1
+ return CLIENTS.filter(client => day>=Math.max(client.minDay, progressionDay(client)) && reputation>=client.minReputation)
 }
 export function getFirstImpression(housingId:string, ownedItems:string[], client:ClientProfile):number {
  const home=HOUSING.find(option=>option.id===housingId) ?? HOUSING[0]
@@ -143,8 +145,8 @@ export function getDailyLeadIds(
  invested:Record<string,number>={}
 ):string[] {
  const eligible=getAvailableClients(day,reputation).filter(client =>
-   day-(lastContact[client.id] ?? -100)>=3 &&
-   (dealCounts[client.id] ?? 0)<3 &&
+   day-(lastContact[client.id] ?? -100)>=5 &&
+   (dealCounts[client.id] ?? 0)<2 &&
    (invested[client.id] ?? 0)<client.budget
  )
  if(eligible.length===0) return []

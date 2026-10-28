@@ -624,7 +624,7 @@ export default function App() {
   }, [startNewCareerOnLoad])
 
   useEffect(() => {
-    configureAudio({ enabled: soundEnabled, ambience: ambienceEnabled, music: musicEnabled, musicVolume: musicVolume / 100, voice: false, curtainsOpen, inRoom: mainMenu || panel === 'room' || panel === 'computer' || panel === 'city', inCall: callStatus === 'active', paused: pauseOpen, volume: masterVolume / 100 })
+    configureAudio({ enabled: soundEnabled, ambience: ambienceEnabled, music: musicEnabled, musicVolume: musicVolume / 100, voice: false, curtainsOpen, inRoom: mainMenu || panel === 'room' || panel === 'computer' || panel === 'city', inCall: callStatus === 'active', paused: pauseOpen, volume: masterVolume / 100, rainy: Math.floor((gameMinutes + 360) / 180) % 4 === 2 })
     try {
       localStorage.setItem('na-vse-kotirovki-sound', String(soundEnabled))
       localStorage.setItem('na-vse-kotirovki-ambience', String(ambienceEnabled))
@@ -633,7 +633,7 @@ export default function App() {
       localStorage.setItem('na-vse-kotirovki-volume', String(masterVolume))
     } catch { /* Audio preferences are optional if storage is unavailable. */ }
     if (callStatus !== 'active' || mainMenu || tab !== 'calls') stopSpeech()
-  }, [soundEnabled, ambienceEnabled, musicEnabled, musicVolume, masterVolume, curtainsOpen, mainMenu, panel, callStatus, pauseOpen, menuSettings, tab])
+  }, [soundEnabled, ambienceEnabled, musicEnabled, musicVolume, masterVolume, curtainsOpen, mainMenu, panel, callStatus, pauseOpen, menuSettings, tab, gameMinutes])
 
   useEffect(() => {
     if (!soundEnabled || !ambienceEnabled || panel !== 'room' || pauseOpen || mainMenu) return
@@ -1019,7 +1019,7 @@ export default function App() {
     if (!availableClients.some((client) => client.id === activeClient.id)) { setToast('Этот лид сейчас недоступен. Выбери клиента из списка актуальных предложений.'); return }
     const assignedCompany = companies.find((company) => company.ticker === selectedCompany) ?? dailyQuotaCompany
     const fit = getClientStockFit(activeClient.id, assignedCompany.ticker)
-    if (!fit.suitable) {
+    if (!fit.suitable && day <= 2) {
       setCallCompanyTicker(assignedCompany.ticker); setSelectedCompany(assignedCompany.ticker); setCallClientId(activeClient.id)
       setCallsToday((count) => count + 1); setClientLastContactDay((items) => ({ ...items, [activeClient.id]: day }))
       setTrust(Math.max(0, (clientTrustScores[activeClient.id] ?? activeClient.baseTrust) - 12)); setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, (scores[activeClient.id] ?? activeClient.baseTrust) - 12) })); setPatience(Math.max(0, activeClient.patience - 18))
@@ -1088,10 +1088,9 @@ export default function App() {
       const soldPrice = Number(activeCompany.price.replace(/[^0-9,.-]/g, '').replace(',', '.')) * (1 + (newsImpacts[activeCompany.ticker] ?? 0) / 100)
       const soldShares = Math.floor(payout.ticket / Math.max(0.01, soldPrice))
       const quotaTargetCompany = companies[(day - 1) % companies.length]
-      if (activeCompany.ticker === quotaTargetCompany.ticker) {
-        setDailySalesAmount((value) => value + payout.ticket)
-        setDailySalesShares((value) => value + soldShares)
-      }
+      // Every completed placement contributes to the daily sales quota; the rotating ticker is a market focus, not a hidden pass/fail trap.
+      setDailySalesAmount((value) => value + payout.ticket)
+      setDailySalesShares((value) => value + soldShares)
       setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. ТВОЙ личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; комиссия фирмы: ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после выплаты бонуса фирме остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.' + (deals === 0 ? ' ПЕРВАЯ СДЕЛКА! Деньги на балансе — твой заработок, а не вся сумма клиентского капитала. Следующий разумный шаг: гарнитура за 4 500 ₽ улучшит звук и добавит стартового доверия; лампа за 1 200 ₽ улучшит свет; дополнительный стол нужен, когда появится сотрудник. Не нанимай работника до устойчивого потока сделок: его чистый доход начисляется каждый игровой день, но цена найма сразу списывается с твоего баланса.' : ' Чем выше доверие клиента, тем больше шанс закрыть крупную сделку и получить бонус.'))
       const quotaNote = activeCompany.ticker === quotaTargetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + quotaTargetCompany.ticker + '.' : ' Внимание: дневной план по ' + quotaTargetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Клиентский капитал ' + payout.ticket.toLocaleString('ru-RU') + ' ₽ не зачисляется тебе. Твой личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽. Фирма получила комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после бонуса остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽.' + quotaNote + (deals === 0 ? ' Первый заработок! Открой оборудование: гарнитура за 4 500 ₽ улучшает звук и повышает стартовое доверие; лампа за 1 200 ₽ улучшает свет; дополнительный стол за 9 500 ₽ нужен, когда появится сотрудник. Найм окупается не мгновенно — чистый доход приходит в конце каждого игрового дня.' : '') }])
@@ -1259,7 +1258,8 @@ export default function App() {
     const shiftTargetCompany = companies[(day - 1) % companies.length]
     const targetShares = 25 + day * 10
     const targetAmount = 8000 + day * 4000
-    const success = dailySalesShares >= targetShares && dailySalesAmount >= targetAmount
+    // The shift quota is based on money placed with clients, not a second hidden share-count gate.
+    const success = dailySalesAmount >= targetAmount
     const reward = success ? 1000 + day * 250 : 0
     const penalty = success ? 0 : 750
     if (success) { setCash((value) => value + reward); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
@@ -1314,11 +1314,11 @@ export default function App() {
 
   return (
     <main className={'game-shell' + (reducedMotion ? ' reduced-motion' : '') + (mainMenu ? ' is-main-menu' : '')}>
-      {shiftReport && <div className="shift-report-backdrop"><section className="shift-report-modal"><span className="eyebrow">ДЕНЬ {day} · ОТЧЁТ ПО СМЕНЕ</span><div className={'shift-report-icon ' + (shiftReport.success ? 'success' : 'failure')}>{shiftReport.success ? <Check size={26} /> : <X size={26} />}</div><h2>{shiftReport.success ? 'План выполнен' : 'План не выполнен'}</h2><p className="shift-report-lead">{shiftReport.company} ({shiftReport.ticker}) — обязательная бумага дня. Сделки по другим акциям не заменяют этот план.</p><div className="shift-report-stats"><div><small>ПРОДАНО АКЦИЙ</small><strong>{shiftReport.shares} / {shiftReport.targetShares}</strong></div><div><small>ОБОРОТ ПО ЦЕЛЕВОЙ БУМАГЕ</small><strong>{shiftReport.amount.toLocaleString('ru-RU')} / {shiftReport.targetAmount.toLocaleString('ru-RU')} ₽</strong></div></div><div className={'shift-report-consequence ' + (shiftReport.success ? 'good' : 'bad')}>{shiftReport.success ? 'Премия +' + shiftReport.reward.toLocaleString('ru-RU') + ' ₽ и +4 к репутации.' : 'Штраф фирме −' + shiftReport.penalty.toLocaleString('ru-RU') + ' ₽ и −3 к репутации. Завтра план станет сложнее.'}</div><button className="primary-action" onClick={() => setShiftReport(null)}>Продолжить <ArrowRight size={15} /></button></section></div>}
+      {shiftReport && <div className="shift-report-backdrop"><section className="shift-report-modal"><span className="eyebrow">ДЕНЬ {day} · ОТЧЁТ ПО СМЕНЕ</span><div className={'shift-report-icon ' + (shiftReport.success ? 'success' : 'failure')}>{shiftReport.success ? <Check size={26} /> : <X size={26} />}</div><h2>{shiftReport.success ? 'План выполнен' : 'План не выполнен'}</h2><p className="shift-report-lead">Фокус рынка на сегодня: {shiftReport.company} ({shiftReport.ticker}). План зависит от общего объёма закрытых сделок — выбор другой подходящей акции не обнуляет прогресс.</p><div className="shift-report-stats"><div><small>АКЦИЙ РАЗМЕЩЕНО</small><strong>{shiftReport.shares}</strong></div><div><small>ОБОРОТ ПО ВСЕМ СДЕЛКАМ</small><strong>{shiftReport.amount.toLocaleString('ru-RU')} / {shiftReport.targetAmount.toLocaleString('ru-RU')} ₽</strong></div></div><div className={'shift-report-consequence ' + (shiftReport.success ? 'good' : 'bad')}>{shiftReport.success ? 'Премия +' + shiftReport.reward.toLocaleString('ru-RU') + ' ₽ и +4 к репутации.' : 'Штраф фирме −' + shiftReport.penalty.toLocaleString('ru-RU') + ' ₽ и −3 к репутации. Завтра план станет сложнее.'}</div><button className="primary-action" onClick={() => setShiftReport(null)}>Продолжить <ArrowRight size={15} /></button></section></div>}
       {!mainMenu && introActive && <div key={day + '-wake-' + String(introActive)} className="intro-curtain" aria-label="Пробуждение"><div className="intro-eyelid intro-eyelid-top" /><div className="intro-eyelid intro-eyelid-bottom" /><div className="intro-wake-caption"><span>{String(Math.floor(gameMinutes / 60)).padStart(2, '0')}:{String(Math.floor(gameMinutes % 60)).padStart(2, '0')}</span><strong>Пора вставать.</strong><small>Новый день брокера начинается</small></div></div>}
       {sleepTransition && <div className={'sleep-transition ' + sleepTransition} role="status" aria-live="polite">
         <div className="sleep-room-glow" />
-        <div className="sleep-bed-silhouette"><span className="sleep-pillow" /><span className="sleep-blanket" /><span className="sleep-head" /><span className="sleep-eye left" /><span className="sleep-eye right" /></div>
+        {/* Reuse the eyelid-opening transition; no static cartoon of a person in bed. */}
         <div className="sleep-eyelid sleep-eyelid-top" /><div className="sleep-eyelid sleep-eyelid-bottom" />
         <div className="sleep-transition-caption"><span>{sleepTransition === 'sleeping' ? 'КОНЕЦ ДНЯ' : '07:00 · НОВЫЙ ДЕНЬ'}</span><strong>{sleepTransition === 'sleeping' ? 'Ты ложишься спать…' : 'Будильник. Пора вставать.'}</strong><small>{sleepTransition === 'sleeping' ? 'Закрываешь глаза, город за окном затихает.' : 'Глаза открываются. Впереди новая смена брокера.'}</small></div>
       </div>}
