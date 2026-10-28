@@ -155,7 +155,7 @@ function updateAmbience() {
   const curtainFactor = settings.curtainsOpen ? 1 : 0.18
   const nightFactor = 1
   ambienceGain.gain.setTargetAtTime(audible ? curtainFactor * 0.12 * nightFactor : 0, ctx.currentTime, 0.8)
-  rainGain.gain.setTargetAtTime(0, ctx.currentTime, 0.8)
+  rainGain.gain.setTargetAtTime(audible && settings.rainy ? curtainFactor * 0.1 : 0, ctx.currentTime, 0.8)
   master.gain.setTargetAtTime(settings.enabled ? 0.68 * Math.max(0, Math.min(1, settings.volume)) : 0, ctx.currentTime, 0.05)
   updateMusic()
 }
