@@ -117,5 +117,16 @@ export function evaluateFreeReply(text: string, client: ClientProfile, stock: Di
     ]
     reply = absurdReplies[Math.abs(turn) % absurdReplies.length]
   }
+  if (s && !promises && !nonsense && turn > 0) {
+    const followUps = [
+      stock ? 'Следом разберём неприятную сторону: ' + stock.downside + ' Что здесь может ударить по результату первым?' : 'Какой недостаток этой идеи вы считаете самым серьёзным?',
+      'С учётом вашей цели — «' + client.goal.toLowerCase() + '» — какой размер позиции позволит не поставить под удар остальные планы?',
+      stock ? 'Главный катализатор — ' + stock.catalyst + ' Как поймём, что он действительно сработал, а не остался обещанием?' : 'Какое событие подтвердит, что идея работает?',
+      stock ? 'Красный флаг — ' + stock.redFlags + ' Какой из этих признаков заставит вас отказаться от рекомендации?' : 'Какой факт заставит вас отказаться от рекомендации?',
+      'Сравним с альтернативой: что должно произойти, чтобы эта акция оказалась лучше другого варианта для ваших денег?'
+    ]
+    const followUp = followUps[Math.abs(turn) % followUps.length]
+    reply = reply.endsWith('»') ? reply.slice(0, -1) + ' ' + followUp + '»' : reply + ' ' + followUp
+  }
   return { delta: Math.max(-18, Math.min(14, delta)), reply }
 }
