@@ -25,7 +25,7 @@ test('every listed stock has its own negotiation scenario and follow-up question
   const source = await read('src/App.tsx')
   const scenarios = source.slice(source.indexOf('const scenarios:'), source.indexOf('const scenario = scenarios'))
   const followUps = source.slice(source.indexOf('const followUps:'), source.indexOf('const baseQuestions'))
-  for (const ticker of ['KOTL', 'OGUR', 'TAPK', 'BTRAN', 'DUST', 'SBRX', 'NEFT', 'MEDX', 'GROV', 'GRID', 'BYTE', 'LOGI']) {
+  for (const ticker of ['KOTL', 'OGUR', 'TAPK', 'BTRAN', 'DUST', 'VECT', 'NEFT', 'MEDX', 'GROV', 'GRID', 'BYTE', 'LOGI']) {
     assert.match(scenarios, new RegExp('\\n    ' + ticker + ': \\{'), ticker + ' needs its own scenario')
     assert.match(followUps, new RegExp('\\n    ' + ticker + ': \\['), ticker + ' needs follow-up questions')
   }
@@ -93,7 +93,7 @@ test('negated guarantees are not treated as reckless promises by the dialogue ev
 test('stock suitability does not alias unrelated companies into one another', async () => {
   const source = await read('src/game/economy.ts')
   assert.match(source, /const canonicalTicker = ticker === 'KTLT' \? 'KOTL' : ticker/)
-  assert.doesNotMatch(source, /SBRX: 'OGUR'|NEFT: 'BTRAN'|MEDX: 'DUST'|GROV: 'TAPK'/)
+  assert.doesNotMatch(source, /VECT: 'OGUR'|NEFT: 'BTRAN'|MEDX: 'DUST'|GROV: 'TAPK'/)
   assert.match(source, /const riskScore: Record<string, number>/)
   assert.match(source, /getClientInvestmentPreference\(clientId\)/)
   assert.match(source, /score > preference\.riskLevel/)
