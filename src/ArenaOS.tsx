@@ -9,7 +9,7 @@ import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, get
 import ClientAvatar2D from './ClientAvatar2D'
 import BrokerAvatar3D from './BrokerAvatar3D'
 import { playSound } from './audio'
-import { evaluateFreeReply } from './game/dialogue'
+import { evaluateFreeReply, getEquipmentOpening } from './game/dialogue'
 
 type OutfitId = 'intern' | 'classic' | 'premium'
 type SpeechResultLike = { transcript: string }
@@ -352,7 +352,10 @@ export default function ArenaOS(props: Props) {
   const businessTrustBonus = BUSINESS_UPGRADES.filter(upgrade => props.businessUpgrades.includes(upgrade.id)).reduce((sum, upgrade) => sum + upgrade.trustBonus, 0)
   const dailyCallLimit = (props.reputation >= 60 ? 4 : props.reputation >= 35 ? 3 : 2) + (props.businessUpgrades.includes('lead-network') ? 1 : 0) + (props.businessUpgrades.includes('client-crm') ? 1 : 0)
   const outfitBonus = OUTFITS.find(o=>o.id===props.selectedOutfit)?.bonus ?? 0
-  const qualityPenalty = ((props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic'))?0:8) + (props.ownedItems.includes('hd-camera')?0:5) + (props.ownedItems.includes('neutral-backdrop')?0:3)
+  const missingMicPenalty = (props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) ? 0 : (client.tier >= 2 ? 6 : 3)
+  const missingCameraPenalty = props.ownedItems.includes('hd-camera') ? 0 : (client.tier >= 2 || client.statusSensitive ? 5 : 2)
+  const missingBackgroundPenalty = (props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) ? 0 : (client.tier >= 2 || client.statusSensitive ? 3 : 1)
+  const qualityPenalty = missingMicPenalty + missingCameraPenalty + missingBackgroundPenalty
   const chance = Math.max(5,Math.min(92,Math.round(30 + trust*.48 + props.reputation*.12 + equipmentBonus + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 4 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.22)))
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-last-app',activeApp) } catch {} },[activeApp])
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-contacts',JSON.stringify(newContacts)) } catch {} },[newContacts])
@@ -396,9 +399,7 @@ export default function ArenaOS(props: Props) {
     const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
     setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
-    if (!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) && (selected.tier >= 2 || Math.random() < 0.45)) lines.push('Клиент: «Звук немного глухой. Надеюсь, финансовые расчёты у вас звучат убедительнее микрофона».')
-    if (!props.ownedItems.includes('hd-camera') && (selected.tier >= 1 || Math.random() < 0.4)) lines.push('Клиент: «Картинка мыльная. Для небольшой суммы переживу, но с крупным капиталом хотелось бы видеть, с кем обсуждаю деньги».')
-    if (!props.ownedItems.includes('neutral-backdrop') && (selected.tier >= 2 || Math.random() < 0.25)) lines.push('Клиент оглядывает комнату: «Обстановка домашняя. Для первого разговора сойдёт, но для серьёзной суммы я ожидал бы офис посолиднее».')
+    lines.push(...getEquipmentOpening(selected, props.ownedItems).map(line => line.startsWith('Клиент:') ? line : 'Клиент: ' + line))
     lines.push(selected.quote)
     setCallLog(lines); setMessage(''); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
   }
@@ -423,7 +424,7 @@ export default function ArenaOS(props: Props) {
     const text = custom.trim()
     let delta = 0; let reply = ''
     if(kind==='free') {
-      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn)
+      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems)
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
