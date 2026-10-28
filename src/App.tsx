@@ -577,7 +577,7 @@ export default function App() {
       else localStorage.removeItem(introCallStorageKey)
     } catch { /* The introductory call still works when storage is unavailable. */ }
   }, [introCallStorageKey])
-  const [housingId, setHousingId] = useState(saved.housingId ?? STARTING_HOUSING_ID)
+  const [housingId, setHousingId] = useState(saved.housingId === 'dorm' ? 'studio' : saved.housingId === 'shared-flat' ? 'city-apartment' : saved.housingId ?? STARTING_HOUSING_ID)
   const previousHousingId = useRef(housingId)
   const [businessUpgrades, setBusinessUpgrades] = useState<string[]>(saved.businessUpgrades ?? [])
   const [ownedBusinessAssets, setOwnedBusinessAssets] = useState<string[]>(saved.ownedBusinessAssets ?? [])
@@ -688,10 +688,10 @@ export default function App() {
   }, [tab, callStatus])
 
   // In-game time advances only while a career is actually being played.
-  // The main menu must not consume game time, and pause freezes the world clock.
+  // One in-game day (24 hours) lasts 15 real minutes. The main menu and pause freeze time.
   useEffect(() => {
     if (mainMenu || pauseOpen) return
-    const clock = window.setInterval(() => setGameMinutes((value) => (value + 2) % (24 * 60)), 60000)
+    const clock = window.setInterval(() => setGameMinutes((value) => (value + 1.6) % (24 * 60)), 1000)
     return () => window.clearInterval(clock)
   }, [mainMenu, pauseOpen])
 
@@ -844,7 +844,7 @@ export default function App() {
     setReputation(data.reputation ?? 42)
     setDay(data.day ?? 1)
     setDeals(data.deals ?? 0)
-    setHousingId(data.housingId ?? STARTING_HOUSING_ID)
+    setHousingId(data.housingId === 'dorm' ? 'studio' : data.housingId === 'shared-flat' ? 'city-apartment' : data.housingId ?? STARTING_HOUSING_ID)
     setBusinessUpgrades(data.businessUpgrades ?? [])
     setOwnedBusinessAssets(data.ownedBusinessAssets ?? [])
     setOwnedEmployees(data.ownedEmployees ?? [])
@@ -1440,7 +1440,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
