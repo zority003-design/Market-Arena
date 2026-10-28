@@ -458,7 +458,7 @@ export default function ArenaOS(props: Props) {
       setLastReferralName(CLIENTS.find(person=>person.id===referralId)?.name ?? 'новый контакт')
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,referralId])))
       setCallState('won'); setCompleted(v=>v+1)
-      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Общий доход владельца от сделки: +'+money(firmCommission+playerBonus)+'. Из него '+money(firmCommission)+' — комиссия компании, '+money(playerBonus)+' — бонус за работу брокера. Капитал клиента не является доходом фирмы.',client.name+': '+clientClosingLine(client,activeStock!)])
+      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия фирмы: +'+money(firmCommission)+'. Личный бонус: +'+money(playerBonus)+'. Общий доход владельца от сделки: +'+money(firmCommission+playerBonus)+'. Капитал клиента не является доходом фирмы.',client.name+': '+clientClosingLine(client,activeStock!)])
     } else if(newTrust>=getClientTrustRequirement(client) && newChance<100) {
       setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)])
     } else if(newTrust<=8 || newPatience<=8) {
