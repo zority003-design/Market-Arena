@@ -52,3 +52,32 @@ test('empty message cannot be treated as a useful argument', () => {
   assert.equal(result.delta, -2)
   assert.match(result.reply, /аргумента пока нет/i)
 })
+
+
+test('missing microphone and camera create contextual opening complaints', () => {
+  const cautious = { ...client('Осторожный'), name: 'Алексей Воронцов', tier: 0, statusSensitive: false }
+  const lines = dialogue.getEquipmentOpening(cautious, [])
+  assert.equal(lines.length, 1)
+  assert.match(lines[0], /микрофон|размыты|прогноз/i)
+  const executive = { ...client('Скептичный'), name: 'Сергей Романов', tier: 3, statusSensitive: true }
+  const executiveLines = dialogue.getEquipmentOpening(executive, [])
+  assert.equal(executiveLines.length, 2)
+  assert.ok(executiveLines.some(line => /картинка|пиксел/i.test(line)))
+})
+
+test('better equipment removes communication penalties from later turns', () => {
+  const cautious = { ...client('Осторожный'), name: 'Алексей Воронцов', tier: 0, statusSensitive: false }
+  const answer = 'Выручка выросла на 12%, но долг и убытки остаются риском. Если квартальный отчёт не подтвердит рост, сократим долю и пересмотрим позицию.'
+  const poorGear = dialogue.evaluateFreeReply(answer, cautious, stock, 2, [])
+  const goodGear = dialogue.evaluateFreeReply(answer, cautious, stock, 2, ['headset', 'hd-camera', 'neutral-backdrop', 'desk-lamp'])
+  assert.ok((poorGear.equipmentPenalty ?? 0) > (goodGear.equipmentPenalty ?? 0))
+  assert.ok(goodGear.delta >= poorGear.delta)
+})
+
+test('jokes can build rapport without making financial promises', () => {
+  const curious = { ...client('Любознательная'), name: 'Мария Соколова', tier: 0, statusSensitive: false }
+  const result = dialogue.evaluateFreeReply('Можно сказать, что котолёт летит только на выручке, а приземляется на долгах?', curious, stock, 0, ['headset', 'hd-camera', 'neutral-backdrop'])
+  assert.ok(result.delta > -5)
+  assert.match(result.reply, /шут|креатив|ха|финансов|факт/i)
+})
+
