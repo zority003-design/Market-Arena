@@ -42,3 +42,23 @@ test('free-text scoring and company replies cover jokes and all listed stocks', 
   assert.match(freeText, /A joke is not automatically a bad answer/)
   assert.match(answerHandler, /rejectsGuarantee/)
 })
+
+
+test('honest rejection of guaranteed returns is not scored as a reckless promise', async () => {
+  const source = await read('src/App.tsx')
+  const answerHandler = source.slice(source.indexOf('function answerQuestion'), source.indexOf('function sendFreeAnswer'))
+  const freeText = source.slice(source.indexOf('function sendFreeAnswer'), source.indexOf('function buyRoomItem'))
+  assert.match(answerHandler, /const rejectsGuarantee = \/не\\\\s\+\(\?:гарантир\|обещ\)/)
+  assert.match(answerHandler, /const reckless = !rejectsGuarantee/)
+  assert.match(freeText, /const rejectsGuarantee =/)
+  assert.match(freeText, /const reckless = !rejectsGuarantee/)
+  assert.match(answerHandler, /const safeDelta = reckless \? -15 : delta/)
+})
+
+test('business and employee income is credited to firm capital, not the broker wallet', async () => {
+  const source = await read('src/App.tsx')
+  const sleep = source.slice(source.indexOf('function sleepNow'), source.indexOf('  return ('))
+  assert.match(sleep, /setCash\(\(value\) => Math\.max\(0, value \+ DAILY_SALARY\)\)/)
+  assert.match(sleep, /setFirmCapital\(\(value\) => Math\.max\(0, value \+ businessNetIncome \+ staffNetIncome\)\)/)
+  assert.doesNotMatch(sleep, /const available = cash \+ DAILY_SALARY \+ businessNetIncome \+ staffNetIncome/)
+})
