@@ -389,17 +389,38 @@ export default function ArenaOS(props: Props) {
   const startCall = (id=clientId) => {
     if (props.callsToday >= dailyCallLimit) { setNotice('Лимит звонков на сегодня исчерпан (' + dailyCallLimit + '). Развивай сеть клиентов или возвращайся завтра.'); return }
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
+    if (activeStock) {
+      const selectedFit = getClientStockFit(selected.id, activeStock.ticker)
+      if (!selectedFit.suitable) {
+        props.setCallsToday(value => value + 1)
+        setClientId(selected.id); setStockPicker(false); setDialogueTurn(0); setFirstDealGuide(false); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
+        setTrust(Math.max(0, (props.clientTrustScores[selected.id] ?? selected.baseTrust) - 12))
+        props.setClientTrustScores(scores => ({ ...scores, [selected.id]: Math.max(0, (scores[selected.id] ?? selected.baseTrust) - 12) }))
+        props.setReputation(value => Math.max(0, value - 2)); setPatience(Math.max(0, selected.patience - 18)); setLastChance(0); setCallState('lost')
+        setCallLog([selected.name + ' подключился к звонку.', 'Ты: «Я предлагаю рассмотреть ' + activeStock.name + ' (' + activeStock.ticker + ')».', selected.name + ': «Эта акция не подходит моей задаче. ' + selectedFit.reason + ' Я не буду тратить время на переговоры о неподходящем продукте».', 'ОШИБКА: сделка сорвана сразу после выбора акции. Доверие −12, репутация −2, бонус не начислен.'])
+        setNotice('Неподходящая акция отклонена до переговоров: доверие −12, репутация −2.')
+        return
+      }
+    }
     props.setCallsToday(value => value + 1)
     setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
     const relationshipTrustBase = props.clientTrustScores[selected.id] ?? selected.baseTrust
-    const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
+    const preselectedFitBonus = activeStock && getClientStockFit(selected.id, activeStock.ticker).suitable ? 4 : 0
+    const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus + outfitBonus + preselectedFitBonus))
+    if (preselectedFitBonus > 0) props.setClientTrustScores(scores => ({ ...scores, [selected.id]: Math.min(100, (scores[selected.id] ?? selected.baseTrust) + preselectedFitBonus) }))
     setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
-    if (!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) && (selected.tier >= 2 || Math.random() < 0.45)) lines.push('Клиент: «Звук немного глухой. Надеюсь, финансовые расчёты у вас звучат убедительнее микрофона».')
-    if (!props.ownedItems.includes('hd-camera') && (selected.tier >= 1 || Math.random() < 0.4)) lines.push('Клиент: «Картинка мыльная. Для небольшой суммы переживу, но с крупным капиталом хотелось бы видеть, с кем обсуждаю деньги».')
-    if (!props.ownedItems.includes('neutral-backdrop') && (selected.tier >= 2 || Math.random() < 0.25)) lines.push('Клиент оглядывает комнату: «Обстановка домашняя. Для первого разговора сойдёт, но для серьёзной суммы я ожидал бы офис посолиднее».')
-    lines.push(selected.quote)
+    if (!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) && (selected.statusSensitive || Math.random() < 0.45)) lines.push('Клиент: «Звук немного глухой. Надеюсь, финансовые расчёты у вас звучат убедительнее микрофона».')
+    if (!props.ownedItems.includes('hd-camera') && (selected.budget >= 300000 || Math.random() < 0.4)) lines.push('Клиент: «Картинка мыльная. Для небольшой суммы переживу, но с крупным капиталом хотелось бы видеть, с кем обсуждаю деньги».')
+    if (!props.ownedItems.includes('neutral-backdrop') && (selected.statusSensitive || Math.random() < 0.25)) lines.push('Клиент оглядывает комнату: «Обстановка домашняя. Для первого разговора сойдёт, но для серьёзной суммы я ожидал бы офис посолиднее».')
+    if (activeStock) {
+      const selectedFit = getClientStockFit(selected.id, activeStock.ticker)
+      lines.push('Ты: «Предлагаю ' + activeStock.name + ' (' + activeStock.ticker + '). ' + activeStock.upside + ' При этом риск такой: ' + activeStock.downside + '»')
+      lines.push(selected.name + ': «' + selectedFit.reason + ' Покажите, как ограничить риск и при каком условии вы измените рекомендацию».')
+    } else {
+      lines.push(selected.quote)
+    }
     setCallLog(lines); setMessage(''); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
   }
   const chooseStock = (stock:Stock) => {
@@ -427,7 +448,7 @@ export default function ArenaOS(props: Props) {
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
-      delta = activeStock && (client.tier<=1 ? activeStock.risk==='Низкий' : client.tier>=3 ? activeStock.risk==='Высокий' : activeStock.risk==='Средний') ? 8 : 3
+      delta = activeStock && getClientStockFit(client.id, activeStock.ticker).suitable ? 8 : 3
       reply = '«Потенциал услышал. Не путайте возможность роста с гарантией доходности».'
     } else if(kind==='risk') {
       delta = 7; reply = '«Наконец-то брокер, который не обещает мне золотой унитаз без единой царапины».'
@@ -447,8 +468,9 @@ export default function ArenaOS(props: Props) {
       const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
       let firstSuccessfulDeal = false
       try {
-        firstSuccessfulDeal = localStorage.getItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1)) !== 'true'
-        if (firstSuccessfulDeal) localStorage.setItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1),'true')
+        const guideKey = 'arena-os-v2-first-deal-guide-session-' + (props.sessionId ?? 'slot-' + (props.saveSlot ?? 1))
+        firstSuccessfulDeal = localStorage.getItem(guideKey) !== 'true'
+        if (firstSuccessfulDeal) localStorage.setItem(guideKey,'true')
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
       props.setCash(v=>v+playerBonus); props.setFirmCapital(v=>v+firmCommission); props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)

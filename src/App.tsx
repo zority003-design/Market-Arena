@@ -365,7 +365,7 @@ function readSave(slot = getActiveSaveSlot()) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; careerSessionId?: number; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -517,7 +517,7 @@ export default function App() {
   const [onlineInfo, setOnlineInfo] = useState(false)
   const [changelogOpen, setChangelogOpen] = useState(false)
   const [confirmNewCareer, setConfirmNewCareer] = useState(false)
-  const [careerSessionId, setCareerSessionId] = useState(0)
+  const [careerSessionId, setCareerSessionId] = useState(saved.careerSessionId ?? 1)
   const [introActive, setIntroActive] = useState(false)
   const [sleepTransition, setSleepTransition] = useState<'sleeping' | 'waking' | null>(null)
   const [canInteractWithComputer, setCanInteractWithComputer] = useState(false)
@@ -659,8 +659,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
+    try { const snapshot = JSON.stringify({ careerSessionId, cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, careerSessionId, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -886,7 +886,7 @@ export default function App() {
     setControlsVisible(true)
     setCanInteractWithComputer(false)
     setIntroActive(false)
-    setCareerSessionId(value => value + 1)
+    setCareerSessionId(data.careerSessionId ?? 1)
     try { setIntroCallReceived(localStorage.getItem(`na-vse-kotirovki-intro-call-received-slot-${activeSaveSlot}`) === 'true') } catch { setIntroCallReceived(false) }
   }
 
@@ -1081,7 +1081,7 @@ export default function App() {
       const payout = calculateDeal(activeClient, nextTrust, clientDealCounts[activeClient.id] ?? 0, clientInvested[activeClient.id] ?? 0, businessUpgrades.length)
       setCash((value) => value + payout.playerBonus)
       setFirmCapital((value) => Math.max(0, value + payout.firmRevenue - payout.playerBonus))
-      setReputation((value) => Math.min(100, value + (activeClient.tier >= 2 ? 5 : 4)))
+      setReputation((value) => Math.min(100, value + (nextTrust >= getClientTrustRequirement(activeClient) + 10 ? 5 : 4)))
       setDeals((value) => value + 1)
       setClientDealCounts((counts) => ({ ...counts, [activeClient.id]: (counts[activeClient.id] ?? 0) + 1 }))
       setClientInvested((invested) => ({ ...invested, [activeClient.id]: (invested[activeClient.id] ?? 0) + payout.ticket }))
@@ -1092,7 +1092,7 @@ export default function App() {
         setDailySalesAmount((value) => value + payout.ticket)
         setDailySalesShares((value) => value + soldShares)
       }
-      setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. ТВОЙ личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; комиссия фирмы: ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после выплаты бонуса фирме остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (activeClient.tier >= 2 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.' + (deals === 0 ? ' ПЕРВАЯ СДЕЛКА! Деньги на балансе — твой заработок, а не вся сумма клиентского капитала. Следующий разумный шаг: гарнитура за 4 500 ₽ улучшит звук и добавит стартового доверия; лампа за 1 200 ₽ улучшит свет; дополнительный стол нужен, когда появится сотрудник. Не нанимай работника до устойчивого потока сделок: его чистый доход начисляется каждый игровой день, но цена найма сразу списывается с твоего баланса.' : ' Чем выше доверие клиента, тем больше шанс закрыть крупную сделку и получить бонус.'))
+      setLastResult('Сделка с ' + activeClient.name + ' закрыта. Клиент разместил ' + payout.ticket.toLocaleString('ru-RU') + ' ₽. ТВОЙ личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽; комиссия фирмы: ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после выплаты бонуса фирме остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽. Репутация +' + (nextTrust >= getClientTrustRequirement(activeClient) + 10 ? 5 : 4) + '. Опыт +' + earnedXp + ' XP.' + (deals === 0 ? ' ПЕРВАЯ СДЕЛКА! Деньги на балансе — твой заработок, а не вся сумма клиентского капитала. Следующий разумный шаг: гарнитура за 4 500 ₽ улучшит звук и добавит стартового доверия; лампа за 1 200 ₽ улучшит свет; дополнительный стол нужен, когда появится сотрудник. Не нанимай работника до устойчивого потока сделок: его чистый доход начисляется каждый игровой день, но цена найма сразу списывается с твоего баланса.' : ' Чем выше доверие клиента, тем больше шанс закрыть крупную сделку и получить бонус.'))
       const quotaNote = activeCompany.ticker === quotaTargetCompany.ticker ? ' В дневной план засчитано ' + soldShares + ' акций ' + quotaTargetCompany.ticker + '.' : ' Внимание: дневной план по ' + quotaTargetCompany.ticker + ', поэтому эта бумага в квоту не засчитана.'
       setConversation((items) => [...items, { from: 'system', text: '✓ Сделка закрыта. Клиентский капитал ' + payout.ticket.toLocaleString('ru-RU') + ' ₽ не зачисляется тебе. Твой личный бонус: +' + payout.playerBonus.toLocaleString('ru-RU') + ' ₽. Фирма получила комиссию ' + payout.firmRevenue.toLocaleString('ru-RU') + ' ₽; после бонуса остаётся +' + Math.max(0, payout.firmRevenue - payout.playerBonus).toLocaleString('ru-RU') + ' ₽.' + quotaNote + (deals === 0 ? ' Первый заработок! Открой оборудование: гарнитура за 4 500 ₽ улучшает звук и повышает стартовое доверие; лампа за 1 200 ₽ улучшает свет; дополнительный стол за 9 500 ₽ нужен, когда появится сотрудник. Найм окупается не мгновенно — чистый доход приходит в конце каждого игрового дня.' : '') }])
     } else {
