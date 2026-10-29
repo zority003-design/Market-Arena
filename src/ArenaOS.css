@@ -1235,3 +1235,17 @@
   .arena-os-v2 button { transition: none; }
   .arena-os-v2 button:hover { transform: none; }
 }
+
+
+/* Negotiation stage card: make the learning objective visible before every reply */
+.arena-os-negotiation-stage {
+  display: grid; gap: 8px; padding: 14px 15px; border-radius: 13px;
+  border: 1px solid rgba(164,216,106,.32);
+  background: linear-gradient(120deg,rgba(77,112,50,.19),rgba(19,34,47,.95) 60%);
+}
+.arena-os-negotiation-stage > span { color: #bce987; font-size: 9px; font-weight: 900; letter-spacing: .14em; }
+.arena-os-negotiation-stage > b { color: #f1f7fb; font-size: 15px; line-height: 1.4; }
+.arena-os-negotiation-stage > p { margin: 0; color: #a9bfce; font-size: 11px; line-height: 1.55; }
+.arena-os-stage-checklist { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 3px; }
+.arena-os-stage-checklist span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 1px solid #304658; border-radius: 999px; color: #8ea5b7; background: rgba(4,12,20,.36); font-size: 10px; font-weight: 750; }
+.arena-os-stage-checklist span.complete { color: #d2f4ad; border-color: rgba(157,216,103,.4); background: rgba(118,176,64,.13); }
