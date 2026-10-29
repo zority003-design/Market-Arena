@@ -101,7 +101,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
       </> : identity === 'player' && outfit === 'intern' ? <>
         <mesh position={[-0.06,1.78,0.235]}><boxGeometry args={[0.018,0.15,0.018]}/><meshStandardMaterial color="#d3ddd7" roughness={0.8}/></mesh>
         <mesh position={[0.06,1.78,0.235]}><boxGeometry args={[0.018,0.15,0.018]}/><meshStandardMaterial color="#d3ddd7" roughness={0.8}/></mesh>
-      </> : <mesh position={[-0.26,1.65,0.213]}><boxGeometry args={[0.1,0.035,0.02]}/><meshStandardMaterial color={palette.accent} metalness={0.2}/></mesh>
+      </> : <mesh position={[-0.26,1.65,0.213]}><boxGeometry args={[0.1,0.035,0.02]}/><meshStandardMaterial color={palette.accent} metalness={0.2}/></mesh>}
       {/* Shoulder caps, upper arms, forearms and hands are joined at elbows and wrists. */}
       <group ref={typingArms}>
       <mesh position={[-0.36,1.86,0]} scale={[0.19,0.19,0.22]} castShadow><sphereGeometry args={[1,20,16]}/><meshStandardMaterial color={jacket} roughness={0.65}/></mesh>
