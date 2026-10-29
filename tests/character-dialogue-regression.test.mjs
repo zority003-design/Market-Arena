@@ -131,7 +131,7 @@ test('KOTL keeps its property-business role while the pitch uses the new comedy 
   const economy = await read('src/game/economy.ts')
   assert.match(arena, /ticker:'KOTL', name:'Котолёт'/)
   assert.match(arena, /строит дома с балконами для котов/)
-  assert.match(app, /name: 'Каталёт', sector: 'Девелопмент'/)
+  assert.match(app, /name: 'Котолёт', sector: 'Девелопмент'/)
   assert.match(economy, /KOTL: \{ label:'Рост и девелопмент'/)
   assert.doesNotMatch(arena, /800 роботов|дронами/)
 })
