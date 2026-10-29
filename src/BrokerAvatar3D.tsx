@@ -93,6 +93,15 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
       <mesh position={[0.1, 1.91, 0.235]} rotation={[0, 0, 0.12]}><boxGeometry args={[0.17, 0.14, 0.04]}/><meshStandardMaterial color={shirtColor}/></mesh>
       <mesh position={[-0.14, 1.65, 0.233]} rotation={[0, 0, -0.2]}><boxGeometry args={[0.18, 0.53, 0.035]}/><meshStandardMaterial color={jacket}/></mesh>
       <mesh position={[0.14, 1.65, 0.233]} rotation={[0, 0, 0.2]}><boxGeometry args={[0.18, 0.53, 0.035]}/><meshStandardMaterial color={jacket}/></mesh>
+      {/* Jacket lapels and a contrasting inner shirt make formal outfits read clearly at small sizes. */}
+      {!playerIntern && <>
+        <mesh position={[-0.105,1.79,0.258]} rotation={[0,0,-0.22]}><boxGeometry args={[0.105,0.34,0.035]}/><meshStandardMaterial color={playerPremium ? '#263a52' : jacket} roughness={0.58}/></mesh>
+        <mesh position={[0.105,1.79,0.258]} rotation={[0,0,0.22]}><boxGeometry args={[0.105,0.34,0.035]}/><meshStandardMaterial color={playerPremium ? '#263a52' : jacket} roughness={0.58}/></mesh>
+      </>}
+      {playerIntern && <>
+        <mesh position={[-0.14,1.76,0.257]} rotation={[0,0,-0.16]}><boxGeometry args={[0.12,0.36,0.03]}/><meshStandardMaterial color="#748b8d" roughness={0.85}/></mesh>
+        <mesh position={[0.14,1.76,0.257]} rotation={[0,0,0.16]}><boxGeometry args={[0.12,0.36,0.03]}/><meshStandardMaterial color="#748b8d" roughness={0.85}/></mesh>
+      </>
       {!playerIntern && <>
         <mesh position={[0, 1.59, 0.258]}><shapeGeometry args={[new THREE.Shape().moveTo(-0.055,0.19).lineTo(0.055,0.19).lineTo(0.08,0.1).lineTo(0,-0.18).lineTo(-0.08,0.1).closePath()]}/><meshStandardMaterial color={tieColor} roughness={0.42}/></mesh>
         <mesh position={[0, 1.78, 0.263]}><boxGeometry args={[0.09, 0.055, 0.025]}/><meshStandardMaterial color={tieColor}/></mesh>
