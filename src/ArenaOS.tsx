@@ -323,7 +323,7 @@ function getResponseOptions(stock:Stock, client:ClientProfile, turn:number, comp
       ? /долг|убыт|расход|риск|паден|возврат|конкур|сценари|смет|задерж|ликвид|марж/i
       : /провер|свер|отчет|отчёт|денежн|огранич|пересмотр|услов|критер|подтверд|сценар|доля|сравн/i
   const companySpecific = (RESPONSE_BANK[stock.ticker] ?? []).find(option =>
-    stageTerms.test(option.text) && !/гарантирую|без риска|точно вырастет|100\\s*%|не нужен план/i.test(option.text)
+    stageTerms.test(option.text) && !/гарантирую|без риска|точно вырастет|100\s*%|не нужен план/i.test(option.text)
   )
   if (companySpecific) choices[0] = companySpecific
   const rotate = (client.id.length + turn) % choices.length
