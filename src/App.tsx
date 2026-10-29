@@ -9,7 +9,7 @@ import {
 import RoomScene from './RoomScene'
 import CityScene from './CityScene'
 import ClientAvatar2D from './ClientAvatar2D'
-import BrokerAvatar3D from './BrokerAvatar3D'
+import BrokerAvatar3D, { BrokerWebcamScene } from './BrokerAvatar3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
@@ -1158,6 +1158,23 @@ export default function App() {
     if (clientTone.includes('импульсив') || clientTone.includes('азарт')) clientReaction += ' «Не дайте мне увлечься красивой историей: напомните лимит риска».'
     setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне: доверие −7. Для дорогого клиента фальшивый статус без качественной камеры выглядит подозрительно.' }] : []), { from: 'system' as const, text: 'Разбор ответа: доверие ' + (appliedDelta > 0 ? '+' : '') + appliedDelta + ' (' + trust + ' → ' + nextTrust + '); терпение −' + patienceCost + ' (' + patience + ' → ' + nextPatience + '). ' + (reckless ? 'Необоснованное обещание — критическая ошибка.' : evidence ? 'Ты затронул факты или риски — это помогает обосновать рекомендацию.' : 'В ответе мало проверяемых фактов: привяжи аргумент к цели клиента.') }, { from: 'client' as const, text: clientReaction }])
     playSound('murmur'); setFreeAnswer('')
+    // A poor answer can end the call immediately; reckless guarantees are a deal-breaker.
+    const hardBreach = reckless || (appliedDelta <= -13 && nextTrust <= 18)
+    const hangupChance = hardBreach ? 100 : Math.min(82,
+      (appliedDelta <= -8 ? 28 : appliedDelta < 0 ? 10 : 0) +
+      (nextPatience <= 12 ? 42 : nextPatience <= 24 ? 22 : 0) +
+      (nextTrust <= 18 ? 24 : nextTrust <= 30 ? 10 : 0) +
+      (questionIndex >= 1 && appliedDelta <= -5 ? 8 : 0))
+    if (Math.random() * 100 < hangupChance) {
+      const repLoss = hardBreach ? 5 : nextTrust <= 18 ? 3 : 2
+      setCallStatus('lost')
+      setReputation(value => Math.max(0, value - repLoss))
+      setXp(value => value + 5)
+      setLastResult(activeClient.name + ' сбросил звонок. Сделки нет, бонуса нет, репутация −' + repLoss + '. Доверие: ' + nextTrust + '/100; терпение: ' + nextPatience + '/100.')
+      setConversation(items => [...items, { from: 'client', text: hardBreach ? '«Вы только что пообещали невозможное. Я не собираюсь рисковать деньгами с человеком, который гарантирует прибыль. До свидания».' : nextPatience <= 12 ? '«Я уже несколько раз прошу ответить по делу. Всё, у меня нет времени. До свидания».' : '«Это звучит слишком рискованно или невнятно. Я заканчиваю разговор».' }, { from: 'system', text: 'КЛИЕНТ СБРОСИЛ ЗВОНОК. Вероятность срыва: ' + Math.round(hangupChance) + '%. Сделка сорвана; репутация −' + repLoss + '.' }])
+      playSound('hangup')
+      return
+    }
     if (questionIndex >= activeQuestions.length - 1) resolveCall(nextTrust, nextPatience)
     else { setQuestionIndex((value) => value + 1); setTimeLeft(75); setLastPenaltySecond(75) }
   }
@@ -1659,7 +1676,7 @@ export default function App() {
                       <div className="negotiation-call-column">
                         <div className="negotiation-video-grid">
                           <div className="negotiation-video-tile client-tile"><div className="negotiation-video-label"><span>СОБЕСЕДНИК</span><span>● LIVE</span></div><div className="negotiation-client-video"><ClientAvatar2D tier={activeClient.tier} mood={trust >= 70 ? 'interested' : trust >= 45 ? 'neutral' : 'skeptical'}/></div><div className="negotiation-video-caption"><strong>{activeClient.name}</strong><small>{activeClient.profession}</small></div></div>
-                          <div className="negotiation-video-tile self-tile"><div className="negotiation-video-label"><span>ВАШ КАДР</span><span>● ЛОКАЛЬНО</span></div><div className="negotiation-self-video"><BrokerAvatar3D identity="player" outfit={selectedOutfit} compact className="negotiation-self-broker"/><span>ВЫ</span></div><div className="negotiation-video-caption"><strong>Ваш брокер</strong><small>Камера персонажа</small></div></div>
+                          <div className="negotiation-video-tile self-tile"><div className="negotiation-video-label"><span>ВАШ КАДР</span><span>● ЛОКАЛЬНО</span></div><div className="negotiation-self-video room-webcam-feed"><BrokerWebcamScene identity="player" outfit={selectedOutfit} housingId={housingId}/><span>ВЫ</span></div><div className="negotiation-video-caption"><strong>Ваш брокер</strong><small>{HOUSING.find(home => home.id === housingId)?.name ?? "Твоя комната"} · 3D-камера</small></div></div>
                         </div>
                         <div className="negotiation-conversation-log" aria-label="Последние реплики переговоров">
                            {conversation.slice(-3).map((entry, index) => <div key={conversation.length - 3 + index} className={'negotiation-dialogue-line ' + entry.from}><span>{entry.from === 'you' ? 'ВЫ' : entry.from === 'system' ? 'ЗАМЕТКА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}
