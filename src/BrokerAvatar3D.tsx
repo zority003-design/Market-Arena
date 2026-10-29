@@ -98,10 +98,10 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
         <mesh position={[0, 1.78, 0.263]}><boxGeometry args={[0.09, 0.055, 0.025]}/><meshStandardMaterial color={tieColor}/></mesh>
       </>}
       {[1.42,1.28,1.14].map((y) => <mesh key={y} position={[0.08,y,0.228]}><sphereGeometry args={[0.022,12,10]}/><meshStandardMaterial color={playerPremium ? '#d7b35d' : formal ? '#d5b15e' : '#c8d0d0'} metalness={0.5} roughness={0.35}/></mesh>)}
-      {!playerIntern && <g>
+      {!playerIntern && <group>
         <mesh position={[-0.235,1.55,0.254]}><boxGeometry args={[0.12,0.075,0.025]}/><meshStandardMaterial color={playerPremium ? '#fff8e7' : palette.shirt} roughness={0.45}/></mesh>
         <mesh position={[-0.235,1.58,0.27]}><boxGeometry args={[0.08,0.018,0.012]}/><meshStandardMaterial color={playerPremium ? '#d7b35d' : palette.accent} metalness={0.25}/></mesh>
-      </g>}
+      </group>}
       {/* Cuffs and watch give the hands a clear connection to the sleeves. */}
       <mesh position={[-0.475,seated ? 1.245 : 0.965,seated ? 0.37 : 0.14]} rotation={[0,0,-0.1]}><boxGeometry args={[0.13,0.075,0.09]}/><meshStandardMaterial color={shirtColor} roughness={0.62}/></mesh>
       <mesh position={[0.475,seated ? 1.245 : 0.965,seated ? 0.37 : 0.14]} rotation={[0,0,0.1]}><boxGeometry args={[0.13,0.075,0.09]}/><meshStandardMaterial color={shirtColor} roughness={0.62}/></mesh>
