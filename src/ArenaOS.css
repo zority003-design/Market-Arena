@@ -1415,3 +1415,14 @@
   letter-spacing: .015em;
 }
 .arena-os-free-text button:disabled { cursor: wait; }
+
+.arena-os-dossier-glossary {
+  padding: 12px 14px;
+  border: 1px solid rgba(132,177,211,.2);
+  border-radius: 11px;
+  background: rgba(83,127,158,.08);
+  color: #c7d8e4 !important;
+  font-size: 12px !important;
+  line-height: 1.8 !important;
+}
+.arena-os-dossier-glossary strong { color: #e5f0f7; }
