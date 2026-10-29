@@ -222,7 +222,14 @@ test('client dialogue no longer appends the same generic plan-B suffix to every 
   assert.match(arena, /function clientStockReaction/)
   assert.match(arena, /function clientHesitationLine/)
   assert.match(arena, /function clientClosingLine/)
-  assert.match(arena, /const start = \(turn \* 2 \+ \(client\.id\.length % bank\.length\)\)/)
+  assert.match(arena, /const stage = phaseNumber\(turn, completedStages\)/)
+  assert.match(arena, /function phaseNumber\(_turn:number, completedStages:number\[\] = \[\]\)/)
+  assert.match(arena, /setReplyCooldown\(true\)/)
+  assert.match(arena, /setTimeout\(\(\) => setReplyCooldown\(false\), 1100\)/)
+  assert.match(arena, /Объяснить, откуда может взяться рост/)
+  assert.match(arena, /Назвать реальный риск компании/)
+  assert.match(arena, /Предложить проверку и условие пересмотра/)
+  assert.match(arena, /nextReasoningStages\.length===3/)
 })
 
 

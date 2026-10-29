@@ -131,13 +131,26 @@ export function getOutfitModifier(outfit:'intern'|'classic'|'premium', client:Cl
  return base+(client.statusSensitive && outfit!=='intern' ? 1 : 0)
 }
 export function calculateDeal(client:ClientProfile, trust:number, previousDeals=0, previouslyInvested=0, businessTier=0) {
- const remainingBudget=Math.max(0,client.budget-previouslyInvested)
- const allocationRate=Math.min(.45,client.maxAllocation+previousDeals*.05)
- const ticket=Math.min(Math.round(client.ticket*(1+previousDeals*.25)),Math.floor(client.budget*allocationRate),remainingBudget)
- const qualityMultiplier=trust>=75?1.25:trust>=62?1.1:1
+ // Defensive normalization matters for old/corrupt saves and prevents negative deal values.
+ const safeBudget=Math.max(0,Number.isFinite(client.budget)?client.budget:0)
+ const safeClientTicket=Math.max(0,Number.isFinite(client.ticket)?client.ticket:0)
+ const safeInvested=Math.max(0,Number.isFinite(previouslyInvested)?previouslyInvested:0)
+ const safePreviousDeals=Math.min(20,Math.max(0,Math.floor(Number.isFinite(previousDeals)?previousDeals:0)))
+ const safeTier=Math.min(4,Math.max(0,Math.floor(Number.isFinite(businessTier)?businessTier:0)))
+ const safeTrust=Math.min(100,Math.max(0,Number.isFinite(trust)?trust:0))
+ const maxAllocation=Math.min(.45,Math.max(0,Number.isFinite(client.maxAllocation)?client.maxAllocation:0)+safePreviousDeals*.05)
+ const remainingBudget=Math.max(0,safeBudget-safeInvested)
+ const ticket=Math.max(0,Math.min(
+   Math.round(safeClientTicket*(1+safePreviousDeals*.25)),
+   Math.floor(safeBudget*maxAllocation),
+   remainingBudget
+ ))
+ const qualityMultiplier=safeTrust>=75?1.25:safeTrust>=62?1.1:1
  const bonusCaps=[900,1500,2300,3300,4500]
- const playerBonus=Math.min(bonusCaps[Math.min(bonusCaps.length-1,Math.max(0,businessTier))],Math.round(ticket*client.bonusRate*qualityMultiplier))
- return {ticket,firmRevenue:Math.round(ticket*client.commissionRate),playerBonus,qualityMultiplier}
+ const bonusRate=Math.max(0,Number.isFinite(client.bonusRate)?client.bonusRate:0)
+ const commissionRate=Math.max(0,Number.isFinite(client.commissionRate)?client.commissionRate:0)
+ const playerBonus=Math.min(bonusCaps[safeTier],Math.round(ticket*bonusRate*qualityMultiplier))
+ return {ticket,firmRevenue:Math.round(ticket*commissionRate),playerBonus,qualityMultiplier}
 }
 export function getBackgroundModifier(mode:VideoBackground, ownedItems:string[], client:ClientProfile):number {
  if(mode==='real') return 0

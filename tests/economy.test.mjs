@@ -179,3 +179,27 @@ test('premium prospects require better call equipment while starter clients rema
   assert.equal(getClientEquipmentAccess(executive, ['headset', 'hd-camera']).available, false)
   assert.equal(getClientEquipmentAccess(executive, ['headset', 'hd-camera', 'neutral-backdrop']).available, true)
 })
+
+test('deal calculations remain non-negative with invalid or legacy save values', () => {
+  const client = CLIENTS[0]
+  for (const [trust, deals, invested, tier] of [
+    [70, -5, 0, 0], [70, 0, -100, 0], [70, 0, Number.NaN, 0],
+    [Number.NaN, Number.NaN, Number.NaN, Number.NaN], [140, 100, 0, 99],
+  ]) {
+    const result = calculateDeal(client, trust, deals, invested, tier)
+    assert.ok(Number.isFinite(result.ticket) && result.ticket >= 0)
+    assert.ok(Number.isFinite(result.firmRevenue) && result.firmRevenue >= 0)
+    assert.ok(Number.isFinite(result.playerBonus) && result.playerBonus >= 0)
+    assert.ok(result.ticket <= client.budget)
+  }
+  assert.equal(calculateDeal(client, 70, -5, 0).ticket, calculateDeal(client, 70, 0, 0).ticket)
+})
+
+test('repeat deals cannot exceed remaining budget even after many previous deals', () => {
+  for (const client of CLIENTS) {
+    const result = calculateDeal(client, 100, 1000, client.budget * .9, 4)
+    assert.ok(result.ticket >= 0)
+    assert.ok(result.ticket <= Math.floor(client.budget * .45))
+    assert.ok(result.ticket <= Math.floor(client.budget * .1))
+  }
+})

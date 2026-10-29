@@ -166,105 +166,6 @@ function clientHesitationLine(client:ClientProfile, stock:Stock, turn:number) {
 }
 
 
-const RESPONSE_BANK: Record<string, {label:string;text:string}[]> = {
-  KOTL: [
-    {label:'Проверить распроданность, а не только красивые рендеры',text:'У «Каталёта» новые жилые кварталы, но рендеры не равны сделкам. Я проверю бронирования, ипотечные договоры и темп продаж очереди.'},
-    {label:'Посчитать стоимость проектного долга',text:'Ставки влияют на проценты по проектному финансированию. Сопоставлю долг, поступления по проектам и запас ликвидности — особенно если продажи замедлятся.'},
-    {label:'Проверить смету и сроки сдачи',text:'Рост стоимости материалов или задержка подрядчика могут съесть маржу. Проверю резерв сметы, график строительства и ответственность за срыв сроков.'},
-    {label:'Разделить эскроу и свободные деньги',text:'Средства на эскроу нельзя считать свободными деньгами компании. Проверю, когда выполняются условия раскрытия и хватает ли финансирования до сдачи объекта.'},
-    {label:'Сравнить базовый и стрессовый сценарии',text:'Смоделирую обычный темп продаж и вариант с более дорогой ипотекой. Если долг растёт быстрее поступлений или маржа исчезает, тезис надо пересмотреть.'},
-    {label:'Ограничить позицию до подтверждения спроса',text:'Это циклический застройщик с высоким риском. Начну с небольшой доли и буду следить за распроданностью, долгом и сроками сдачи; никакой гарантии роста здесь нет.'}
-  ],
-  VECT: [
-    {label:'Проверить, не съедает ли рост расходов цифровую прибыль',text:'У «ВекторСофт» есть регулярная выручка, но проверю расходы на разработку и маржу. Цифровой сервис должен приносить повторную прибыль, а не просто красивые графики пользователей.'},
-    {label:'Посчитать цену клиента, а не количество скачиваний',text:'Сравню стоимость привлечения корпоративного клиента с доходом за весь срок сотрудничества. Если маркетинг дороже будущей прибыли, приложение популярно только у бухгалтерии рекламного отдела.'},
-    {label:'Не путать стабильность с неподвижностью',text:'Это скорее компромисс, а не ракета. Посмотрю темп роста маржи и повторных продаж, а долю подберу так, чтобы замедление бизнеса не испортило весь портфель.'},
-    {label:'Проверить, не началась ли ценовая война',text:'Если конкуренты давят ценой, рост выручки может скрывать падение прибыли. Сравним удержание клиентов и маржу до того, как поверим в очередное «цифровое лидерство».'},
-    {label:'Попросить факты, а не презентацию с градиентом',text:'До покупки проверю последние результаты, денежный поток и долю повторной выручки. Красивый интерфейс хорош, но дивиденды обычно не принимают оплату в UX.'},
-    {label:'Составить спокойный план без обещаний иксов',text:'Рассмотрю горизонт от одного до трёх лет и буду сверять квартальные показатели с тезисом. Если рост замедлится, а маржа просядет, спокойно пересмотрю позицию.'}
-  ],
-  NEFT: [
-    {label:'Посчитать нефть по плохому сценарию',text:'Проверю модель при снижении сырьевых цен и укреплении рубля. Если компания выдерживает только идеальный рынок, это не инвестиционная идея, а прогноз погоды с дорогим костюмом.'},
-    {label:'Уточнить, доходит ли экспортная выручка до денег',text:'Сверю экспортные объёмы, скидки, логистику и капитальные затраты. Рост цены сырья бесполезен, если расходы и ограничения съедают денежный поток.'},
-    {label:'Не делать ставку на один баррель и одну надежду',text:'Ограничу долю из-за цикличности сектора. Проверю долговую нагрузку и денежный поток в слабом сценарии; не хочу, чтобы мой портфель зависел от настроения одной нефтяной бочки.'},
-    {label:'Проверить, сколько стоит обход ограничений',text:'Посмотрю расходы на логистику, страхование и расчёты. Если экспорт становится дороже, прибыль может снизиться даже при неплохой мировой цене.'},
-    {label:'Сравнить дивиденды с реальными свободными деньгами',text:'Дивиденды должны опираться на свободный денежный поток после инвестиций. Обещание щедрой выплаты не заменяет денег на счёте компании.'},
-    {label:'Не изображать нефтяного оракула',text:'Я не буду угадывать пик нефти. Составлю базовый и негативный сценарии, ограничу позицию и пересмотрю её при изменении цен, курса или экспортных условий.'}
-  ],
-  MEDX: [
-    {label:'Посчитать загрузку клиник, а не количество ленточек',text:'Проверю загрузку врачей, средний чек и срок выхода новых филиалов на плановую прибыль. Открыть клинику легко на фотографии; сложнее заполнить расписание и оплатить оборудование.'},
-    {label:'Проверить, не лечит ли рост выручки долг',text:'Сравню операционный денежный поток с долгом и капитальными затратами. Если новые центры растут за счёт постоянных займов, масштабирование может стать дорогим симптомом.'},
-    {label:'Выбрать защиту, но не надевать броню из бумаги',text:'Спрос на медуслуги устойчивее многих отраслей, но акция всё равно может падать. Подберу умеренную долю и буду следить за долгом, кадрами и загрузкой.'},
-    {label:'Уточнить, где найти врачей для новых филиалов',text:'Проверю дефицит специалистов и зарплатные расходы. Новая вывеска не лечит пациентов, если запись к врачу через три месяца.'},
-    {label:'Проверить окупаемость каждого нового центра',text:'Сравню вложения, срок окупаемости и фактическую загрузку филиалов. Не стану считать каждое открытие клиники автоматическим ростом стоимости компании.'},
-    {label:'Не обещать вечного здоровья котировке',text:'Это более защитный бизнес, а не акция без риска. Проверю отчётность раз в квартал и пересмотрю тезис, если долг растёт быстрее денежного потока.'}
-  ],
-  GROV: [
-    {label:'Посчитать прибыль после бесплатной доставки',text:'Проверю маржу заказа после логистики, скидок и возвратов. Если каждый новый покупатель приносит убыток, компания масштабирует не бизнес, а расходы на картонные коробки.'},
-    {label:'Отделить постоянных клиентов от охотников за промокодом',text:'Посмотрю повторные покупки и стоимость привлечения клиента. Если люди исчезают после окончания скидки, рост аудитории может быть дорогим миражом.'},
-    {label:'Не покупать выручку в кредит',text:'Проверю свободный денежный поток и потребность в долге. Высокий рост продаж не спасает, если каждый заказ увеличивает кассовый разрыв.'},
-    {label:'Проверить экономику одного заказа',text:'Сравню средний чек, сборку, доставку и возвраты. Мне нужен положительный вклад заказа до расширения, иначе больше заказов означает больше головной боли.'},
-    {label:'Попросить доказать, что клиент вернётся',text:'Сверю удержание покупателей и долю повторной выручки. Красивое приложение не равно лояльности: корзина может быть полной, а прибыль — пустой.'},
-    {label:'Ограничить ставку, пока модель не прибыльна',text:'Это рискованная история роста. Войду только небольшой долей и пересмотрю идею, если логистика и скидки продолжат съедать маржу.'}
-  ],
-  GRID: [
-    {label:'Проверить тарифы и деньги на ремонт сетей',text:'Сверю утверждённые тарифы, инвестиционную программу и денежный поток. Электричество нужно всем, но это не значит, что акционер автоматически получает прибыль от каждого включённого чайника.'},
-    {label:'Посчитать капзатраты до слова «стабильность»',text:'Проверю, сколько компания должна вложить в сети и когда эти вложения окупятся. Предсказуемый спрос не отменяет регуляторные решения и расходы на инфраструктуру.'},
-    {label:'Выбрать спокойную идею без ожидания ракеты',text:'Рассмотрю её как защитную часть портфеля, но не буду ждать взлёта котировки. Важнее тарифная политика, долги и выполнение инвестпрограммы.'},
-    {label:'Спросить, кто заплатит за новый трансформатор',text:'Посмотрю сроки расчётов потребителей и возврат инвестиций. Если расходы возникают сегодня, а компенсация откладывается, денежный поток может оказаться слабее отчётной прибыли.'},
-    {label:'Не путать монополию с волшебной кнопкой прибыли',text:'Даже инфраструктурная компания зависит от регулятора. Проверю, покрывают ли тарифы необходимые затраты и не растёт ли долг быстрее операционного результата.'},
-    {label:'Сравнить дивиденды с инвестиционной программой',text:'Оценю свободный денежный поток после капитальных затрат. Сначала нужно содержать сети в рабочем состоянии, а потом обсуждать выплаты акционерам.'}
-  ],
-  BYTE: [
-    {label:'Проверить, есть ли пользователи кроме тестировщиков',text:'Нужны платящие клиенты, повторная выручка и сроки запуска. «Бета-версия понравилась команде» — не то же самое, что продукт, за который рынок готов платить.'},
-    {label:'Составить план на случай очередного переноса релиза',text:'Проверю денежный запас и рост расходов на разработку. Если запуск задержится, заранее определю, сколько компания может потратить до пересмотра инвестиционной идеи.'},
-    {label:'Не покупать презентацию по цене готового бизнеса',text:'Высокая оценка уже предполагает успех. Сравню её с реальными продажами и возьму маленькую долю, пока коммерческий результат не подтверждён.'},
-    {label:'Проверить подписки, а не аплодисменты на демо',text:'Посмотрю конверсию в платящих клиентов, отток и повторяющуюся выручку. На демонстрации продуктом пользуются бесплатно — это самая прибыльная бизнес-модель для зрителя.'},
-    {label:'Уточнить, сколько стоит довести продукт до релиза',text:'Сверю бюджет разработки с денежным запасом и планом продаж. Если денег не хватит до запуска, компания может привлечь капитал на невыгодных условиях.'},
-    {label:'Не ставить весь капитал на кнопку «Запустить»',text:'Это ставка на исполнение плана, а не доказанная прибыль. Ограничу размер позиции и пересмотрю тезис при срыве сроков или слабом спросе.'}
-  ],
-  LOGI: [
-    {label:'Посчитать прибыль после топлива и зарплат',text:'Проверю маржу контракта после топлива, зарплат, ремонта и простоя транспорта. Машин много — хорошо; если каждая едет в минус, автопарк становится дорогой коллекцией.'},
-    {label:'Уточнить, что будет, если уйдёт главный заказчик',text:'Оценю долю крупнейших клиентов и сроки контрактов. Один крупный заказ способен кормить бизнес, но его потеря может оставить целый парк без работы.'},
-    {label:'Сравнить заполненный маршрут с пустым пробегом',text:'Посмотрю загрузку транспорта, стоимость километра и возвратные рейсы. Выручка на маршруте ничего не значит, если половина пути оплачивается воздухом.'},
-    {label:'Проверить, можно ли индексировать тарифы',text:'Сопоставлю рост топлива и зарплат с условиями контрактов. Если расходы растут быстрее тарифов, оборот увеличится, а прибыль похудеет.'},
-    {label:'Не считать каждый груз золотым слитком',text:'Оценю денежный поток и ремонтные расходы. Доставка — реальный бизнес, но грузовик тоже хочет зарплату, масло и иногда внезапно новую коробку передач.'},
-    {label:'Ограничить риск потери ключевого контракта',text:'Проверю концентрацию заказчиков и запас ликвидности. Если продление не подтверждается, заранее пересмотрю оценку и не буду усреднять позицию из упрямства.'}
-  ],
-  OGUR: [
-    {label:'Проверить, не разбавлена ли прибыль водой',text:'Сверю валовую маржу, цену сырья и упаковки. Если огурец дорожает быстрее сока, даже самая бодрая этикетка не спасёт финансовый результат.'},
-    {label:'Посчитать, сколько стоит место на полке',text:'Проверю скидки сетям, возвраты и повторные покупки. Полка в магазине — не бесплатная недвижимость, а иногда очень дорогая аренда в сантиметрах.'},
-    {label:'Не путать сок с золотым фонтаном',text:'Компания прибыльна, но рост умеренный. Сравню цену акции с темпом прибыли и не буду обещать иксы только потому, что напиток продаётся круглый год.'},
-    {label:'Проверить, выдержит ли бизнес рост упаковки',text:'Посмотрю, может ли компания поднять цену без потери покупателей. Переложить расходы на клиента можно только до тех пор, пока он не выберет соседнюю полку.'},
-    {label:'Спросить, возвращается ли покупатель без скидки',text:'Сравню повторные покупки в обычные недели с промо-периодами. Если спрос существует только при скидке, выручка бодрая, а маржа в отпуске.'},
-    {label:'Выбрать умеренный темп вместо огуречного космоса',text:'Это понятный прибыльный бизнес, но не ракета. Проверю прибыль и денежный поток, а позицию подберу под осторожный горизонт клиента.'}
-  ],
-  TAPK: [
-    {label:'Проверить возвраты до покупки ещё одной пары',text:'Сначала нужна статистика возвратов после обновления и расходы на гарантию. Падение акции само по себе не скидка — иногда рынок просто заметил, что тапочки кусаются.'},
-    {label:'Узнать, работают ли тапочки без телефона',text:'Проверю базовые функции без приложения, автономность и частые жалобы. Если для ходьбы нужен заряженный смартфон, продукт пока слишком умный для собственной пользы.'},
-    {label:'Не усреднять позицию вместе с размером обуви',text:'Ограничу долю и определю условия выхода: возвраты не падают, денежный запас сокращается или обновление не даёт повторных заказов. Надежда не заменяет отчёт.'},
-    {label:'Попросить независимые тесты прошивки',text:'Обещание директора не равно доказательству. Нужны данные качества после обновления, гарантийные расходы и повторные покупки, а не ролик, где тапочки бодро мигают.'},
-    {label:'Проверить, не съедает ли гарантия всю маржу',text:'Посчитаю возвраты, ремонт и поддержку приложения на одну проданную пару. Если каждый покупатель возвращается только ради возврата товара, модель не работает.'},
-    {label:'Признать, что иногда лучший трейд — не покупать',text:'Пока качество новой версии не подтверждено, можно просто наблюдать. Я не обязан покупать падающую акцию, чтобы доказать рынку свою смелость.'}
-  ],
-  DUST: [
-    {label:'Посчитать контракт после зарплат уборщиков',text:'Сверю стоимость персонала, расходников и индексацию цены. Контракт на пять лет звучит спокойно, пока расходы не растут быстрее тарифа и не вытирают маржу шваброй.'},
-    {label:'Проверить, сколько стоит потерять крупный объект',text:'Оценю долю крупнейшего клиента и сроки продления. Даже стабильная уборка становится нестабильной, если один договор держит на себе половину прибыли.'},
-    {label:'Не требовать от швабры роста в десять раз',text:'Это скорее защитный бизнес с умеренным ростом. Проверю денежный поток и цену акции, но не буду продавать клиенту мечту о ракете из ведра.'},
-    {label:'Посчитать экономию от автоматизации',text:'Сравню цену оборудования, обслуживание и реально сэкономленные часы труда. Робот окупается не потому, что он блестит, а потому что уменьшает расходы.'},
-    {label:'Проверить индексацию долгосрочных договоров',text:'Если зарплаты растут, а тариф фиксирован, маржа сжимается. Изучу условия пересмотра цены до того, как назвать контракт вечным источником денег.'},
-    {label:'Выбрать устойчивость, не забывая про цену',text:'Положительная прибыль не делает любую оценку разумной. Сверю маржу, продление контрактов и денежный поток, а затем подберу размер позиции под цель клиента.'}
-  ],
-  BTRAN: [
-    {label:'Разобрать прибыль по литрам, кофе и мойке',text:'Посчитаю маржу топлива отдельно от магазина, мойки и зарядок. Возможно, кофе на заправке зарабатывает лучше бензина — но сначала это нужно доказать цифрами.'},
-    {label:'Проверить, кто оплачивает скачок оптовой цены',text:'Сверю закупочные контракты, запасы и возможность менять розничные цены без потери трафика. Поднять ценник легко; удержать клиента после этого сложнее.'},
-    {label:'Не превращать АЗС в музей бензина',text:'Оценю спрос на зарядки, стоимость подключения и окупаемость по локациям. Электрозарядка не магия: пустой быстрый зарядник — просто дорогой столб.'},
-    {label:'Посчитать трафик и средний чек',text:'Проверю количество машин, покупки в магазине и прибыль на одну остановку. Большой поток автомобилей не помогает, если все заезжают только спросить дорогу.'},
-    {label:'Проверить стоимость модернизации сети',text:'Сопоставлю капитальные затраты с денежным потоком и загрузкой новых сервисов. Не хочу, чтобы прибыль от кофе ушла на зарядные станции, которыми никто не пользуется.'},
-    {label:'Ограничить ставку на сырьевой цикл',text:'Топливная маржа зависит от закупочных цен и конкуренции. Проверю плохой сценарий и не буду называть сеть неуязвимой только потому, что людям нужно ездить.'}
-  ]
-}
-
 function clientStockReaction(client:ClientProfile, stock:Stock, suitable:boolean) {
   const concerns:Record<string,string> = {
     KOTL:'Застройщик — понятно, но меня волнуют ипотека и темп продаж. Что будет, если квартиры станут покупать медленнее?',
@@ -294,15 +195,31 @@ function clientStockReaction(client:ClientProfile, stock:Stock, suitable:boolean
   return '«Ладно, готов выслушать. Но ' + concern + ' Что вы ответите на это возражение?»'
 }
 
-function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
-  const bank = RESPONSE_BANK[stock.ticker] ?? RESPONSE_BANK.OGUR
-  // Keep each option's actual argument distinct; no generic suffix pasted onto every reply.
-  const start = (turn * 2 + (client.id.length % bank.length)) % bank.length
-  return [0,1,2].map(index => {
-    const base = bank[(start + index) % bank.length]
-    const concise = client.temperament.includes('Нетерпел') || client.temperament.includes('Занятая')
-    return { label: concise && base.label.length > 58 ? base.label.slice(0,55).trimEnd() + '…' : base.label, text: base.text }
-  })
+function phaseNumber(_turn:number, completedStages:number[] = []) { return completedStages.includes(0) ? (completedStages.includes(1) ? 2 : 1) : 0 }
+
+function getResponseOptions(stock:Stock, client:ClientProfile, turn:number, completedStages:number[] = []) {
+  const stage = phaseNumber(turn, completedStages)
+  const goal = client.goal.toLowerCase()
+  const goalNudge = /сохран|риск|не потер/.test(goal)
+    ? 'Этому клиенту особенно важно не поставить под угрозу деньги, которые могут понадобиться.'
+    : /рост|доход|увелич|развит/.test(goal)
+      ? 'Потенциал важен, но он должен подтверждаться результатами компании.'
+      : 'Решение должно соответствовать цели клиента и сроку, на который ему нужны деньги.'
+  const choices = stage === 0 ? [
+    { label: 'Объяснить, откуда может взяться рост', text: 'Сильная сторона «'+stock.name+'»: '+stock.upside+' Это возможность, а не обещание доходности. '+goalNudge },
+    { label: 'Купить только потому, что цена кажется низкой', text: 'Акция стоит недорого, значит она обязательно вырастет. Можно не разбираться в бизнесе и просто ждать прибыли.' },
+    { label: 'Продать уверенность вместо аргументов', text: 'У «'+stock.name+'» всё выглядит отлично. Риск можно не обсуждать: доход гарантирован, акция точно вырастет и клиент ничего не потеряет.' },
+  ] : stage === 1 ? [
+    { label: 'Назвать реальный риск компании', text: 'У этой идеи есть серьёзный минус: '+stock.downside+' Красные флаги — '+stock.redFlags+'. Цена акции может упасть, поэтому нельзя вкладывать деньги, которые скоро понадобятся.' },
+    { label: 'Отмахнуться от плохих новостей', text: 'Не будем портить настроение разговорами об убытках и долгах. У любой компании бывают проблемы, поэтому клиенту лучше о них не думать.' },
+    { label: 'Сослаться на известность компании', text: 'Компания выглядит солидно, поэтому её долги, расходы и возможные убытки не имеют большого значения.' },
+  ] : [
+    { label: 'Предложить проверку и условие пересмотра', text: 'Проверю '+stock.catalyst+', сверю свежие отчёты и денежный поток. Если проявятся красные флаги — '+stock.redFlags+' — ограничу долю или пересмотрю решение. Прибыли не обещаю: сначала проверяем факты.' },
+    { label: 'Купить сейчас, разобраться потом', text: 'Предлагаю не тратить время на отчёты и условия выхода. Купим побольше, а если что-то пойдёт не так, просто подождём.' },
+    { label: 'Переложить ответственность на чужой совет', text: 'Мне эту акцию посоветовали, поэтому отдельный план не нужен. Будем смотреть на цену каждый день и решать по настроению.' },
+  ]
+  const rotate = (client.id.length + turn) % choices.length
+  return choices.map((_, index) => choices[(index + rotate) % choices.length])
 }
 
 export default function ArenaOS(props: Props) {
@@ -332,6 +249,8 @@ export default function ArenaOS(props: Props) {
   const [stockPicker,setStockPicker] = useState(false)
   const [callLog,setCallLog] = useState<string[]>([])
   const [dialogueTurn,setDialogueTurn] = useState(0)
+  const [reasoningStages,setReasoningStages] = useState<number[]>([])
+  const [replyCooldown,setReplyCooldown] = useState(false)
   const [firstDealGuide,setFirstDealGuide] = useState(false)
   const [message,setMessage] = useState('')
   const [companyNameDraft,setCompanyNameDraft] = useState('')
@@ -406,7 +325,7 @@ export default function ArenaOS(props: Props) {
     if (props.callsToday >= dailyCallLimit) { setNotice('Лимит звонков на сегодня исчерпан (' + dailyCallLimit + '). Развивай сеть клиентов или возвращайся завтра.'); return }
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
     props.setCallsToday(value => value + 1)
-    setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
+    setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setReasoningStages([]); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
     const relationshipTrustBase = props.clientTrustScores[selected.id] ?? selected.baseTrust
     const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
@@ -418,7 +337,7 @@ export default function ArenaOS(props: Props) {
   }
   const chooseStock = (stock:Stock) => {
     const fit = getClientStockFit(client.id, stock.ticker)
-    setActiveStock(stock); setStockPicker(false); setDialogueTurn(0)
+    setActiveStock(stock); setStockPicker(false); setDialogueTurn(0); setReasoningStages([]); setReplyCooldown(false)
     if (!fit.suitable) {
       setTrust(Math.max(0, trust - 12))
       props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, (scores[client.id] ?? client.baseTrust) - 12) }))
@@ -436,11 +355,14 @@ export default function ArenaOS(props: Props) {
     props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.min(100, (scores[client.id] ?? client.baseTrust) + 4) }))
   }
   const respond = (kind:'benefit'|'risk'|'absurd'|'free', custom='') => {
-    if(callState!=='active') return
+    if(callState!=='active' || replyCooldown) return
+    setReplyCooldown(true)
+    window.setTimeout(() => setReplyCooldown(false), 1100)
     const text = custom.trim()
     let delta = 0; let reply = ''
     if(kind==='free') {
-      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience })
+      const phase = phaseNumber(dialogueTurn, reasoningStages)
+      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience, phase })
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
@@ -451,6 +373,21 @@ export default function ArenaOS(props: Props) {
     } else {
       delta = -12; reply = '«Я позвонил за инвестиционной идеей, а не на кастинг в цирк. Вернёмся к делу».'
     }
+    const phase = phaseNumber(dialogueTurn, reasoningStages)
+    const normalizedAnswer = text.toLowerCase().replace(/ё/g,'е')
+    const dismissesRisk = /не будем.{0,40}(риск|убыт|долг)|не имеют (?:большого )?значения|не о чем беспокоиться/.test(normalizedAnswer)
+    const dismissesPlan = /план не нужен|не нужно проверять|разберемся потом|разберёмся потом|будем решать по настроению/.test(normalizedAnswer)
+    const stageAnswered = phase === 0
+      ? /выруч|спрос|контракт|потенциал|продаж|подпис|сильная сторона|может заработать|денежн|раст|увелич|покупател|торгов|экспорт|сеть|услуг|продукт|развити/.test(normalizedAnswer) && !/не разбираться|низкая цена|обязательно выраст|гарантир/.test(normalizedAnswer)
+      : phase === 1
+        ? /долг|убыт|расход|риск|паден|возврат|конкур|сценари|смет|красн.{0,8}флаг|не хват|задерж|зависим|огранич|цен|тариф|налог|санкц|поставк|топлив|капитальн/.test(normalizedAnswer) && !dismissesRisk
+        : /провер|свер|отчет|отчёт|денежн|огранич|пересмотр|услов|критер|подтверд|сценар|доля/.test(normalizedAnswer) && !dismissesPlan
+    const nextReasoningStages = stageAnswered ? Array.from(new Set([...reasoningStages, phase])) : reasoningStages
+    setReasoningStages(nextReasoningStages)
+    if (!stageAnswered && kind === 'free' && !/гарантир|без риска|точно выраст|100\s*%/.test(normalizedAnswer)) {
+      delta = Math.min(delta, -4)
+      reply += ' «Пока ты не ответил на главный вопрос этого этапа. Сначала объясни именно это, потом переходи к следующему аргументу».'
+    }
     const newTrust = Math.max(0,Math.min(100,trust+delta))
     const gearMissing = Number(!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')))+Number(!props.ownedItems.includes('hd-camera'))+Number(!(props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) && (client.tier>=2 || client.statusSensitive))
     const newPatience = Math.max(0,patience-Math.max(1,(kind==='risk'?2:kind==='free'?3:4)+Math.ceil(client.tier/2)+gearMissing))
@@ -460,7 +397,7 @@ export default function ArenaOS(props: Props) {
     setDialogueTurn(turn=>turn+1)
     const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
     setLastChance(newChance)
-    if(dialogueTurn >= getNegotiationDifficulty(client, props.ownedItems)-1 && newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
+    if(dialogueTurn >= getNegotiationDifficulty(client, props.ownedItems)-1 && newTrust>=getClientTrustRequirement(client) && nextReasoningStages.length===3 && Math.random()*100<newChance) {
       const firmCommission = Math.round(client.ticket * client.commissionRate)
       const qualityMultiplier = newTrust >= 75 ? 1.25 : newTrust >= 62 ? 1.1 : 1
       const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
@@ -553,9 +490,9 @@ export default function ArenaOS(props: Props) {
     if(props.cash<price) { setNotice('Не хватает денег.'); return }
     props.setCash(v=>v-price); props.setOwnedItems(v=>[...v,id]); setNotice('Куплено навсегда. Ежедневной аренды жилья в игре нет.')
   }
-  const nav: {id:AppId;label:string;icon:typeof Laptop}[] = [
-    {id:'home',label:'Мой профиль',icon:Laptop},{id:'calls',label:'Брокерская линия',icon:PhoneCall},{id:'market',label:'Биржа',icon:TrendingUp},{id:'business',label:'Развитие бизнеса',icon:Building2},
-    {id:'clients',label:'Клиентская база',icon:Users},{id:'wardrobe',label:'Гардероб',icon:ShoppingBag},{id:'equipment',label:'Оборудование',icon:Video},{id:'tasks',label:'Задачи',icon:Check},{id:'housing',label:'Жильё',icon:House}
+  const nav: {id:AppId;label:string;desc:string;icon:typeof Laptop}[] = [
+    {id:'home',label:'Мой профиль',desc:'Деньги и карьера',icon:Laptop},{id:'calls',label:'Брокерская линия',desc:'Переговоры и сделки',icon:PhoneCall},{id:'market',label:'Биржа',desc:'Выбрать акцию',icon:TrendingUp},{id:'business',label:'Развитие бизнеса',desc:'Активы и команда',icon:Building2},
+    {id:'clients',label:'Клиентская база',desc:'Контакты и цели',icon:Users},{id:'wardrobe',label:'Гардероб',desc:'Одежда и образ',icon:ShoppingBag},{id:'equipment',label:'Оборудование',desc:'Связь и бонусы',icon:Video},{id:'tasks',label:'Задачи',desc:'План на день',icon:Check},{id:'housing',label:'Жильё',desc:'Комната и расходы',icon:House}
   ]
   const orderedNav = [...nav].sort((a,b)=>navOrder.indexOf(a.id)-navOrder.indexOf(b.id))
   const careerStages = [
@@ -579,7 +516,7 @@ export default function ArenaOS(props: Props) {
     <div className="arena-os-desktop">
       <div className="arena-os-workspace" ref={workspaceRef}>
       <div className="arena-os-desktop-icons">
-        {orderedNav.map(item=>{const Icon=item.icon;return <button key={item.id} draggable onDragStart={event=>event.dataTransfer.setData('text/plain',item.id)} onDragOver={event=>event.preventDefault()} onDrop={event=>{event.preventDefault();const dragged=event.dataTransfer.getData('text/plain') as AppId;if(dragged===item.id||!navOrder.includes(dragged))return;setNavOrder(prev=>{const next=prev.filter(id=>id!==dragged);next.splice(next.indexOf(item.id),0,dragged);return next})}} className={'arena-os-desktop-icon '+(activeApp===item.id?'selected':'')} onDoubleClick={()=>{setActiveApp(item.id);setWindowOpen(true);setWindowMinimized(false)}} onClick={()=>setActiveApp(item.id)} title="Перетащи, чтобы изменить порядок; двойной щелчок — открыть"><span className={'arena-os-app-icon '+item.id}><Icon size={23}/></span><span>{item.label}</span></button>})}
+        {orderedNav.map(item=>{const Icon=item.icon;return <button key={item.id} draggable onDragStart={event=>event.dataTransfer.setData('text/plain',item.id)} onDragOver={event=>event.preventDefault()} onDrop={event=>{event.preventDefault();const dragged=event.dataTransfer.getData('text/plain') as AppId;if(dragged===item.id||!navOrder.includes(dragged))return;setNavOrder(prev=>{const next=prev.filter(id=>id!==dragged);next.splice(next.indexOf(item.id),0,dragged);return next})}} className={'arena-os-desktop-icon '+(activeApp===item.id?'selected':'')} onDoubleClick={()=>{setActiveApp(item.id);setWindowOpen(true);setWindowMinimized(false)}} onClick={()=>{setActiveApp(item.id);setWindowOpen(true);setWindowMinimized(false)}} title="Нажми, чтобы открыть приложение; перетащи, чтобы изменить порядок"><span className={'arena-os-app-icon '+item.id}><Icon size={23}/></span><span>{item.label}</span><small className="arena-os-desktop-icon-desc">{item.desc}</small></button>})}
       </div>
       {windowOpen && <main style={!windowMaximized?{left:windowPosition.x,top:windowPosition.y}:undefined} className={'arena-os-window '+(windowMaximized?'maximized':'restored')+(windowMinimized?' minimized':'')}>
         <div className="arena-os-window-title" onPointerDown={event=>{if(windowMaximized || (event.target as HTMLElement).closest("button"))return;event.preventDefault();windowDragRef.current={pointerX:event.clientX,pointerY:event.clientY,originX:windowPosition.x,originY:windowPosition.y}}}><div><span className={'arena-os-app-icon mini '+activeApp}>{(()=>{const I=nav.find(n=>n.id===activeApp)?.icon??Laptop;return <I size={15}/>})()}</span><b>{title}</b></div><div className="arena-os-window-controls"><button title="Свернуть" onClick={()=>setWindowMinimized(true)}>−</button><button title={windowMaximized?"Восстановить":"Развернуть"} onClick={()=>setWindowMaximized(v=>!v)}>{windowMaximized?"❐":"□"}</button><button title="Закрыть окно" onClick={()=>{setWindowOpen(false);setWindowMinimized(false)}}>×</button></div></div>
@@ -600,7 +537,7 @@ export default function ArenaOS(props: Props) {
                   <div className="arena-os-risk-profile"><small>ПРОФИЛЬ РИСКА</small><strong>{getClientInvestmentPreference(client.id).riskLabel}</strong><span>Горизонт: {getClientInvestmentPreference(client.id).horizon}</span></div>
                   <div><small>ЧТО ЦЕНИТ</small><p>{getClientInvestmentPreference(client.id).priorities.join(' · ')}</p></div>
                   <div><small>ЧЕГО ИЗБЕГАЕТ</small><p>{getClientInvestmentPreference(client.id).avoids.join(' · ')}</p></div>
-                </div><div className="arena-os-stock-picker-grid">{STOCKS.map(s=>{const profile=STOCK_PROFILES[s.ticker];const fit=getClientStockFit(client.id,s.ticker);return <button key={s.ticker} className={'arena-os-stock-choice'+(fit.suitable?'':' unsuitable')} style={{'--stock-accent':profile?.color??'#3b82f6'} as React.CSSProperties} onClick={()=>chooseStock(s)}><span className="arena-os-stock-choice-ticker">{s.ticker}</span><b>{s.name}</b><small>{profile?.label??'Инвестиционная идея'} · риск {s.risk.toLowerCase()}</small><em>{fit.suitable?'✓ Подходит профилю':'⚠ Есть несоответствие'}</em><p>{profile?.description??s.fit}</p><small className="arena-os-fit-reason">{fit.reason}</small></button>})}</div></div> : <div className="arena-os-argument-panel"><div className="arena-os-stock-dossier"><b>{activeStock.name} · {activeStock.ticker} · риск: {activeStock.risk.toLowerCase()}</b><p><strong>Чем занимается:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.business ?? activeStock.fit}</p><p><strong>Инвестиционный тезис:</strong> {activeStock.upside}</p><p><strong>Плюсы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.advantages ?? [activeStock.catalyst]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Минусы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.disadvantages ?? [activeStock.downside]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Финансы:</strong> {activeStock.financials}</p><p><strong>Что может стать драйвером:</strong> {activeStock.catalyst}</p><p><strong>Красные флаги:</strong> {activeStock.redFlags}</p><p><strong>Что проверить в оценке:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.valuation ?? 'Выручку, прибыль, долг и денежный поток.'}</p><p><strong>Горизонт:</strong> {activeStock.horizon}</p><p><strong>Кому подходит:</strong> {activeStock.fit}</p><p><strong>Аргумент для переговоров:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.argument ?? activeStock.upside}</p></div><div className="arena-os-response-actions"><span>Варианты ответа · ход {dialogueTurn+1} · {activeStock.name}</span><div className="arena-os-response-hint">Кнопки меняются по акции и ходу разговора. Выбирай тактику или формулируй свой ответ ниже.</div>{getResponseOptions(activeStock,client,dialogueTurn).map((option,index)=><button key={activeStock.ticker+'-'+dialogueTurn+'-'+index} onClick={()=>respond('free',option.text)}><span className="arena-os-option-index">{String.fromCharCode(65+index)}</span><span><b>{option.label}</b><small>{option.text}</small></span></button>)}</div><form onSubmit={e=>{e.preventDefault();if(message.trim())respond('free',message)}} className="arena-os-free-text"><textarea value={message} onChange={e=>setMessage(e.target.value)} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(message.trim())respond('free',message)}}} aria-label="Твой ответ клиенту" maxLength={900} placeholder="Ответь на вопрос клиента своими словами. Enter — отправить, Shift+Enter — новая строка…" rows={2} /><button type="button" className="arena-os-mic-button" onClick={startDictation}><Mic size={14}/> Диктовать</button><button type="submit" disabled={!message.trim()}>Отправить ответ</button></form><small>Ответ не выбирается из трёх реплик: пиши свободно. Клиент реагирует на смысл ответа, выбранную компанию, свою цель и отношение к риску. Это локальная игровая логика, не подключённая языковая модель.</small></div>}
+                </div><div className="arena-os-stock-picker-grid">{STOCKS.map(s=>{const profile=STOCK_PROFILES[s.ticker];const fit=getClientStockFit(client.id,s.ticker);return <button key={s.ticker} className={'arena-os-stock-choice'+(fit.suitable?'':' unsuitable')} style={{'--stock-accent':profile?.color??'#3b82f6'} as React.CSSProperties} onClick={()=>chooseStock(s)}><span className="arena-os-stock-choice-ticker">{s.ticker}</span><b>{s.name}</b><small>{profile?.label??'Инвестиционная идея'} · риск {s.risk.toLowerCase()}</small><em>{fit.suitable?'✓ Подходит профилю':'⚠ Есть несоответствие'}</em><p>{profile?.description??s.fit}</p><small className="arena-os-fit-reason">{fit.reason}</small></button>})}</div></div> : <div className="arena-os-argument-panel"><div className="arena-os-stock-dossier"><b>ДОСЬЕ КОМПАНИИ · {activeStock.name} ({activeStock.ticker}) · риск: {activeStock.risk.toLowerCase()}</b><p className="arena-os-dossier-instruction">Перед ответом разберись в двух вещах: откуда у компании могут появиться деньги и что способно помешать ей заработать. Следующие вопросы проверят именно это.</p><p><strong>Чем занимается:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.business ?? activeStock.fit}</p><p><strong>Инвестиционный тезис:</strong> {activeStock.upside}</p><p><strong>Плюсы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.advantages ?? [activeStock.catalyst]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Минусы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.disadvantages ?? [activeStock.downside]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Финансы:</strong> {activeStock.financials}</p><p className="arena-os-dossier-glossary"><strong>Перевод на обычный язык:</strong> выручка — сколько компания получила от продаж; прибыль — что осталось после расходов; долг — сколько она должна; денежный поток — сколько реальных денег осталось после платежей. Рост продаж сам по себе ещё не означает, что компания стала прибыльнее.</p><p><strong>Что может стать драйвером:</strong> {activeStock.catalyst}</p><p><strong>Красные флаги:</strong> {activeStock.redFlags}</p><p><strong>Что проверить в оценке:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.valuation ?? 'Выручку, прибыль, долг и денежный поток.'}</p><p><strong>Горизонт:</strong> {activeStock.horizon}</p><p><strong>Кому подходит:</strong> {activeStock.fit}</p><p><strong>Аргумент для переговоров:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.argument ?? activeStock.upside}</p></div><section className="arena-os-broker-glossary" aria-label="Словарь простыми словами"><div><span>ПЕРЕВОД С БРОКЕРСКОГО</span><b>Короткая шпаргалка</b><small>Не нужно знать экономику заранее — используй эти объяснения прямо в разговоре.</small></div><dl><div><dt>Выручка</dt><dd>Все деньги, которые компания получила от продаж, до оплаты расходов.</dd></div><div><dt>Прибыль</dt><dd>То, что осталось после расходов. Большие продажи ещё не гарантируют прибыль.</dd></div><div><dt>Долг</dt><dd>Деньги, которые компания должна вернуть, часто ещё и с процентами.</dd></div><div><dt>Денежный поток</dt><dd>Реальные деньги, которые пришли и ушли. На бумаге прибыль может быть, а свободных денег — мало.</dd></div><div><dt>Катализатор</dt><dd>Событие, которое может улучшить дела компании — например, новый контракт или успешный запуск.</dd></div><div><dt>Красный флаг</dt><dd>Предупреждающий знак: причина остановиться и проверить, не ошиблись ли мы.</dd></div></dl></section><div className="arena-os-response-actions"><span>Варианты ответа · ход {dialogueTurn+1} · {activeStock.name}</span><div className="arena-os-negotiation-stage"><span>ШАГ {phaseNumber(dialogueTurn,reasoningStages)+1} ИЗ 3 · {['ПОТЕНЦИАЛ','РИСКИ','ПЛАН ПРОВЕРКИ'][phaseNumber(dialogueTurn,reasoningStages)]}</span><b>{['Объясни, почему бизнес может заработать.','Назови, что может пойти не так.','Скажи, что проверишь и когда изменишь решение.'][phaseNumber(dialogueTurn,reasoningStages)]}</b><p>Клиент должен услышать все три части аргумента. Один удачный ответ не закрывает сделку.</p><div className="arena-os-stage-checklist">{['Потенциал','Риск','План'].map((label,index)=><span key={label} className={reasoningStages.includes(index)?'complete':''}>{reasoningStages.includes(index)?'✓':'○'} {label}</span>)}</div></div><div className="arena-os-response-hint">Выбирай ответ, который подходит именно к вопросу клиента. Случайная кнопка или обещание прибыли не заменят обоснование.</div>{getResponseOptions(activeStock,client,dialogueTurn,reasoningStages).map((option,index)=><button key={activeStock.ticker+'-'+dialogueTurn+'-'+index} disabled={replyCooldown} onClick={()=>respond('free',option.text)}><span className="arena-os-option-index">{String.fromCharCode(65+index)}</span><span><b>{option.label}</b><small>{option.text}</small></span></button>)}</div><form onSubmit={e=>{e.preventDefault();if(message.trim())respond('free',message)}} className="arena-os-free-text"><textarea value={message} onChange={e=>setMessage(e.target.value)} disabled={replyCooldown} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(message.trim())respond('free',message)}}} aria-label="Твой ответ клиенту" maxLength={900} placeholder="Ответь на вопрос клиента своими словами. Enter — отправить, Shift+Enter — новая строка…" rows={2} /><button type="button" className="arena-os-mic-button" disabled={replyCooldown} onClick={startDictation}><Mic size={14}/> Диктовать</button><button type="submit" disabled={!message.trim()||replyCooldown}>{replyCooldown?'Клиент отвечает…':'Отправить ответ'}</button></form><small>Можно выбрать один из вариантов или написать свой ответ. Важны смысл аргумента, описание компании и цель клиента — случайные клики не заменят обоснование.</small></div>}
               </div><button className="arena-os-hangup" onClick={()=>{setCallState('idle');setActiveStock(null);setStockPicker(false);setCallLog([])}}><X size={15}/> Завершить звонок</button></div>}
             {(callState==='won'||callState==='lost') && <div className="arena-os-call-result">
               <div className={'arena-os-result-icon '+(callState==='won'?'success':'failure')}>{callState==='won'?<Check size={24}/>:<X size={24}/>}</div>

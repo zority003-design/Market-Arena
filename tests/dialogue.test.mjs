@@ -114,3 +114,28 @@ test('low-trust wealthy clients demand specific evidence',()=>{
  const result=dialogue.evaluateFreeReply('У компании есть потенциал роста.',{...client('Аналитический'),tier:4,ticket:50000,budget:100000},stock,3,['headset','hd-camera','neutral-backdrop'],{trust:15,patience:70})
  assert.match(result.reply,/не готов верить|недостаточно общего впечатления|сравните идею/i); assert.ok(result.delta<6)
 })
+
+test('beginner replies keep the client personality and add a plain-language reasoning prompt', () => {
+  const beginner = { ...client('Осторожный'), tier: 0, name: 'Алексей Воронцов' }
+  const answer = 'Выручка растёт на 12%, но долг остаётся риском. Если отчёт не подтвердит рост, пересмотрим решение.'
+  const result = dialogue.evaluateFreeReply(answer, beginner, stock, 1, ['headset', 'hd-camera', 'neutral-backdrop'])
+  assert.match(result.reply, /без обещаний/i)
+  assert.match(result.reply, /переведу на обычный язык|по-простому|объясни|план защиты/i)
+  assert.ok(result.reply.length > 180, 'beginner dialogue should invite another thoughtful turn')
+})
+
+
+test('negotiation phases penalize answers that dodge the question being asked', () => {
+  const beginner = { ...client('Осторожный'), tier: 0, name: 'Алексей Воронцов' }
+  const upsideOnly = 'У компании есть потенциал роста и спрос на продукт.'
+  const riskOnly = 'Долг и расходы могут привести к убыткам, цена акции может упасть.'
+  const vaguePlan = 'Компания может вырасти, но есть риск падения цены.'
+  const wrongBenefit = dialogue.evaluateFreeReply('Акция дешёвая, значит вырастет. Не нужно разбираться в бизнесе.', beginner, stock, 0, ['headset','hd-camera','neutral-backdrop'], { phase: 0 })
+  const wrongRisk = dialogue.evaluateFreeReply(upsideOnly, beginner, stock, 1, ['headset','hd-camera','neutral-backdrop'], { phase: 1 })
+  const wrongPlan = dialogue.evaluateFreeReply(vaguePlan, beginner, stock, 2, ['headset','hd-camera','neutral-backdrop'], { phase: 2 })
+  const rightRisk = dialogue.evaluateFreeReply(riskOnly, beginner, stock, 1, ['headset','hd-camera','neutral-backdrop'], { phase: 1 })
+  assert.ok(wrongBenefit.delta <= 0)
+  assert.ok(wrongRisk.delta <= 0)
+  assert.ok(wrongPlan.delta <= 0)
+  assert.ok(rightRisk.delta > wrongRisk.delta)
+})
