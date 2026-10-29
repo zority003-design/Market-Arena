@@ -486,9 +486,9 @@ export default function ArenaOS(props: Props) {
     const dismissesRisk = /не будем.{0,40}(риск|убыт|долг)|не имеют (?:большого )?значения|не о чем беспокоиться/.test(normalizedAnswer)
     const dismissesPlan = /план не нужен|не нужно проверять|разберемся потом|разберёмся потом|будем решать по настроению/.test(normalizedAnswer)
     const stageAnswered = phase === 0
-      ? /выруч|спрос|контракт|потенциал|продаж|подпис|сильная сторона|может заработать|денежный поток/.test(normalizedAnswer) && !/не разбираться|низкая цена|обязательно выраст|гарантир/.test(normalizedAnswer)
+      ? /выруч|спрос|контракт|потенциал|продаж|подпис|сильная сторона|может заработать|денежный поток|раст|увелич|покупател|торгов|экспорт|сеть|услуг|продукт|развити/.test(normalizedAnswer) && !/не разбираться|низкая цена|обязательно выраст|гарантир/.test(normalizedAnswer)
       : phase === 1
-        ? /долг|убыт|расход|риск|паден|возврат|конкур|сценари|смет|красн.{0,8}флаг|не хват|задерж/.test(normalizedAnswer) && !dismissesRisk
+        ? /долг|убыт|расход|риск|паден|возврат|конкур|сценари|смет|красн.{0,8}флаг|не хват|задерж|зависим|огранич|цен|тариф|налог|санкц|поставк|топлив|капитальн/.test(normalizedAnswer) && !dismissesRisk
         : /провер|свер|отчет|отчёт|денежн|огранич|пересмотр|услов|критер|подтверд|сценар|доля/.test(normalizedAnswer) && !dismissesPlan
     const nextReasoningStages = stageAnswered ? Array.from(new Set([...reasoningStages, phase])) : reasoningStages
     setReasoningStages(nextReasoningStages)
