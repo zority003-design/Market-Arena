@@ -180,16 +180,36 @@ function clientStockReaction(client:ClientProfile, stock:Stock, suitable:boolean
 }
 
 function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
-  // Three genuinely different tactics: a grounded pitch, an overconfident trap, and a weak dodge.
-  const company = stock.name
+  const beginner = client.tier <= 1
+  const name = stock.name
+  const good = beginner
+    ? `«${name} может заработать, если людям будет нужен её продукт. Хорошее: ${stock.upside.replace(/[«»]/g,'')} Минус: ${stock.downside} Я не обещаю прибыль: давайте проверим продажи и расходы, прежде чем решать».`
+    : `«По ${name} аргумент такой: ${stock.upside} Главный риск: ${stock.downside} Я бы проверил ${stock.catalyst.toLowerCase()} и отказался от идеи, если подтвердится ${stock.redFlags.toLowerCase()}».`
+  const bold = [
+    `«${name} — билет в богатую жизнь! Берите сейчас: цена точно вырастет, а рисков здесь практически нет. Если упустите момент, будете жалеть!»`,
+    `«Я бы на вашем месте вложил всё прямо сейчас. ${name} не может провалиться — ну, разве что Вселенная против нас. Но Вселенная обычно занята!»`,
+    `«Говорю как профессионал: ${name} скоро взлетит на Луну. Никаких сомнений, никаких потерь, только деньги и красивый новый автомобиль!»`
+  ][(turn + client.id.length) % 3]
+  const evasive = [
+    `«Ну, ${name} — это очень интересная история. Все вокруг говорят, что тема перспективная. Детали потом, главное — не упустить волну!»`,
+    `«Представьте: ${name}, вы, финансовая свобода и кот в золотых очках. Звучит же отлично? Давайте не будем портить момент скучными вопросами».`,
+    `«Сложно объяснить в двух словах, но там большой рынок, талантливая команда и мощная идея. Поверьте мне на слово — я же в пиджаке».`
+  ][(turn + client.name.length) % 3]
+  const cautious = /осторож|недовер|скептич/i.test(client.temperament)
+  const tailored = cautious
+    ? `«Понимаю, что вы не хотите рисковать деньгами. Для вашей цели — ${client.goal.toLowerCase()} — ${name} может оказаться не лучшим вариантом: ${stock.downside} Давайте сравним его с более спокойной идеей».`
+    : /нетерпел|занят|прямолин/i.test(client.temperament)
+      ? `«Коротко: ${name} может дать шанс на рост, но ${stock.downside.toLowerCase()} Если хотите, за минуту проверим один главный факт: ${stock.catalyst.toLowerCase()}».`
+      : /статус/i.test(client.temperament)
+        ? `«${name} может стать интересной историей для вашего портфеля, но я не стану продавать вам красивую вывеску вместо результата. Риск: ${stock.downside} Статус не защитит от убытка».`
+        : `«У ${name} есть смешная идея, но деньги настоящие. Хорошая сторона: ${stock.upside} Плохая сторона: ${stock.downside} Я бы не покупал, пока не проверим, кто действительно платит компании».`
   const bank = [
-    { label: 'Продать идею честно — и назвать подвох', text: `«У ${company} есть шанс вырасти, если людям действительно понравится её продукт. Но это не точно: сначала проверим, кто уже платит, сколько компания тратит и что будем делать, если продажи не пойдут».` },
-    { label: 'Надавить и пообещать золотые горы', text: `«${company} — стопроцентный успех! Цена точно взлетит, тут вообще нечего бояться. Надо брать прямо сейчас, пока остальные не разбогатели!»` },
-    { label: 'Уйти от вопроса красивыми словами', text: `«Ну, ${company} — это перспективная история, рынок огромный, команда заряжена. Главное — верить в идею, а детали разберём потом».` }
+    { label: beginner ? 'Объяснить просто: плюс, минус и проверка' : 'Честно разобрать выгоду и риск', text: good },
+    { label: 'Надавить и пообещать золотые горы', text: bold },
+    { label: cautious ? 'Учесть страх клиента и сравнить варианты' : 'Отшутиться и уйти от неудобных вопросов', text: cautious ? tailored : evasive }
   ]
-  // Rotate positions so memorising button A/B/C never guarantees a win.
-  const start = (turn * 2 + (client.id.length % bank.length)) % bank.length
-  return [0, 1, 2].map(index => bank[(start + index) % bank.length])
+  const shift = (turn * 2 + client.id.length + stock.ticker.length) % bank.length
+  return [0,1,2].map(index => bank[(index + shift) % bank.length])
 }
 
 export default function ArenaOS(props: Props) {
