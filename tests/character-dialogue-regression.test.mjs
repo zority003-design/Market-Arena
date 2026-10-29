@@ -153,7 +153,7 @@ test('displayed stock risk labels match the suitability catalog', async () => {
   const arena = await read('src/ArenaOS.tsx')
   const economy = await read('src/game/economy.ts')
   assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
-  assert.match(arena, /ticker:'TAPK', name:'ТапокТех', price:64, risk:'Очень высокий'/)
+  assert.match(arena, /ticker:\"TAPK\", name:\"Не Моя Смена\", price:64, risk:\"Высокий\"/)
   assert.match(economy, /OGUR: \{ label:'Прибыль и повторные покупки'.*risk:'Средний'/)
 })
 
@@ -242,4 +242,19 @@ test('seated broker portraits face the camera and use a closer upper-body frame'
   assert.match(source, /compact \? 3\.65 : 5\.9/)
   assert.match(source, /fov: compact \? 29 : 34/)
   assert.match(source, /camera\.lookAt\(0, compact \? 1\.48 : 1\.28, 0\)/)
+})
+
+
+test('market has exactly ten distinct fictional companies and each has a company-specific pitch', async () => {
+ const arena = await read('src/ArenaOS.tsx')
+ const app = await read('src/App.tsx')
+ const tickers = ['KOTL','BTRAN','OGUR','VECT','DUST','TAPK','GROV','GRID','BYTE','LOGI']
+ const block = arena.slice(arena.indexOf('const STOCKS: Stock[] = ['), arena.indexOf('const STOCK_DOSSIERS'))
+ assert.equal((block.match(/ticker:/g)||[]).length,10)
+ for (const ticker of tickers) assert.match(block,new RegExp("ticker:\\\""+ticker+"\\\""))
+ assert.match(block,/Неловко Вышло/)
+ assert.match(block,/Понедельник Labs/)
+ assert.match(block,/Переоценка/)
+ assert.match(app,/const COMPANY_BANTER/)
+ assert.match(app,/Комитет по Комфорту/)
 })
