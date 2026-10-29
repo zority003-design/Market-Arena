@@ -125,16 +125,15 @@ test('clients have explicit individual risk preferences and stock fit explains m
   assert.match(source, /Риск .* выше профиля/)
 })
 
-test('Catalot is a fictional real-estate developer, not a drone company', async () => {
+test('KOTL keeps its property-business role while the pitch uses the new comedy name', async () => {
   const arena = await read('src/ArenaOS.tsx')
   const app = await read('src/App.tsx')
   const economy = await read('src/game/economy.ts')
-  assert.match(arena, /ticker:'KOTL', name:'Каталёт'/)
-  assert.match(arena, /застройщик жилых кварталов/)
+  assert.match(arena, /ticker:'KOTL', name:'Котолёт'/)
+  assert.match(arena, /строит дома с балконами для котов/)
   assert.match(app, /name: 'Каталёт', sector: 'Девелопмент'/)
   assert.match(economy, /KOTL: \{ label:'Рост и девелопмент'/)
-  assert.doesNotMatch(arena, /Котолёт|800 роботов|дронами/)
-  assert.doesNotMatch(app, /Котолёт|800 роботов|дронами/)
+  assert.doesNotMatch(arena, /800 роботов|дронами/)
 })
 
 test('company negotiation dossiers contain business models, pros, cons, valuation checks, and argumentation', async () => {
