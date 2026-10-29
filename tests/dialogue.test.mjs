@@ -123,3 +123,19 @@ test('beginner replies keep the client personality and add a plain-language reas
   assert.match(result.reply, /переведу на обычный язык|по-простому|объясни|план защиты/i)
   assert.ok(result.reply.length > 180, 'beginner dialogue should invite another thoughtful turn')
 })
+
+
+test('negotiation phases penalize answers that dodge the question being asked', () => {
+  const beginner = { ...client('Осторожный'), tier: 0, name: 'Алексей Воронцов' }
+  const upsideOnly = 'У компании есть потенциал роста и спрос на продукт.'
+  const riskOnly = 'Долг и расходы могут привести к убыткам, цена акции может упасть.'
+  const vaguePlan = 'Компания может вырасти, но есть риск падения цены.'
+  const wrongBenefit = dialogue.evaluateFreeReply('Акция дешёвая, значит вырастет. Не нужно разбираться в бизнесе.', beginner, stock, 0, ['headset','hd-camera','neutral-backdrop'], { phase: 0 })
+  const wrongRisk = dialogue.evaluateFreeReply(upsideOnly, beginner, stock, 1, ['headset','hd-camera','neutral-backdrop'], { phase: 1 })
+  const wrongPlan = dialogue.evaluateFreeReply(vaguePlan, beginner, stock, 2, ['headset','hd-camera','neutral-backdrop'], { phase: 2 })
+  const rightRisk = dialogue.evaluateFreeReply(riskOnly, beginner, stock, 1, ['headset','hd-camera','neutral-backdrop'], { phase: 1 })
+  assert.ok(wrongBenefit.delta <= 0)
+  assert.ok(wrongRisk.delta <= 0)
+  assert.ok(wrongPlan.delta <= 0)
+  assert.ok(rightRisk.delta > wrongRisk.delta)
+})
