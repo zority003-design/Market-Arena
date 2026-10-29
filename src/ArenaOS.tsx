@@ -294,15 +294,29 @@ function clientStockReaction(client:ClientProfile, stock:Stock, suitable:boolean
   return '«Ладно, готов выслушать. Но ' + concern + ' Что вы ответите на это возражение?»'
 }
 
-function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
-  const bank = RESPONSE_BANK[stock.ticker] ?? RESPONSE_BANK.OGUR
-  // Keep each option's actual argument distinct; no generic suffix pasted onto every reply.
-  const start = (turn * 2 + (client.id.length % bank.length)) % bank.length
-  return [0,1,2].map(index => {
-    const base = bank[(start + index) % bank.length]
-    const concise = client.temperament.includes('Нетерпел') || client.temperament.includes('Занятая')
-    return { label: concise && base.label.length > 58 ? base.label.slice(0,55).trimEnd() + '…' : base.label, text: base.text }
-  })
+function phaseNumber(turn:number) { return turn % 3 }\n\nfunction getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
+  const stage = turn % 3
+  const goal = client.goal.toLowerCase()
+  const goalNudge = /сохран|риск|не потер/.test(goal)
+    ? 'Этому клиенту особенно важно не поставить под угрозу деньги, которые могут понадобиться.'
+    : /рост|доход|увелич|развит/.test(goal)
+      ? 'Потенциал важен, но он должен подтверждаться результатами компании.'
+      : 'Решение должно соответствовать цели клиента и сроку, на который ему нужны деньги.'
+  const choices = stage === 0 ? [
+    { label: 'Объяснить, откуда может взяться рост', text: 'Сильная сторона «'+stock.name+'»: '+stock.upside+' Это возможность, а не обещание доходности. '+goalNudge },
+    { label: 'Купить только потому, что цена кажется низкой', text: 'Акция стоит недорого, значит она обязательно вырастет. Можно не разбираться в бизнесе и просто ждать прибыли.' },
+    { label: 'Продать уверенность вместо аргументов', text: 'У «'+stock.name+'» всё выглядит отлично. Риск можно не обсуждать: доход гарантирован, акция точно вырастет и клиент ничего не потеряет.' },
+  ] : stage === 1 ? [
+    { label: 'Назвать реальный риск компании', text: 'У этой идеи есть серьёзный минус: '+stock.downside+' Красные флаги — '+stock.redFlags+'. Цена акции может упасть, поэтому нельзя вкладывать деньги, которые скоро понадобятся.' },
+    { label: 'Отмахнуться от плохих новостей', text: 'Не будем портить настроение разговорами об убытках и долгах. У любой компании бывают проблемы, поэтому клиенту лучше о них не думать.' },
+    { label: 'Сослаться на известность компании', text: 'Компания выглядит солидно, поэтому её долги, расходы и возможные убытки не имеют большого значения.' },
+  ] : [
+    { label: 'Предложить проверку и условие пересмотра', text: 'Проверю '+stock.catalyst+', сверю свежие отчёты и денежный поток. Если проявятся красные флаги — '+stock.redFlags+' — ограничу долю или пересмотрю решение. Прибыли не обещаю: сначала проверяем факты.' },
+    { label: 'Купить сейчас, разобраться потом', text: 'Предлагаю не тратить время на отчёты и условия выхода. Купим побольше, а если что-то пойдёт не так, просто подождём.' },
+    { label: 'Переложить ответственность на чужой совет', text: 'Мне эту акцию посоветовали, поэтому отдельный план не нужен. Будем смотреть на цену каждый день и решать по настроению.' },
+  ]
+  const rotate = (client.id.length + turn) % choices.length
+  return choices.map((_, index) => choices[(index + rotate) % choices.length])
 }
 
 export default function ArenaOS(props: Props) {
@@ -331,7 +345,7 @@ export default function ArenaOS(props: Props) {
   const [activeStock,setActiveStock] = useState<Stock|null>(null)
   const [stockPicker,setStockPicker] = useState(false)
   const [callLog,setCallLog] = useState<string[]>([])
-  const [dialogueTurn,setDialogueTurn] = useState(0)
+  const [dialogueTurn,setDialogueTurn] = useState(0)\n  const [reasoningStages,setReasoningStages] = useState<number[]>([])
   const [firstDealGuide,setFirstDealGuide] = useState(false)
   const [message,setMessage] = useState('')
   const [companyNameDraft,setCompanyNameDraft] = useState('')
@@ -406,7 +420,7 @@ export default function ArenaOS(props: Props) {
     if (props.callsToday >= dailyCallLimit) { setNotice('Лимит звонков на сегодня исчерпан (' + dailyCallLimit + '). Развивай сеть клиентов или возвращайся завтра.'); return }
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
     props.setCallsToday(value => value + 1)
-    setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
+    setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setReasoningStages([]); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
     const relationshipTrustBase = props.clientTrustScores[selected.id] ?? selected.baseTrust
     const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
@@ -418,7 +432,7 @@ export default function ArenaOS(props: Props) {
   }
   const chooseStock = (stock:Stock) => {
     const fit = getClientStockFit(client.id, stock.ticker)
-    setActiveStock(stock); setStockPicker(false); setDialogueTurn(0)
+    setActiveStock(stock); setStockPicker(false); setDialogueTurn(0); setReasoningStages([])
     if (!fit.suitable) {
       setTrust(Math.max(0, trust - 12))
       props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, (scores[client.id] ?? client.baseTrust) - 12) }))
@@ -440,7 +454,7 @@ export default function ArenaOS(props: Props) {
     const text = custom.trim()
     let delta = 0; let reply = ''
     if(kind==='free') {
-      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience })
+      const phase = dialogueTurn % 3\n      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience, phase })
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
@@ -451,6 +465,21 @@ export default function ArenaOS(props: Props) {
     } else {
       delta = -12; reply = '«Я позвонил за инвестиционной идеей, а не на кастинг в цирк. Вернёмся к делу».'
     }
+    const phase = dialogueTurn % 3
+    const normalizedAnswer = text.toLowerCase().replace(/ё/g,'е')
+    const dismissesRisk = /не будем.{0,40}(риск|убыт|долг)|не имеют значения|не о чем беспокоиться/.test(normalizedAnswer)
+    const dismissesPlan = /план не нужен|не нужно проверять|разберемся потом|разберёмся потом|будем решать по настроению/.test(normalizedAnswer)
+    const stageAnswered = phase === 0
+      ? /выруч|прибыл|спрос|контракт|потенциал|продаж|подпис|сильная сторона|может заработать|денежный поток/.test(normalizedAnswer)
+      : phase === 1
+        ? /долг|убыт|расход|риск|паден|возврат|конкур|сценари|смет|красн.{0,8}флаг|не хват|задерж/.test(normalizedAnswer) && !dismissesRisk
+        : /провер|свер|отчет|отчёт|денежн|если|огранич|пересмотр|услов|критер|подтверд|сценар|доля/.test(normalizedAnswer) && !dismissesPlan
+    const nextReasoningStages = stageAnswered ? Array.from(new Set([...reasoningStages, phase])) : reasoningStages
+    setReasoningStages(nextReasoningStages)
+    if (!stageAnswered && kind === 'free' && !/гарантир|без риска|точно выраст|100\s*%/.test(normalizedAnswer)) {
+      delta = Math.min(delta, -4)
+      reply += ' «Пока ты не ответил на главный вопрос этого этапа. Сначала объясни именно это, потом переходи к следующему аргументу».'
+    }
     const newTrust = Math.max(0,Math.min(100,trust+delta))
     const gearMissing = Number(!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')))+Number(!props.ownedItems.includes('hd-camera'))+Number(!(props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) && (client.tier>=2 || client.statusSensitive))
     const newPatience = Math.max(0,patience-Math.max(1,(kind==='risk'?2:kind==='free'?3:4)+Math.ceil(client.tier/2)+gearMissing))
@@ -460,7 +489,7 @@ export default function ArenaOS(props: Props) {
     setDialogueTurn(turn=>turn+1)
     const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
     setLastChance(newChance)
-    if(dialogueTurn >= getNegotiationDifficulty(client, props.ownedItems)-1 && newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
+    if(dialogueTurn >= getNegotiationDifficulty(client, props.ownedItems)-1 && newTrust>=getClientTrustRequirement(client) && nextReasoningStages.length===3 && Math.random()*100<newChance) {
       const firmCommission = Math.round(client.ticket * client.commissionRate)
       const qualityMultiplier = newTrust >= 75 ? 1.25 : newTrust >= 62 ? 1.1 : 1
       const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
@@ -600,7 +629,7 @@ export default function ArenaOS(props: Props) {
                   <div className="arena-os-risk-profile"><small>ПРОФИЛЬ РИСКА</small><strong>{getClientInvestmentPreference(client.id).riskLabel}</strong><span>Горизонт: {getClientInvestmentPreference(client.id).horizon}</span></div>
                   <div><small>ЧТО ЦЕНИТ</small><p>{getClientInvestmentPreference(client.id).priorities.join(' · ')}</p></div>
                   <div><small>ЧЕГО ИЗБЕГАЕТ</small><p>{getClientInvestmentPreference(client.id).avoids.join(' · ')}</p></div>
-                </div><div className="arena-os-stock-picker-grid">{STOCKS.map(s=>{const profile=STOCK_PROFILES[s.ticker];const fit=getClientStockFit(client.id,s.ticker);return <button key={s.ticker} className={'arena-os-stock-choice'+(fit.suitable?'':' unsuitable')} style={{'--stock-accent':profile?.color??'#3b82f6'} as React.CSSProperties} onClick={()=>chooseStock(s)}><span className="arena-os-stock-choice-ticker">{s.ticker}</span><b>{s.name}</b><small>{profile?.label??'Инвестиционная идея'} · риск {s.risk.toLowerCase()}</small><em>{fit.suitable?'✓ Подходит профилю':'⚠ Есть несоответствие'}</em><p>{profile?.description??s.fit}</p><small className="arena-os-fit-reason">{fit.reason}</small></button>})}</div></div> : <div className="arena-os-argument-panel"><div className="arena-os-stock-dossier"><b>{activeStock.name} · {activeStock.ticker} · риск: {activeStock.risk.toLowerCase()}</b><p><strong>Чем занимается:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.business ?? activeStock.fit}</p><p><strong>Инвестиционный тезис:</strong> {activeStock.upside}</p><p><strong>Плюсы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.advantages ?? [activeStock.catalyst]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Минусы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.disadvantages ?? [activeStock.downside]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Финансы:</strong> {activeStock.financials}</p><p><strong>Что может стать драйвером:</strong> {activeStock.catalyst}</p><p><strong>Красные флаги:</strong> {activeStock.redFlags}</p><p><strong>Что проверить в оценке:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.valuation ?? 'Выручку, прибыль, долг и денежный поток.'}</p><p><strong>Горизонт:</strong> {activeStock.horizon}</p><p><strong>Кому подходит:</strong> {activeStock.fit}</p><p><strong>Аргумент для переговоров:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.argument ?? activeStock.upside}</p></div><div className="arena-os-response-actions"><span>Варианты ответа · ход {dialogueTurn+1} · {activeStock.name}</span><div className="arena-os-response-hint">Кнопки меняются по акции и ходу разговора. Выбирай тактику или формулируй свой ответ ниже.</div>{getResponseOptions(activeStock,client,dialogueTurn).map((option,index)=><button key={activeStock.ticker+'-'+dialogueTurn+'-'+index} onClick={()=>respond('free',option.text)}><span className="arena-os-option-index">{String.fromCharCode(65+index)}</span><span><b>{option.label}</b><small>{option.text}</small></span></button>)}</div><form onSubmit={e=>{e.preventDefault();if(message.trim())respond('free',message)}} className="arena-os-free-text"><textarea value={message} onChange={e=>setMessage(e.target.value)} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(message.trim())respond('free',message)}}} aria-label="Твой ответ клиенту" maxLength={900} placeholder="Ответь на вопрос клиента своими словами. Enter — отправить, Shift+Enter — новая строка…" rows={2} /><button type="button" className="arena-os-mic-button" onClick={startDictation}><Mic size={14}/> Диктовать</button><button type="submit" disabled={!message.trim()}>Отправить ответ</button></form><small>Ответ не выбирается из трёх реплик: пиши свободно. Клиент реагирует на смысл ответа, выбранную компанию, свою цель и отношение к риску. Это локальная игровая логика, не подключённая языковая модель.</small></div>}
+                </div><div className="arena-os-stock-picker-grid">{STOCKS.map(s=>{const profile=STOCK_PROFILES[s.ticker];const fit=getClientStockFit(client.id,s.ticker);return <button key={s.ticker} className={'arena-os-stock-choice'+(fit.suitable?'':' unsuitable')} style={{'--stock-accent':profile?.color??'#3b82f6'} as React.CSSProperties} onClick={()=>chooseStock(s)}><span className="arena-os-stock-choice-ticker">{s.ticker}</span><b>{s.name}</b><small>{profile?.label??'Инвестиционная идея'} · риск {s.risk.toLowerCase()}</small><em>{fit.suitable?'✓ Подходит профилю':'⚠ Есть несоответствие'}</em><p>{profile?.description??s.fit}</p><small className="arena-os-fit-reason">{fit.reason}</small></button>})}</div></div> : <div className="arena-os-argument-panel"><div className="arena-os-stock-dossier"><b>{activeStock.name} · {activeStock.ticker} · риск: {activeStock.risk.toLowerCase()}</b><p><strong>Чем занимается:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.business ?? activeStock.fit}</p><p><strong>Инвестиционный тезис:</strong> {activeStock.upside}</p><p><strong>Плюсы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.advantages ?? [activeStock.catalyst]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Минусы:</strong></p><ul>{(STOCK_DOSSIERS[activeStock.ticker]?.disadvantages ?? [activeStock.downside]).map(item=><li key={item}>{item}</li>)}</ul><p><strong>Финансы:</strong> {activeStock.financials}</p><p><strong>Что может стать драйвером:</strong> {activeStock.catalyst}</p><p><strong>Красные флаги:</strong> {activeStock.redFlags}</p><p><strong>Что проверить в оценке:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.valuation ?? 'Выручку, прибыль, долг и денежный поток.'}</p><p><strong>Горизонт:</strong> {activeStock.horizon}</p><p><strong>Кому подходит:</strong> {activeStock.fit}</p><p><strong>Аргумент для переговоров:</strong> {STOCK_DOSSIERS[activeStock.ticker]?.argument ?? activeStock.upside}</p></div><div className="arena-os-response-actions"><span>Варианты ответа · ход {dialogueTurn+1} · {activeStock.name}</span><div className="arena-os-negotiation-stage"><span>ШАГ {phaseNumber(dialogueTurn)+1} ИЗ 3 · {['ПОТЕНЦИАЛ','РИСКИ','ПЛАН ПРОВЕРКИ'][dialogueTurn%3]}</span><b>{['Объясни, почему бизнес может заработать.','Назови, что может пойти не так.','Скажи, что проверишь и когда изменишь решение.'][dialogueTurn%3]}</b><p>Клиент должен услышать все три части аргумента. Один удачный ответ не закрывает сделку.</p><div className="arena-os-stage-checklist">{['Потенциал','Риск','План'].map((label,index)=><span key={label} className={reasoningStages.includes(index)?'complete':''}>{reasoningStages.includes(index)?'✓':'○'} {label}</span>)}</div></div><div className="arena-os-response-hint">Выбирай ответ, который подходит именно к вопросу клиента. Случайная кнопка или обещание прибыли не заменят обоснование.</div>{getResponseOptions(activeStock,client,dialogueTurn).map((option,index)=><button key={activeStock.ticker+'-'+dialogueTurn+'-'+index} onClick={()=>respond('free',option.text)}><span className="arena-os-option-index">{String.fromCharCode(65+index)}</span><span><b>{option.label}</b><small>{option.text}</small></span></button>)}</div><form onSubmit={e=>{e.preventDefault();if(message.trim())respond('free',message)}} className="arena-os-free-text"><textarea value={message} onChange={e=>setMessage(e.target.value)} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();if(message.trim())respond('free',message)}}} aria-label="Твой ответ клиенту" maxLength={900} placeholder="Ответь на вопрос клиента своими словами. Enter — отправить, Shift+Enter — новая строка…" rows={2} /><button type="button" className="arena-os-mic-button" onClick={startDictation}><Mic size={14}/> Диктовать</button><button type="submit" disabled={!message.trim()}>Отправить ответ</button></form><small>Ответ не выбирается из трёх реплик: пиши свободно. Клиент реагирует на смысл ответа, выбранную компанию, свою цель и отношение к риску. Это локальная игровая логика, не подключённая языковая модель.</small></div>}
               </div><button className="arena-os-hangup" onClick={()=>{setCallState('idle');setActiveStock(null);setStockPicker(false);setCallLog([])}}><X size={15}/> Завершить звонок</button></div>}
             {(callState==='won'||callState==='lost') && <div className="arena-os-call-result">
               <div className={'arena-os-result-icon '+(callState==='won'?'success':'failure')}>{callState==='won'?<Check size={24}/>:<X size={24}/>}</div>
