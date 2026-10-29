@@ -134,6 +134,47 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
   </group>
 }
 
+
+export function BrokerWebcamScene({ identity = 'player', outfit = 'intern', housingId = 'studio' }: { identity?: string; outfit?: string; housingId?: string }) {
+  const office = housingId === 'office'
+  const premium = housingId === 'premium-apartment'
+  const apartment = housingId === 'city-apartment' || premium
+  const wall = office ? '#536575' : premium ? '#c8c1b2' : apartment ? '#a7b8b0' : '#667b83'
+  const floor = office ? '#303b46' : premium ? '#a68e6f' : apartment ? '#987d61' : '#725b49'
+  const desk = office ? '#4b5964' : premium ? '#4b3b31' : '#5a4031'
+  return <div className="broker-webcam-scene">
+    <Canvas camera={{ position: [0, 2.05, 5.4], fov: 39, near: 0.1, far: 40 }} onCreated={({ camera }) => camera.lookAt(0, 1.35, -0.15)} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
+      <color attach="background" args={[wall]} />
+      <ambientLight intensity={1.15} />
+      <hemisphereLight args={['#dcecff', '#55483d', 1.1]} />
+      <directionalLight position={[-3, 5, 4]} intensity={2.1} castShadow />
+      <directionalLight position={[3, 3, -2]} intensity={0.75} color="#b8d9ff" />
+      {/* The room itself is visible behind the broker, not a flat portrait backdrop. */}
+      <mesh position={[0, 1.8, -1.65]} receiveShadow><boxGeometry args={[5.4, 3.7, 0.16]} /><meshStandardMaterial color={wall} roughness={0.92} /></mesh>
+      <mesh position={[0, -0.12, -0.1]} receiveShadow><boxGeometry args={[5.4, 0.16, 4.8]} /><meshStandardMaterial color={floor} roughness={0.88} /></mesh>
+      <mesh position={[-1.55, 1.95, -1.53]}><boxGeometry args={[1.55, 1.45, 0.04]} /><meshStandardMaterial color={office ? '#243c4b' : '#d9e9ee'} emissive={office ? '#0a1c27' : '#b8d7e4'} emissiveIntensity={0.25} /></mesh>
+      <mesh position={[-1.55, 1.95, -1.49]}><boxGeometry args={[1.38, 1.28, 0.035]} /><meshStandardMaterial color={premium ? '#93b5c8' : '#88b4c6'} emissive="#78b5d1" emissiveIntensity={0.28} /></mesh>
+      <mesh position={[-2.34, 1.95, -1.49]}><boxGeometry args={[0.08, 1.58, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
+      <mesh position={[-0.76, 1.95, -1.49]}><boxGeometry args={[0.08, 1.58, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
+      <mesh position={[-1.55, 2.68, -1.49]}><boxGeometry args={[1.65, 0.08, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
+      <mesh position={[-1.55, 1.22, -1.49]}><boxGeometry args={[1.65, 0.08, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
+      <mesh position={[1.55, 2.2, -1.53]}><boxGeometry args={[0.75, 0.62, 0.06]} /><meshStandardMaterial color={premium ? '#8e765b' : '#304957'} /></mesh>
+      <mesh position={[1.55, 2.2, -1.48]}><boxGeometry args={[0.61, 0.48, 0.025]} /><meshStandardMaterial color={premium ? '#e7d6b4' : '#b4c5c8'} /></mesh>
+      <mesh position={[1.55, 2.2, -1.45]}><boxGeometry args={[0.08, 0.12, 0.02]} /><meshStandardMaterial color="#4b7862" /></mesh>
+      <mesh position={[0, 0.88, 0.48]}><boxGeometry args={[3.35, 0.13, 0.92]} /><meshStandardMaterial color={desk} roughness={0.62} /></mesh>
+      <mesh position={[-1.12, 0.43, 0.55]}><boxGeometry args={[0.12, 0.83, 0.16]} /><meshStandardMaterial color={desk} /></mesh>
+      <mesh position={[1.12, 0.43, 0.55]}><boxGeometry args={[0.12, 0.83, 0.16]} /><meshStandardMaterial color={desk} /></mesh>
+      <mesh position={[0, 1.25, 0.22]} rotation={[-0.12, 0, 0]}><boxGeometry args={[0.83, 0.5, 0.07]} /><meshStandardMaterial color="#18232d" metalness={0.25} roughness={0.35} /></mesh>
+      <mesh position={[0, 1.26, 0.17]} rotation={[-0.12, 0, 0]}><boxGeometry args={[0.73, 0.39, 0.025]} /><meshStandardMaterial color="#4d8f9b" emissive="#286d86" emissiveIntensity={0.6} /></mesh>
+      <mesh position={[0, 0.98, 0.22]}><boxGeometry args={[0.09, 0.16, 0.09]} /><meshStandardMaterial color="#263744" /></mesh>
+      <mesh position={[0, 0.88, 0.2]}><boxGeometry args={[0.38, 0.035, 0.22]} /><meshStandardMaterial color="#263744" /></mesh>
+      <mesh position={[-1.25, 1.18, 0.3]}><cylinderGeometry args={[0.035, 0.05, 0.52, 12]} /><meshStandardMaterial color="#d5b46b" metalness={0.45} /></mesh>
+      <mesh position={[-1.25, 1.45, 0.3]}><coneGeometry args={[0.22, 0.22, 16]} /><meshStandardMaterial color="#e1c47f" emissive="#e1c47f" emissiveIntensity={0.22} /></mesh>
+      <BrokerModel identity={identity} outfit={outfit} pose="seated" />
+    </Canvas>
+  </div>
+}
+
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '', pose = 'standing' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
     <Canvas camera={{ position: [0, compact ? 2.05 : 1.8, compact ? 3.65 : 5.9], fov: compact ? 29 : 34, near: 0.1, far: 30 }} onCreated={({ camera }) => camera.lookAt(0, compact ? 1.48 : 1.28, 0)} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
