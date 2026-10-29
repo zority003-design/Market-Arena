@@ -943,3 +943,25 @@
  .arena-os-desktop-icon{min-height:54px}
  .arena-os-video-tile.self .arena-os-self-avatar{height:120px;width:100%}
 }
+
+
+/* Video-call webcam: the player's existing 3D model replaces the mismatched 2D portrait. */
+.arena-os-video-tile.self {
+  background:
+    linear-gradient(180deg, rgba(12,24,30,.04), rgba(12,24,30,.16)),
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(37,65,57,.10) 35px 36px),
+    linear-gradient(180deg, #c7d8d0 0 54%, #8da89b 54% 58%, #b7a58b 58% 100%);
+}
+.arena-os-video-tile.self::after {
+  content: '● REC  ·  LIVE CAMERA';
+  position: absolute; z-index: 6; top: 11px; right: 11px;
+  color: #fff; background: rgba(155, 37, 37, .88);
+  border-radius: 4px; padding: 4px 6px; font-size: 9px; letter-spacing: .06em;
+}
+.arena-os-video-tile.self .arena-os-self-avatar {
+  position: absolute; inset: 24px 0 12px; width: 100%; height: calc(100% - 36px);
+  display: block; opacity: .98;
+}
+.arena-os-video-tile.self .arena-os-self-avatar canvas {
+  display: block; width: 100% !important; height: 100% !important;
+}
