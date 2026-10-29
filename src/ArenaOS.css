@@ -1310,3 +1310,90 @@
   .arena-os-taskbar-label { display: none; }
   .arena-os-start-menu { max-width: calc(100vw - 24px); }
 }
+
+
+/* Visual polish pass: unify the desktop, internal tools, and negotiation messenger */
+.arena-os-v2 {
+  --os-panel: #111d2a;
+  --os-panel-raised: #172636;
+  --os-line: rgba(168,197,219,.18);
+  --os-copy: #b5c5d1;
+  --os-lime: #b9e982;
+  color: #edf4f8;
+  letter-spacing: .002em;
+}
+.arena-os-v2 button, .arena-os-v2 input, .arena-os-v2 textarea, .arena-os-v2 select { font: inherit; }
+.arena-os-v2 button { transition: background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease; }
+.arena-os-v2 button:focus-visible, .arena-os-v2 input:focus-visible, .arena-os-v2 textarea:focus-visible, .arena-os-v2 select:focus-visible { outline: 2px solid #c4ee91; outline-offset: 3px; }
+.arena-os-topbar { background: linear-gradient(100deg,rgba(13,24,36,.99),rgba(21,36,49,.98)); border-bottom: 1px solid rgba(180,207,225,.18); box-shadow: 0 7px 25px rgba(0,0,0,.16); }
+.arena-os-mark { background: linear-gradient(145deg,#d0f29c,#83b94d); color: #15220e; border: 1px solid rgba(230,255,204,.55); box-shadow: 0 5px 16px rgba(134,195,74,.2); }
+.arena-os-desktop { background-color:#0b1621; background-image:radial-gradient(ellipse at 74% 8%,rgba(95,139,73,.14),transparent 42%),radial-gradient(ellipse at 10% 85%,rgba(54,99,132,.12),transparent 42%),linear-gradient(rgba(190,220,240,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(190,220,240,.022) 1px,transparent 1px); background-size:auto,auto,34px 34px,34px 34px; }
+.arena-os-desktop-icon { min-height:96px; gap:9px; padding:12px 8px; border-radius:16px; text-shadow:0 2px 7px rgba(0,0,0,.8); }
+.arena-os-desktop-icon > span:first-child { width:48px; height:48px; border-radius:15px; background:linear-gradient(145deg,#2b4254,#13222f); border:1px solid rgba(207,229,242,.19); box-shadow:0 9px 20px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.06); }
+.arena-os-desktop-icon:hover, .arena-os-desktop-icon.selected { background:rgba(157,207,113,.09); border-color:rgba(180,225,133,.32); }
+.arena-os-window { border-color:rgba(170,201,222,.26); border-radius:18px; background:#0b1520; box-shadow:0 35px 100px rgba(0,0,0,.54),0 0 0 1px rgba(255,255,255,.025); }
+.arena-os-window-title { min-height:52px; padding:9px 15px; background:linear-gradient(180deg,#203244,#172838); }
+.arena-os-page-heading { padding:4px 0 21px; margin-bottom:22px; border-bottom-color:rgba(167,198,220,.17); }
+.arena-os-page-heading h1, .arena-os-welcome h1 { color:#f1f6f9; letter-spacing:-.045em; font-weight:850; }
+.arena-os-page-heading p, .arena-os-welcome p { color:#aebfcb; line-height:1.72; max-width:70ch; }
+.arena-os-note, .arena-os-v2 [role="status"] { border:1px solid rgba(165,207,121,.23); background:linear-gradient(120deg,rgba(104,153,64,.12),rgba(22,37,48,.72)); border-radius:12px; color:#d7e8c7; padding:13px 15px; line-height:1.6; }
+.arena-os-v2 .arena-os-quick-grid button, .arena-os-v2 .arena-os-stock-card, .arena-os-v2 .arena-os-business-grid article, .arena-os-v2 .arena-os-housing-grid article { border-color:rgba(165,196,217,.19); box-shadow:0 8px 25px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.025); }
+.arena-os-v2 .arena-os-quick-grid button:hover, .arena-os-v2 .arena-os-stock-card:hover, .arena-os-v2 .arena-os-business-grid article:hover, .arena-os-v2 .arena-os-housing-grid article:hover { border-color:rgba(177,223,127,.48); box-shadow:0 14px 32px rgba(0,0,0,.2),0 0 0 1px rgba(158,211,104,.06); }
+.arena-os-v2 .arena-os-primary { background:linear-gradient(135deg,#d0f29d,#a5d96d 52%,#8fc450); border-color:#c5ee90; box-shadow:0 8px 22px rgba(140,198,75,.18),inset 0 1px rgba(255,255,255,.4); }
+.arena-os-v2 .arena-os-secondary { background:linear-gradient(180deg,#21374a,#172a3a); border-color:#3b5366; }
+.arena-os-v2 button:disabled { cursor:not-allowed; opacity:.48; filter:saturate(.55); transform:none!important; box-shadow:none!important; }
+.arena-os-taskbar { min-height:52px; background:linear-gradient(180deg,rgba(17,29,42,.98),rgba(8,16,25,.99)); border-top:1px solid rgba(171,201,221,.19); box-shadow:0 -8px 26px rgba(0,0,0,.2); }
+.arena-os-taskbar > button { min-width:39px; min-height:36px; border-radius:10px; }
+.arena-os-taskbar > button.active { background:rgba(167,216,116,.12); box-shadow:inset 0 -2px #b8e77f; }
+.arena-os-start-menu { border:1px solid rgba(171,201,221,.25); border-radius:17px; background:linear-gradient(145deg,rgba(22,38,53,.99),rgba(9,18,28,.99)); box-shadow:0 25px 70px rgba(0,0,0,.55); }
+.arena-os-start-menu-grid button { min-height:66px; border-radius:12px; border:1px solid transparent; padding:10px; }
+.arena-os-start-menu-grid button:hover { background:rgba(164,211,117,.08); border-color:rgba(164,211,117,.22); }
+.arena-os-incoming-modal { border:1px solid rgba(177,211,231,.28); border-radius:22px; background:radial-gradient(ellipse at 50% 0%,rgba(91,130,91,.15),transparent 55%),linear-gradient(145deg,#1a2d3e,#0c1722); box-shadow:0 35px 100px rgba(0,0,0,.58); }
+.arena-os-dialogue-log { min-height:250px; max-height:min(42vh,430px); gap:15px; padding:18px; border-radius:17px; background:radial-gradient(ellipse at 85% 0%,rgba(73,112,83,.12),transparent 44%),linear-gradient(180deg,#0b1722,#08121c); border-color:rgba(155,189,212,.19); box-shadow:inset 0 1px rgba(255,255,255,.025); scroll-behavior:smooth; }
+.arena-os-chat-row { gap:10px; }
+.arena-os-chat-avatar { width:34px; height:34px; flex-basis:34px; border-radius:12px; border:1px solid rgba(183,211,228,.14); box-shadow:0 4px 12px rgba(0,0,0,.18); }
+.arena-os-chat-bubble { padding:12px 14px; border-radius:15px 15px 15px 5px; border-color:rgba(164,194,214,.16); background:linear-gradient(145deg,#1b2e3f,#142432); box-shadow:0 5px 16px rgba(0,0,0,.11); }
+.arena-os-chat-bubble.player-line { background:linear-gradient(145deg,#294d34,#1b3827); border-color:rgba(171,221,124,.28); border-radius:15px 15px 5px 15px; }
+.arena-os-chat-bubble.system-line { background:rgba(124,153,175,.075); border-color:rgba(151,181,202,.18); box-shadow:none; }
+.arena-os-chat-bubble small { color:#b9cbd7; font-size:9px; letter-spacing:.12em; }
+.arena-os-chat-bubble p { color:#edf3f7; font-size:13px; line-height:1.72; margin-top:7px; }
+.arena-os-chat-bubble time { color:#8da4b4; margin-top:9px; }
+.arena-os-stock-picker { border-radius:17px; padding:18px; background:linear-gradient(145deg,rgba(19,34,48,.96),rgba(11,21,32,.98)); border-color:rgba(163,195,216,.2); }
+.arena-os-stock-picker > b { font-size:16px; line-height:1.45; }
+.arena-os-client-goal { padding:12px 14px; font-size:12px; line-height:1.7; }
+.arena-os-stock-choice { border-radius:14px; padding:15px; background:linear-gradient(145deg,#1a2e40,#122231); border-color:rgba(165,196,216,.17); }
+.arena-os-stock-choice p { font-size:12px; line-height:1.65; }
+.arena-os-stock-choice em { display:inline-flex; width:fit-content; padding:5px 8px; border-radius:999px; background:rgba(154,207,103,.09); border:1px solid rgba(154,207,103,.17); }
+.arena-os-stock-dossier { max-height:360px; border-radius:16px; padding:19px; background:linear-gradient(145deg,#162b3d,#0d1a27); border-color:rgba(169,201,221,.22); }
+.arena-os-stock-dossier p, .arena-os-stock-dossier ul { font-size:13px; line-height:1.75; }
+.arena-os-response-actions { gap:12px; border-radius:17px; padding:17px; background:linear-gradient(145deg,rgba(26,44,48,.82),rgba(12,24,35,.98)); border-color:rgba(164,215,112,.25); }
+.arena-os-negotiation-stage { gap:10px; padding:17px; border-radius:15px; background:linear-gradient(125deg,rgba(91,133,62,.19),rgba(18,33,46,.95) 68%); }
+.arena-os-negotiation-stage > b { font-size:16px; line-height:1.5; }
+.arena-os-negotiation-stage > p { font-size:12px; line-height:1.7; }
+.arena-os-response-actions button { grid-template-columns:34px minmax(0,1fr); gap:12px; padding:14px; border-radius:13px; background:linear-gradient(145deg,#1b3041,#132433); border-color:rgba(163,195,216,.2); }
+.arena-os-response-actions button:hover { border-color:rgba(184,231,127,.6); background:linear-gradient(145deg,#223d4a,#172c3b); box-shadow:0 7px 18px rgba(0,0,0,.17); }
+.arena-os-response-actions button b { font-size:13px; line-height:1.5; }
+.arena-os-response-actions button small { font-size:12px; line-height:1.7; }
+.arena-os-option-index { width:32px; height:32px; border-radius:10px; background:linear-gradient(145deg,#354d5f,#243849); border:1px solid rgba(190,218,236,.12); font-size:12px; }
+.arena-os-free-text { border:1px solid rgba(163,195,216,.15); background:rgba(6,15,24,.45); padding:10px; border-radius:15px; gap:9px; }
+.arena-os-free-text textarea { min-height:78px; border-radius:11px; border-color:rgba(151,184,206,.25); background:#091520; font-size:13px; line-height:1.7; }
+.arena-os-free-text textarea:focus { border-color:rgba(182,231,125,.7); }
+.arena-os-free-text button { align-self:stretch; border-radius:10px; padding:0 14px; font-size:12px; }
+.arena-os-call-result { border-radius:19px; background:radial-gradient(ellipse at 85% 0%,rgba(98,141,78,.12),transparent 45%),linear-gradient(145deg,#162a3b,#0c1824); }
+.arena-os-search:focus-within { border-color:rgba(182,231,125,.65); box-shadow:0 0 0 3px rgba(164,213,108,.08); }
+.arena-os-v2 input:not([type="range"]), .arena-os-v2 select, .arena-os-v2 textarea { accent-color:#b9e982; }
+@media (max-width:760px) {
+  .arena-os-window { border-radius:13px; }
+  .arena-os-window-title { padding:8px 10px; }
+  .arena-os-dialogue-log { min-height:190px; max-height:31vh; padding:12px; gap:11px; }
+  .arena-os-chat-bubble { padding:10px 11px; }
+  .arena-os-chat-bubble p { font-size:12px; line-height:1.65; }
+  .arena-os-response-actions { padding:12px; }
+  .arena-os-response-actions button { padding:11px; }
+  .arena-os-free-text { padding:8px; }
+  .arena-os-free-text button { padding:0 8px; font-size:11px; }
+  .arena-os-start-menu { left:8px; right:8px; width:auto; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .arena-os-v2 *, .arena-os-v2 *::before, .arena-os-v2 *::after { scroll-behavior:auto!important; transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important; }
+}
