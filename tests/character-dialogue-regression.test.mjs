@@ -221,7 +221,7 @@ test('client dialogue no longer appends the same generic plan-B suffix to every 
   assert.match(arena, /function clientStockReaction/)
   assert.match(arena, /function clientHesitationLine/)
   assert.match(arena, /function clientClosingLine/)
-  assert.match(arena, /const start = \(turn \* 2 \+ \(client\.id\.length % bank\.length\)\)/)
+  assert.match(arena, /const shift = \(turn \* 2 \+ client\.id\.length \+ stock\.ticker\.length\)/)
 })
 
 
