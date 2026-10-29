@@ -467,13 +467,13 @@ export default function ArenaOS(props: Props) {
     }
     const phase = dialogueTurn % 3
     const normalizedAnswer = text.toLowerCase().replace(/ё/g,'е')
-    const dismissesRisk = /не будем.{0,40}(риск|убыт|долг)|не имеют значения|не о чем беспокоиться/.test(normalizedAnswer)
+    const dismissesRisk = /не будем.{0,40}(риск|убыт|долг)|не имеют (?:большого )?значения|не о чем беспокоиться/.test(normalizedAnswer)
     const dismissesPlan = /план не нужен|не нужно проверять|разберемся потом|разберёмся потом|будем решать по настроению/.test(normalizedAnswer)
     const stageAnswered = phase === 0
       ? /выруч|прибыл|спрос|контракт|потенциал|продаж|подпис|сильная сторона|может заработать|денежный поток/.test(normalizedAnswer)
       : phase === 1
         ? /долг|убыт|расход|риск|паден|возврат|конкур|сценари|смет|красн.{0,8}флаг|не хват|задерж/.test(normalizedAnswer) && !dismissesRisk
-        : /провер|свер|отчет|отчёт|денежн|если|огранич|пересмотр|услов|критер|подтверд|сценар|доля/.test(normalizedAnswer) && !dismissesPlan
+        : /провер|свер|отчет|отчёт|денежн|огранич|пересмотр|услов|критер|подтверд|сценар|доля/.test(normalizedAnswer) && !dismissesPlan
     const nextReasoningStages = stageAnswered ? Array.from(new Set([...reasoningStages, phase])) : reasoningStages
     setReasoningStages(nextReasoningStages)
     if (!stageAnswered && kind === 'free' && !/гарантир|без риска|точно выраст|100\s*%/.test(normalizedAnswer)) {
