@@ -114,3 +114,12 @@ test('low-trust wealthy clients demand specific evidence',()=>{
  const result=dialogue.evaluateFreeReply('У компании есть потенциал роста.',{...client('Аналитический'),tier:4,ticket:50000,budget:100000},stock,3,['headset','hd-camera','neutral-backdrop'],{trust:15,patience:70})
  assert.match(result.reply,/не готов верить|недостаточно общего впечатления|сравните идею/i); assert.ok(result.delta<6)
 })
+
+test('beginner replies keep the client personality and add a plain-language reasoning prompt', () => {
+  const beginner = { ...client('Осторожный'), tier: 0, name: 'Алексей Воронцов' }
+  const answer = 'Выручка растёт на 12%, но долг остаётся риском. Если отчёт не подтвердит рост, пересмотрим решение.'
+  const result = dialogue.evaluateFreeReply(answer, beginner, stock, 1, ['headset', 'hd-camera', 'neutral-backdrop'])
+  assert.match(result.reply, /без обещаний/i)
+  assert.match(result.reply, /переведу на обычный язык|по-простому|объясни|план защиты/i)
+  assert.ok(result.reply.length > 180, 'beginner dialogue should invite another thoughtful turn')
+})
