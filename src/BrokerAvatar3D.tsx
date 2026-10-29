@@ -47,7 +47,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
   const formal = outfit === 'premium' || identity === 'team-lead' || identity === 'senior-broker' || identity === 'broker-specialist'
   const playerIntern = identity === 'player' && outfit === 'intern'
   const playerPremium = identity === 'player' && outfit === 'premium'
-  const jacket = identity === 'player' ? (playerIntern ? '#657b7d' : playerPremium ? '#17263a' : '#263f5b') : palette.suit
+  const jacket = identity === 'player' ? (outfit === 'intern' ? '#657b7d' : outfit === 'premium' ? '#17283f' : '#263f5b') : palette.suit
   const trousers = identity === 'player' ? (playerIntern ? '#46565a' : playerPremium ? '#202a37' : '#293746') : (identity === 'junior-broker' ? '#394650' : '#263442')
   const shirtColor = playerPremium ? '#fffdf4' : playerIntern ? '#e4e9e4' : palette.shirt
   const tieColor = identity === 'player' ? (playerIntern ? '#a7b2b0' : playerPremium ? '#d3ad5e' : '#a84f49') : palette.tie
