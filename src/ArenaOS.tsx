@@ -166,6 +166,19 @@ function clientHesitationLine(client:ClientProfile, stock:Stock, turn:number) {
 }
 
 
+function clientStockReaction(client:ClientProfile, stock:Stock, suitable:boolean) {
+  if (!suitable) {
+    return '«Стоп, ' + stock.name + ' звучит забавно, но мне это не подходит. Не уговаривайте меня купить то, что мне не по карману по риску».'
+  }
+  if (client.tier >= 3 || client.temperament.toLowerCase().includes('аналит')) {
+    return '«Ладно, идея понятна. Теперь объясните простыми словами, на чём компания зарабатывает и что может пойти не так».'
+  }
+  if (client.temperament.toLowerCase().includes('импульсив')) {
+    return '«Название уже продало мне настроение. Но деньги я всё-таки люблю больше шуток. Где подвох?»'
+  }
+  return '«Ха, название запомнил. А теперь по-честному: что в этой идее хорошего и что может её испортить?»'
+}
+
 function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
   // Three genuinely different tactics: a grounded pitch, an overconfident trap, and a weak dodge.
   const company = stock.name
