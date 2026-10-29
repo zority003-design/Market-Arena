@@ -1397,3 +1397,21 @@
 @media (prefers-reduced-motion:reduce) {
   .arena-os-v2 *, .arena-os-v2 *::before, .arena-os-v2 *::after { scroll-behavior:auto!important; transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important; }
 }
+
+
+.arena-os-dossier-instruction {
+  padding: 12px 14px;
+  margin: 12px 0 15px !important;
+  border: 1px solid rgba(180,224,126,.22);
+  border-radius: 11px;
+  background: linear-gradient(120deg,rgba(123,174,70,.11),rgba(14,28,40,.5));
+  color: #d9e8cc !important;
+  font-size: 12px !important;
+  line-height: 1.75 !important;
+}
+.arena-os-stock-dossier > b {
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: .015em;
+}
+.arena-os-free-text button:disabled { cursor: wait; }
