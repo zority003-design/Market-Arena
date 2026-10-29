@@ -71,7 +71,7 @@ export function getEquipmentOpening(client: ClientProfile, ownedItems: string[] 
   return lines.slice(0, client.tier >= 2 ? 2 : 1)
 }
 
-export type NegotiationContext = { trust?: number; patience?: number }
+export type NegotiationContext = { trust?: number; patience?: number; phase?: number }
 
 function simplifyForBeginner(reply: string, client: ClientProfile, text: string) {
   // Keep the character's actual reaction. Replacing it with a generic tutorial line
@@ -336,5 +336,13 @@ export function evaluateFreeReply(
     reply = reply.replace(/[»”]$/, '') + ' ' + issue.line + '»'
   }
 
+  if (!promises && context.phase !== undefined) {
+    const phase = context.phase % 3
+    const missesStage = phase === 0 ? !hasUpside : phase === 1 ? !hasRisk : !hasPlan
+    if (missesStage) {
+      delta = Math.min(delta, -4)
+      reply = reply.replace(/[»”]$/, '') + ' «Сейчас мы обсуждаем другой вопрос. Сначала ответьте по теме этого этапа, а потом переходите дальше».'
+    }
+  }
   return { delta: Math.max(-18, Math.min(14, delta)), reply: simplifyForBeginner(reply, client, text), equipmentPenalty: issue?.penalty ?? 0 }
 }
