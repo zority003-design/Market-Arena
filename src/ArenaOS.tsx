@@ -294,7 +294,9 @@ function clientStockReaction(client:ClientProfile, stock:Stock, suitable:boolean
   return '«Ладно, готов выслушать. Но ' + concern + ' Что вы ответите на это возражение?»'
 }
 
-function phaseNumber(_turn:number, completedStages:number[] = []) { return completedStages.includes(0) ? (completedStages.includes(1) ? (completedStages.includes(2) ? 2 : 2) : 1) : 0 }\n\nfunction getResponseOptions(stock:Stock, client:ClientProfile, turn:number, completedStages:number[] = []) {
+function phaseNumber(_turn:number, completedStages:number[] = []) { return completedStages.includes(0) ? (completedStages.includes(1) ? 2 : 1) : 0 }
+
+function getResponseOptions(stock:Stock, client:ClientProfile, turn:number, completedStages:number[] = []) {
   const stage = phaseNumber(turn, completedStages)
   const goal = client.goal.toLowerCase()
   const goalNudge = /сохран|риск|не потер/.test(goal)
@@ -345,7 +347,9 @@ export default function ArenaOS(props: Props) {
   const [activeStock,setActiveStock] = useState<Stock|null>(null)
   const [stockPicker,setStockPicker] = useState(false)
   const [callLog,setCallLog] = useState<string[]>([])
-  const [dialogueTurn,setDialogueTurn] = useState(0)\n  const [reasoningStages,setReasoningStages] = useState<number[]>([])\n  const [replyCooldown,setReplyCooldown] = useState(false)
+  const [dialogueTurn,setDialogueTurn] = useState(0)
+  const [reasoningStages,setReasoningStages] = useState<number[]>([])
+  const [replyCooldown,setReplyCooldown] = useState(false)
   const [firstDealGuide,setFirstDealGuide] = useState(false)
   const [message,setMessage] = useState('')
   const [companyNameDraft,setCompanyNameDraft] = useState('')
@@ -456,7 +460,8 @@ export default function ArenaOS(props: Props) {
     const text = custom.trim()
     let delta = 0; let reply = ''
     if(kind==='free') {
-      const phase = phaseNumber(dialogueTurn, reasoningStages)\n      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience, phase })
+      const phase = phaseNumber(dialogueTurn, reasoningStages)
+      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience, phase })
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
