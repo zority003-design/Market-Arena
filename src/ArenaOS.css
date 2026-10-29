@@ -1249,3 +1249,64 @@
 .arena-os-stage-checklist { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 3px; }
 .arena-os-stage-checklist span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 1px solid #304658; border-radius: 999px; color: #8ea5b7; background: rgba(4,12,20,.36); font-size: 10px; font-weight: 750; }
 .arena-os-stage-checklist span.complete { color: #d2f4ad; border-color: rgba(157,216,103,.4); background: rgba(118,176,64,.13); }
+
+
+/* Consistent components for the rest of the built-in apps */
+.arena-os-end-shift-card, .arena-os-business-summary, .arena-os-asset-finances,
+.arena-os-staff-summary, .arena-os-empire, .arena-os-firm-banner, .arena-os-contact-unlock,
+.arena-os-note, .arena-os-debrief, .arena-os-economy-roadmap, .arena-os-empire-goal {
+  border: 1px solid var(--os-border); border-radius: 14px; background: linear-gradient(145deg,rgba(22,39,54,.94),rgba(13,25,37,.96)); padding: 16px;
+}
+.arena-os-end-shift-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.arena-os-end-shift-card p, .arena-os-business-summary p, .arena-os-asset-finances p, .arena-os-empire p { color: #a8bdcc; line-height: 1.6; font-size: 12px; }
+.arena-os-contact-unlock { display: flex; gap: 14px; align-items: center; border-color: rgba(159,219,101,.32); background: rgba(107,165,60,.09); }
+.arena-os-firm-naming { display: grid; gap: 12px; border: 1px solid var(--os-border); border-radius: 14px; padding: 16px; background: #111f2d; }
+.arena-os-firm-naming input { width: 100%; border: 1px solid #344b5f; border-radius: 10px; padding: 11px 12px; background: #091521; color: #edf5fb; }
+.arena-os-next-actions { display: grid; gap: 9px; }
+.arena-os-next-actions > button { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; border: 1px solid var(--os-border); border-radius: 11px; background: #142536; color: #e6eff6; padding: 12px 14px; }
+.arena-os-next-actions > button:hover { border-color: rgba(164,216,106,.45); background: #1a3041; }
+.arena-os-count { display: inline-grid; place-items: center; min-width: 25px; height: 25px; padding: 0 6px; border-radius: 8px; background: #273b4c; color: #d4e7f2; font-size: 10px; font-weight: 900; }
+.arena-os-all-clients, .arena-os-task-list, .arena-os-gear-grid, .arena-os-outfit-grid,
+.arena-os-staff-grid, .arena-os-business-grid, .arena-os-housing-grid { gap: 12px; }
+.arena-os-all-clients > article, .arena-os-task-list > article, .arena-os-gear-grid > article,
+.arena-os-outfit-grid > article, .arena-os-staff-grid > article, .arena-os-business-grid > article,
+.arena-os-housing-grid > article {
+  min-width: 0; border: 1px solid var(--os-border); border-radius: 14px; padding: 14px;
+  background: linear-gradient(145deg,#172a3b,#101d2a); box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.arena-os-task-list > article { display: grid; gap: 8px; }
+.arena-os-task-list p, .arena-os-item-foot, .arena-os-housing-copy p, .arena-os-business-copy p { color: #a9bdcc; font-size: 11px; line-height: 1.55; }
+.arena-os-task-list button, .arena-os-gear-grid button, .arena-os-outfit-grid button,
+.arena-os-staff-grid button, .arena-os-business-grid button, .arena-os-housing-grid button {
+  min-height: 36px; border: 1px solid #344b5e; border-radius: 9px; background: #203447; color: #e5eff6; padding: 8px 11px; font-size: 11px; font-weight: 800;
+}
+.arena-os-task-list button:hover, .arena-os-gear-grid button:hover, .arena-os-outfit-grid button:hover,
+.arena-os-staff-grid button:hover, .arena-os-business-grid button:hover, .arena-os-housing-grid button:hover { border-color: #a6d974; background: #2a4350; }
+.arena-os-housing-stats { display: flex; flex-wrap: wrap; gap: 7px; }
+.arena-os-housing-stats span, .arena-os-tags span { border: 1px solid var(--os-border); border-radius: 999px; background: rgba(255,255,255,.035); padding: 6px 9px; color: #b6c9d7; font-size: 10px; }
+.arena-os-housing-price { color: #c6ed90; font-size: 20px; letter-spacing: -.03em; }
+.arena-os-business-effect { border-left: 2px solid #9bce69; padding: 8px 10px; color: #c5d8e5; background: rgba(137,194,83,.07); font-size: 11px; line-height: 1.5; }
+.arena-os-business-cap { color: #b9e88a; border: 1px solid rgba(160,216,106,.25); border-radius: 8px; padding: 5px 8px; font-size: 10px; font-weight: 800; }
+.arena-os-outfit-preview { border: 1px solid var(--os-border); border-radius: 15px; background: radial-gradient(ellipse at 50% 30%,#263d4e,#101c28 72%); padding: 16px; }
+.arena-os-staff-avatar, .arena-os-business-icon { border-radius: 12px; background: #243b4c; border: 1px solid var(--os-border); }
+.arena-os-staff-copy, .arena-os-business-copy, .arena-os-housing-copy { min-width: 0; display: grid; gap: 7px; }
+.arena-os-staff-copy small, .arena-os-business-copy small, .arena-os-housing-copy small { color: #91a8ba; line-height: 1.45; }
+.arena-os-taskbar { border-top: 1px solid var(--os-border-strong); background: rgba(7,13,21,.96); backdrop-filter: blur(14px); }
+.arena-os-taskbar button { border: 1px solid transparent; border-radius: 9px; color: #d8e5ee; background: rgba(255,255,255,.035); }
+.arena-os-taskbar button:hover, .arena-os-taskbar button.active { border-color: var(--os-border); background: #1a2b3b; }
+.arena-os-taskbar-label { color: #b8c9d6; font-size: 10px; }
+.arena-os-tray { border-left: 1px solid var(--os-border); color: #b8c9d6; }
+.arena-os-start-menu { border: 1px solid var(--os-border-strong); border-radius: 15px; background: rgba(12,23,34,.98); box-shadow: 0 25px 70px rgba(0,0,0,.5); backdrop-filter: blur(18px); }
+.arena-os-start-menu-heading { border-bottom: 1px solid var(--os-border); padding-bottom: 12px; }
+.arena-os-start-menu-grid button { border: 1px solid transparent; border-radius: 10px; background: #142638; color: #e5eff7; }
+.arena-os-start-menu-grid button:hover { border-color: var(--os-border-strong); background: #1d3547; }
+.arena-os-toast { border: 1px solid rgba(166,216,109,.35); border-radius: 12px; background: rgba(12,25,35,.96); color: #e5f3d7; box-shadow: 0 14px 38px rgba(0,0,0,.3); }
+.arena-os-incoming-modal { border: 1px solid var(--os-border-strong); border-radius: 20px; background: linear-gradient(145deg,#1a2c3c,#0d1823); box-shadow: 0 30px 90px rgba(0,0,0,.6); }
+.arena-os-incoming-client { color: #edf5fa; }
+.arena-os-incoming-dismiss { border: 1px solid var(--os-border); border-radius: 10px; background: #172a3b; color: #e0eaf2; }
+.arena-os-v2 button:disabled { cursor: not-allowed; opacity: .56; transform: none; box-shadow: none; }
+@media (max-width: 760px) {
+  .arena-os-end-shift-card, .arena-os-contact-unlock { align-items: stretch; flex-direction: column; }
+  .arena-os-taskbar-label { display: none; }
+  .arena-os-start-menu { max-width: calc(100vw - 24px); }
+}
