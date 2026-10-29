@@ -1426,3 +1426,24 @@
   line-height: 1.8 !important;
 }
 .arena-os-dossier-glossary strong { color: #e5f0f7; }
+
+
+.arena-os-broker-glossary {
+  display: grid; grid-template-columns: minmax(150px,.7fr) minmax(0,1.8fr); gap: 14px;
+  padding: 14px; border: 1px solid rgba(143,190,220,.2); border-radius: 14px;
+  background: linear-gradient(145deg,rgba(22,39,54,.92),rgba(12,23,34,.96));
+}
+.arena-os-broker-glossary > div:first-child { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+.arena-os-broker-glossary > div:first-child span { color: #b6e782; font-size: 9px; font-weight: 900; letter-spacing: .12em; }
+.arena-os-broker-glossary > div:first-child b { font-size: 15px; line-height: 1.3; }
+.arena-os-broker-glossary > div:first-child small { color: #9fb4c4; font-size: 10px; line-height: 1.55; }
+.arena-os-broker-glossary dl { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 0; }
+.arena-os-broker-glossary dl > div { padding: 9px 10px; border: 1px solid rgba(146,177,199,.13); border-radius: 9px; background: rgba(255,255,255,.025); min-width: 0; }
+.arena-os-broker-glossary dt { color: #e0edc9; font-size: 11px; font-weight: 850; margin-bottom: 4px; }
+.arena-os-broker-glossary dd { margin: 0; color: #a9bdcc; font-size: 10px; line-height: 1.5; }
+.arena-os-stock-dossier .arena-os-dossier-instruction { border-left: 3px solid #a7d970; padding: 10px 12px; border-radius: 0 8px 8px 0; background: rgba(151,208,95,.08); color: #d5e8c0; }
+.arena-os-response-actions button:disabled { cursor: wait; opacity: .48; }
+@media (max-width: 760px) {
+  .arena-os-broker-glossary { grid-template-columns: minmax(0,1fr); }
+  .arena-os-broker-glossary dl { grid-template-columns: minmax(0,1fr); }
+}
