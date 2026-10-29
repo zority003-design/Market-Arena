@@ -1087,7 +1087,6 @@ export default function App() {
       setClientInvested((invested) => ({ ...invested, [activeClient.id]: (invested[activeClient.id] ?? 0) + payout.ticket }))
       const soldPrice = Number(activeCompany.price.replace(/[^0-9,.-]/g, '').replace(',', '.')) * (1 + (newsImpacts[activeCompany.ticker] ?? 0) / 100)
       const soldShares = Math.floor(payout.ticket / Math.max(0.01, soldPrice))
-      const quotaTargetCompany = companies[(day - 1) % companies.length]
       // Every completed placement contributes to the daily sales quota; the rotating ticker is a market focus, not a hidden pass/fail trap.
       setDailySalesAmount((value) => value + payout.ticket)
       setDailySalesShares((value) => value + soldShares)
