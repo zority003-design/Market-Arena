@@ -3,7 +3,7 @@ import { ContactShadows, RoundedBox } from '@react-three/drei'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
-type BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string }
+type BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string; pose?: Pose }
 type Pose = 'standing' | 'seated'
 
 const palettes = [
@@ -134,14 +134,14 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
   </group>
 }
 
-export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '' }: BrokerAvatar3DProps) {
+export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '', pose = 'standing' }: BrokerAvatar3DProps) {
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
     <Canvas camera={{ position: [0, compact ? 2.05 : 1.8, compact ? 3.65 : 5.9], fov: compact ? 29 : 34, near: 0.1, far: 30 }} onCreated={({ camera }) => camera.lookAt(0, compact ? 1.48 : 1.28, 0)} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
       <ambientLight intensity={1.25} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.2]} />
       <directionalLight position={[-3, 5, 4]} intensity={2.4} castShadow />
       <directionalLight position={[3, 2, -2]} intensity={0.9} color="#9fc7ff" />
-      <BrokerModel identity={identity} outfit={outfit} />
+      <BrokerModel identity={identity} outfit={outfit} pose={pose} />
       <ContactShadows position={[0, 0.01, 0]} opacity={0.3} scale={1.7} blur={2.1} far={2.8} />
     </Canvas>
   </div>
