@@ -103,13 +103,13 @@ export function BrokerModel({ identity, outfit, pose = 'standing' }: { identity:
       {casualJacket && <>
         <mesh position={[-0.14,1.76,0.257]} rotation={[0,0,-0.16]}><boxGeometry args={[0.12,0.36,0.03]}/><meshStandardMaterial color="#748b8d" roughness={0.85}/></mesh>
         <mesh position={[0.14,1.76,0.257]} rotation={[0,0,0.16]}><boxGeometry args={[0.12,0.36,0.03]}/><meshStandardMaterial color="#748b8d" roughness={0.85}/></mesh>
-      </>
-      {!playerIntern && <>
+      </>}
+      {!casualJacket && <>
         <mesh position={[0, 1.59, 0.258]}><shapeGeometry args={[new THREE.Shape().moveTo(-0.055,0.19).lineTo(0.055,0.19).lineTo(0.08,0.1).lineTo(0,-0.18).lineTo(-0.08,0.1).closePath()]}/><meshStandardMaterial color={tieColor} roughness={0.42}/></mesh>
         <mesh position={[0, 1.78, 0.263]}><boxGeometry args={[0.09, 0.055, 0.025]}/><meshStandardMaterial color={tieColor}/></mesh>
       </>}
       {[1.42,1.28,1.14].map((y) => <mesh key={y} position={[0.08,y,0.228]}><sphereGeometry args={[0.022,12,10]}/><meshStandardMaterial color={playerPremium ? '#d7b35d' : formal ? '#d5b15e' : '#c8d0d0'} metalness={0.5} roughness={0.35}/></mesh>)}
-      {!playerIntern && <group>
+      {!casualJacket && <group>
         <mesh position={[-0.235,1.55,0.254]}><boxGeometry args={[0.12,0.075,0.025]}/><meshStandardMaterial color={playerPremium ? '#fff8e7' : palette.shirt} roughness={0.45}/></mesh>
         <mesh position={[-0.235,1.58,0.27]}><boxGeometry args={[0.08,0.018,0.012]}/><meshStandardMaterial color={playerPremium ? '#d7b35d' : palette.accent} metalness={0.25}/></mesh>
       </group>}
