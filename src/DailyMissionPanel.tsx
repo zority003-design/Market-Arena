@@ -39,15 +39,15 @@ export default function DailyMissionPanel({ company, day, quotaShares, quotaAmou
       <div className="daily-mission-heading">
         <div>
           <div className="daily-mission-kicker">ЦЕЛЬ НА СЕГОДНЯ</div>
-          <h3>Продать {quotaShares.toLocaleString('ru-RU')} акций «{company.name}»</h3>
-          <p>Не просто уговори клиента. Разберись в бизнесе, используй сильные стороны и не развались на первом вопросе о рисках.</p>
+          <h3>Фокус дня: {company.name}</h3>
+          <p>Изучи эту компанию перед звонками. Ориентир по объёму — {quotaShares.toLocaleString('ru-RU')} акций, а премия зависит от общего оборота по всем успешным сделкам.</p>
         </div>
         <div className="daily-mission-target"><strong>{quotaAmount.toLocaleString('ru-RU')} ₽</strong><span>ПЛАНОВЫЙ ОБОРОТ</span></div>
       </div>
       <div className="daily-mission-progress">
-        <div className="daily-mission-progress-copy"><span>Выполнено: <b>{soldShares} / {quotaShares} акций</b></span><span>{progress}%</span></div>
+        <div className="daily-mission-progress-copy"><span>Общий объём: <b>{soldShares} / {quotaShares} акций</b></span><span>{progress}%</span></div>
         <div className="daily-mission-track"><span style={{ width: progress + '%' }} /></div>
-        <div className="daily-mission-foot"><span>Осталось продать: <b>{remaining} шт.</b></span><span>Оборот: {soldAmount.toLocaleString('ru-RU')} ₽</span></div>
+        <div className="daily-mission-foot"><span>До ориентира осталось: <b>{remaining} шт.</b></span><span>Оборот: {soldAmount.toLocaleString('ru-RU')} ₽</span></div>
       </div>
       <div className="daily-mission-company">
         <div className="daily-mission-company-mark">{company.ticker.slice(0, 2)}</div>
