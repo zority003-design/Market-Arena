@@ -229,7 +229,7 @@ test('client dialogue no longer appends the same generic plan-B suffix to every 
   assert.match(arena, /Объяснить, откуда может взяться рост/)
   assert.match(arena, /Назвать реальный риск компании/)
   assert.match(arena, /Предложить проверку и условие пересмотра/)
-  assert.match(arena, /reasoningStages\.length===3/)
+  assert.match(arena, /nextReasoningStages\.length===3/)
 })
 
 
