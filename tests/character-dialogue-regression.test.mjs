@@ -129,10 +129,10 @@ test('KOTL keeps its property-business role while the pitch uses the new comedy 
   const arena = await read('src/ArenaOS.tsx')
   const app = await read('src/App.tsx')
   const economy = await read('src/game/economy.ts')
-  assert.match(arena, /ticker:'KOTL', name:'Котолёт'/)
-  assert.match(arena, /строит дома с балконами для котов/)
-  assert.match(app, /name: 'Котолёт', sector: 'Девелопмент'/)
-  assert.match(economy, /KOTL: \{ label:'Рост и девелопмент'/)
+  assert.match(arena, /ticker:\"KOTL\", name:\"Котолёт\"/)
+  assert.match(arena, /строит жилые кварталы с балконами для котов/)
+  assert.match(app, /name:\"Котолёт\", sector:\"Девелопмент\"/)
+  assert.match(economy, /KOTL:\{label:'Кошачий девелопмент'/)
   assert.doesNotMatch(arena, /800 роботов|дронами/)
 })
 
@@ -154,7 +154,7 @@ test('displayed stock risk labels match the suitability catalog', async () => {
   const economy = await read('src/game/economy.ts')
   assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
   assert.match(arena, /ticker:\"TAPK\", name:\"Не Моя Смена\", price:64, risk:\"Высокий\"/)
-  assert.match(economy, /OGUR: \{ label:'Прибыль и повторные покупки'.*risk:'Средний'/)
+  assert.match(economy, /OGUR:\{label:'Прибыль и повторные покупки',color:'#16a34a',description:'Производитель напитков; важны маржа, упаковка и дистрибуция.',risk:'Низкий'\}/)
 })
 
 
