@@ -226,7 +226,7 @@ function getResponseOptions(stock:Stock, client:ClientProfile, turn:number, comp
   const companySpecific = (RESPONSE_BANK[stock.ticker] ?? []).find(option =>
     stageTerms.test(option.text) && !/гарантирую|без риска|точно вырастет|100\s*%|не нужен план/i.test(option.text)
   )
-  if (companySpecific) choices[0] = companySpecific
+  if (companySpecific) choices[0] = { ...companySpecific, text: companySpecific.text + ' ' + goalNudge }
   const rotate = (client.id.length + turn) % choices.length
   return choices.map((_, index) => choices[(index + rotate) % choices.length])
 }
