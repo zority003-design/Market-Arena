@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { BROKER_HIRES, BUSINESS_ASSETS, BUSINESS_UPGRADES, CLIENTS, HOUSING, getBusinessDailyNetIncome, getBusinessPayoutCap, getFirstImpression, getStaffDailyNetIncome, getClientEquipmentAccess, getClientStockFit, getClientTrustRequirement, getClientInvestmentPreference, STOCK_PROFILES, type ClientProfile } from './game/economy'
 import ClientAvatar2D from './ClientAvatar2D'
-import BrokerAvatar3D from './BrokerAvatar3D'
+import BrokerAvatar3D, { BrokerWebcamScene } from './BrokerAvatar3D'
 import { playSound } from './audio'
 import { evaluateFreeReply, getEquipmentOpening, getNegotiationDifficulty } from './game/dialogue'
 import { clampWindowPosition } from './game/windowGeometry'
@@ -219,6 +219,7 @@ export default function ArenaOS(props: Props) {
   const [stockPicker,setStockPicker] = useState(false)
   const [callLog,setCallLog] = useState<string[]>([])
   const [dialogueTurn,setDialogueTurn] = useState(0)
+  const [goodTurns,setGoodTurns] = useState(0)
   const [firstDealGuide,setFirstDealGuide] = useState(false)
   const [message,setMessage] = useState('')
   const [companyNameDraft,setCompanyNameDraft] = useState('')
@@ -240,12 +241,12 @@ export default function ArenaOS(props: Props) {
   const estimatedFirmCommission = Math.round(client.ticket * client.commissionRate)
   const businessTrustBonus = BUSINESS_UPGRADES.filter(upgrade => props.businessUpgrades.includes(upgrade.id)).reduce((sum, upgrade) => sum + upgrade.trustBonus, 0)
   const dailyCallLimit = (props.reputation >= 60 ? 4 : props.reputation >= 35 ? 3 : 2) + (props.businessUpgrades.includes('lead-network') ? 1 : 0) + (props.businessUpgrades.includes('client-crm') ? 1 : 0)
-  const outfitBonus = OUTFITS.find(o=>o.id===props.selectedOutfit)?.bonus ?? 0
+  const outfitBonus = (OUTFITS.find(o=>o.id===props.selectedOutfit)?.bonus ?? 0) + (client.statusSensitive && props.selectedOutfit==='intern' ? -4 : 0)
   const missingMicPenalty = (props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) ? 0 : (client.tier >= 2 ? 6 : 3)
   const missingCameraPenalty = props.ownedItems.includes('hd-camera') ? 0 : (client.tier >= 2 || client.statusSensitive ? 5 : 2)
   const missingBackgroundPenalty = (props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) ? 0 : (client.tier >= 2 || client.statusSensitive ? 3 : 1)
   const qualityPenalty = missingMicPenalty + missingCameraPenalty + missingBackgroundPenalty
-  const chance = Math.max(5,Math.min(92,Math.round(30 + trust*.48 + props.reputation*.12 + equipmentBonus + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 4 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.22)))
+  const chance = Math.max(5,Math.min(78,Math.round(20 + trust*.43 + props.reputation*.09 + equipmentBonus*.7 + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 3 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.3)))
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-last-app',activeApp) } catch {} },[activeApp])
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-contacts',JSON.stringify(newContacts)) } catch {} },[newContacts])
   useEffect(()=>{
@@ -293,7 +294,7 @@ export default function ArenaOS(props: Props) {
     if (props.callsToday >= dailyCallLimit) { setNotice('Лимит звонков на сегодня исчерпан (' + dailyCallLimit + '). Развивай сеть клиентов или возвращайся завтра.'); return }
     const selected = (CLIENTS.find(c=>c.id===id) ?? CLIENTS[0]) as ClientProfile
     props.setCallsToday(value => value + 1)
-    setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setFirstDealGuide(false); setCallState('active')
+    setClientId(selected.id); setStockPicker(!activeStock); setDialogueTurn(0); setGoodTurns(0); setFirstDealGuide(false); setCallState('active')
     const homeBonus = getFirstImpression(props.housingId, props.ownedItems, selected)
     const relationshipTrustBase = props.clientTrustScores[selected.id] ?? selected.baseTrust
     const starterTrust = Math.max(12,Math.min(72,relationshipTrustBase - Math.round(qualityPenalty*.45) + Math.round(props.reputation*.08) + Math.round(homeBonus*.5) + businessTrustBonus))
@@ -305,7 +306,7 @@ export default function ArenaOS(props: Props) {
   }
   const chooseStock = (stock:Stock) => {
     const fit = getClientStockFit(client.id, stock.ticker)
-    setActiveStock(stock); setStockPicker(false); setDialogueTurn(0)
+    setActiveStock(stock); setStockPicker(false); setDialogueTurn(0); setGoodTurns(0)
     if (!fit.suitable) {
       setTrust(Math.max(0, trust - 12))
       props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, (scores[client.id] ?? client.baseTrust) - 12) }))
@@ -339,15 +340,27 @@ export default function ArenaOS(props: Props) {
       delta = -12; reply = '«Я позвонил за инвестиционной идеей, а не на кастинг в цирк. Вернёмся к делу».'
     }
     const newTrust = Math.max(0,Math.min(100,trust+delta))
+    const nextGoodTurns = goodTurns + (delta >= 5 ? 1 : 0)
+    setGoodTurns(nextGoodTurns)
     const gearMissing = Number(!(props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')))+Number(!props.ownedItems.includes('hd-camera'))+Number(!(props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) && (client.tier>=2 || client.statusSensitive))
     const newPatience = Math.max(0,patience-Math.max(1,(kind==='risk'?2:kind==='free'?3:4)+Math.ceil(client.tier/2)+gearMissing))
     setTrust(newTrust); setPatience(newPatience); props.setClientTrustScores(scores => ({ ...scores, [client.id]: Math.max(0, Math.min(100, (scores[client.id] ?? client.baseTrust) + delta)) })); setCallLog(prev=>[...prev,'Ты: '+(kind==='free'?text:kind==='benefit'?'Объясняешь потенциальную выгоду':kind==='risk'?'Честно раскрываешь риски':'Отвечаешь невпопад'),client.name+': '+reply,'РАЗБОР: доверие '+(delta>0?'+':'')+delta+' ('+trust+' → '+newTrust+'); терпение −'+(patience-newPatience)+' ('+patience+' → '+newPatience+'). '+(delta>=8?'Аргументы с фактами и планом помогают клиенту проверить рекомендацию.':delta<0?'Ответ не снял возражение или содержал обещание без доказательств.':'Нужен более конкретный факт, риск или условие выхода.')])
     setMessage('')
     // Every answer is a negotiation turn. A single lucky click must never close a deal.
     setDialogueTurn(turn=>turn+1)
-    const newChance = Math.max(5,Math.min(92,Math.round(30+newTrust*.48+props.reputation*.12+equipmentBonus+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.22)))
+    const newChance = Math.max(5,Math.min(78,Math.round(20+newTrust*.43+props.reputation*.09+equipmentBonus*.7+outfitBonus-qualityPenalty+housingBonus+businessTrustBonus-Math.max(0,getClientTrustRequirement(client)-newTrust)*.3)))
     setLastChance(newChance)
-    if(dialogueTurn >= getNegotiationDifficulty(client, props.ownedItems)-1 && newTrust>=getClientTrustRequirement(client) && Math.random()*100<newChance) {
+    const badAnswer = delta <= -7
+    const patienceDanger = newPatience <= 16
+    const hangupChance = Math.min(58, (badAnswer ? 22 + Math.min(14, Math.abs(delta)) : 0) + (patienceDanger ? 18 : 0) + (newTrust <= 12 ? 12 : 0))
+    const clientHangsUp = Math.random() * 100 < hangupChance
+    if (clientHangsUp) {
+      const reputationLoss = badAnswer || newTrust <= 12 ? 3 : 1
+      setCallState('lost'); setLastXpReward(3); setLastReputationReward(-Math.min(reputationLoss,props.reputation)); setLastFirmCommission(0); setLastClientTicket(0)
+      props.setReputation(value => Math.max(0,value-reputationLoss)); props.setXp(value=>value+3)
+      props.setClientTrustScores(scores=>({...scores,[client.id]:Math.max(0,(scores[client.id]??client.baseTrust)-8)}))
+      setCallLog(prev=>[...prev, client.name+': «Знаете что, я зря трачу время. На этом закончим».', 'КЛИЕНТ СБРОСИЛ ЗВОНОК. Сделки нет. Вероятность срыва после такого ответа: '+Math.round(hangupChance)+'%. Репутация −'+reputationLoss+'.'])
+    } else if(dialogueTurn >= getNegotiationDifficulty(client, props.ownedItems)-1 && newTrust>=getClientTrustRequirement(client) && nextGoodTurns >= 2 && Math.random()*100<newChance) {
       const firmCommission = Math.round(client.ticket * client.commissionRate)
       const qualityMultiplier = newTrust >= 75 ? 1.25 : newTrust >= 62 ? 1.1 : 1
       const playerBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * qualityMultiplier)))
@@ -389,7 +402,7 @@ export default function ArenaOS(props: Props) {
     catch { setNotice('Не удалось запустить микрофон. Попробуй ещё раз или введи ответ текстом.') }
   }
   const buyOutfit = (id:OutfitId,price:number) => {
-    if(props.ownedOutfits.includes(id)) { props.setSelectedOutfit(id); setNotice('Образ изменён.'); return }
+    if(props.ownedOutfits.includes(id)) { props.setSelectedOutfit(id); setNotice('Образ изменён: его бонус зависит от уровня одежды и статуса клиента.'); return }
     if(props.cash<price) { setNotice('Не хватает денег. Сначала заработай на переговорах.'); return }
     props.setCash(v=>v-price); props.setOwnedOutfits(v=>[...v,id]); props.setSelectedOutfit(id); setNotice('Покупка разовая. Ежедневной аренды жилья в игре нет.')
   }
@@ -476,7 +489,7 @@ export default function ArenaOS(props: Props) {
           {activeApp==='calls' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">БРОКЕРСКАЯ ЛИНИЯ</span><h1>{callState==='active'?'Видеозвонок с клиентом':callState==='won'?'Сделка закрыта':callState==='lost'?'Звонок завершён':'Клиентская линия'}</h1><p>Клиент оценивает не только акцию, но и то, насколько честно ты говоришь о рисках.</p></div><span className={'arena-os-call-status '+callState}>{callState==='active'?'● В ЭФИРЕ':callState==='won'?'✓ УСПЕХ':callState==='lost'?'● ЗАВЕРШЁН':'● ГОТОВ'}</span></div>
             {callState==='idle' && props.callsToday>=2 && <div className="arena-os-end-shift-card"><div><span className="arena-os-kicker">СМЕНА · МОЖНО ЗАКОНЧИТЬ РАНЬШЕ</span><b>Ты уже провёл {props.callsToday} клиентских звонка</b><p>Можешь продолжить до дневного лимита {dailyCallLimit} или завершить день сейчас и пойти спать. При завершении проверится дневной план: если он не выполнен, фирма потеряет 750 ₽ и репутация снизится на 3.</p></div><button className="arena-os-primary" onClick={props.onEndDay}>Завершить смену <ChevronRight size={15}/></button></div>}
             {callState==='idle' && <div className="arena-os-call-start"><div className="arena-os-client-list"><p style={{margin:"0 0 12px",fontSize:12,lineHeight:1.45,opacity:.82}}>Клиенты среднего уровня требуют гарнитуру и HD-камеру; крупные инвесторы также ждут аккуратный фон. Улучшай связь, чтобы открыть эти контакты. На первых звонках требования мягче.</p>{unlockedClients.slice(0,8).map(c=><button key={c.id} className={'arena-os-client-row '+(clientId===c.id?'active':'')} onClick={()=>setClientId(c.id)}><span className="arena-os-client-avatar"><ClientAvatar2D tier={c.tier} identity={c.id} mood="neutral"/></span><span><b>{c.name}</b><small>{c.profession}</small><em>{c.temperament} · капитал {money(c.budget)}</em></span><ChevronRight size={16}/></button>)}</div><div className="arena-os-call-preview"><div className="arena-os-preview-face"><ClientAvatar2D tier={client.tier} identity={client.id} mood="skeptical"/></div><span className="arena-os-kicker">ВХОДЯЩИЙ КЛИЕНТ</span><h2>{client.name}</h2><p>{client.quote}</p><div className="arena-os-tags"><span>Цель доверия {getClientTrustRequirement(client)}%</span><span>{client.experience}</span><span>{client.temperament}</span></div><button className="arena-os-primary" onClick={()=>startCall(client.id)}><PhoneCall size={17}/> Принять звонок</button></div></div>}
-            {callState==='active' && <div className="arena-os-live-call"><div className="arena-os-call-video"><div className="arena-os-video-tile"><span>КЛИЕНТ · {client.name}</span><ClientAvatar2D tier={client.tier} identity={client.id} mood={trust>65?'interested':trust<30?'angry':'skeptical'}/></div><div className="arena-os-video-tile self"><span>ВАША КАМЕРА</span><BrokerAvatar3D identity="player" outfit={props.selectedOutfit} pose="seated" className="arena-os-self-avatar" /><small>{props.ownedItems.includes('hd-camera')?'HD-камера':'Встроенная камера'} · {(props.ownedItems.includes('headset')||props.ownedItems.includes('pro-mic'))?'Внешний микрофон':'Встроенный микрофон'}</small></div></div><div className="arena-os-call-metrics"><div><span>Вероятность сделки</span><b>{lastChance||chance}%</b><div className="arena-os-progress"><i style={{width:(lastChance||chance)+'%'}}/></div><small>{qualityPenalty>0?'Слабое оборудование снижает первое впечатление. ':'Оборудование в порядке. '}{client.tier>=3?'Клиент требовательный: сначала докажи компетентность.':'Подстрой аргументы под цель клиента.'}</small></div><div><span>Доверие · цель {getClientTrustRequirement(client)}%</span><b>{trust}/100</b><div className="arena-os-progress trust"><i style={{width:trust+'%'}}/></div></div><div><span>Терпение</span><b>{patience}/100</b><div className="arena-os-progress patience"><i style={{width:patience+'%'}}/></div></div></div>
+            {callState==='active' && <div className="arena-os-live-call"><div className="arena-os-call-video"><div className="arena-os-video-tile"><span>КЛИЕНТ · {client.name}</span><ClientAvatar2D tier={client.tier} identity={client.id} mood={trust>65?'interested':trust<30?'angry':'skeptical'}/></div><div className="arena-os-video-tile self"><span>ВАША КАМЕРА</span><BrokerWebcamScene identity="player" outfit={props.selectedOutfit} housingId={props.housingId} /><small>{props.ownedItems.includes('hd-camera')?'HD-камера':'Встроенная камера'} · {(props.ownedItems.includes('headset')||props.ownedItems.includes('pro-mic'))?'Внешний микрофон':'Встроенный микрофон'}</small></div></div><div className="arena-os-call-metrics"><div><span>Вероятность сделки</span><b>{lastChance||chance}%</b><div className="arena-os-progress"><i style={{width:(lastChance||chance)+'%'}}/></div><small>{qualityPenalty>0?'Слабое оборудование снижает первое впечатление. ':'Оборудование в порядке. '}{client.tier>=3?'Клиент требовательный: сначала докажи компетентность.':'Подстрой аргументы под цель клиента.'}</small></div><div><span>Доверие · цель {getClientTrustRequirement(client)}%</span><b>{trust}/100</b><div className="arena-os-progress trust"><i style={{width:trust+'%'}}/></div></div><div><span>Терпение</span><b>{patience}/100</b><div className="arena-os-progress patience"><i style={{width:patience+'%'}}/></div></div></div>
               <div className="arena-os-dialogue"><div className="arena-os-dialogue-log" ref={dialogueLogRef}>{callLog.slice(-12).map((line,i)=>{const mine=line.startsWith('Ты:');const system=line.startsWith('СДЕЛКА')||line.startsWith('Клиент завершил')||line.startsWith('РАЗБОР')||line.startsWith('ОШИБКА');const body=line.startsWith(client.name+':')?line.slice(client.name.length+1).trim():line.replace(/^(Ты:|СДЕЛКА ЗАКРЫТА\.|Клиент завершил звонок\.|РАЗБОР:|ОШИБКА:)\s*/,'');return <div key={i} className={'arena-os-chat-row '+(mine?'mine':system?'system':'theirs')}>{!mine&&!system&&<span className="arena-os-chat-avatar">{client.initials}</span>}<div className={'arena-os-chat-bubble '+(mine?'player-line':system?'system-line':'client-line')}><small>{mine?'Вы':system?'Итог системы':client.name}</small><p>{body||line}</p><time>{new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</time></div></div>})}</div>
                 {stockPicker || !activeStock ? <div className="arena-os-stock-picker"><b>Подбери акцию под конкретного человека — не просто под сумму сделки.</b><p className="arena-os-client-goal">Цель: {client.goal}</p><div className="arena-os-call-offer-summary">
                   <div><small>СУММА СДЕЛКИ</small><strong>{money(client.ticket)}</strong><span>из капитала {money(client.budget)}</span></div>
