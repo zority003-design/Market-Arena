@@ -1447,3 +1447,12 @@
   .arena-os-broker-glossary { grid-template-columns: minmax(0,1fr); }
   .arena-os-broker-glossary dl { grid-template-columns: minmax(0,1fr); }
 }
+
+
+.arena-os-desktop-icon { width: 112px; min-height: 105px; justify-content: flex-start; }
+.arena-os-desktop-icon-desc { max-width: 104px; color: #a8bdcc; font-size: 9px; font-weight: 500; line-height: 1.25; text-shadow: 0 1px 4px #000; }
+.arena-os-desktop-icon:hover .arena-os-desktop-icon-desc, .arena-os-desktop-icon.selected .arena-os-desktop-icon-desc { color: #d4e6f2; }
+@media (max-width: 760px) {
+  .arena-os-desktop-icon { width: 100px; min-height: 98px; }
+  .arena-os-desktop-icon-desc { font-size: 8px; }
+}
