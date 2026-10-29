@@ -317,6 +317,15 @@ function getResponseOptions(stock:Stock, client:ClientProfile, turn:number, comp
     { label: 'Купить сейчас, разобраться потом', text: 'Предлагаю не тратить время на отчёты и условия выхода. Купим побольше, а если что-то пойдёт не так, просто подождём.' },
     { label: 'Переложить ответственность на чужой совет', text: 'Мне эту акцию посоветовали, поэтому отдельный план не нужен. Будем смотреть на цену каждый день и решать по настроению.' },
   ]
+  const stageTerms = stage === 0
+    ? /выруч|спрос|контракт|потенциал|продаж|подпис|рост|прибыл|денежн|клиент|продукт/i
+    : stage === 1
+      ? /долг|убыт|расход|риск|паден|возврат|конкур|сценари|смет|задерж|ликвид|марж/i
+      : /провер|свер|отчет|отчёт|денежн|огранич|пересмотр|услов|критер|подтверд|сценар|доля|сравн/i
+  const companySpecific = (RESPONSE_BANK[stock.ticker] ?? []).find(option =>
+    stageTerms.test(option.text) && !/гарантирую|без риска|точно вырастет|100\\s*%|не нужен план/i.test(option.text)
+  )
+  if (companySpecific) choices[0] = companySpecific
   const rotate = (client.id.length + turn) % choices.length
   return choices.map((_, index) => choices[(index + rotate) % choices.length])
 }
