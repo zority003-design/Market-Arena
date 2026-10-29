@@ -303,8 +303,8 @@ function getResponseOptions(stock:Stock, client:ClientProfile, turn:number) {
     { label: 'Уйти от вопроса красивыми словами', text: `«Ну, ${company} — это перспективная история, рынок огромный, команда заряжена. Главное — верить в идею, а детали разберём потом».` }
   ]
   // Rotate positions so memorising button A/B/C never guarantees a win.
-  const shift = (turn + client.id.length + stock.ticker.length) % bank.length
-  return bank.map((_, index) => bank[(index + shift) % bank.length])
+  const start = (turn * 2 + (client.id.length % bank.length)) % bank.length
+  return [0, 1, 2].map(index => bank[(start + index) % bank.length])
 }
 
 export default function ArenaOS(props: Props) {
