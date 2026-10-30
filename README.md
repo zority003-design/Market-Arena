@@ -61,6 +61,8 @@ npm run preview
 
 ## Документация
 
+- [Аудит и новая система переговоров v2](docs/NEGOTIATION_REWORK_V2.md)
+
 - [Игровой дизайн v0.1](docs/GAME_DESIGN_V0.1.md)
 - [Переработка игрового цикла и визуального направления v1](docs/GAMEPLAY_REWORK_V1.md)
 - [Компании и руководители](docs/WORLD_COMPANIES_CEO.md)
