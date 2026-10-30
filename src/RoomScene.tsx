@@ -74,7 +74,7 @@ type RoomSceneProps = {
   webcamOutfit?: string
 }
 
-function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onExitCity: () => void; onCanExitCityChange: (value: boolean) => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
+function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange, webcam = false }: { active: boolean; webcam?: boolean; onInteract: () => void; onExitCity: () => void; onCanExitCityChange: (value: boolean) => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
   const { camera, gl } = useThree()
   const keys = useRef<Record<string, boolean>>({})
   const dragging = useRef(false)
@@ -96,12 +96,19 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   const introFinished = useRef(false)
 
   useEffect(() => {
-    camera.position.set(0, 1.66, 3.12)
     camera.rotation.order = 'YXZ'
-    yaw.current = 0
-    pitch.current = -0.04
+    if (webcam) {
+      // Place the virtual lens on the desk monitor and aim it back into the same room.
+      camera.position.set(0.1, 1.66, -2.42)
+      yaw.current = Math.PI
+      pitch.current = -0.14
+    } else {
+      camera.position.set(0, 1.66, 3.12)
+      yaw.current = 0
+      pitch.current = -0.04
+    }
     camera.rotation.set(pitch.current, yaw.current, 0)
-  }, [camera])
+  }, [camera, webcam])
 
   useEffect(() => {
     if (!active) { onCanInteractChange(false); onCanSleepChange(false); onCanExitCityChange(false); onNearbyObjectChange(null); nearbyObject.current = null; interactable.current = false; sleepable.current = false; exitable.current = false; keys.current = {}; return }
@@ -474,7 +481,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
           </group>}
         </group>
       })}
-      {webcam && <group position={[0.1, 0, -1.38]}><BrokerModel identity={webcamIdentity} outfit={webcamOutfit} pose="seated" /></group>}
+      {webcam && <group position={[0.1, 0, -1.38]} rotation={[0, Math.PI, 0]}><BrokerModel identity={webcamIdentity} outfit={webcamOutfit} pose="seated" /></group>}
       {/* Monitor, screen faces into the room */}
       <Box position={[0.1, 1.38, -2.64]} size={[1.42, 0.9, 0.09]} color="#151b21" roughness={0.28} metalness={0.25} />
       <mesh
@@ -687,7 +694,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       {[-0.92, 1.12].map((z) => <Box key={z} position={[0.1, 0.102, z]} size={[2.88, 0.006, 0.018]} color="#b29a70" roughness={1} />)}
       {[-1.34, 1.54].map((x) => <Box key={x} position={[x, 0.102, 0.5]} size={[0.018, 0.006, 1.84]} color="#b29a70" roughness={1} />)}
       <ContactShadows position={[0, 0.055, 0]} opacity={0.32} scale={9} blur={2.6} far={4.5} />
-      <FirstPersonRig active={active} onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={handleCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} />
+      <FirstPersonRig active={active} onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={handleCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} webcam={webcam} />
     </>
   )
 }
@@ -730,7 +737,7 @@ export function RoomWebcamScene({ identity = 'player', outfit = 'intern', ownedI
   curtainsOpen?: boolean
 }) {
   return <div className="broker-webcam-scene">
-    <Canvas shadows camera={{ position: [0, 1.66, 3.12], fov: 58, near: 0.1, far: 40 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }} onCreated={({ gl }) => { gl.setClearColor('#101922', 1); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
+    <Canvas shadows camera={{ position: [0.1, 1.66, -2.42], fov: 50, near: 0.1, far: 40 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }} onCreated={({ gl }) => { gl.setClearColor('#101922', 1); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
       <Room
         onInteract={noopRoomAction}
         onExitCity={noopRoomAction}
