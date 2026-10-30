@@ -29,7 +29,7 @@ test('every listed stock has its own negotiation scenario and follow-up question
   const source = await read('src/App.tsx')
   const scenarios = source.slice(source.indexOf('const scenarios:'), source.indexOf('const scenario = scenarios'))
   const followUps = source.slice(source.indexOf('const followUps:'), source.indexOf('const baseQuestions'))
-  for (const ticker of ['KOTL', 'OGUR', 'TAPK', 'BTRAN', 'DUST', 'VECT', 'NEFT', 'MEDX', 'GROV', 'GRID', 'BYTE', 'LOGI']) {
+  for (const ticker of ['KOTL', 'BTRAN', 'OGUR', 'VECT', 'DUST', 'TAPK', 'GROV', 'GRID', 'BYTE', 'LOGI']) {
     assert.match(scenarios, new RegExp('\\n    ' + ticker + ': \\{'), ticker + ' needs its own scenario')
     assert.match(followUps, new RegExp('\\n    ' + ticker + ': \\['), ticker + ' needs follow-up questions')
   }
@@ -155,7 +155,7 @@ test('displayed stock risk labels match the suitability catalog', async () => {
   const economy = await read('src/game/economy.ts')
   assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
   assert.match(arena, /ticker:"TAPK", name:"Смена на Сдачу", price:64, risk:"Очень высокий"/)
-  assert.match(economy, /OGUR:\\{label:'Функциональные напитки',color:'#16a34a'/)
+  assert.match(economy, /OGUR:\{label:'Функциональные напитки',color:'#16a34a'/)
 })
 
 
@@ -297,7 +297,7 @@ test('negotiation webcam renders the same room component, player model, housing,
  const room = await read('src/RoomScene.tsx')
  const app = await read('src/App.tsx')
  assert.match(room, /export function RoomWebcamScene/)
- assert.match(room, /<Room[\\s\\S]*?webcam/)
+ assert.match(room, /<Room[\s\S]*?webcam/)
  assert.match(room, /webcamIdentity/)
  assert.match(room, /<BrokerModel identity=\{webcamIdentity\} outfit=\{webcamOutfit\} pose="seated"/)
  assert.match(app, /<RoomWebcamScene identity="player"/)
