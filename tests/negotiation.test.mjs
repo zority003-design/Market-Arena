@@ -83,7 +83,7 @@ test('client mandate and damaged trust change the actual dialogue question', () 
 
 test('liquidity mandates are not mistaken for generic risk appetite', () => {
   const owner = { id: 'owner', goal: 'Диверсифицировать капитал, не замораживая деньги бизнеса', quote: 'Как быстро я смогу вернуть средства?', temperament: 'Деловая', tier: 2, ticket: 180000, budget: 1200000 }
-  const choices = negotiation.createStrategicChoices({ ...base, client: owner, trust: 50, newsImpact: 0, companyRisk: 'Средний' })
+  const choices = negotiation.createStrategicChoices({ ...base, client: owner, trust: 50, newsImpact: -2, companyRisk: 'Средний' })
   const best = choices.reduce((winner, choice) => choice.delta > winner.delta ? choice : winner)
   assert.equal(best.kind, 'wait')
   assert.match(negotiation.contextualizeNegotiationPrompt('Какова доходность?', owner, 60, 1), /быстро я смогу выйти/i)
