@@ -14,7 +14,7 @@ import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
-import { createStrategicChoices } from './game/negotiation'
+import { contextualizeNegotiationPrompt, createStrategicChoices } from './game/negotiation'
 import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
@@ -336,12 +336,12 @@ function getStockQuestions(company: typeof companies[number], client: (typeof CL
       newsImpact,
     })
   const baseQuestions = scenario.prompts.map((title, index) => ({
-    title,
+    title: contextualizeNegotiationPrompt(title, client, trust, index),
     hint: scenario.hints[index],
     choices: strategicChoices(scenario.choices[index], scenario.hints[index], index),
   }))
   const extraQuestions = (followUps[company.ticker] ?? []).map((item, index) => ({
-    title: item.title,
+    title: contextualizeNegotiationPrompt(item.title, client, trust, scenario.prompts.length + index),
     hint: item.hint,
     choices: strategicChoices(item.choices, item.hint, scenario.prompts.length + index),
   }))
