@@ -253,11 +253,11 @@ test('market has exactly ten distinct fictional companies and each has a company
  const block = arena.slice(arena.indexOf('const STOCKS: Stock[] = ['), arena.indexOf('const STOCK_DOSSIERS'))
  assert.equal((block.match(/ticker:/g)||[]).length,10)
  for (const ticker of tickers) assert.match(block,new RegExp("ticker:\\\""+ticker+"\\\""))
- assert.match(block,/Неловко Вышло/)
- assert.match(block,/Понедельник Labs/)
- assert.match(block,/Переоценка/)
+ assert.match(block,/Извините, АО/)
+ assert.match(block,/Дедлайнов Нет/)
+ assert.match(block,/Б\/У-Шик/)
  assert.match(app,/const COMPANY_BANTER/)
- assert.match(app,/Комитет по Комфорту/)
+ assert.match(app,/Жара & Порядок/)
 })
 
 test('choosing to wait can finish as a deliberate no-trade outcome', async () => {
@@ -268,4 +268,40 @@ test('choosing to wait can finish as a deliberate no-trade outcome', async () =>
   assert.match(source, /setCallStatus\(accepted \? 'deferred' : 'lost'\)/)
   assert.match(source, /ПОКУПКА ОТЛОЖЕНА/)
   assert.match(source, /callStatus === 'deferred'/)
+})
+
+test('all eight refreshed companies have distinct identities, financial hooks, and tailored dialogue', async () => {
+ const app = await read('src/App.tsx')
+ const arena = await read('src/ArenaOS.tsx')
+ const economy = await read('src/game/economy.ts')
+ const names = ['Рассол & Прибыль','Извините, АО','Шёпотный Капитал','Смена на Сдачу','Б/У-Шик','Жара & Порядок','Дедлайнов Нет','Вчера Доставим']
+ for (const name of names) {
+   assert.ok(app.includes(name), 'App company roster missing '+name)
+   assert.ok(arena.includes(name), 'ArenaOS dossier missing '+name)
+ }
+ for (const ticker of ['OGUR','VECT','DUST','TAPK','GROV','GRID','BYTE','LOGI']) {
+   assert.match(app, new RegExp(ticker + ': \\{'))
+   assert.match(arena, new RegExp(ticker + ':\\{'))
+   assert.match(economy, new RegExp(ticker + ':\\{'))
+ }
+ assert.match(app, /повторные покупки через 30 и 60 дней/)
+ assert.match(app, /долю двух крупнейших клиентов/)
+ assert.match(app, /долю закрытых и оплаченных смен/)
+ assert.match(app, /обратную доставку/)
+ assert.match(app, /погодную поправку/)
+ assert.match(app, /чистое удержание выручки/)
+ assert.match(app, /пустой обратный пробег/)
+})
+
+test('negotiation webcam renders the same room component, player model, housing, and owned room items', async () => {
+ const room = await read('src/RoomScene.tsx')
+ const app = await read('src/App.tsx')
+ assert.match(room, /export function RoomWebcamScene/)
+ assert.match(room, /<Room[\\s\\S]*?webcam/)
+ assert.match(room, /webcamIdentity/)
+ assert.match(room, /<BrokerModel identity=\{webcamIdentity\} outfit=\{webcamOutfit\} pose="seated"/)
+ assert.match(app, /<RoomWebcamScene identity="player"/)
+ assert.match(app, /ownedBusinessAssets=\{ownedBusinessAssets\}/)
+ assert.match(app, /curtainsOpen=\{curtainsOpen\}/)
+ assert.doesNotMatch(app, /<BrokerWebcamScene/)
 })
