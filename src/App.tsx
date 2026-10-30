@@ -14,6 +14,7 @@ import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
+import { createStrategicChoices } from './game/negotiation'
 import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
@@ -64,7 +65,7 @@ const COMPANY_BANTER: Record<string, string> = {
  LOGI:'«Срочно Вчера доставляет всё по срочному тарифу. Считаем прибыль на рейс, а не драму в чате».',
 }
 
-function getStockQuestions(company: typeof companies[number]) {
+function getStockQuestions(company: typeof companies[number], client: (typeof CLIENTS)[number], trust: number, newsImpact: number) {
   const scenarios: Record<string, { prompts: string[]; hints: string[]; choices: [string, string, string][] }> = {
     KOTL: {
       prompts: [
@@ -322,23 +323,27 @@ function getStockQuestions(company: typeof companies[number]) {
       { title: 'Автопарк растёт, а часть машин простаивает. Почему это опасно?', hint: 'Неиспользуемая техника создаёт постоянные расходы без выручки.', choices: ['Сравним загрузку, простои и стоимость владения каждой машиной.', 'Запас машин пригодится, когда-нибудь.', 'Остановим расширение, пока новые маршруты не обеспечат целевую загрузку.'] },
     ],
   }
+  const strategicChoices = (sourceChoices: [string, string, string], hint: string, turn: number) =>
+    createStrategicChoices({
+      sourceChoices,
+      ticker: company.ticker,
+      companyName: company.name,
+      companyRisk: company.risk,
+      hint,
+      turn,
+      client,
+      trust,
+      newsImpact,
+    })
   const baseQuestions = scenario.prompts.map((title, index) => ({
     title,
     hint: scenario.hints[index],
-    choices: [
-      { label: scenario.choices[index][0], delta: 9, kind: 'good' },
-      { label: scenario.choices[index][1], delta: -13, kind: 'bad' },
-      { label: scenario.choices[index][2], delta: 7, kind: 'good' },
-    ],
+    choices: strategicChoices(scenario.choices[index], scenario.hints[index], index),
   }))
-  const extraQuestions = (followUps[company.ticker] ?? []).map((item) => ({
+  const extraQuestions = (followUps[company.ticker] ?? []).map((item, index) => ({
     title: item.title,
     hint: item.hint,
-    choices: [
-      { label: item.choices[0], delta: 9, kind: 'good' },
-      { label: item.choices[1], delta: -13, kind: 'bad' },
-      { label: item.choices[2], delta: 7, kind: 'good' },
-    ],
+    choices: strategicChoices(item.choices, item.hint, scenario.prompts.length + index),
   }))
   return [...baseQuestions, ...extraQuestions]
 }
@@ -781,7 +786,7 @@ export default function App() {
   const marketIndexImpact = Object.values(newsImpacts).reduce((total, impact) => total + impact, 0) / 4
   const currentHousing = HOUSING.find((home) => home.id === housingId) ?? HOUSING[0]
   const businessUpgradeTier = Math.max(0, ...BUSINESS_UPGRADES.filter((upgrade) => businessUpgrades.includes(upgrade.id)).map((upgrade) => BUSINESS_UPGRADES.indexOf(upgrade) + 1))
-  const activeQuestions = getStockQuestions(activeCompany)
+  const activeQuestions = getStockQuestions(activeCompany, activeClient, trust, newsImpacts[activeCompany.ticker] ?? 0)
   const activeQuestion = activeQuestions[questionIndex]
   function openAppWindow(app: 'overview' | 'tasks' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing') {
     // Reopen an existing app when possible; a minimized app should never become lost.
