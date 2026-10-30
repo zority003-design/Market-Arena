@@ -41,7 +41,7 @@ export function contextualizeNegotiationPrompt(
   if (/сохран|не потер|резерв|безопас|осторож|ликвид/.test(profile)) {
     return title + ' Мой приоритет — ' + client.goal.toLocaleLowerCase('ru') + '. Покажите, сколько я могу потерять в плохом сценарии.'
   }
-  if (/быстро|срочно|ликвид|снять|вернуть|оборотн|понадоб/.test(profile)) {
+  if (/быстро|срочно|ликвид|снять|вернуть|оборотн|понадоб|замораж|деньги бизнеса/.test(profile)) {
     return title + ' Деньги могут понадобиться раньше прогноза. Как быстро я смогу выйти из этой позиции?'
   }
   if (/рост|доходност|прибыл|заработ|увелич|агрессив|риск/.test(profile)) {
@@ -62,8 +62,8 @@ export function createStrategicChoices(input: StrategicChoiceInput): Negotiation
   const { sourceChoices, ticker, companyName, companyRisk, hint, turn, client, trust, newsImpact } = input
   const profile = normalize(client.goal + ' ' + client.quote + ' ' + client.temperament)
   const risk = normalize(companyRisk)
-  const cautious = /сохран|не потер|резерв|безопас|осторож|ликвид|стабиль|сохранить капитал/.test(profile)
-  const growthSeeking = /рост|доходност|прибыл|заработ|увелич|агрессив|риск|капитал/.test(profile) && !cautious
+  const cautious = /сохран|не потер|резерв|безопас|осторож|ликвид|стабиль|сохранить капитал|не замораж|не рисков/.test(profile)
+  const growthSeeking = /рост|доходност|прибыл|заработ|увелич|агрессив|готов к риску/.test(profile) && !cautious
   const liquidityNeed = /быстро|срочно|ликвид|снять|вернуть|оборотн|понадоб/.test(profile)
   const highRisk = /высок|очень/.test(risk)
   const lowRisk = /низк/.test(risk)
