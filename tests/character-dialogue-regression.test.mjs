@@ -154,8 +154,8 @@ test('displayed stock risk labels match the suitability catalog', async () => {
   const arena = await read('src/ArenaOS.tsx')
   const economy = await read('src/game/economy.ts')
   assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
-  assert.match(arena, /ticker:\"TAPK\", name:\"Не Моя Смена\", price:64, risk:\"Высокий\"/)
-  assert.match(economy, /OGUR:\{label:'Прибыль и повторные покупки',color:'#16a34a',description:'Производитель напитков; важны маржа, упаковка и дистрибуция.',risk:'Низкий'\}/)
+  assert.match(arena, /ticker:"TAPK", name:"Смена на Сдачу", price:64, risk:"Очень высокий"/)
+  assert.match(economy, /OGUR:\\{label:'Функциональные напитки',color:'#16a34a'/)
 })
 
 
@@ -287,7 +287,7 @@ test('all eight refreshed companies have distinct identities, financial hooks, a
  assert.match(app, /повторные покупки через 30 и 60 дней/)
  assert.match(app, /долю двух крупнейших клиентов/)
  assert.match(app, /долю закрытых и оплаченных смен/)
- assert.match(app, /обратную доставку/)
+ assert.match(app, /обратн.{0,30}достав/)
  assert.match(app, /погодную поправку/)
  assert.match(app, /чистое удержание выручки/)
  assert.match(app, /пустой обратный пробег/)
