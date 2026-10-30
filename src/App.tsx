@@ -6,10 +6,10 @@ import {
   Sparkles, TrendingUp, Wallet, X, Zap, Users, ShoppingBag, House, Video,
   Settings, Play, Pause, RotateCcw, ArrowRight
 } from 'lucide-react'
-import RoomScene from './RoomScene'
+import RoomScene, { RoomWebcamScene } from './RoomScene'
 import CityScene from './CityScene'
 import ClientAvatar2D from './ClientAvatar2D'
-import BrokerAvatar3D, { BrokerWebcamScene } from './BrokerAvatar3D'
+import BrokerAvatar3D from './BrokerAvatar3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
@@ -1886,7 +1886,7 @@ export default function App() {
                       <div className="negotiation-call-column">
                         <div className="negotiation-video-grid">
                           <div className="negotiation-video-tile client-tile"><div className="negotiation-video-label"><span>СОБЕСЕДНИК</span><span>● LIVE</span></div><div className="negotiation-client-video"><ClientAvatar2D tier={activeClient.tier} mood={trust >= 70 ? 'interested' : trust >= 45 ? 'neutral' : 'skeptical'}/></div><div className="negotiation-video-caption"><strong>{activeClient.name}</strong><small>{activeClient.profession}</small></div></div>
-                          <div className="negotiation-video-tile self-tile"><div className="negotiation-video-label"><span>ВАШ КАДР</span><span>● ЛОКАЛЬНО</span></div><div className="negotiation-self-video room-webcam-feed"><BrokerWebcamScene identity="player" outfit={selectedOutfit} housingId={housingId}/><span>ВЫ</span></div><div className="negotiation-video-caption"><strong>Ваш брокер</strong><small>{HOUSING.find(home => home.id === housingId)?.name ?? "Твоя комната"} · 3D-камера</small></div></div>
+                          <div className="negotiation-video-tile self-tile"><div className="negotiation-video-label"><span>ВАШ КАДР</span><span>● ЛОКАЛЬНО</span></div><div className="negotiation-self-video room-webcam-feed"><RoomWebcamScene identity="player" outfit={selectedOutfit} ownedItems={ownedItems} ownedEmployees={ownedEmployees} ownedBusinessAssets={ownedBusinessAssets} businessUpgrades={businessUpgrades} housingId={housingId} gameMinutes={gameMinutes} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen}/><span>ВЫ</span></div><div className="negotiation-video-caption"><strong>Ваш брокер</strong><small>{HOUSING.find(home => home.id === housingId)?.name ?? "Твоя комната"} · 3D-камера</small></div></div>
                         </div>
                         <div className="negotiation-conversation-log" aria-label="Последние реплики переговоров">
                            {conversation.slice(-3).map((entry, index) => <div key={conversation.length - 3 + index} className={'negotiation-dialogue-line ' + entry.from}><span>{entry.from === 'you' ? 'ВЫ' : entry.from === 'system' ? 'ЗАМЕТКА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}
