@@ -1149,15 +1149,32 @@ export default function App() {
     const seed = (activeClient.id + activeCompany.ticker + questionIndex + text).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
     let clientReaction = appliedDelta >= 7 ? strong[(seed + questionIndex) % strong.length] : appliedDelta <= -8 ? weak[(seed + questionIndex) % weak.length] : mixed[(seed + questionIndex) % mixed.length]
     const companyReplies = tickerReplies[activeCompany.ticker] ?? []
-    if (companyReplies.length) {
-      clientReaction = companyReplies[questionIndex % companyReplies.length]
+    const companyAside = companyReplies.length ? companyReplies[questionIndex % companyReplies.length] : ''
+    if (companyAside) {
+      clientReaction = companyAside
       if (appliedDelta < 3) clientReaction = '«Пока это не снимает мои сомнения. Давайте вернёмся к проверяемым цифрам». ' + clientReaction
+    }
+    const decisionKind = /пауза|пока не покупать/.test(lower) ? 'wait'
+      : /поэтапный вход|поэтапно|два транша/.test(lower) ? 'staged'
+      : /пилотный вход|небольшую позицию/.test(lower) ? 'pilot' : 'free'
+    if (decisionKind === 'pilot') {
+      clientReaction = (appliedDelta >= 5
+        ? '«Ограниченный вход мне понятен: вы готовы действовать, но не ставите весь капитал на один прогноз». '
+        : '«Даже небольшая позиция — это уже риск. Покажите, почему сейчас лучше действовать, а не подождать». ') + companyAside
+    } else if (decisionKind === 'staged') {
+      clientReaction = (appliedDelta >= 5
+        ? '«Разделить покупку на этапы разумно. Но назовите условие, при котором второй транш так и не состоится». '
+        : '«Два транша звучат аккуратно, но я не хочу платить дважды за одну и ту же неопределённость». ') + companyAside
+    } else if (decisionKind === 'wait') {
+      clientReaction = (appliedDelta >= 5
+        ? '«Вы предлагаете сохранить деньги, а не продавить сделку. Это честно. Какой конкретный сигнал вернёт нас к покупке?» '
+        : '«Я пришёл за решением, а вы предлагаете ждать. Сколько времени и какой шанс роста мы готовы упустить?» ') + companyAside
     }
     if (reckless) clientReaction = '«Вы только что назвали риск гарантированным нулём. Для меня это не уверенность, а красный флаг. На этом рекомендацию прекращаем».'
     if (clientTone.includes('занят') || clientTone.includes('прямолин')) clientReaction = clientReaction.replace('«', '«Коротко: ')
     if (clientTone.includes('дотош') || clientTone.includes('аналит')) clientReaction += ' «И занесите допущение в расчёт, чтобы потом не делать вид, будто мы его не обсуждали».'
     if (clientTone.includes('импульсив') || clientTone.includes('азарт')) clientReaction += ' «Не дайте мне увлечься красивой историей: напомните лимит риска».'
-    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне: доверие −7. Для дорогого клиента фальшивый статус без качественной камеры выглядит подозрительно.' }] : []), { from: 'system' as const, text: 'Разбор ответа: доверие ' + (appliedDelta > 0 ? '+' : '') + appliedDelta + ' (' + trust + ' → ' + nextTrust + '); терпение −' + patienceCost + ' (' + patience + ' → ' + nextPatience + '). ' + (reckless ? 'Необоснованное обещание — критическая ошибка.' : evidence ? 'Ты затронул факты или риски — это помогает обосновать рекомендацию.' : 'В ответе мало проверяемых фактов: привяжи аргумент к цели клиента.') }, { from: 'client' as const, text: clientReaction }])
+    setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие в виртуальном фоне: доверие −7. Для дорогого клиента фальшивый статус без качественной камеры выглядит подозрительно.' }] : []), { from: 'system' as const, text: 'Разбор ответа: доверие ' + (appliedDelta > 0 ? '+' : '') + appliedDelta + ' (' + trust + ' → ' + nextTrust + '); терпение −' + patienceCost + ' (' + patience + ' → ' + nextPatience + '). ' + (reckless ? 'Необоснованное обещание — критическая ошибка.' : evidence ? 'Ты затронул факты или риски — это помогает обосновать рекомендацию.' : 'В ответе мало проверяемых фактов: привяжи аргумент к цели клиента.') + (decisionKind === 'pilot' ? ' Стратегия: ограниченный вход; часть риска принимается сейчас.' : decisionKind === 'staged' ? ' Стратегия: поэтапный вход; второй транш зависит от нового сигнала.' : decisionKind === 'wait' ? ' Стратегия: сохранить ликвидность; цена ожидания — возможный упущенный рост.' : '') }, { from: 'client' as const, text: clientReaction }])
     playSound('murmur'); setFreeAnswer('')
     // A poor answer can end the call immediately; reckless guarantees are a deal-breaker.
     const hardBreach = reckless || (appliedDelta <= -13 && nextTrust <= 18)
