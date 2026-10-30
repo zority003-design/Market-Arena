@@ -259,3 +259,12 @@ test('market has exactly ten distinct fictional companies and each has a company
  assert.match(app,/const COMPANY_BANTER/)
  assert.match(app,/Комитет по Комфорту/)
 })
+
+test('choosing to wait can finish as a deliberate no-trade outcome', async () => {
+  const source = await read('src/App.tsx')
+  assert.match(source, /function resolveDeferredCall\(/)
+  assert.match(source, /if \(decisionKind === 'wait'\) resolveDeferredCall\(nextTrust, nextPatience\)/)
+  assert.match(source, /setCallStatus\('deferred'\)/)
+  assert.match(source, /ПОКУПКА ОТЛОЖЕНА/)
+  assert.match(source, /callStatus === 'deferred'/)
+})
