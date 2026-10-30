@@ -28,7 +28,7 @@ test('three choices represent different actions with explicit opportunity costs'
   assert.deepEqual(choices.map(choice => choice.kind), ['pilot', 'staged', 'wait'])
   assert.equal(new Set(choices.map(choice => choice.label)).size, 3)
   assert.match(choices[0].label, /небольшую позицию/)
-  assert.match(choices[1].label, /поэтапно/)
+  assert.match(choices[1].label, /поэтапный вход|два транша/)
   assert.match(choices[2].label, /не покупать/)
   assert.match(choices[0].label, /рыночным риском/)
   assert.match(choices[1].label, /купить дороже/)
