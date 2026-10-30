@@ -11,7 +11,7 @@ export type NegotiationClientContext = {
 export type NegotiationChoice = {
   label: string
   delta: number
-  kind: 'pilot' | 'staged' | 'wait'
+  kind: 'pilot' | 'staged' | 'wait' | 'verify'
 }
 
 type StrategicChoiceInput = {
@@ -99,6 +99,15 @@ export function createStrategicChoices(input: StrategicChoiceInput): Negotiation
     (growthSeeking ? 3 : 0) -
     (lowRisk && positiveNews ? 2 : 0)
 
+  const verifyDelta =
+    3 +
+    (cautious ? 2 : 0) +
+    (lowTrust ? 2 : 0) +
+    (negativeNews ? 2 : 0) +
+    (highRisk ? 1 : 0) -
+    (growthSeeking ? 2 : 0) -
+    (positiveNews ? 1 : 0)
+
   return [
     {
       kind: 'pilot',
@@ -114,6 +123,11 @@ export function createStrategicChoices(input: StrategicChoiceInput): Negotiation
       kind: 'wait',
       delta: clamp(waitDelta),
       label: `«ПАУЗА · Пока не покупать ${company}. Сначала дождёмся подтверждения: ${hint.toLocaleLowerCase('ru')} Так мы сохраним ликвидность и не будем платить за неопределённость; обратная сторона — можем пропустить рост и остаться без сделки сегодня».`,
+    },
+    {
+      kind: 'verify',
+      delta: clamp(verifyDelta),
+      label: `«СНАЧАЛА ПРОВЕРКА · Не открывать позицию, пока не сверим ${hint.toLocaleLowerCase('ru')} Запросим отчётность и подтверждающие документы, зададим лимит допустимого убытка и вернёмся к покупке только при выполнении этих условий. Цена осторожности — можем упустить часть роста».`,
     },
   ]
 }
