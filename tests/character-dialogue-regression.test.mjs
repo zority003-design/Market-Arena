@@ -154,7 +154,7 @@ test('displayed stock risk labels match the suitability catalog', async () => {
   const arena = await read('src/ArenaOS.tsx')
   const economy = await read('src/game/economy.ts')
   assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
-  assert.match(arena, /ticker:"TAPK", name:"Смена на Сдачу", price:64, risk:"Очень высокий"/)
+  assert.match(arena, /ticker:"TAPK", name:"Подменный пункт", price:64, risk:"Очень высокий"/)
   assert.match(economy, /OGUR:\{label:'Функциональные напитки',color:'#16a34a'/)
 })
 
@@ -253,11 +253,11 @@ test('market has exactly ten distinct fictional companies and each has a company
  const block = arena.slice(arena.indexOf('const STOCKS: Stock[] = ['), arena.indexOf('const STOCK_DOSSIERS'))
  assert.equal((block.match(/ticker:/g)||[]).length,10)
  for (const ticker of tickers) assert.match(block,new RegExp("ticker:\\\""+ticker+"\\\""))
- assert.match(block,/Извините, АО/)
- assert.match(block,/Дедлайнов Нет/)
+ assert.match(block,/Кризисный завтрак/)
+ assert.match(block,/Завтра в прод/)
  assert.match(block,/Б\/У-Шик/)
  assert.match(app,/const COMPANY_BANTER/)
- assert.match(app,/Жара & Порядок/)
+ assert.match(app,/Тепло, но дорого/)
 })
 
 test('choosing to wait can finish as a deliberate no-trade outcome', async () => {
@@ -280,7 +280,7 @@ test('all eight refreshed companies have distinct identities, financial hooks, a
  const builtQuestions = app.indexOf('const baseQuestions')
  assert.ok(scenarioOverrides >= 0 && scenarioOverrides < selectedScenario, 'company overrides must be applied before selecting the dialogue')
  assert.ok(followUpOverrides >= 0 && followUpOverrides < builtQuestions, 'company follow-ups must be applied before building questions')
- const names = ['Рассол & Прибыль','Извините, АО','Шёпотный Капитал','Смена на Сдачу','Б/У-Шик','Жара & Порядок','Дедлайнов Нет','Вчера Доставим']
+ const names = ['Осадок прибыли','Кризисный завтрак','Тише едешь','Подменный пункт','Почти с витрины','Тепло, но дорого','Завтра в прод','Срочно — потом']
  for (const name of names) {
    assert.ok(app.includes(name), 'App company roster missing '+name)
    assert.ok(arena.includes(name), 'ArenaOS dossier missing '+name)
@@ -318,4 +318,13 @@ test('negotiation webcam renders the same room component, player model, housing,
  assert.doesNotMatch(arena, /<BrokerWebcamScene/)
  const avatar = await read('src/BrokerAvatar3D.tsx')
  assert.doesNotMatch(avatar, /BrokerWebcamScene/)
+})
+
+test('broker response menu contains four distinct strategy paths', async () => {
+  const source = await read('src/ArenaOS.tsx')
+  const options = source.slice(source.indexOf('function getResponseOptions'), source.indexOf('export default function ArenaOS'))
+  assert.match(options, /Запросить доказательства и критерий отказа/)
+  assert.match(options, /const riskPlan =/)
+  assert.match(options, /return \\[0,1,2,3\\]\.map/)
+  assert.match(options, /% bank\.length/)
 })
