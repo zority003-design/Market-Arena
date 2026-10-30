@@ -28,6 +28,31 @@ type StrategicChoiceInput = {
 
 const normalize = (value: string) => value.toLocaleLowerCase('ru').replace(/ё/g, 'е')
 
+export function contextualizeNegotiationPrompt(
+  title: string,
+  client: NegotiationClientContext,
+  trust: number,
+  turn: number,
+) {
+  const profile = normalize(client.goal + ' ' + client.quote + ' ' + client.temperament)
+  if (trust < 35) {
+    return title + ' И учтите: после прошлых обещаний мне нужны проверяемые факты, а не уверенный тон.'
+  }
+  if (/сохран|не потер|резерв|безопас|осторож|ликвид/.test(profile)) {
+    return title + ' Мой приоритет — ' + client.goal.toLocaleLowerCase('ru') + '. Покажите, сколько я могу потерять в плохом сценарии.'
+  }
+  if (/быстро|срочно|ликвид|снять|вернуть|оборотн|понадоб/.test(profile)) {
+    return title + ' Деньги могут понадобиться раньше прогноза. Как быстро я смогу выйти из этой позиции?'
+  }
+  if (/рост|доходност|прибыл|заработ|увелич|агрессив|риск/.test(profile)) {
+    return title + ' Я готов принять риск ради роста, но объясните, за какой именно риск мне платят.'
+  }
+  if (turn >= 3) {
+    return title + ' Не уходите от ответа: назовите условие, при котором вы сами отмените рекомендацию.'
+  }
+  return title + ' Свяжите ответ с моей целью: ' + client.goal.toLocaleLowerCase('ru') + '.'
+}
+
 /**
  * Turns a scenario's three canned answers into three genuinely different
  * investment decisions. Each option has an opportunity cost; no answer is
