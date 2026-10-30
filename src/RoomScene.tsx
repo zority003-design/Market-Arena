@@ -98,10 +98,10 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
   useEffect(() => {
     camera.rotation.order = 'YXZ'
     if (webcam) {
-      // Place the virtual lens on the desk monitor and aim it back into the same room.
-      camera.position.set(0.1, 1.66, -2.42)
+      // The in-game webcam is a second view of the live room state, mounted at monitor height and aimed at the seated broker.
+      camera.position.set(0.1, 1.58, -2.55)
       yaw.current = Math.PI
-      pitch.current = -0.14
+      pitch.current = -0.08
     } else {
       camera.position.set(0, 1.66, 3.12)
       yaw.current = 0
@@ -737,7 +737,7 @@ export function RoomWebcamScene({ identity = 'player', outfit = 'intern', ownedI
   curtainsOpen?: boolean
 }) {
   return <div className="broker-webcam-scene">
-    <Canvas shadows camera={{ position: [0.1, 1.66, -2.42], fov: 50, near: 0.1, far: 40 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }} onCreated={({ gl }) => { gl.setClearColor('#101922', 1); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
+    <Canvas shadows camera={{ position: [0.1, 1.58, -2.55], fov: 48, near: 0.1, far: 40 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }} onCreated={({ gl }) => { gl.setClearColor('#101922', 1); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
       <Room
         onInteract={noopRoomAction}
         onExitCity={noopRoomAction}
