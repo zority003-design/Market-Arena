@@ -274,6 +274,12 @@ test('all eight refreshed companies have distinct identities, financial hooks, a
  const app = await read('src/App.tsx')
  const arena = await read('src/ArenaOS.tsx')
  const economy = await read('src/game/economy.ts')
+ const scenarioOverrides = app.indexOf('Object.assign(scenarios')
+ const selectedScenario = app.indexOf('const scenario = scenarios')
+ const followUpOverrides = app.indexOf('Object.assign(followUps')
+ const builtQuestions = app.indexOf('const baseQuestions')
+ assert.ok(scenarioOverrides >= 0 && scenarioOverrides < selectedScenario, 'company overrides must be applied before selecting the dialogue')
+ assert.ok(followUpOverrides >= 0 && followUpOverrides < builtQuestions, 'company follow-ups must be applied before building questions')
  const names = ['Рассол & Прибыль','Извините, АО','Шёпотный Капитал','Смена на Сдачу','Б/У-Шик','Жара & Порядок','Дедлайнов Нет','Вчера Доставим']
  for (const name of names) {
    assert.ok(app.includes(name), 'App company roster missing '+name)
