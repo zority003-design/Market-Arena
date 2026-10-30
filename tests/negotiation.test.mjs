@@ -23,16 +23,18 @@ const base = {
   newsImpact: -2,
 }
 
-test('three choices represent different actions with explicit opportunity costs', () => {
+test('four choices represent distinct investment actions with explicit opportunity costs', () => {
   const choices = negotiation.createStrategicChoices(base)
-  assert.deepEqual(choices.map(choice => choice.kind), ['pilot', 'staged', 'wait'])
-  assert.equal(new Set(choices.map(choice => choice.label)).size, 3)
+  assert.deepEqual(choices.map(choice => choice.kind), ['pilot', 'staged', 'wait', 'verify'])
+  assert.equal(new Set(choices.map(choice => choice.label)).size, 4)
   assert.match(choices[0].label, /небольшую позицию/)
   assert.match(choices[1].label, /поэтапный вход|два транша/)
   assert.match(choices[2].label, /не покупать/)
+  assert.match(choices[3].label, /СНАЧАЛА ПРОВЕРКА/)
   assert.match(choices[0].label, /рыночным риском/)
   assert.match(choices[1].label, /купить дороже/)
   assert.match(choices[2].label, /пропустить рост/)
+  assert.match(choices[3].label, /документы/)
 })
 
 test('the best response changes with the client mandate and current market signal', () => {
