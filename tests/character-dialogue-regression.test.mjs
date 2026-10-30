@@ -325,6 +325,6 @@ test('broker response menu contains four distinct strategy paths', async () => {
   const options = source.slice(source.indexOf('function getResponseOptions'), source.indexOf('export default function ArenaOS'))
   assert.match(options, /Запросить доказательства и критерий отказа/)
   assert.match(options, /const riskPlan =/)
-  assert.match(options, /return \\[0,1,2,3\\]\.map/)
+  assert.ok(options.includes('return [0,1,2,3].map'))
   assert.match(options, /% bank\.length/)
 })
