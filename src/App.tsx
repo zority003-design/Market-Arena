@@ -1029,7 +1029,7 @@ export default function App() {
       setConversation([{ from: 'system', text: 'Проверка продукта: ' + assignedCompany.name + ' (' + assignedCompany.ticker + ') не подходит под запрос «' + activeClient.goal + '».' }, { from: 'client', text: '«Вы даже не сопоставили продукт с моей задачей? ' + fit.reason + ' Я прекращаю разговор. Сначала разберитесь, что мне нужно, потом звоните».' }, { from: 'system', text: 'Ошибка подбора: доверие −12, репутация −2. Это штраф за противоречие запросу, а не случайность.' }])
       setCallStatus('lost'); if (!embedded) setTab('calls'); setWindowMinimized(false); setWindowMaximized(!embedded); playSound('decline'); return
     }
-    const assignedQuestions = getStockQuestions(assignedCompany)
+    const assignedQuestions = getStockQuestions(assignedCompany, activeClient, trust, newsImpacts[assignedCompany.ticker] ?? 0)
     setCallCompanyTicker(assignedCompany.ticker)
     setSelectedCompany(assignedCompany.ticker)
     setCallsToday((count) => count + 1)
