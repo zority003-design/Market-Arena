@@ -69,3 +69,14 @@ test('the engine never labels an unsupported guaranteed return as a valid invest
   const dialogue = await readFile(new URL('../src/game/dialogue.ts', import.meta.url), 'utf8')
   assert.match(dialogue, /const promises = !rejectsGuarantee/)
 })
+
+test('client mandate and damaged trust change the actual dialogue question', () => {
+  const prompt = 'The company has announced a new expansion plan. What do you need to know?'
+  const cautiousPrompt = negotiation.contextualizeNegotiationPrompt(prompt, cautious, 60, 0)
+  const ambitiousPrompt = negotiation.contextualizeNegotiationPrompt(prompt, ambitious, 60, 0)
+  const distrustfulPrompt = negotiation.contextualizeNegotiationPrompt(prompt, ambitious, 20, 0)
+  assert.notEqual(cautiousPrompt, ambitiousPrompt)
+  assert.match(cautiousPrompt, /плохом сценарии/i)
+  assert.match(ambitiousPrompt, /за какой именно риск/i)
+  assert.match(distrustfulPrompt, /проверяемые факты/i)
+})
