@@ -58,9 +58,9 @@ export function createStrategicChoices(input: StrategicChoiceInput): Negotiation
     (turn === 2 ? 1 : 0)
 
   const stagedDelta =
-    5 +
+    4 +
     (cautious ? 2 : 0) +
-    (lowTrust ? 2 : 0) +
+    (lowTrust ? 1 : 0) +
     (expensiveTicket ? 1 : 0) +
     (turn === 2 || turn === 3 ? 1 : 0) -
     (positiveNews && growthSeeking ? 1 : 0)
@@ -68,7 +68,7 @@ export function createStrategicChoices(input: StrategicChoiceInput): Negotiation
   const waitDelta =
     2 +
     (cautious ? 3 : 0) +
-    (negativeNews ? 3 : 0) +
+    (negativeNews ? 4 : 0) +
     (liquidityNeed ? 2 : 0) +
     (highRisk && lowTrust ? 2 : 0) -
     (growthSeeking ? 3 : 0) -
