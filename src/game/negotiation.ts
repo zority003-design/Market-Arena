@@ -54,7 +54,7 @@ export function contextualizeNegotiationPrompt(
 }
 
 /**
- * Turns a scenario's three canned answers into three genuinely different
+ * Turns a scenario's company-specific evidence cues into four genuinely different
  * investment decisions. Each option has an opportunity cost; no answer is
  * universally optimal and the order is shuffled by the caller.
  */
