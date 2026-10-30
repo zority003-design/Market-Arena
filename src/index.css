@@ -1206,6 +1206,9 @@ button:focus-visible, textarea:focus-visible {
 .os-terminal-body:not(.desktop-home-body) .terminal-content.os-window:not(.os-window-desktop) { overflow: auto !important; }
 .os-window-titlebar { flex: 0 0 39px; }
 .in-game-self-view { display:block !important; isolation:isolate; background:linear-gradient(150deg,#253b3a,#101b20 78%) !important; }
+.in-game-self-view .broker-webcam-scene { position:absolute; inset:0; z-index:1; width:100%; height:100%; }
+.in-game-self-view .broker-webcam-scene canvas { display:block; width:100% !important; height:100% !important; }
+.in-game-self-view > small { position:absolute; z-index:5; left:8px; right:8px; bottom:8px; text-align:center; pointer-events:none; }
 .in-game-self-view .self-view-room { position:absolute; inset:0; overflow:hidden; background:linear-gradient(180deg,#263b3b 0%,#182728 58%,#11191d 59%,#0a1115 100%); }
 .in-game-self-view .self-view-window { position:absolute; top:8%; left:8%; width:35%; height:37%; border:3px solid #596762; background:linear-gradient(180deg,#6e9ca8,#d4bd8c 56%,#4d6d65 57%,#233d3a); box-shadow:0 0 18px rgba(128,199,182,.16); }
 .in-game-self-view .self-view-window::after { content:""; position:absolute; left:8%; right:8%; bottom:0; height:45%; background:repeating-linear-gradient(90deg,#314a4e 0 8px,#8ba2a0 8px 11px,#263a3f 11px 17px); opacity:.88; }
