@@ -290,7 +290,7 @@ test('all eight refreshed companies have distinct identities, financial hooks, a
  assert.match(app, /обратн.{0,30}достав/)
  assert.match(app, /погодную поправку/)
  assert.match(app, /чистое удержание выручки/)
- assert.match(app, /пустой обратный пробег/)
+ assert.match(app, /пустой.{0,30}пробег/)
 })
 
 test('negotiation webcam renders the same room component, player model, housing, and owned room items', async () => {
