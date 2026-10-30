@@ -1104,13 +1104,20 @@ export default function App() {
   }
 
   function resolveDeferredCall(nextTrust: number, nextPatience: number) {
-    const earnedXp = 20
+    const accepted = nextTrust >= getClientTrustRequirement(activeClient) && nextPatience > 20
+    const earnedXp = accepted ? 20 : 10
     setXp((value) => value + earnedXp)
-    setReputation((value) => Math.min(100, value + 1))
-    setCallStatus('deferred')
-    setLastResult(activeClient.name + ' согласился отложить покупку ' + activeCompany.name + '. Сделка и комиссия не начислены, клиентский капитал остался нетронутым. Доверие: ' + nextTrust + '/100; терпение: ' + nextPatience + '/100. Получено +' + earnedXp + ' XP за обоснованное решение не торопить клиента.')
-    setConversation((items) => [...items, { from: 'system', text: 'ПОКУПКА ОТЛОЖЕНА. Клиент сохранил ликвидность, брокер не получил комиссию, но доверие и репутация за честную рекомендацию сохранены. Вернись к этому клиенту после появления нового сигнала.' }])
-    playSound('notification')
+    setCallStatus(accepted ? 'deferred' : 'lost')
+    if (accepted) {
+      setReputation((value) => Math.min(100, value + 1))
+      setLastResult(activeClient.name + ' согласился отложить покупку ' + activeCompany.name + '. Сделка и комиссия не начислены, клиентский капитал остался нетронутым. Доверие: ' + nextTrust + '/100; терпение: ' + nextPatience + '/100. Получено +' + earnedXp + ' XP за обоснованное решение не торопить клиента.')
+      setConversation((items) => [...items, { from: 'system', text: 'ПОКУПКА ОТЛОЖЕНА. Клиент сохранил ликвидность, брокер не получил комиссию, но доверие и репутация за честную рекомендацию сохранены. Вернись к этому клиенту после появления нового сигнала.' }])
+    } else {
+      setReputation((value) => Math.max(0, value - 2))
+      setLastResult(activeClient.name + ' не согласился ждать и завершил разговор без сделки. Доверие: ' + nextTrust + '/100; терпение: ' + nextPatience + '/100. Репутация −2. Получено +' + earnedXp + ' XP.')
+      setConversation((items) => [...items, { from: 'system', text: 'ПАУЗА НЕ ПРИНЯТА. Клиенту нужна была другая рекомендация или более убедительное объяснение цены ожидания. Покупки и комиссии нет.' }])
+    }
+    playSound(accepted ? 'notification' : 'hangup')
   }
 
   function toggleVideo() {
