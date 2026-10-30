@@ -102,7 +102,6 @@ function getStockQuestions(company: typeof companies[number], client: (typeof CL
       ],
     },
   }
-  const scenario = scenarios[company.ticker] ?? scenarios.KOTL
   const followUps: Record<string, { title: string; hint: string; choices: [string, string, string] }[]> = {
     KOTL: [
       { title: 'Сколько квартир нужно продать, чтобы покрыть проценты по проектному долгу?', hint: 'Для застройщика важны распроданность, стоимость финансирования и сроки сдачи.', choices: ['Сопоставим темп продаж, цену квадратного метра и проценты по долгу; проверим запас ликвидности.', 'Квартиры всегда дорожают, поэтому продавать заранее не обязательно.', 'Сравним сценарии базовых и слабых продаж и заранее определим условия пересмотра.'] },
@@ -251,6 +250,7 @@ function getStockQuestions(company: typeof companies[number], client: (typeof CL
       ],
     },
   })
+  const scenario = scenarios[company.ticker] ?? scenarios.KOTL
   Object.assign(followUps, {
     OGUR: [
       { title: 'После рекламной кампании возвраты бутылок выросли. Это качество продукта или логистика?', hint: 'Раздели производственный брак, повреждения в пути и поведение покупателей.', choices: ['Сверим партии, причины возвратов и стоимость списаний по каналам.', 'Возвраты — это просто дополнительный контакт с брендом.', 'Приостановим проблемную партию и проверим поставщика упаковки.'] },
