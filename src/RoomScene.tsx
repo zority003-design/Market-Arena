@@ -69,6 +69,9 @@ type RoomSceneProps = {
   deskLampOn: boolean
   roomLightOn: boolean
   curtainsOpen: boolean
+  webcam?: boolean
+  webcamIdentity?: string
+  webcamOutfit?: string
 }
 
 function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onExitCity: () => void; onCanExitCityChange: (value: boolean) => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
@@ -306,7 +309,7 @@ function FloorBoards({ housingId }: { housingId: string }) {
 }
 
 
-function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen, webcam = false, webcamIdentity = 'player', webcamOutfit = 'intern' }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
@@ -471,6 +474,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
           </group>}
         </group>
       })}
+      {webcam && <group position={[0.1, 0, -1.38]}><BrokerModel identity={webcamIdentity} outfit={webcamOutfit} pose="seated" /></group>}
       {/* Monitor, screen faces into the room */}
       <Box position={[0.1, 1.38, -2.64]} size={[1.42, 0.9, 0.09]} color="#151b21" roughness={0.28} metalness={0.25} />
       <mesh
@@ -708,4 +712,50 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
       {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
     </div>
   )
+}
+
+
+const noopRoomAction = () => {}
+export function RoomWebcamScene({ identity = 'player', outfit = 'intern', ownedItems = [], ownedEmployees = [], ownedBusinessAssets = [], businessUpgrades = [], housingId = 'studio', gameMinutes = 720, deskLampOn = false, roomLightOn = true, curtainsOpen = true }: {
+  identity?: string
+  outfit?: string
+  ownedItems?: string[]
+  ownedEmployees?: string[]
+  ownedBusinessAssets?: string[]
+  businessUpgrades?: string[]
+  housingId?: string
+  gameMinutes?: number
+  deskLampOn?: boolean
+  roomLightOn?: boolean
+  curtainsOpen?: boolean
+}) {
+  return <div className="broker-webcam-scene">
+    <Canvas shadows camera={{ position: [0, 1.66, 3.12], fov: 58, near: 0.1, far: 40 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }} onCreated={({ gl }) => { gl.setClearColor('#101922', 1); gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.12 }}>
+      <Room
+        onInteract={noopRoomAction}
+        onExitCity={noopRoomAction}
+        onCanExitCityChange={noopRoomAction}
+        onCanInteractChange={noopRoomAction}
+        onInteractObject={noopRoomAction}
+        onNearbyObjectChange={noopRoomAction}
+        introActive={false}
+        onIntroComplete={noopRoomAction}
+        active={false}
+        ownedItems={ownedItems}
+        ownedEmployees={ownedEmployees}
+        ownedBusinessAssets={ownedBusinessAssets}
+        businessUpgrades={businessUpgrades}
+        housingId={housingId}
+        gameMinutes={gameMinutes}
+        onSleepInteract={noopRoomAction}
+        onCanSleepChange={noopRoomAction}
+        deskLampOn={deskLampOn}
+        roomLightOn={roomLightOn}
+        curtainsOpen={curtainsOpen}
+        webcam
+        webcamIdentity={identity}
+        webcamOutfit={outfit}
+      />
+    </Canvas>
+  </div>
 }
