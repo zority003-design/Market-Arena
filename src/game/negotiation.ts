@@ -64,7 +64,7 @@ export function createStrategicChoices(input: StrategicChoiceInput): Negotiation
   const risk = normalize(companyRisk)
   const cautious = /сохран|не потер|резерв|безопас|осторож|ликвид|стабиль|сохранить капитал|не замораж|не рисков/.test(profile)
   const growthSeeking = /рост|доходност|прибыл|заработ|увелич|агрессив|готов к риску/.test(profile) && !cautious
-  const liquidityNeed = /быстро|срочно|ликвид|снять|вернуть|оборотн|понадоб/.test(profile)
+  const liquidityNeed = /быстро|срочно|ликвид|снять|вернуть|оборотн|понадоб|замораж|деньги бизнеса/.test(profile)
   const highRisk = /высок|очень/.test(risk)
   const lowRisk = /низк/.test(risk)
   const lowTrust = trust < 38
