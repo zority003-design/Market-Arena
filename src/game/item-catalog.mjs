@@ -1,6 +1,6 @@
 /** Curated, gameplay-backed personal item catalog for Market Arena. Prices are one-time RUB purchases. */
 export const ITEM_CATALOG = [
-  {id:'style-oxford-shirt',name:'Рубашка Oxford',category:'clothing',slot:'top',price:1400,rarity:'common',material:'Хлопок Oxford',description:'Универсальная рубашка для встреч и рабочего дня.',tags:['business','classic'],effect:{professional:3},color:'#d8e2e2'},
+  {id:'style-oxford-shirt',name:'Рубашка Oxford',category:'clothing',slot:'top',wearable:'shirt',price:1400,rarity:'common',material:'Хлопок Oxford',description:'Универсальная рубашка для встреч и рабочего дня.',tags:['business','classic'],effect:{professional:3},color:'#d8e2e2'},
   {id:'style-knitwear',name:'Трикотажный джемпер',category:'clothing',slot:'top',price:2200,rarity:'uncommon',material:'Мериносовая смесь',description:'Спокойный smart-casual образ для неформальных переговоров.',tags:['casual','modern'],effect:{approachable:3},color:'#738b83'},
   {id:'style-hoodie',name:'Городское худи',category:'clothing',slot:'top',price:1900,rarity:'common',material:'Плотный футер',description:'Повседневный вариант для встреч с молодыми основателями.',tags:['casual','modern'],effect:{approachable:2},color:'#647b91'},
   {id:'style-tailored-blazer',name:'Структурный пиджак',category:'clothing',slot:'top',price:5900,rarity:'rare',material:'Шерсть и вискоза',description:'Чёткий силуэт для официальных встреч и презентаций.',tags:['business','formal'],effect:{professional:6},color:'#24394b'},
@@ -34,8 +34,12 @@ export function getItemById(id){ return ITEM_CATALOG.find(item=>item.id===id) ??
 export function getEquippedAppearance(ids=[]){
   const equipped=ids.map(getItemById).filter(Boolean);
   const bySlot=Object.fromEntries(equipped.map(item=>[item.slot,item]));
+  const top = bySlot.top;
   return {
-    jacketColor:bySlot.top?.color ?? bySlot.fullset?.color, trousersColor:bySlot.bottom?.color, shoeColor:bySlot.shoes?.color,
+    jacketColor:top && top.wearable !== 'shirt' ? top.color : bySlot.fullset?.color,
+    shirtColor:top?.wearable === 'shirt' ? top.color : undefined,
+    trousersColor:bySlot.bottom?.color,
+    shoeColor:bySlot.shoes?.color,
     watch:!!bySlot.wrist, glasses:!!bySlot.face, backpack:!!bySlot.back, belt:!!bySlot.waist,
     equippedIds:equipped.map(item=>item.id)
   };
