@@ -15,19 +15,23 @@ type Props = {
 }
 const money=(n:number)=>n.toLocaleString('ru-RU')+' ₽'
 const RARITY_CLASS:Record<string,string>={common:'common',uncommon:'uncommon',rare:'rare',elite:'elite',exclusive:'exclusive'}
+const SKIN_TONES=[{label:'Светлый',value:'#f0c09a'},{label:'Тёплый',value:'#d8a17d'},{label:'Оливковый',value:'#b97955'},{label:'Глубокий',value:'#8d5a42'}]
+const HAIR_COLORS=[{label:'Тёмный',value:'#30251f'},{label:'Каштановый',value:'#4b3028'},{label:'Русый',value:'#9a6943'},{label:'Чёрный',value:'#171b20'},{label:'Медовый',value:'#b68b56'}]
 export default function ItemMarketplace({mode,cash,ownedItems,onBuy,saveSlot,outfit,onAppearanceChange}:Props){
   const [category,setCategory]=useState(mode==='equipment'?'equipment':'all')
   const [query,setQuery]=useState('')
   const [selected,setSelected]=useState<string|null>(null)
+  const [customization,setCustomization]=useState<{skinTone:string;hairColor:string;hairStyle:number}>(()=>{try{return JSON.parse(localStorage.getItem('market-arena-character-appearance-'+saveSlot)||'{"skinTone":"#d8a17d","hairColor":"#30251f","hairStyle":0}')}catch{return {skinTone:'#d8a17d',hairColor:'#30251f',hairStyle:0}}})
   const [equipped,setEquipped]=useState<string[]>(()=>{
     try { const value=JSON.parse(localStorage.getItem('market-arena-equipped-'+saveSlot)||'[]'); return Array.isArray(value)?value.filter((id:string)=>ITEM_CATALOG.some(item=>item.id===id)):[] } catch{return []}
   })
   useEffect(()=>{try{localStorage.setItem('market-arena-equipped-'+saveSlot,JSON.stringify(equipped))}catch{}},[equipped,saveSlot])
+  useEffect(()=>{try{localStorage.setItem('market-arena-character-appearance-'+saveSlot,JSON.stringify(customization))}catch{}},[customization,saveSlot])
   useEffect(()=>{onAppearanceChange?.(equipped)},[equipped,onAppearanceChange])
   useEffect(()=>{setCategory(mode==='equipment'?'equipment':'all')},[mode])
   const visible=useMemo(()=>ITEM_CATALOG.filter(item=>(mode==='equipment'?item.category==='equipment':item.category!=='equipment'&&item.slot!=='fullset')&&(category==='all'||item.category===category)&&(!query||[item.name,item.description,item.material].join(' ').toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))),[category,mode,query])
   const current=visible.find(item=>item.id===selected)??visible[0]
-  const appearance=getEquippedAppearance(equipped)
+  const appearance={...getEquippedAppearance(equipped),...customization}
   const social=evaluateSocialAppearance(equipped,'business')
   const equip=(id:string)=>setEquipped(old=>{const item=ITEM_CATALOG.find(entry=>entry.id===id);if(!item)return old;const same=old.includes(id);const without=old.filter(existing=>ITEM_CATALOG.find(entry=>entry.id===existing)?.slot!==item.slot);return same?without:[...without,id]})
   const categories=mode==='equipment'?ITEM_CATEGORIES.filter(item=>item.id==='equipment'):ITEM_CATEGORIES.filter(item=>item.id!=='equipment')
@@ -40,7 +44,7 @@ export default function ItemMarketplace({mode,cash,ownedItems,onBuy,saveSlot,out
     </section>
     <section className="marketplace-catalog">
       <div className="marketplace-heading"><div><span className="marketplace-eyebrow">{mode==='equipment'?'WORKSPACE UPGRADES':'ARENA STYLE'}</span><h2>{mode==='equipment'?'Оборудование':'Гардероб и аксессуары'}</h2><p>{mode==='equipment'?'Покупки открывают игровые преимущества, а не остаются декором.':'Собери комплект под характер встречи. Предметы сохраняются между сессиями.'}</p></div><div className="marketplace-balance"><small>ДОСТУПНО</small><b>{money(cash)}</b></div></div>
-      <div className="marketplace-toolbar"><div className="marketplace-search"><Search size={16}/><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Найти предмет или материал"/></div><div className="marketplace-categories">{categories.map(item=><button key={item.id} className={category===item.id?'active':''} onClick={()=>setCategory(item.id)}>{item.label}</button>)}</div></div>
+      <div className="marketplace-customizer"><div><label>ТОН КОЖИ</label><select value={customization.skinTone} onChange={event=>setCustomization(old=>({...old,skinTone:event.target.value}))}>{SKIN_TONES.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></div><div><label>ЦВЕТ ВОЛОС</label><select value={customization.hairColor} onChange={event=>setCustomization(old=>({...old,hairColor:event.target.value}))}>{HAIR_COLORS.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></div><div><label>ПРИЧЁСКА</label><select value={customization.hairStyle} onChange={event=>setCustomization(old=>({...old,hairStyle:Number(event.target.value)}))}><option value={0}>Короткая</option><option value={1}>Укладка</option><option value={2}>Объёмная</option><option value={3}>Боковой пробор</option></select></div></div><div className="marketplace-toolbar"><div className="marketplace-search"><Search size={16}/><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Найти предмет или материал"/></div><div className="marketplace-categories">{categories.map(item=><button key={item.id} className={category===item.id?'active':''} onClick={()=>setCategory(item.id)}>{item.label}</button>)}</div></div>
       <div className="marketplace-content">
         <div className="marketplace-items">{visible.map(item=>{const owned=ownedItems.includes(item.id);const isEquipped=equipped.includes(item.id);return <article key={item.id} className={'marketplace-item '+(selected===item.id?'selected ':'')+(owned?'owned':'')} onClick={()=>setSelected(item.id)}>
           <div className="marketplace-item-art" style={{'--item-color':item.color} as CSSProperties}><span>{item.category==='equipment'?<Laptop size={29}/>:item.slot==='face'?<Glasses size={29}/>:<Shirt size={29}/>}</span><small>{item.slot.toUpperCase()}</small></div>
