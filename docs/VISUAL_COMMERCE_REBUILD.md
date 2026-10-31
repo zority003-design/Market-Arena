@@ -12,6 +12,7 @@ This is the first integrated visual-commerce slice on top of the existing Market
 
 - `src/game/item-catalog.mjs`: curated catalog for clothing, shoes, accessories, base suit sets and workspace equipment. Items have unique IDs, RUB prices, rarity, materials, descriptions, contextual tags and effect metadata.
 - `src/game/shop-engine.mjs`: pure atomic purchase operation built on `transact()`, duplicate ownership checks and per-operation idempotency; slot-exclusive equipment logic.
+- `src/design-system.css`: shared visual tokens, focus-visible treatment, dark UI color scheme and reduced-motion defaults, loaded globally from `src/main.tsx`.
 - `src/ItemMarketplace.tsx` / `src/ItemMarketplace.css`: redesigned shop and inventory view with live 3D preview, search, categories, owned-items filter, sorting, balance, item details, materials, rarity, price and effect description.
 - `src/BrokerAvatar3D.tsx`: the existing procedural Three.js model now reads saved equipped clothing/accessories and appearance customization. Jacket, trousers and shoe colors, watch, glasses, backpack, belt, skin tone, hair color and hairstyle can change the rendered model.
 - `src/ArenaOS.tsx`: wardrobe and equipment screens use the new catalog; appearance context contributes to the negotiation chance; call-quality, market-analysis and room-comfort effects are connected to the existing negotiation calculation.
