@@ -621,7 +621,7 @@ export default function App() {
   const [cityBonus, setCityBonus] = useState(0)
 
   useEffect(() => {
-    if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Ignore unavailable storage. */ } }
+    if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career'); localStorage.removeItem('market-arena-equipped-' + activeSaveSlot); localStorage.removeItem('market-arena-character-appearance-' + activeSaveSlot) } catch { /* Ignore unavailable storage. */ } }
   }, [startNewCareerOnLoad])
 
   useEffect(() => {
