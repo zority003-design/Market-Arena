@@ -67,7 +67,6 @@ type RoomSceneProps = {
   onCanSleepChange: (value: boolean) => void
   deskLampOn: boolean
   roomLightOn: boolean
-  curtainsOpen: boolean
 }
 
 function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onExitCity: () => void; onCanExitCityChange: (value: boolean) => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
@@ -305,7 +304,7 @@ function FloorBoards({ housingId }: { housingId: string }) {
 }
 
 
-function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
@@ -337,7 +336,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <fog attach="fog" args={['#101922', 8, 18]} />
       <ambientLight intensity={roomLightOn ? 0.62 : 0.2} />
       <hemisphereLight args={['#b8d7ed', '#25252a', roomLightOn ? 0.72 : 0.28]} />
-      {/* Daylight comes from the left-side window; avoid the oversized shadow beam that looked like a sun-ray cone inside the room. */}
+      {/* Soft ambient light keeps the solid-walled room readable without a fake window light source. */}
       <directionalLight position={[-5.2, 3.8, -0.4]} intensity={roomLightOn ? 0.72 : 0.12} color="#fff0d5" />
 
       <pointLight ref={glowRef} position={[0, 1.55, -2.12]} intensity={1.2} distance={2.8} color="#31d6a0" />
@@ -688,7 +687,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   )
 }
 
-export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn }: RoomSceneProps) {
   return (
     <div className="room-scene-root">
       <Canvas
@@ -703,7 +702,7 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
           gl.toneMappingExposure = 1.12
         }}
       >
-        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} ownedEmployees={ownedEmployees} ownedBusinessAssets={ownedBusinessAssets} businessUpgrades={businessUpgrades} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} ownedEmployees={ownedEmployees} ownedBusinessAssets={ownedBusinessAssets} businessUpgrades={businessUpgrades} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} />
       </Canvas>
       {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
     </div>
