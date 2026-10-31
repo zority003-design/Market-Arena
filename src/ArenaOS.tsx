@@ -229,7 +229,7 @@ export default function ArenaOS(props: Props) {
   const client = useMemo(() => (CLIENTS.find(c => c.id === clientId) ?? CLIENTS[0]) as ClientProfile,[clientId])
   const unlockedClients = useMemo(() => CLIENTS.filter(c => getClientEquipmentAccess(c, props.ownedItems).available && (newContacts.includes(c.id) || (props.day >= 3 && c.minDay <= props.day && c.minReputation <= props.reputation) || (props.businessUpgrades.includes('lead-network') && c.minDay <= props.day + 2 && c.minReputation <= props.reputation + 10) || (props.businessUpgrades.includes('client-crm') && c.minDay <= props.day + 3 && c.minReputation <= props.reputation + 15))),[props.day,props.reputation,newContacts,props.businessUpgrades,props.ownedItems])
   const catalogEquipment = getEquipmentEffects(props.ownedItems)
-  const equipmentBonus = GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0) + (catalogEquipment.callQuality ?? 0)
+  const equipmentBonus = Math.max(GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0), catalogEquipment.callQuality ?? 0)
   const currentHousing = HOUSING.find(home => home.id === props.housingId) ?? HOUSING[0]
   const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client) + (catalogEquipment.roomComfort ?? 0)
   const estimatedBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * 1.25)))
