@@ -12,7 +12,7 @@ import ClientAvatar2D from './ClientAvatar2D'
 import BrokerAvatar3D, { BrokerWebcamScene } from './BrokerAvatar3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
-import ArenaOS from './ArenaOS'
+import ArenaOS from './ArenaOS'\nimport { createEconomy } from './game/economy-engine.mjs'\nimport { purchaseCatalogItem } from './game/shop-engine.mjs'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -361,7 +361,7 @@ function readSave(slot = getActiveSaveSlot()) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string; shopProcessed?: string[] }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -579,7 +579,7 @@ export default function App() {
   const [ownedBusinessAssets, setOwnedBusinessAssets] = useState<string[]>(saved.ownedBusinessAssets ?? [])
   const [ownedEmployees, setOwnedEmployees] = useState<string[]>(saved.ownedEmployees ?? [])
   const [companyName, setCompanyName] = useState(saved.companyName ?? '')
-  const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])
+  const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])\n  const [shopProcessed, setShopProcessed] = useState<string[]>(saved.shopProcessed ?? [])
   const [selectedClientId, setSelectedClientId] = useState(saved.selectedClientId ?? 'alex-vorontsov')
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
   const [clientDealCounts, setClientDealCounts] = useState<Record<string, number>>(saved.clientDealCounts ?? {})
@@ -655,8 +655,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
+    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, shopProcessed, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName, shopProcessed])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -845,7 +845,7 @@ export default function App() {
     setOwnedBusinessAssets(data.ownedBusinessAssets ?? [])
     setOwnedEmployees(data.ownedEmployees ?? [])
     setCompanyName(data.companyName ?? '')
-    setOwnedItems(data.ownedItems ?? [])
+    setOwnedItems(data.ownedItems ?? [])\n    setShopProcessed(data.shopProcessed ?? [])
     setSelectedClientId(data.selectedClientId ?? 'alex-vorontsov')
     setClientLastContactDay(data.clientLastContactDay ?? {})
     setClientDealCounts(data.clientDealCounts ?? {})
@@ -1239,6 +1239,23 @@ export default function App() {
     setToast('Куплено: ' + item.name + '. Предмет появился в комнате. Его бонус к первому впечатлению и качеству связи будет применяться автоматически.')
   }
 
+  function handleCatalogPurchase(itemId: string, price: number, description: string) {
+    try {
+      const economy = createEconomy({ cash, processed: shopProcessed })
+      const result = purchaseCatalogItem(economy, ownedItems, itemId, 'shop:' + activeSaveSlot + ':' + itemId, { day, reputation })
+      if (result.item.price !== price) throw new Error('Цена предмета изменилась. Обнови магазин.')
+      setCash(result.economy.cash)
+      setOwnedItems(result.inventory)
+      setShopProcessed(result.economy.processed)
+      setToast('Куплено: ' + description + '. Деньги списаны с общего личного баланса.')
+      playSound('purchase')
+      return true
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : 'Не удалось завершить покупку.')
+      return false
+    }
+  }
+
   function moveToHousing(homeId: string) {
     const home = HOUSING.find((candidate) => candidate.id === homeId)
     if (!home || home.id === housingId) return
@@ -1456,7 +1473,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onPurchase={handleCatalogPurchase} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
