@@ -460,7 +460,7 @@ export default function ArenaOS(props: Props) {
     const upgrade = BUSINESS_UPGRADES.find(item => item.id === id)
     if (!upgrade || props.businessUpgrades.includes(id)) return
     if (props.day < upgrade.minDay || props.reputation < upgrade.minReputation) { setNotice('Требуется день ' + upgrade.minDay + ' и репутация ' + upgrade.minReputation + '.'); return }
-    if (props.cash < upgrade.price) { setNotice('В капитале фирмы не хватает ' + money(upgrade.price - props.cash) + '.'); return }
+    if (props.cash < upgrade.price) { setNotice('На общем балансе не хватает ' + money(upgrade.price - props.cash) + '.'); return }
     if (!props.transactMoney(-upgrade.price, 'Бизнес-улучшение: ' + upgrade.name, 'upgrade:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setBusinessUpgrades(value => [...value, id])
     setNotice('Бизнес улучшен: ' + upgrade.name + '. Изменения действуют со следующего звонка.')
@@ -478,7 +478,7 @@ export default function ArenaOS(props: Props) {
       return
     }
     if (props.cash < asset.price) {
-      setNotice('В капитале фирмы не хватает ' + money(asset.price - props.cash) + '. Покупка спишет деньги с общего баланса.')
+      setNotice('На общем балансе не хватает ' + money(asset.price - props.cash) + '. Покупка спишет деньги с общего баланса.')
       return
     }
     if (!props.transactMoney(-asset.price, 'Покупка бизнес-актива: ' + asset.name, 'business-asset:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
@@ -493,7 +493,7 @@ export default function ArenaOS(props: Props) {
     if (!officeOpen && !props.ownedItems.includes('partner-desk')) { setNotice('Сначала купи второй рабочий стол для квартиры.'); return }
     if (props.ownedEmployees.length >= capacity) { setNotice(officeOpen ? 'В этом офисе уже заняты все 5 рабочих мест.' : 'В квартире помещается только один дополнительный брокер. Купи офис, чтобы расширить команду до пяти сотрудников.'); return }
     if (props.day < employee.minDay || props.reputation < employee.minReputation) { setNotice('Для найма нужны день ' + employee.minDay + ' и репутация ' + employee.minReputation + '.'); return }
-    if (props.cash < employee.price) { setNotice('В капитале фирмы не хватает ' + money(employee.price - props.cash) + ' на найм.'); return }
+    if (props.cash < employee.price) { setNotice('На общем балансе не хватает ' + money(employee.price - props.cash) + ' на найм.'); return }
     if (!props.transactMoney(-employee.price, 'Найм сотрудника: ' + employee.name, 'employee:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setOwnedEmployees(value => [...value, id])
     setNotice('В команду принят сотрудник: ' + employee.name + '. Зарплата автоматически вычитается из его выручки; фирме начисляется только чистый остаток +' + money(employee.dailyRevenue - employee.dailySalary) + '.')
