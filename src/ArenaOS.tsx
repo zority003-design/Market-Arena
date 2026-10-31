@@ -41,6 +41,7 @@ type Props = {
   ownedOutfits: OutfitId[]; setOwnedOutfits: Dispatch<SetStateAction<OutfitId[]>>
   ownedItems: string[]; setOwnedItems: Dispatch<SetStateAction<string[]>>
   clientTrustScores: Record<string, number>; setClientTrustScores: Dispatch<SetStateAction<Record<string, number>>>
+  clientMemory: Record<string, string[]>; setClientMemory: Dispatch<SetStateAction<Record<string, string[]>>>
   onClose: () => void
   onEndDay: () => void
   initialApp?: AppId
@@ -336,6 +337,8 @@ export default function ArenaOS(props: Props) {
     setTrust(starterTrust); setPatience(Math.min(95, selected.patience + Math.round(currentHousing.comfort*.8))); setLastChance(0)
     const lines = [selected.name + ' подключился к звонку.']
     lines.push(...getEquipmentOpening(selected, props.ownedItems).map(line => line.startsWith('Клиент') ? line : 'Клиент: ' + line))
+    const memoryFacts = props.clientMemory[selected.id] ?? []
+    if (memoryFacts.length) lines.push('Клиент помнит прошлые разговоры: ' + memoryFacts.map(fact => fact === 'overpromised' ? 'раньше ты обещал слишком уверенный результат' : fact === 'transparent' ? 'ты открыто говорил о рисках' : fact === 'evidence' ? 'ты приводил проверяемые факты' : fact === 'admitted-error' ? 'ты признавал ошибку' : 'вы уже обсуждали условия').join('; ') + '. Это влияет на доверие.')
     lines.push(selected.tier <= 1 ? selected.quote.replace(/катализатор/gi,'что может помочь компании расти').replace(/ликвидность/gi,'как быстро вернуть деньги').replace(/денежный поток/gi,'сколько денег остаётся').replace(/выручка/gi,'деньги от продаж').replace(/маржа/gi,'сколько остаётся после расходов').replace(/капитал/gi,'деньги').replace(/диверсификация/gi,'разделение денег между вариантами') : selected.quote)
     setCallLog(lines); setMessage(''); setActiveApp('calls'); setWindowOpen(true); setWindowMinimized(false)
   }
@@ -361,9 +364,18 @@ export default function ArenaOS(props: Props) {
   const respond = (kind:'benefit'|'risk'|'absurd'|'free', custom='') => {
     if(callState!=='active') return
     const text = custom.trim()
+    if (text) props.setClientMemory(memory => {
+      const facts = new Set(memory[client.id] ?? [])
+      const normalized = text.toLocaleLowerCase('ru').replace(/ё/g, 'е')
+      if (/гарантирую|гарантированно выраст|без риска|точно вырастет|не может упасть|удвоим|верняк/.test(normalized)) facts.add('overpromised')
+      if (/риск|убыт|потер|просад|долг|не обещаю|никаких гарантий/.test(normalized)) facts.add('transparent')
+      if (/провер|отчет|контракт|выруч|марж|сценари|если|огранич/.test(normalized)) facts.add('evidence')
+      if (/извин|ошиб|неправ|поторопил/.test(normalized)) facts.add('admitted-error')
+      return { ...memory, [client.id]: [...facts].slice(-5) }
+    })
     let delta = 0; let reply = ''
     if(kind==='free') {
-      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience })
+      const evaluation = evaluateFreeReply(text, client, activeStock, dialogueTurn, props.ownedItems, { trust, patience, memory: props.clientMemory[client.id] ?? [] })
       delta = evaluation.delta
       reply = evaluation.reply
     } else if(kind==='benefit') {
