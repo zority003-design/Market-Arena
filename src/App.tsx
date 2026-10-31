@@ -583,6 +583,7 @@ export default function App() {
   const [companyName, setCompanyName] = useState(saved.companyName ?? '')
   const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])
   const [shopProcessed, setShopProcessed] = useState<string[]>(saved.shopProcessed ?? [])
+  const shopProcessedRef = useRef<string[]>(saved.shopProcessed ?? [])
   const [selectedClientId, setSelectedClientId] = useState(saved.selectedClientId ?? 'alex-vorontsov')
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
   const [clientDealCounts, setClientDealCounts] = useState<Record<string, number>>(saved.clientDealCounts ?? {})
@@ -849,6 +850,7 @@ export default function App() {
     setOwnedEmployees(data.ownedEmployees ?? [])
     setCompanyName(data.companyName ?? '')
     setOwnedItems(data.ownedItems ?? [])
+    shopProcessedRef.current = data.shopProcessed ?? []
     setShopProcessed(data.shopProcessed ?? [])
     setSelectedClientId(data.selectedClientId ?? 'alex-vorontsov')
     setClientLastContactDay(data.clientLastContactDay ?? {})
@@ -1245,11 +1247,12 @@ export default function App() {
 
   function handleCatalogPurchase(itemId: string, price: number, description: string) {
     try {
-      const economy = createEconomy({ cash, processed: shopProcessed })
+      const economy = createEconomy({ cash, processed: shopProcessedRef.current })
       const result = purchaseCatalogItem(economy, ownedItems, itemId, 'shop:' + activeSaveSlot + ':' + itemId, { day, reputation })
       if (result.item.price !== price) throw new Error('Цена предмета изменилась. Обнови магазин.')
       setCash(result.economy.cash)
       setOwnedItems(result.inventory)
+      shopProcessedRef.current = result.economy.processed
       setShopProcessed(result.economy.processed)
       setToast('Куплено: ' + description + '. Деньги списаны с общего личного баланса.')
       playSound('ui')
