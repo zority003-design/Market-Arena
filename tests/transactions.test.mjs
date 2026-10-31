@@ -38,7 +38,7 @@ test('player share purchases and sales change the same cash balance and persist 
   assert.match(app, /portfolio\?: Record<string, number>/)
   assert.match(app, /setPortfolio\(data\.portfolio \?\? \{\}\)/)
   assert.match(app, /portfolioMarketValue/)
-  assert.match(app, /netWorth = cash \+ portfolioMarketValue - debt/)
+  assert.match(app, /netWorth = cash \+ portfolioMarketValue \+ housingAssetValue \+ businessAssetValue \+ equipmentAssetValue - debt/)
   assert.match(app, /transactMoney\(-total, 'Покупка '/)
   assert.match(app, /transactMoney\(total, 'Продажа '/)
   assert.match(app, /Покупка списывает деньги с общего баланса/)
