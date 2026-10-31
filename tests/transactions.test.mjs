@@ -23,6 +23,8 @@ test('all App and ArenaOS money mutations use the same idempotent transaction ga
   assert.match(app, /transactionHistory\?: MoneyTransaction\[\]/)
   assert.match(app, /transactMoney\(payout\.firmRevenue/)
   assert.match(app, /transactMoney\(-item\.price/)
+  assert.match(app, /transactMoney\(-result\.item\.price, 'Покупка в магазине:/)
+  assert.doesNotMatch(app.slice(app.indexOf('function handleCatalogPurchase'), app.indexOf('function moveToHousing')), /setCash\(/)
   assert.match(app, /transactMoney\(-home\.price/)
   assert.match(app, /onceKey\?\.startsWith\('career:'\) \? onceKey/)
   assert.match(app, /career:test-budget/)
