@@ -113,7 +113,7 @@ test('successful negotiation credits one total commission to the shared balance'
   const source = await read('src/ArenaOS.tsx')
   assert.match(source, /const firmCommission = Math\.round\(client\.ticket \* client\.commissionRate\)/)
   assert.match(source, /const playerBonus = Math\.min\(getBusinessPayoutCap/)
-  assert.match(source, /props\.transactMoney\(firmCommission/)
+  assert.match(source, /props\.transactMoney\(firmCommission \+ playerBonus/)
   assert.doesNotMatch(source, /setFirmCapital|props\.firmCapital/)
   assert.match(source, /бонус брокера/)
 })
