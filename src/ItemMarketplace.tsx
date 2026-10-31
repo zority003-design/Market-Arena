@@ -11,6 +11,7 @@ type Props = {
   onBuy: (id:string, price:number, description:string) => boolean
   saveSlot: number
   outfit: 'intern'|'classic'|'premium'
+  onAppearanceChange?: (ids:string[])=>void
 }
 const money=(n:number)=>n.toLocaleString('ru-RU')+' ₽'
 const RARITY_CLASS:Record<string,string>={common:'common',uncommon:'uncommon',rare:'rare',elite:'elite',exclusive:'exclusive'}
@@ -24,7 +25,7 @@ export default function ItemMarketplace({mode,cash,ownedItems,onBuy,saveSlot,out
   useEffect(()=>{try{localStorage.setItem('market-arena-equipped-'+saveSlot,JSON.stringify(equipped))}catch{}},[equipped,saveSlot])
   useEffect(()=>{onAppearanceChange?.(equipped)},[equipped,onAppearanceChange])
   useEffect(()=>{setCategory(mode==='equipment'?'equipment':'all')},[mode])
-  const visible=useMemo(()=>ITEM_CATALOG.filter(item=>(mode==='equipment'?item.category==='equipment':item.category!=='equipment')&&(category==='all'||item.category===category)&&(!query||[item.name,item.description,item.material].join(' ').toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))),[category,mode,query])
+  const visible=useMemo(()=>ITEM_CATALOG.filter(item=>(mode==='equipment'?item.category==='equipment':item.category!=='equipment'&&item.slot!=='fullset')&&(category==='all'||item.category===category)&&(!query||[item.name,item.description,item.material].join(' ').toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))),[category,mode,query])
   const current=ITEM_CATALOG.find(item=>item.id===selected)??visible[0]
   const appearance=getEquippedAppearance(equipped)
   const social=evaluateSocialAppearance(equipped,'business')
