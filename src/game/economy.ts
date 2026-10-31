@@ -106,7 +106,7 @@ export function getClientEquipmentAccess(client: ClientProfile, ownedItems: stri
  const hasProfessionalBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
  if (client.tier < 2) return { available: true, reason: '' }
  if (!hasMic) return { available: false, reason: 'Нужна гарнитура или профессиональный микрофон' }
- if (!hasCamera) return { available: false, reason: 'Нужна HD-веб-камера' }
+ if (!hasCamera) return { available: false, reason: 'Нужна HD-камера рабочего места' }
  if (client.tier >= 3 && !hasProfessionalBackground) return { available: false, reason: 'Для крупного клиента нужен аккуратный фон' }
  return { available: true, reason: '' }
 }
