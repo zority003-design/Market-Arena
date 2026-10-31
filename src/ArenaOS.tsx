@@ -418,14 +418,14 @@ export default function ArenaOS(props: Props) {
         if (firstSuccessfulDeal) localStorage.setItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1),'true')
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
-      if (!props.transactMoney(firmCommission, 'Комиссия за сделку с ' + client.name, 'deal:' + client.id)) { setNotice('Не удалось провести начисление. Попробуй ещё раз.'); return }
+      if (!props.transactMoney(firmCommission + playerBonus, 'Комиссия и бонус за сделку с ' + client.name, 'deal:' + client.id)) { setNotice('Не удалось провести начисление. Попробуй ещё раз.'); return }
       props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
       setLastPayout(playerBonus); setLastFirmCommission(firmCommission); setLastClientTicket(client.ticket); setLastXpReward(45); setLastReputationReward(Math.min(2,100-props.reputation)); setLastContactName(client.name)
       const referralId = client.id==='alex-vorontsov'?'pavel-smirnov':client.id==='maria-sokolova'?'natalia-orlova':client.id==='pavel-smirnov'?'maksim-sobolev':'igor-melnikov'
       setLastReferralName(CLIENTS.find(person=>person.id===referralId)?.name ?? 'новый контакт')
       setNewContacts(prev=>Array.from(new Set([...prev,client.id,referralId])))
       setCallState('won'); setCompleted(v=>v+1)
-      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия сделки: +'+money(firmCommission)+'. Бонус брокера '+money(playerBonus)+' ₽ входит в комиссию '+money(firmCommission)+' ₽, которая зачислена на общий баланс. Деньги клиента не являются доходом игрока.',client.name+': '+clientClosingLine(client,activeStock!)])
+      setCallLog(prev=>[...prev,'СДЕЛКА ЗАКРЫТА. Комиссия сделки: +'+money(firmCommission)+'. Бонус брокера '+money(playerBonus)+' ₽ и комиссия сделки '+money(firmCommission)+' ₽ вместе зачислены на единый баланс: '+money(firmCommission+playerBonus)+' ₽. Деньги клиента не являются доходом игрока.',client.name+': '+clientClosingLine(client,activeStock!)])
     } else if(newTrust>=getClientTrustRequirement(client) || dialogueTurn < getNegotiationDifficulty(client, props.ownedItems)-1) {
       setCallLog(prev=>[...prev,client.name+': '+clientHesitationLine(client,activeStock!,dialogueTurn)+(newTrust<getClientTrustRequirement(client)?' Доверие '+newTrust+'/100; требуется '+getClientTrustRequirement(client)+'.':'')+(dialogueTurn<getNegotiationDifficulty(client,props.ownedItems)-1?' Одного удачного ответа недостаточно: нужен ещё один существенный аргумент.':'')])
     } else if(newTrust<=8 || newPatience<=8) {
@@ -561,8 +561,8 @@ export default function ArenaOS(props: Props) {
               <div className="arena-os-debrief"><b>О чём договорились</b><p>Клиент: {client.name} · Компания: {activeStock ? activeStock.name+' ('+activeStock.ticker+')' : 'не выбрана'}.</p><p>Доверие: {trust}/100 · Терпение: {patience}/100 · Вероятность сделки на последнем ходе: {lastChance}%.</p><p>{callState==='won'?'Опыт нужен для карьерных рангов и доступа к более требовательным клиентам. Репутация помогает открывать новые контакты. Ни опыт, ни капитал клиента не являются твоими деньгами.':'Перед следующим звонком выбери клиента с подходящими предпочтениями, прочитай досье акции и ответь именно на его возражение — не повторяй одну и ту же заготовку.'}</p></div>
               {callState==='won' ? <>
                 <div className="arena-os-result-hero">
-                  <div className="primary-earning"><small>БОНУС БРОКЕРА · ЧАСТЬ КОМИССИИ</small><strong>{money(lastPayout)}</strong><p>Это часть общей комиссии сделки, а не отдельное начисление поверх неё.</p></div>
-                  <div><small>ВСЯ КОМИССИЯ СДЕЛКИ</small><strong>+{money(lastFirmCommission)}</strong><p>Именно эта сумма зачислена на единый баланс. Бонус брокера выше уже входит в неё.</p></div>
+                  <div className="primary-earning"><small>БОНУС БРОКЕРА</small><strong>+{money(lastPayout)}</strong><p>Твоя часть дохода за успешные переговоры. Зачислена на единый баланс.</p></div>
+                  <div><small>КОМИССИЯ СДЕЛКИ</small><strong>+{money(lastFirmCommission)}</strong><p>Дополнительный доход от сделки. Вместе с бонусом брокера вся сумма зачислена на единый баланс.</p></div>
                 </div>
                 <div className="arena-os-result-metrics">
                   <article><small>КАПИТАЛ КЛИЕНТА</small><b>{money(lastClientTicket)}</b><p>Сумма размещения клиента — не твой заработок.</p></article>
