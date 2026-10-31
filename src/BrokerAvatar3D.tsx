@@ -4,7 +4,7 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { getEquippedAppearance } from './game/item-catalog.mjs'
 
-type CharacterAppearance = { jacketColor?: string; trousersColor?: string; shoeColor?: string; watch?: boolean; glasses?: boolean; backpack?: boolean; belt?: boolean; skinTone?: string; skinToneLight?: string; hairColor?: string; hairStyle?: number }
+type CharacterAppearance = { jacketColor?: string; shirtColor?: string; trousersColor?: string; shoeColor?: string; watch?: boolean; glasses?: boolean; backpack?: boolean; belt?: boolean; skinTone?: string; skinToneLight?: string; hairColor?: string; hairStyle?: number }
 type BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string; pose?: Pose; appearance?: CharacterAppearance; interactive?: boolean }
 type Pose = 'standing' | 'seated'
 
@@ -63,7 +63,8 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
   const casualJacket = playerIntern || juniorStaff
   const jacket = identity === 'player' ? (characterAppearance?.jacketColor ?? (outfit === 'intern' ? '#657b7d' : outfit === 'premium' ? '#17283f' : '#263f5b')) : juniorStaff ? '#63797c' : palette.suit
   const trousers = identity === 'player' ? (characterAppearance?.trousersColor ?? (playerIntern ? '#46565a' : playerPremium ? '#202a37' : '#293746')) : (juniorStaff ? '#394650' : '#263442')
-  const shirtColor = playerPremium ? '#fffdf4' : casualJacket ? '#e4e9e4' : palette.shirt
+  const shirtColor = characterAppearance?.shirtColor ?? (playerPremium ? '#fffdf4' : casualJacket ? '#e4e9e4' : palette.shirt)
+  const shoeColor = characterAppearance?.shoeColor ?? '#20262c'
   const skinColor = characterAppearance?.skinTone ?? palette.skin
   const skinLightColor = characterAppearance?.skinToneLight ?? characterAppearance?.skinTone ?? palette.skinLight
   const hairColor = characterAppearance?.hairColor ?? palette.hair
@@ -93,8 +94,8 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
       <RoundedBox position={[-0.19, 0.34, 0.48]} args={[0.23, 0.14, 0.3]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={characterAppearance?.shoeColor ?? '#20262c'} roughness={0.4}/></RoundedBox>
       <RoundedBox position={[0.19, 0.34, 0.48]} args={[0.23, 0.14, 0.3]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={characterAppearance?.shoeColor ?? '#20262c'} roughness={0.4}/></RoundedBox>
     </> : <>
-      <RoundedBox position={[-0.19, 0.13, 0.06]} args={[0.25, 0.15, 0.42]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color="#20262c" roughness={0.4}/></RoundedBox>
-      <RoundedBox position={[0.19, 0.13, 0.06]} args={[0.25, 0.15, 0.42]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color="#20262c" roughness={0.4}/></RoundedBox>
+      <RoundedBox position={[-0.19, 0.13, 0.06]} args={[0.25, 0.15, 0.42]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={shoeColor} roughness={0.4}/></RoundedBox>
+      <RoundedBox position={[0.19, 0.13, 0.06]} args={[0.25, 0.15, 0.42]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={shoeColor} roughness={0.4}/></RoundedBox>
       <mesh position={[-0.19, 0.2, 0.19]}><boxGeometry args={[0.16, 0.025, 0.025]}/><meshStandardMaterial color="#6d777b" metalness={0.45}/></mesh>
       <mesh position={[0.19, 0.2, 0.19]}><boxGeometry args={[0.16, 0.025, 0.025]}/><meshStandardMaterial color="#6d777b" metalness={0.45}/></mesh>
       <Limb start={[-0.18, 1.08, 0]} end={[-0.19, 0.24, 0.02]} radius={0.145} color={trousers}/>
