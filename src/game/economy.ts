@@ -205,7 +205,7 @@ export function getClientInvestmentPreference(clientId: string): ClientInvestmen
 export const STOCK_PROFILES: Record<string, { label: string; color: string; description: string; risk: string }> = {
  KOTL:{label:'Кошачий девелопмент',color:'#3b82f6',description:'Застройщик; важны продажи квартир, долг и сроки сдачи.',risk:'Высокий'},
  BTRAN:{label:'Топливо и транспорт',color:'#d97706',description:'Сеть АЗС и перевозок; важны топливная маржа, трафик и расходы автопарка.',risk:'Средний'},
- OGUR:{label:'Напитки и FMCG',color:'#16a34a',description:'Производитель напитков; важны маржа, упаковка и дистрибуция.',risk:'Низкий'},
+ OGUR:{label:'Прибыль и повторные покупки',color:'#16a34a',description:'Производитель напитков; важны маржа, упаковка и дистрибуция.',risk:'Низкий'},
  VECT:{label:'Цифровая медицина',color:'#9333ea',description:'Телемедицина и сеть клиник-партнёров; важны платящие пациенты, удержание и защита данных.',risk:'Средний'},
  DUST:{label:'Облачные дата-центры',color:'#0d9488',description:'Серверная инфраструктура и вычислительные мощности; важны загрузка, электроэнергия и капитальные затраты.',risk:'Средний'},
  TAPK:{label:'HR SaaS и управление сменами',color:'#dc4b5b',description:'Подписная платформа для графиков, табелей и расчёта часов; важны платящие компании и отток.',risk:'Высокий'},
