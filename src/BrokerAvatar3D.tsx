@@ -199,9 +199,13 @@ export function BrokerWebcamScene({ identity = 'player', outfit = 'intern', hous
       <mesh position={[-2.65, 1.39, -1.3]}><boxGeometry args={[0.5, 0.07, 0.42]} /><meshStandardMaterial color="#9a7656" roughness={0.8} /></mesh>
       <mesh position={[-2.65, 1.77, -1.3]}><cylinderGeometry args={[0.12, 0.16, 0.26, 12]} /><meshStandardMaterial color="#8b684e" roughness={0.9} /></mesh>
       <mesh position={[-2.65, 2.0, -1.3]}><sphereGeometry args={[0.22, 12, 10]} /><meshStandardMaterial color="#527b61" roughness={0.92} /></mesh>
-      <mesh position={[1.55, 2.2, -1.53]}><boxGeometry args={[0.75, 0.62, 0.06]} /><meshStandardMaterial color={premium ? '#8e765b' : '#304957'} /></mesh>
-      <mesh position={[1.55, 2.2, -1.48]}><boxGeometry args={[0.61, 0.48, 0.025]} /><meshStandardMaterial color={premium ? '#e7d6b4' : '#b4c5c8'} /></mesh>
-      <mesh position={[1.55, 2.2, -1.45]}><boxGeometry args={[0.08, 0.12, 0.02]} /><meshStandardMaterial color="#4b7862" /></mesh>
+
+      <mesh position={[2.55, 1.0, -1.26]}><boxGeometry args={[0.56, 1.82, 0.48]} /><meshStandardMaterial color="#49382e" roughness={0.9} /></mesh>
+      <mesh position={[2.55, 1.0, -1.0]}><boxGeometry args={[0.5, 1.72, 0.035]} /><meshStandardMaterial color="#74523d" roughness={0.78} /></mesh>
+      <mesh position={[2.55, 1.88, -0.97]}><boxGeometry args={[0.54, 0.06, 0.06]} /><meshStandardMaterial color="#a17a57" /></mesh>
+      {[-0.07, 0.07].map((x) => <mesh key={'webcam-wardrobe-handle-' + x} position={[2.55 + x, 1.0, -0.94]}><cylinderGeometry args={[0.018, 0.018, 0.1, 10]} /><meshStandardMaterial color="#c3a46f" metalness={0.6} /></mesh>)}
+      <mesh position={[0.15, 0.02, 0.72]}><boxGeometry args={[3.1, 0.035, 1.85]} /><meshStandardMaterial color="#3b4d50" roughness={1} /></mesh>
+      <mesh position={[0.15, 0.042, 0.72]}><boxGeometry args={[2.92, 0.008, 1.67]} /><meshStandardMaterial color="#5c6966" roughness={1} /></mesh>
       <mesh position={[0, 0.88, 0.48]}><boxGeometry args={[3.35, 0.13, 0.92]} /><meshStandardMaterial color={desk} roughness={0.62} /></mesh>
       <mesh position={[-1.12, 0.43, 0.55]}><boxGeometry args={[0.12, 0.83, 0.16]} /><meshStandardMaterial color={desk} /></mesh>
       <mesh position={[1.12, 0.43, 0.55]}><boxGeometry args={[0.12, 0.83, 0.16]} /><meshStandardMaterial color={desk} /></mesh>
