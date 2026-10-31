@@ -64,30 +64,31 @@ test('honest rejection of guaranteed returns is scored by the shared dialogue en
   assert.match(freeText, /answerQuestion\(text, 0, 'freeform'\)/)
 })
 
-test('business and employee income is credited to firm capital, not the broker wallet', async () => {
+test('business, employee income, salary, and expenses use the one shared balance', async () => {
   const source = await read('src/App.tsx')
   const sleepStart = source.indexOf('function sleepNow')
   const sleepEnd = source.indexOf('  return (\n    <main', sleepStart)
   const sleep = source.slice(sleepStart, sleepEnd)
-  assert.match(sleep, /setCash\(\(value\) => Math\.max\(0, value \+ DAILY_SALARY - personalHousingCost\)\)/)
-  assert.match(sleep, /setFirmCapital\(\(value\) => Math\.max\(0, value \+ businessNetIncome \+ staffNetIncome - officeRent\)\)/)
+  assert.match(sleep, /const dailyNet = DAILY_SALARY \+ businessNetIncome \+ staffNetIncome - personalHousingCost - officeRent/)
+  assert.match(sleep, /setCash\(\(value\) => Math\.max\(0, value \+ dailyNet\)\)/)
+  assert.doesNotMatch(sleep, /setFirmCapital/)
   assert.doesNotMatch(sleep, /const available = cash \+ DAILY_SALARY \+ businessNetIncome \+ staffNetIncome/)
   assert.match(sleep, /businessNetIncome \+ staffNetIncome/)
 })
 
 
-test('firm upgrades, assets, and staff hires use firm capital rather than personal cash', async () => {
+test('business upgrades, assets, and staff hires all use the shared cash balance', async () => {
   const source = await read('src/ArenaOS.tsx')
   const upgradeHandler = source.slice(source.indexOf('const buyBusinessUpgrade'), source.indexOf('const buyBusinessAsset'))
   const assetHandler = source.slice(source.indexOf('const buyBusinessAsset'), source.indexOf('const hireBroker'))
   const hireHandler = source.slice(source.indexOf('const hireBroker'), source.indexOf('const buyGear'))
-  assert.match(upgradeHandler, /props\.firmCapital < upgrade\.price/)
-  assert.match(upgradeHandler, /props\.setFirmCapital/)
-  assert.match(assetHandler, /props\.firmCapital < asset\.price/)
-  assert.match(assetHandler, /props\.setFirmCapital/)
-  assert.match(hireHandler, /props\.firmCapital < employee\.price/)
-  assert.match(hireHandler, /props\.setFirmCapital/)
-  assert.match(source, /КАПИТАЛ ФИРМЫ/)
+  assert.match(upgradeHandler, /props\.cash < upgrade\.price/)
+  assert.match(upgradeHandler, /props\.setCash/)
+  assert.match(assetHandler, /props\.cash < asset\.price/)
+  assert.match(assetHandler, /props\.setCash/)
+  assert.match(hireHandler, /props\.cash < employee\.price/)
+  assert.match(hireHandler, /props\.setCash/)
+  assert.doesNotMatch(source, /firmCapital|setFirmCapital|КАПИТАЛ ФИРМЫ/)
 })
 
 
@@ -107,12 +108,13 @@ test('stock suitability does not alias unrelated companies into one another', as
 })
 
 
-test('successful negotiation credits firm commission and personal bonus separately', async () => {
+test('successful negotiation credits one total commission to the shared balance', async () => {
   const source = await read('src/ArenaOS.tsx')
   assert.match(source, /const firmCommission = Math\.round\(client\.ticket \* client\.commissionRate\)/)
   assert.match(source, /const playerBonus = Math\.min\(getBusinessPayoutCap/)
-  assert.match(source, /props\.setCash\(v=>v\+playerBonus\); props\.setFirmCapital\(v=>v\+firmCommission\)/)
-  assert.match(source, /Комиссия фирмы:/)
+  assert.match(source, /props\.setCash\(v=>v\+firmCommission\)/)
+  assert.doesNotMatch(source, /setFirmCapital|props\.firmCapital/)
+  assert.match(source, /бонус брокера/)
 })
 
 
@@ -281,8 +283,17 @@ test('player video is an in-game camera view tied to the selected housing, never
 test('housing test mode grants the test budget and bypasses progression in both listing and move action', async () => {
   const app = await read('src/App.tsx')
   assert.match(app, /Выдать тестовый бюджет \+1 000 000 ₽/)
-  assert.match(app, /setCash\(\(value\) => value \+ 1000000\)/)
-  assert.match(app, /setFirmCapital\(\(value\) => value \+ 2000000\)/)
+  assert.match(app, /setCash\(\(value\) => value \+ 3000000\)/)
+  assert.match(app, /единый баланс/)
   assert.match(app, /const locked = !testModeEnabled &&/)
   assert.match(app, /!testModeEnabled && \(day < home\.minDay \|\| reputation < home\.minReputation\)/)
+})
+
+test('legacy personal and firm balances migrate into one cash field and new saves omit firmCapital', async () => {
+  const app = await read('src/App.tsx')
+  assert.match(app, /saved\.cash \+ \(saved\.firmCapital \?\? 0\)/)
+  assert.match(app, /\(data\.cash \?\? STARTING_CASH\) \+ \(data\.firmCapital \?\? 0\)/)
+  const saveEffect = app.slice(app.indexOf('const snapshot = JSON.stringify'), app.indexOf('}, [careerStarted'))
+  assert.match(saveEffect, /JSON\.stringify\(\{ cash, xp, debt/)
+  assert.doesNotMatch(saveEffect, /firmCapital/)
 })
