@@ -44,4 +44,8 @@ test('player share purchases and sales change the same cash balance and persist 
   assert.match(app, /transactMoney\(total, 'Продажа '/)
   assert.match(app, /Покупка списывает деньги с общего баланса/)
   assert.match(app, /Деньги зачислены на единый баланс/)
+  assert.match(app, /tradesTodayRef\.current >= 4/)
+  assert.match(app, /setGameMinutes\(\(minutes\) => \(minutes \+ 10\)/)
+  assert.match(app, /Биржевые операции сегодня/)
+  assert.match(app, /setTradesToday\(data\.tradesToday \?\? 0\)/)
 })
