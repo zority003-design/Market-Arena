@@ -975,6 +975,10 @@ export default function App() {
     setVideoSwitchEffectUsed(false)
     setSelectedCompany('KOTL')
     setCallCompanyTicker('')
+    setPortfolio({})
+    portfolioRef.current = {}
+    setTradesToday(0)
+    tradesTodayRef.current = 0
     setNewsImpacts({})
     setToast('')
     setLastPenaltySecond(60)
@@ -1258,8 +1262,10 @@ export default function App() {
       setCallsToday(0)
       setDailySalesAmount(0)
       setDailySalesShares(0)
-    // Share ownership is a long-term asset: never clear the portfolio at the start of a new day.
-    setNewsImpacts({})
+      setTradesToday(0)
+      tradesTodayRef.current = 0
+      // Share ownership is a long-term asset: never clear the portfolio at the start of a new day.
+      setNewsImpacts({})
       setShiftReport(null)
       setCityVisitedToday([])
       setCityBonus(0)
