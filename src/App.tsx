@@ -309,7 +309,7 @@ function readSave(slot = getActiveSaveSlot()) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; clientMemory?: Record<string, string[]>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; transactionHistory?: MoneyTransaction[]; portfolio?: Record<string, number>; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; clientMemory?: Record<string, string[]>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; transactionHistory?: MoneyTransaction[]; portfolio?: Record<string, number>; newsImpacts?: Record<string, number>; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -621,8 +621,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, transactionHistory, xp, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, portfolio, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, transactionHistory, xp, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, portfolio, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
+    try { const snapshot = JSON.stringify({ cash, transactionHistory, portfolio, newsImpacts, xp, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, portfolio, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, transactionHistory, portfolio, newsImpacts, xp, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, portfolio, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -862,6 +862,7 @@ export default function App() {
     setDailySalesShares(data.dailySalesShares ?? 0)
     setPortfolio(data.portfolio ?? {})
     portfolioRef.current = data.portfolio ?? {}
+    setNewsImpacts(data.newsImpacts ?? {})
     setCallStatus('idle')
     setQuestionIndex(0)
     setTrust(48)
@@ -1244,6 +1245,7 @@ export default function App() {
       setDailySalesShares(0)
     setPortfolio({})
     portfolioRef.current = {}
+    setNewsImpacts({})
       setShiftReport(null)
       setCityVisitedToday([])
       setCityBonus(0)
