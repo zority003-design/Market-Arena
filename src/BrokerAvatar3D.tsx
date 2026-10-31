@@ -3,7 +3,8 @@ import { ContactShadows, RoundedBox } from '@react-three/drei'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
-type CharacterAppearance = { jacketColor?: string; trousersColor?: string; shoeColor?: string; watch?: boolean; glasses?: boolean; backpack?: boolean; belt?: boolean }\ntype BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string; pose?: Pose; appearance?: CharacterAppearance }
+type CharacterAppearance = { jacketColor?: string; trousersColor?: string; shoeColor?: string; watch?: boolean; glasses?: boolean; backpack?: boolean; belt?: boolean }
+type BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string; pose?: Pose; appearance?: CharacterAppearance }
 type Pose = 'standing' | 'seated'
 
 const palettes = [
@@ -51,7 +52,9 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
   const casualJacket = playerIntern || juniorStaff
   const jacket = identity === 'player' ? (appearance?.jacketColor ?? (outfit === 'intern' ? '#657b7d' : outfit === 'premium' ? '#17283f' : '#263f5b')) : juniorStaff ? '#63797c' : palette.suit
   const trousers = identity === 'player' ? (appearance?.trousersColor ?? (playerIntern ? '#46565a' : playerPremium ? '#202a37' : '#293746')) : (juniorStaff ? '#394650' : '#263442')
-  const shirtColor = playerPremium ? '#fffdf4' : casualJacket ? '#e4e9e4' : palette.shirt\n  const skinColor = palette.skin\n  const hairColor = palette.hair
+  const shirtColor = playerPremium ? '#fffdf4' : casualJacket ? '#e4e9e4' : palette.shirt
+  const skinColor = palette.skin
+  const hairColor = palette.hair
   const tieColor = identity === 'player' ? (playerIntern ? '#a7b2b0' : playerPremium ? '#d3ad5e' : '#a84f49') : palette.tie
   const seated = pose === 'seated'
 
@@ -131,17 +134,17 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
       <Limb start={[-0.39,1.82,0]} end={seated ? [-0.42,1.45,0.29] : [-0.47,1.18,0.06]} radius={0.135} color={jacket}/>
       <Limb start={[0.39,1.82,0]} end={seated ? [0.42,1.45,0.29] : [0.47,1.18,0.06]} radius={0.135} color={jacket}/>
       <Limb start={seated ? [-0.42,1.45,0.29] : [-0.47,1.18,0.06]} end={seated ? [-0.42,1.22,0.47] : [-0.48,0.93,0.16]} radius={0.105} color={skinColor}/>
-      <Limb start={seated ? [0.42,1.45,0.29] : [0.47,1.18,0.06]} end={seated ? [0.42,1.22,0.47] : [0.48,0.93,0.16]} radius={0.105} color={palette.skin}/>
+      <Limb start={seated ? [0.42,1.45,0.29] : [0.47,1.18,0.06]} end={seated ? [0.42,1.22,0.47] : [0.48,0.93,0.16]} radius={0.105} color={skinColor}/>
       </group>
       <mesh position={seated ? [-0.42,1.17,0.48] : [-0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight} roughness={0.82}/></mesh>
       <mesh position={seated ? [0.42,1.17,0.48] : [0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight} roughness={0.82}/></mesh>
       {/* Neck sinks into the collar and jaw to remove the old floating-head look. */}
-      <mesh position={[0,2.02,0]}><cylinderGeometry args={[0.125,0.15,0.3,24]}/><meshStandardMaterial color={palette.skin} roughness={0.82}/></mesh>
-      <mesh position={[0,2.04,0.12]} scale={[0.15,0.12,0.12]}><sphereGeometry args={[1,20,16]}/><meshStandardMaterial color={palette.skin}/></mesh>
-      <mesh position={[0,2.36,0]} scale={[0.3,0.36,0.27]} castShadow><sphereGeometry args={[1,32,24]}/><meshStandardMaterial color={palette.skin} roughness={0.8}/></mesh>
+      <mesh position={[0,2.02,0]}><cylinderGeometry args={[0.125,0.15,0.3,24]}/><meshStandardMaterial color={skinColor} roughness={0.82}/></mesh>
+      <mesh position={[0,2.04,0.12]} scale={[0.15,0.12,0.12]}><sphereGeometry args={[1,20,16]}/><meshStandardMaterial color={skinColor}/></mesh>
+      <mesh position={[0,2.36,0]} scale={[0.3,0.36,0.27]} castShadow><sphereGeometry args={[1,32,24]}/><meshStandardMaterial color={skinColor} roughness={0.8}/></mesh>
       <mesh position={[0,2.2,0.16]} scale={[0.22,0.15,0.14]}><sphereGeometry args={[1,24,18]}/><meshStandardMaterial color={palette.skinLight} roughness={0.86}/></mesh>
-      <mesh position={[-0.305,2.34,0]} scale={[0.065,0.105,0.06]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skin}/></mesh>
-      <mesh position={[0.305,2.34,0]} scale={[0.065,0.105,0.06]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skin}/></mesh>
+      <mesh position={[-0.305,2.34,0]} scale={[0.065,0.105,0.06]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={skinColor}/></mesh>
+      <mesh position={[0.305,2.34,0]} scale={[0.065,0.105,0.06]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={skinColor}/></mesh>
       <mesh position={[-0.305,2.34,0.046]} scale={[0.027,0.052,0.02]}><sphereGeometry args={[1,14,10]}/><meshStandardMaterial color={palette.skinLight}/></mesh>
       <mesh position={[0.305,2.34,0.046]} scale={[0.027,0.052,0.02]}><sphereGeometry args={[1,14,10]}/><meshStandardMaterial color={palette.skinLight}/></mesh>
       {/* Facial features face forward (+Z); eyes, brows, nose and mouth remain legible in the camera preview. */}
@@ -150,16 +153,20 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
       <mesh position={[-0.103,2.405,0.267]} scale={[0.023,0.032,0.012]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color="#24303b"/></mesh>
       <mesh position={[0.121,2.405,0.267]} scale={[0.023,0.032,0.012]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color="#24303b"/></mesh>
       <mesh position={[-0.11,2.465,0.247]} rotation={[0,0,-0.13]}><boxGeometry args={[0.14,0.027,0.025]}/><meshStandardMaterial color={hairColor}/></mesh>
-      <mesh position={[0.11,2.465,0.247]} rotation={[0,0,0.13]}><boxGeometry args={[0.14,0.027,0.025]}/><meshStandardMaterial color={palette.hair}/></mesh>
+      <mesh position={[0.11,2.465,0.247]} rotation={[0,0,0.13]}><boxGeometry args={[0.14,0.027,0.025]}/><meshStandardMaterial color={hairColor}/></mesh>
       <mesh position={[0,2.34,0.285]} scale={[0.052,0.064,0.046]}><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight}/></mesh>
       <mesh position={[0,2.25,0.276]} scale={[0.07,0.018,0.014]}><sphereGeometry args={[1,18,10]}/><meshStandardMaterial color="#874e43" roughness={0.9}/></mesh>
-      <mesh position={[0,2.58,-0.025]} scale={[0.305,0.19,0.29]} castShadow><sphereGeometry args={[1,28,18]}/><meshStandardMaterial color={palette.hair} roughness={0.92}/></mesh>
-      {hairStyle === 0 && <mesh position={[0.035,2.53,0.205]} rotation={[0.08,0,-0.2]} scale={[0.19,0.085,0.095]} castShadow><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={palette.hair}/></mesh>}
-      {hairStyle === 1 && <><mesh position={[-0.12,2.52,0.205]} rotation={[0,0,0.18]} scale={[0.15,0.095,0.095]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={palette.hair}/></mesh><mesh position={[0.08,2.49,0.22]} rotation={[0,0,-0.2]} scale={[0.16,0.08,0.08]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={palette.hair}/></mesh></>}
-      {hairStyle === 2 && <mesh position={[0,2.59,-0.12]} scale={[0.3,0.18,0.24]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={palette.hair}/></mesh>}
-      {hairStyle === 3 && <><mesh position={[-0.18,2.51,0.14]} rotation={[0,0,0.15]} scale={[0.1,0.16,0.09]}><sphereGeometry args={[1,18,12]}/><meshStandardMaterial color={palette.hair}/></mesh><mesh position={[0.18,2.51,0.14]} rotation={[0,0,-0.15]} scale={[0.1,0.16,0.09]}><sphereGeometry args={[1,18,12]}/><meshStandardMaterial color={palette.hair}/></mesh></>}
-      {formal && <mesh position={[0.305,2.51,0.04]} scale={[0.055,0.1,0.07]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color={palette.hair}/></mesh>}
-      {identity === 'player' && appearance?.belt && <group position={[0,1.16,0.19]}><mesh><boxGeometry args={[0.48,0.055,0.035]}/><meshStandardMaterial color="#4a3429" roughness={0.6}/></mesh><mesh position={[0,0,0.025]}><boxGeometry args={[0.07,0.045,0.012]}/><meshStandardMaterial color="#b49a63" metalness={0.65}/></mesh></group>}\n      {identity === 'player' && appearance?.watch && <group position={[0.49,seated?1.24:0.98,seated?0.42:0.18]}><mesh rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.055,0.055,0.035,24]}/><meshStandardMaterial color="#b59a62" metalness={0.78} roughness={0.25}/></mesh><mesh position={[0,0.022,0]}><circleGeometry args={[0.039,24]}/><meshStandardMaterial color="#d8e0dc" metalness={0.25}/></mesh></group>}\n      {identity === 'player' && appearance?.glasses && <group position={[0,2.405,0.285]}><mesh position={[-0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh position={[0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh><boxGeometry args={[0.075,0.012,0.012]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh></group>}\n      {identity === 'player' && appearance?.backpack && <group position={[0,1.47,-0.27]}><mesh scale={[0.28,0.42,0.13]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#344b50" roughness={0.86}/></mesh><mesh position={[0,0.05,-0.12]} scale={[0.2,0.16,0.025]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#526e69" roughness={0.8}/></mesh></group>}\n      {(identity === 'senior-broker' || identity === 'team-lead') && <>
+      <mesh position={[0,2.58,-0.025]} scale={[0.305,0.19,0.29]} castShadow><sphereGeometry args={[1,28,18]}/><meshStandardMaterial color={hairColor} roughness={0.92}/></mesh>
+      {hairStyle === 0 && <mesh position={[0.035,2.53,0.205]} rotation={[0.08,0,-0.2]} scale={[0.19,0.085,0.095]} castShadow><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={hairColor}/></mesh>}
+      {hairStyle === 1 && <><mesh position={[-0.12,2.52,0.205]} rotation={[0,0,0.18]} scale={[0.15,0.095,0.095]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={hairColor}/></mesh><mesh position={[0.08,2.49,0.22]} rotation={[0,0,-0.2]} scale={[0.16,0.08,0.08]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={hairColor}/></mesh></>}
+      {hairStyle === 2 && <mesh position={[0,2.59,-0.12]} scale={[0.3,0.18,0.24]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={hairColor}/></mesh>}
+      {hairStyle === 3 && <><mesh position={[-0.18,2.51,0.14]} rotation={[0,0,0.15]} scale={[0.1,0.16,0.09]}><sphereGeometry args={[1,18,12]}/><meshStandardMaterial color={hairColor}/></mesh><mesh position={[0.18,2.51,0.14]} rotation={[0,0,-0.15]} scale={[0.1,0.16,0.09]}><sphereGeometry args={[1,18,12]}/><meshStandardMaterial color={hairColor}/></mesh></>}
+      {formal && <mesh position={[0.305,2.51,0.04]} scale={[0.055,0.1,0.07]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color={hairColor}/></mesh>}
+      {identity === 'player' && appearance?.belt && <group position={[0,1.16,0.19]}><mesh><boxGeometry args={[0.48,0.055,0.035]}/><meshStandardMaterial color="#4a3429" roughness={0.6}/></mesh><mesh position={[0,0,0.025]}><boxGeometry args={[0.07,0.045,0.012]}/><meshStandardMaterial color="#b49a63" metalness={0.65}/></mesh></group>}
+      {identity === 'player' && appearance?.watch && <group position={[0.49,seated?1.24:0.98,seated?0.42:0.18]}><mesh rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.055,0.055,0.035,24]}/><meshStandardMaterial color="#b59a62" metalness={0.78} roughness={0.25}/></mesh><mesh position={[0,0.022,0]}><circleGeometry args={[0.039,24]}/><meshStandardMaterial color="#d8e0dc" metalness={0.25}/></mesh></group>}
+      {identity === 'player' && appearance?.glasses && <group position={[0,2.405,0.285]}><mesh position={[-0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh position={[0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh><boxGeometry args={[0.075,0.012,0.012]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh></group>}
+      {identity === 'player' && appearance?.backpack && <group position={[0,1.47,-0.27]}><mesh scale={[0.28,0.42,0.13]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#344b50" roughness={0.86}/></mesh><mesh position={[0,0.05,-0.12]} scale={[0.2,0.16,0.025]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#526e69" roughness={0.8}/></mesh></group>}
+      {(identity === 'senior-broker' || identity === 'team-lead') && <>
         <mesh position={[-0.112,2.405,0.274]}><torusGeometry args={[0.073,0.009,8,24]}/><meshStandardMaterial color="#53616a" metalness={0.65} roughness={0.28}/></mesh>
         <mesh position={[0.112,2.405,0.274]}><torusGeometry args={[0.073,0.009,8,24]}/><meshStandardMaterial color="#53616a" metalness={0.65} roughness={0.28}/></mesh>
         <mesh position={[0,2.405,0.274]}><boxGeometry args={[0.08,0.014,0.012]}/><meshStandardMaterial color="#53616a" metalness={0.65}/></mesh>
