@@ -216,6 +216,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
         (x > 1.52 && x < 3.62 && z > -0.66 && z < 2.58) ||
         (x > 0.91 && x < 1.58 && z > -0.52 && z < 0.02) ||
         (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22) ||
+        (x > -3.9 && x < -3.34 && z > 0.42 && z < 1.84) ||
         false
       const nextX = THREE.MathUtils.clamp(camera.position.x + stepX, -3.52, 3.52)
       if (!blocked(nextX, camera.position.z)) camera.position.x = nextX
@@ -704,7 +705,7 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
       >
         <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} ownedEmployees={ownedEmployees} ownedBusinessAssets={ownedBusinessAssets} businessUpgrades={businessUpgrades} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} />
       </Canvas>
-      {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
+      {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> подойди к мебели — появится карточка действия <span>·</span> E или клик — взаимодействовать</div>}
     </div>
   )
 }
