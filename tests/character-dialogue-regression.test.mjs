@@ -311,3 +311,14 @@ test('client memory persists across saves and changes future dialogue evaluation
   assert.match(dialogue, /memory\.includes\('overpromised'\)/)
   assert.match(dialogue, /memory\.includes\('transparent'\)/)
 })
+
+
+test('the primary ArenaOS call flow receives and updates persistent client memory', async () => {
+  const app = await read('src/App.tsx')
+  const arena = await read('src/ArenaOS.tsx')
+  assert.match(app, /clientMemory=\{clientMemory\} setClientMemory=\{setClientMemory\}/)
+  assert.match(arena, /clientMemory: Record<string, string\[]>; setClientMemory/)
+  assert.match(arena, /props\.clientMemory\[selected\.id\]/)
+  assert.match(arena, /memory: props\.clientMemory\[client\.id\] \?\? \[\]/)
+  assert.match(arena, /props\.setClientMemory\(memory =>/)
+})
