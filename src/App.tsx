@@ -851,8 +851,13 @@ export default function App() {
     setOwnedEmployees(data.ownedEmployees ?? [])
     setCompanyName(data.companyName ?? '')
     setOwnedItems(data.ownedItems ?? [])
-    setSelectedOutfit(data.selectedOutfit === 'classic' || data.selectedOutfit === 'premium' ? data.selectedOutfit : 'intern')
-    setOwnedOutfits(Array.isArray(data.ownedOutfits) ? Array.from(new Set<OutfitId>(['intern', ...data.ownedOutfits.filter((id): id is OutfitId => id === 'classic' || id === 'premium' || id === 'intern')])) : ['intern'])
+    const legacyOutfit = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-outfit') : localStorage.getItem('na-vse-kotirovki-outfit-slot-' + activeSaveSlot)
+    const loadedOutfit = data.selectedOutfit ?? legacyOutfit
+    setSelectedOutfit(loadedOutfit === 'classic' || loadedOutfit === 'premium' ? loadedOutfit : 'intern')
+    const legacyOwnedOutfits = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-owned-outfits') : localStorage.getItem('na-vse-kotirovki-owned-outfits-slot-' + activeSaveSlot)
+    let loadedOwnedOutfits: unknown = data.ownedOutfits
+    if (!Array.isArray(loadedOwnedOutfits)) { try { loadedOwnedOutfits = legacyOwnedOutfits ? JSON.parse(legacyOwnedOutfits) : ['intern'] } catch { loadedOwnedOutfits = ['intern'] } }
+    setOwnedOutfits(Array.isArray(loadedOwnedOutfits) ? Array.from(new Set<OutfitId>(['intern', ...loadedOwnedOutfits.filter((id): id is OutfitId => id === 'classic' || id === 'premium' || id === 'intern')])) : ['intern'])
     shopProcessedRef.current = data.shopProcessed ?? []
     setShopProcessed(data.shopProcessed ?? [])
     setSelectedClientId(data.selectedClientId ?? 'alex-vorontsov')
