@@ -1119,7 +1119,7 @@ export default function App() {
   function moveToHousing(homeId: string) {
     const home = HOUSING.find((candidate) => candidate.id === homeId)
     if (!home || home.id === housingId) return
-    if (day < home.minDay || reputation < home.minReputation) { setToast('Пока недоступно: требуется день ' + home.minDay + ' и репутация ' + home.minReputation + '.'); return }
+    if (!testModeEnabled && (day < home.minDay || reputation < home.minReputation)) { setToast('Пока недоступно: требуется день ' + home.minDay + ' и репутация ' + home.minReputation + '.'); return }
     if (cash < home.price) { setToast('Не хватает ' + (home.price - cash).toLocaleString('ru-RU') + ' ₽ на переезд и депозит.'); return }
     setCash((value) => value - home.price)
     setHousingId(home.id)
