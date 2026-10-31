@@ -65,14 +65,20 @@ export function repayDebt(economy, debtId, amount, operationId) {
 
 export function migrateEconomySave(oldSave = {}) {
   if (oldSave.economy?.schemaVersion === ECONOMY_SCHEMA_VERSION) return structuredClone(oldSave);
-  const cash = Math.max(0, Math.round((oldSave.cash ?? 0) + (oldSave.firmCapital ?? 0)));
-  const legacy = oldSave.economy ?? {};
+  const {
+    cash: legacyCash = 0,
+    firmCapital: legacyFirmCapital = 0,
+    debt: legacyDebt = 0,
+    economy: legacy = {},
+    ...preserved
+  } = oldSave;
+  const cash = Math.max(0, Math.round(legacyCash + legacyFirmCapital));
   return {
-    ...oldSave,
+    ...preserved,
     economy: createEconomy({
       cash,
       assets: legacy.assets ?? [],
-      liabilities: legacy.liabilities ?? (oldSave.debt > 0 ? [{ id: 'legacy-debt', label: 'Старые обязательства', balance: Math.round(oldSave.debt) }] : []),
+      liabilities: legacy.liabilities ?? (legacyDebt > 0 ? [{ id: 'legacy-debt', label: 'Старые обязательства', balance: Math.round(legacyDebt) }] : []),
       ledger: legacy.ledger ?? [{ id: 'migration-v2', type: 'migration', amount: cash, description: 'Объединение старых личных денег и капитала фирмы' }],
       processed: legacy.processed ?? ['migration-v2'],
     }),
