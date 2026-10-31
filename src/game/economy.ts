@@ -26,8 +26,7 @@ export type RoomItem = {
   category: 'comfort' | 'video' | 'background' | 'work'
 }
 export const DAILY_SALARY = 1100
-export const STARTING_CASH = 6500
-export const STARTING_FIRM_CAPITAL = 25000
+export const STARTING_CASH = 31500
 export const STARTING_HOUSING_ID = 'studio'
 export const BUSINESS_UPGRADES: BusinessUpgrade[] = [
  { id:'lead-network', name:'Сеть рекомендаций', price:7500, minDay:2, minReputation:10, payoutCap:1500, trustBonus:0, description:'Покупаешь доступ к небольшому каталогу новых лидов и отраслевым знакомствам.', effect:'+1 дополнительный звонок в день и более ранний доступ к нескольким клиентам.' },
@@ -94,7 +93,7 @@ export const ROOM_ITEMS: RoomItem[] = [
  { id:'used-chair', name:'Б/у офисный стул', price:3500, firstImpression:0, videoQuality:0, suspicion:0, minDay:1, category:'comfort', description:'Комфортнее работать весь день.' },
  { id:'headset', name:'Гарнитура с микрофоном', price:4500, firstImpression:1, videoQuality:2, suspicion:0, minDay:1, category:'video', description:'Чётче звук и меньше недопонимания.' },
  { id:'ring-light', name:'Кольцевая лампа', price:5500, firstImpression:1, videoQuality:2, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Ровный свет помогает выглядеть собраннее.' },
- { id:'hd-camera', name:'HD-веб-камера', price:7500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Более чёткая картинка на видеозвонке.' },
+ { id:'hd-camera', name:'HD-камера рабочего места', price:7500, firstImpression:1, videoQuality:3, suspicion:0, minDay:2, minLevel:2, category:'video', description:'Делает внутриигровой кадр персонажа чётче. Это оборудование виртуального рабочего места, а не физическая камера компьютера.' },
  { id:'neutral-backdrop', name:'Нейтральный фон', price:8000, firstImpression:2, videoQuality:1, suspicion:0, minDay:3, category:'background', description:'Аккуратная обстановка без показной роскоши.' },
  { id:'chromakey-kit', name:'Хромакей-комплект', price:18000, firstImpression:2, videoQuality:2, suspicion:10, minDay:5, minLevel:3, category:'background', description:'Открывает виртуальные фоны; неправдоподобная маска может насторожить.' },
  { id:'partner-desk', name:'Дополнительный рабочий стол', price:5800, firstImpression:1, videoQuality:1, suspicion:0, minDay:1, category:'work', description:'Отдельное место для сотрудника или подготовки отчётов. Стол физически появится справа от твоего рабочего места; аккуратная рабочая зона немного повышает первое впечатление.' },
@@ -106,7 +105,7 @@ export function getClientEquipmentAccess(client: ClientProfile, ownedItems: stri
  const hasProfessionalBackground = ownedItems.includes('neutral-backdrop') || ownedItems.includes('chromakey-kit')
  if (client.tier < 2) return { available: true, reason: '' }
  if (!hasMic) return { available: false, reason: 'Нужна гарнитура или профессиональный микрофон' }
- if (!hasCamera) return { available: false, reason: 'Нужна HD-веб-камера' }
+ if (!hasCamera) return { available: false, reason: 'Нужна HD-камера рабочего места' }
  if (client.tier >= 3 && !hasProfessionalBackground) return { available: false, reason: 'Для крупного клиента нужен аккуратный фон' }
  return { available: true, reason: '' }
 }
@@ -206,13 +205,13 @@ export const STOCK_PROFILES: Record<string, { label: string; color: string; desc
  KOTL:{label:'Кошачий девелопмент',color:'#3b82f6',description:'Застройщик; важны продажи квартир, долг и сроки сдачи.',risk:'Высокий'},
  BTRAN:{label:'Топливо и транспорт',color:'#d97706',description:'Сеть АЗС и перевозок; важны топливная маржа, трафик и расходы автопарка.',risk:'Средний'},
  OGUR:{label:'Прибыль и повторные покупки',color:'#16a34a',description:'Производитель напитков; важны маржа, упаковка и дистрибуция.',risk:'Низкий'},
- VECT:{label:'Репутационные услуги',color:'#9333ea',description:'Сервис кризисных коммуникаций; важны повторные корпоративные контракты.',risk:'Средний'},
- DUST:{label:'Офисная акустика',color:'#0d9488',description:'Шумоизоляционные кабинки и сервисное обслуживание по договорам.',risk:'Низкий'},
- TAPK:{label:'Платформа смен',color:'#dc4b5b',description:'Ранний сервис расписания смен; спрос и удержание пользователей надо доказать.',risk:'Высокий'},
- GROV:{label:'Перепродажа вещей',color:'#dc4b5b',description:'Маркетплейс подержанных вещей; важны комиссия, проверка и доставка.',risk:'Высокий'},
- GRID:{label:'Инженерия зданий',color:'#0d9488',description:'Обслуживание инженерных систем бизнес-центров по контрактам.',risk:'Низкий'},
- BYTE:{label:'Подписной планировщик',color:'#9333ea',description:'Корпоративный сервис задач; регистрации должны превратиться в платные подписки.',risk:'Высокий'},
- LOGI:{label:'Срочная B2B-логистика',color:'#d97706',description:'Срочные перевозки; маржу определяют тарифы, топливо и загрузка транспорта.',risk:'Средний'},
+ VECT:{label:'Цифровая медицина',color:'#9333ea',description:'Телемедицина и сеть клиник-партнёров; важны платящие пациенты, удержание и защита данных.',risk:'Средний'},
+ DUST:{label:'Облачные дата-центры',color:'#0d9488',description:'Серверная инфраструктура и вычислительные мощности; важны загрузка, электроэнергия и капитальные затраты.',risk:'Средний'},
+ TAPK:{label:'HR SaaS и управление сменами',color:'#dc4b5b',description:'Подписная платформа для графиков, табелей и расчёта часов; важны платящие компании и отток.',risk:'Высокий'},
+ GROV:{label:'Международный маркетплейс',color:'#dc4b5b',description:'Торговая площадка с комиссией, рекламой и логистикой; важна прибыльность заказа после скидок и возвратов.',risk:'Высокий'},
+ GRID:{label:'Электросети и накопители',color:'#0d9488',description:'Энергетическая инфраструктура; важны тарифы, капитальные затраты и окупаемость сетевых проектов.',risk:'Средний'},
+ BYTE:{label:'Корпоративное облачное ПО',color:'#9333ea',description:'B2B-платформа по подписке; важны регулярная выручка, продления и стоимость привлечения.',risk:'Высокий'},
+ LOGI:{label:'Посылочная логистика',color:'#d97706',description:'Сеть доставки посылок и грузов; важны плотность маршрутов, топливо и загрузка центров.',risk:'Средний'},
 }
 const CLIENT_STOCK_FIT: Record<string, string[]> = {
  'alex-vorontsov':['OGUR','DUST','GRID'], 'maria-sokolova':['OGUR','BYTE','VECT'],
