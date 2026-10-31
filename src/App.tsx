@@ -12,7 +12,9 @@ import ClientAvatar2D from './ClientAvatar2D'
 import BrokerAvatar3D, { BrokerWebcamScene } from './BrokerAvatar3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
-import ArenaOS from './ArenaOS'\nimport { createEconomy } from './game/economy-engine.mjs'\nimport { purchaseCatalogItem } from './game/shop-engine.mjs'
+import ArenaOS from './ArenaOS'
+import { createEconomy } from './game/economy-engine.mjs'
+import { purchaseCatalogItem } from './game/shop-engine.mjs'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -579,7 +581,8 @@ export default function App() {
   const [ownedBusinessAssets, setOwnedBusinessAssets] = useState<string[]>(saved.ownedBusinessAssets ?? [])
   const [ownedEmployees, setOwnedEmployees] = useState<string[]>(saved.ownedEmployees ?? [])
   const [companyName, setCompanyName] = useState(saved.companyName ?? '')
-  const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])\n  const [shopProcessed, setShopProcessed] = useState<string[]>(saved.shopProcessed ?? [])
+  const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])
+  const [shopProcessed, setShopProcessed] = useState<string[]>(saved.shopProcessed ?? [])
   const [selectedClientId, setSelectedClientId] = useState(saved.selectedClientId ?? 'alex-vorontsov')
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
   const [clientDealCounts, setClientDealCounts] = useState<Record<string, number>>(saved.clientDealCounts ?? {})
@@ -845,7 +848,8 @@ export default function App() {
     setOwnedBusinessAssets(data.ownedBusinessAssets ?? [])
     setOwnedEmployees(data.ownedEmployees ?? [])
     setCompanyName(data.companyName ?? '')
-    setOwnedItems(data.ownedItems ?? [])\n    setShopProcessed(data.shopProcessed ?? [])
+    setOwnedItems(data.ownedItems ?? [])
+    setShopProcessed(data.shopProcessed ?? [])
     setSelectedClientId(data.selectedClientId ?? 'alex-vorontsov')
     setClientLastContactDay(data.clientLastContactDay ?? {})
     setClientDealCounts(data.clientDealCounts ?? {})
