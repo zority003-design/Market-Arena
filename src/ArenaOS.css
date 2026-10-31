@@ -1011,3 +1011,57 @@
 }
 
 .arena-os-legacy-gear-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0;padding:12px;border:1px solid rgba(170,196,193,.12);border-radius:12px;background:rgba(19,35,42,.72)}.arena-os-legacy-gear-strip>div{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;color:#93aaa9;font-size:9px;text-align:center}.arena-os-legacy-gear-strip svg{width:100%;max-width:110px;height:auto}.arena-os-legacy-gear-strip span{line-height:1.3}@media(max-width:640px){.arena-os-legacy-gear-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* 2026 visual refresh — premium conversation workspace */
+.arena-os-dialogue{position:relative;overflow:hidden;border:1px solid rgba(115,190,170,.2);border-radius:20px;background:linear-gradient(145deg,rgba(12,25,31,.98),rgba(9,17,24,.98));box-shadow:0 22px 65px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.035)}
+.arena-os-dialogue-header{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:16px 18px;border-bottom:1px solid rgba(160,198,190,.12);background:radial-gradient(ellipse at 8% 0%,rgba(65,166,137,.16),transparent 52%),linear-gradient(100deg,rgba(24,45,48,.88),rgba(14,27,35,.92))}
+.arena-os-dialogue-identity{display:flex;align-items:center;gap:13px;min-width:0}
+.arena-os-dialogue-portrait{position:relative;flex:none;width:58px;height:58px;overflow:hidden;border:1px solid rgba(151,207,185,.34);border-radius:16px;background:linear-gradient(145deg,#344e50,#172a33);box-shadow:0 8px 24px rgba(0,0,0,.24)}
+.arena-os-dialogue-portrait>div{width:100%;height:100%}
+.arena-os-dialogue-portrait .client-avatar-2d,.arena-os-dialogue-portrait svg{width:100%;height:100%}
+.arena-os-presence{position:absolute;right:4px;bottom:4px;width:10px;height:10px;border:2px solid #14252b;border-radius:50%;background:#d4b77b}
+.arena-os-presence.positive{background:#55d6a5}.arena-os-presence.negative{background:#ed7777}
+.arena-os-dialogue-person{display:flex;flex-direction:column;gap:4px;min-width:0}
+.arena-os-dialogue-kicker{font:8px 'DM Mono',monospace;letter-spacing:.14em;color:#78c5a8}
+.arena-os-dialogue-person strong{font-size:17px;letter-spacing:-.025em;color:#f1f6f3}
+.arena-os-dialogue-person small{font-size:10px;color:#9cb0ad;white-space:normal}
+.arena-os-dialogue-person small i{font-style:normal;color:#4d8375}
+.arena-os-dialogue-status{display:grid;grid-template-columns:auto minmax(105px,150px);align-items:center;gap:8px 14px;min-width:230px}
+.arena-os-mood-chip{justify-self:end;padding:5px 8px;border:1px solid rgba(209,183,122,.24);border-radius:99px;background:rgba(174,139,73,.1);color:#dfc58f;font-size:9px;font-weight:700}
+.arena-os-mood-chip.warm{border-color:rgba(75,211,158,.28);background:rgba(55,172,128,.12);color:#85e2bb}
+.arena-os-mood-chip.tense{border-color:rgba(230,111,111,.28);background:rgba(190,75,75,.12);color:#f0a1a1}
+.arena-os-dialogue-trust{display:flex;flex-direction:column;gap:5px}
+.arena-os-dialogue-trust>div{display:flex;align-items:center;justify-content:space-between}
+.arena-os-dialogue-trust small{font:8px 'DM Mono',monospace;letter-spacing:.12em;color:#8ba39d}
+.arena-os-dialogue-trust b{font:600 12px 'DM Mono',monospace;color:#d8eee4}
+.arena-os-dialogue-trust em{font-style:normal;color:#819894;font-size:9px}
+.arena-os-dialogue-trust>span{height:5px;overflow:hidden;border-radius:99px;background:rgba(225,245,238,.1)}
+.arena-os-dialogue-trust>span i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#a9824c,#4dd3a0);transition:width .35s ease}
+.arena-os-memory-note{grid-column:1/-1;display:flex;align-items:center;gap:5px;color:#83a99a;font-size:9px}
+.arena-os-dialogue-log{padding:16px 17px;scroll-behavior:smooth;background:radial-gradient(ellipse at 50% 0%,rgba(65,103,103,.09),transparent 68%)}
+.arena-os-chat-row{animation:arena-message-in .24s ease both}
+.arena-os-chat-bubble{max-width:min(78%,620px);border-radius:14px;padding:11px 13px;box-shadow:0 6px 18px rgba(0,0,0,.13)}
+.arena-os-chat-bubble.client-line{border:1px solid rgba(126,177,162,.17);background:linear-gradient(145deg,#1c3035,#17272e)}
+.arena-os-chat-bubble.player-line{border:1px solid rgba(71,168,137,.28);background:linear-gradient(145deg,#19463d,#16362f)}
+.arena-os-chat-bubble.system-line{border:1px solid rgba(199,170,109,.2);background:rgba(116,91,48,.13)}
+.arena-os-chat-bubble p{font-size:12px;line-height:1.65;color:#e0eae5}
+.arena-os-response-actions>button{border-radius:13px!important;border:1px solid rgba(120,181,158,.2)!important;background:linear-gradient(135deg,rgba(28,49,53,.94),rgba(18,33,40,.94))!important;transition:transform .18s,border-color .18s,background .18s}
+.arena-os-response-actions>button:hover{transform:translateY(-2px);border-color:rgba(91,211,166,.58)!important;background:linear-gradient(135deg,rgba(33,69,61,.96),rgba(20,42,45,.96))!important}
+.arena-os-option-index{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:rgba(87,185,149,.13);color:#8fe0bc;font:11px 'DM Mono',monospace}
+.arena-os-free-text{border:1px solid rgba(119,177,160,.18);border-radius:14px;background:rgba(8,17,23,.7);padding:9px}
+.arena-os-free-text textarea{min-height:58px;color:#edf5f0}
+.arena-os-outfit-grid{gap:16px!important}
+.arena-os-outfit-grid article{position:relative;overflow:hidden;border:1px solid rgba(125,169,159,.2)!important;border-radius:18px!important;background:linear-gradient(155deg,#1a2b32,#101b22)!important;box-shadow:0 12px 30px rgba(0,0,0,.16);transition:transform .22s,border-color .22s,box-shadow .22s}
+.arena-os-outfit-grid article:hover{transform:translateY(-4px);border-color:rgba(89,209,161,.52)!important;box-shadow:0 18px 42px rgba(0,0,0,.25)}
+.arena-os-outfit-grid article.equipped{border-color:#54c79a!important;box-shadow:0 0 0 1px rgba(84,199,154,.2),0 15px 38px rgba(0,0,0,.2)}
+.arena-os-outfit-grid article h3{color:#f0f5f2!important;font-size:16px!important;letter-spacing:-.025em}
+.arena-os-outfit-grid article p{color:#9eb1ad!important}
+.arena-os-outfit-preview{background:radial-gradient(ellipse at 50% 25%,#e9f1ed 0,#c5d7d2 52%,#718b88 100%)!important;border:0!important}
+.arena-os-outfit-grid .arena-os-item-foot{border-top:1px solid rgba(145,183,169,.12);padding-top:11px}
+.arena-os-outfit-grid .arena-os-item-foot b{color:#8ce0b9}
+.arena-os-outfit-grid article button{min-height:40px;border-radius:10px}
+.arena-os-page-heading h1{letter-spacing:-.055em}
+@keyframes arena-message-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.arena-os-dialogue-header{align-items:flex-start;flex-direction:column}.arena-os-dialogue-status{width:100%;grid-template-columns:auto minmax(100px,1fr)}.arena-os-dialogue-person strong{font-size:15px}.arena-os-chat-bubble{max-width:92%}}
+@media(prefers-reduced-motion:reduce){.arena-os-chat-row{animation:none!important}.arena-os-outfit-grid article,.arena-os-response-actions>button{transition:none!important}}
