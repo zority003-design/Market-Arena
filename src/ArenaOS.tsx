@@ -509,14 +509,12 @@ export default function ArenaOS(props: Props) {
     props.setOwnedEmployees(value => [...value, id])
     setNotice('В команду принят сотрудник: ' + employee.name + '. Зарплата автоматически вычитается из его выручки; фирме начисляется только чистый остаток +' + money(employee.dailyRevenue - employee.dailySalary) + '.')
   }
-  const buyCatalogItem = (id:string,price:number,name:string) => {
+  const buyCatalogItem = (id:string,price:number,name:string): boolean => {
     if(props.ownedItems.includes(id)) { setNotice('Предмет уже находится в инвентаре.'); return false }
     const ok=props.onPurchase(id,price,name)
     setNotice(ok?'Покупка проведена через общий денежный баланс. Предмет добавлен в инвентарь.':'Покупка не выполнена. Проверь баланс и условия.')
     if(ok) playSound('ui')
     return ok
-    if (!props.transactMoney(-price, 'Покупка оборудования: ' + (GEAR.find(item => item.id === id)?.name ?? id), 'room-item:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
-    props.setOwnedItems(v=>[...v,id]); setNotice('Куплено навсегда. Ежедневной аренды жилья в игре нет.')
   }
   const nav: {id:AppId;label:string;icon:typeof Laptop}[] = [
     {id:'home',label:'Мой профиль',icon:Laptop},{id:'calls',label:'Брокерская линия',icon:PhoneCall},{id:'market',label:'Биржа',icon:TrendingUp},{id:'business',label:'Развитие бизнеса',icon:Building2},

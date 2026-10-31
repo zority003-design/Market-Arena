@@ -300,7 +300,7 @@ test('legacy personal and firm balances migrate into one cash field and new save
   assert.match(app, /saved\.cash \+ \(saved\.firmCapital \?\? 0\)/)
   assert.match(app, /\(data\.cash \?\? STARTING_CASH\) \+ \(data\.firmCapital \?\? 0\)/)
   const saveEffect = app.slice(app.indexOf('const snapshot = JSON.stringify'), app.indexOf('}, [careerStarted'))
-  assert.match(saveEffect, /JSON\.stringify\(\{ cash, transactionHistory,/)
+  assert.match(saveEffect, /JSON\.stringify\(\{ cash, transactionHistory, clientMemory,/)
   assert.doesNotMatch(saveEffect, /firmCapital/)
 })
 
