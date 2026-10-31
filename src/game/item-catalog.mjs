@@ -42,3 +42,7 @@ export function evaluateSocialAppearance(ids=[], context='business', personality
   const personalityFit=personality==='sociable'&&tags.has('casual')?1:personality==='cautious'&&tags.has('business')?1:0;
   return {score:Math.max(-4,Math.min(12,Math.round(raw*.18+fit+status+mismatch+personalityFit))),fit,mismatch,notes:fit>0?'Образ соответствует формату встречи':mismatch<0?'Слишком повседневный образ для официальной встречи':'Нейтральный образ без выраженного контекстного бонуса'};
 }
+
+export function getEquipmentEffects(ids=[]){
+  return ids.map(getItemById).filter(item=>item?.category==='equipment').reduce((total,item)=>{for(const [key,value] of Object.entries(item.effect??{}))total[key]=(total[key]??0)+value;return total;},{});
+}
