@@ -30,3 +30,15 @@ test('all App and ArenaOS money mutations use the same idempotent transaction ga
   assert.match(arena, /props\.transactMoney\(-employee\.price/)
   assert.doesNotMatch(arena, /props\.setCash/)
 })
+
+test('player share purchases and sales change the same cash balance and persist as assets', async () => {
+  const app = await read('src/App.tsx')
+  assert.match(app, /portfolio\?: Record<string, number>/)
+  assert.match(app, /setPortfolio\(data\.portfolio \?\? \{\}\)/)
+  assert.match(app, /portfolioMarketValue/)
+  assert.match(app, /netWorth = cash \+ portfolioMarketValue - debt/)
+  assert.match(app, /transactMoney\(-total, 'Покупка '/)
+  assert.match(app, /transactMoney\(total, 'Продажа '/)
+  assert.match(app, /Покупка списывает деньги с общего баланса/)
+  assert.match(app, /Деньги зачислены на единый баланс/)
+})
