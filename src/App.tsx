@@ -949,6 +949,8 @@ export default function App() {
     setOwnedEmployees([])
     setCompanyName('')
     setOwnedItems([])
+    shopProcessedRef.current = []
+    setShopProcessed([])
     setSelectedOutfit('intern')
     setOwnedOutfits(['intern'])
     setSelectedClientId('alex-vorontsov')
