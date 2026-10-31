@@ -25,7 +25,7 @@ type AppId = 'home' | 'calls' | 'market' | 'clients' | 'wardrobe' | 'equipment' 
 type Stock = { ticker: string; name: string; price: number; risk: 'Низкий' | 'Средний' | 'Высокий' | 'Очень высокий'; upside: string; downside: string; fit: string; financials: string; catalyst: string; redFlags: string; horizon: string }
 type Props = {
   cash: number
-  transactMoney: (amount: number, reason: string) => boolean
+  transactMoney: (amount: number, reason: string, onceKey?: string) => boolean
   masterVolume: number; setMasterVolume: Dispatch<SetStateAction<number>>
   soundEnabled: boolean; setSoundEnabled: Dispatch<SetStateAction<boolean>>
   reputation: number; setReputation: Dispatch<SetStateAction<number>>
@@ -453,7 +453,7 @@ export default function ArenaOS(props: Props) {
   const buyOutfit = (id:OutfitId,price:number) => {
     if(props.ownedOutfits.includes(id)) { props.setSelectedOutfit(id); setNotice('Образ изменён: его бонус зависит от уровня одежды и статуса клиента.'); return }
     if(props.cash<price) { setNotice('Не хватает денег. Сначала заработай на переговорах.'); return }
-    if (!props.transactMoney(-price, 'Покупка одежды: ' + outfit.name, 'outfit:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
+    if (!props.transactMoney(-price, 'Покупка одежды: ' + (OUTFITS.find(item => item.id === id)?.name ?? id), 'outfit:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setOwnedOutfits(v=>[...v,id]); props.setSelectedOutfit(id); setNotice('Покупка разовая. Ежедневной аренды жилья в игре нет.')
   }
   const buyBusinessUpgrade = (id:string) => {
@@ -501,7 +501,7 @@ export default function ArenaOS(props: Props) {
   const buyGear = (id:string,price:number) => {
     if(props.ownedItems.includes(id)) { setNotice('Уже куплено.'); return }
     if(props.cash<price) { setNotice('Не хватает денег.'); return }
-    if (!props.transactMoney(-price, 'Покупка оборудования: ' + item.name, 'room-item:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
+    if (!props.transactMoney(-price, 'Покупка оборудования: ' + (GEAR.find(item => item.id === id)?.name ?? id), 'room-item:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setOwnedItems(v=>[...v,id]); setNotice('Куплено навсегда. Ежедневной аренды жилья в игре нет.')
   }
   const nav: {id:AppId;label:string;icon:typeof Laptop}[] = [
