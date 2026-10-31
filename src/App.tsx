@@ -14,6 +14,7 @@ import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
+import { evaluateFreeReply, getEquipmentOpening, getNegotiationDifficulty } from './game/dialogue'
 import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
@@ -993,19 +994,20 @@ export default function App() {
     const companyFitBonus = (assignedCompany.risk === 'Очень высокий' ? -5 : assignedCompany.risk === 'Высокий' ? -2 : assignedCompany.positive ? 3 : -3) + newsFitBonus
     setTrust(Math.max(0, Math.min(100, relationshipTrustBase + preparationBonus + roomBonus + outfitBonus + relationshipBonus + reputationBonus + businessTrustBonus + videoBonus + backgroundBonus + companyFitBonus)))
     setPatience(activeClient.patience)
-    setTimeLeft(75)
-    setLastPenaltySecond(75)
+    const negotiationSeconds = Math.max(45, 90 - getNegotiationDifficulty(activeClient, ownedItems) * 5)
+    setTimeLeft(negotiationSeconds)
+    setLastPenaltySecond(negotiationSeconds)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : []), ...(reputationBonus > 0 ? [{ from: 'system' as const, text: 'Репутация прошлых сделок добавила +' + reputationBonus + ' к начальному доверию.' }] : []), ...(businessTrustBonus > 0 ? [{ from: 'system' as const, text: 'Бизнес-инструменты помогли подготовиться: +' + businessTrustBonus + ' к начальному доверию.' }] : [])])
+    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, ...getEquipmentOpening(activeClient, ownedItems).map((text) => ({ from: 'client' as const, text })), { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : []), ...(reputationBonus > 0 ? [{ from: 'system' as const, text: 'Репутация прошлых сделок добавила +' + reputationBonus + ' к начальному доверию.' }] : []), ...(businessTrustBonus > 0 ? [{ from: 'system' as const, text: 'Бизнес-инструменты помогли подготовиться: +' + businessTrustBonus + ' к начальному доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCityBonus(0)
     setCallStatus('active')
     playSound('computer')
     window.setTimeout(() => playSound('murmur'), 450)
-    setTimeLeft(75)
-    setLastPenaltySecond(75)
+    setTimeLeft(negotiationSeconds)
+    setLastPenaltySecond(negotiationSeconds)
     setWindowMinimized(false)
     setWindowMaximized(!embedded)
     if (!embedded) setTab('calls')
@@ -1061,7 +1063,9 @@ export default function App() {
     const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(lower)
     const reckless = !rejectsGuarantee && /гарантирую|гарантированно выраст|без риска|точно выраст|не может упасть|удво|100\s*%\s*(?:доход|прибыл)?/.test(lower)
     const backgroundCaught = videoEnabled && videoBackground === 'luxury' && activeClient.statusSensitive && getVideoQuality(ownedItems) < 4 && questionIndex === 0
-    const safeDelta = reckless ? -15 : delta
+    const dialogueEvaluation = evaluateFreeReply(text, activeClient, { name: activeCompany.name, ticker: activeCompany.ticker, upside: activeCompany.advantages, downside: activeCompany.risks, catalyst: activeCompany.advantages, redFlags: activeCompany.risks }, questionIndex, ownedItems, { trust, patience })
+    const evaluatedDelta = approach === 'freeform' ? dialogueEvaluation.delta : delta + (dialogueEvaluation.delta >= 8 ? 1 : dialogueEvaluation.delta <= -6 ? -2 : 0)
+    const safeDelta = reckless ? -15 : evaluatedDelta
     const appliedDelta = Math.max(-15, Math.min(10, safeDelta - (backgroundCaught ? 7 : 0)))
     const nextTrust = Math.max(0, Math.min(100, trust + appliedDelta))
     const patienceCost = appliedDelta >= 7 ? 2 : appliedDelta <= -8 ? 9 : appliedDelta < 0 ? 6 : 4
@@ -1069,36 +1073,10 @@ export default function App() {
     setTrust(nextTrust); setPatience(nextPatience)
     setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, Math.min(100, (scores[activeClient.id] ?? activeClient.baseTrust) + appliedDelta)) }))
     const evidence = /риск|убыт|марж|денеж|контракт|возврат|сценар|подтверж|провер|если|огранич|критер|дивиденд|прибыл/.test(lower)
-    const clientTone = activeClient.temperament.toLowerCase()
-    const strong = ['«Вот теперь разговор предметный. Я вижу не только красивую сторону, но и то, что может сломать идею».','«Хорошо: вы не пытаетесь продать мне единственный правильный ответ. Продолжайте».','«Запишу это в заметки. Наконец-то аргумент, который можно проверить, а не повесить в рамке».','«Это звучит разумнее презентации директора. Но я всё ещё оставляю за собой право передумать».','«Ладно, вы хотя бы знаете, где у этой истории слабое место. Это уже редкость на рынке».']
-    const weak = ['«Вы сейчас продаёте мне уверенность в собственном голосе. А цифры где?»','«Это ответ из рекламной брошюры. Я спрашивал про свои деньги, а не про вашу мотивацию».','«Подождите. Вы пропустили самое неприятное место — именно поэтому я и спросил».','«С таким объяснением я пока не подпишусь. Даже коту с реактивным двигателем нужен тормоз».','«Слишком гладко. Когда брокер не называет риск, обычно риск называет его сам».']
-    const mixed = ['«Часть ответа полезна, но я пока не понял, как это связано с моей задачей».','«Допустим. А теперь переведите это с брокерского на человеческий и покажите, что проверять».','«Не провал, но и не продажа века. Давайте отделим факт от надежды».','«Я услышал аргумент. Пока поставлю ему оценку “интересно, но не трогать без перчаток”».','«Вы на верном пути, но мне не хватает условия, при котором вы признаете ошибку».']
-    const tickerReplies: Record<string, string[]> = {
-      KOTL:['«У роботов хотя бы есть маршрут. У вашей идеи теперь тоже появился критерий проверки».','«Если контракт не подпишут, хочу услышать план Б, а не мяуканье финансового директора».','«Рост выручки — хорошо. Покажите, когда он перестанет быть дорогим хобби».','«Техническое чудо не отменяет стоимости ремонта. Посчитаем цену одного рабочего робота».','«Конкурент может скопировать корпус, но сможет ли он повторить себестоимость и сервис?»'],
-      OGUR:['«Хорошо, что вы не обещаете, будто огурцы спасут портфель от всех бед».','«Прибыль — приятно. Теперь выясним, сколько останется после упаковки и скидок».','«Убедительнее сока из презентации. Но маржу всё равно проверим».','«Полка в магазине — не вечная прописка. Что удержит сеть от смены поставщика?»','«Если покупатель вернётся без купона, вот тогда поговорим о настоящем спросе».'],
-      TAPK:["«Пробный период — это знакомство, а не выручка. Сколько компаний осталось на платном тарифе?»","«Если администратор возвращается к таблице, значит продукт не встроился в ежедневную работу».","«Удержание пользователей важнее количества установок приложения».","«Индивидуальная доработка звучит заманчиво, пока не превращает подписной сервис в агентство разработки».","«Сколько активных сотрудников пользуется расписанием каждую неделю?»"],
-      DUST:["«Стойки в дата-центре не приносят денег, пока клиент не арендует мощность».","«Электроэнергия может съесть маржу быстрее, чем серверы обработают следующий запрос».","«Долгий контракт хорош, если цена учитывает стоимость электричества и обновление оборудования».","«Новый дата-центр выглядит внушительно. А сколько мегаватт уже законтрактовано?»","«Облачный спрос растёт, но капитальные затраты тоже. Посчитаем денежный поток после обновления серверов». "],
-      BTRAN:['«Кофе на заправке может быть крепким, но тезис должен быть крепче».','«Считайте экономику одной станции, а не количество банановых вывесок».','«Трафик, маржа и окупаемость — вот бензин для этой идеи. Слоганы машину не заведут».','«Магазин иногда зарабатывает лучше колонки. Покажите прибыль на один визит».','«Зарядки выглядят перспективно, но пустая быстрая станция — дорогой фонарь».'],
-      VECT:["«Количество консультаций важно, но повторный платёж и стоимость привлечения пациента важнее красивого графика».","«Партнёрская клиника может поднять тариф. Покажите, как платформа защищает свою долю».","«Данные о здоровье — не обычная аналитика. Безопасность должна быть в финансовой модели».","«Сколько пациентов возвращается без рекламной скидки? Это лучший тест продукта».","«Медицинская платформа зависит от врачей и лицензий. Где резервный сценарий?»"],
-      NEFT:['«Нефть не читает наши прогнозы. Она просто падает в цене, когда у модели заканчивается оптимизм».','«Экспортная выручка красива до встречи с логистикой, налогами и курсом».','«Посчитаем цену безубыточности, прежде чем объявлять дивиденды вечными».','«Если маршрут дорожает, баррель не становится добрее. Нужен стресс-сценарий».','«Сырьевой цикл разворачивается быстрее уверенности инвестора. Какой у нас запас прочности?»'],
-      MEDX:['«Пациенту нужен врач, инвестору — окупаемость филиала. Не перепутаем эти два вида лечения».','«Новая клиника не становится прибыльной только потому, что у неё свежая вывеска».','«Сколько пациентов нужно в день, чтобы аренда и зарплаты перестали съедать капитал?»','«Хороший врач важен, но загрузка расписания тоже часть финансовой модели».','«Пять новых филиалов звучат амбициозно. Сначала докажем экономику одного».'],
-      GROV:["«Оборот площадки впечатляет, но инвестора интересует прибыль после доставки, возвратов и рекламы».","«Бесплатная доставка бесплатна только на ценнике. Кто оплачивает последний километр?»","«Продавцы уйдут, если комиссия слишком высока, но нулевая комиссия не оплатит серверы».","«Скидка приводит покупателя один раз. Повторная покупка без промо — более сильный сигнал».","«Международный запуск — это ещё и платежи, налоги, возвраты и локальная логистика»."],
-      GRID:["«Энергосети необходимы, но тариф и капитальные затраты определяют доходность акционера».","«Регулятор утвердил не тот тариф, на который надеялась презентация. Пересчитаем модель».","«Накопитель энергии должен зарабатывать на реальных циклах, а не на красивой схеме».","«Новый кабель может быть нужен городу, но нам нужен бюджет, срок и окупаемость».","«Надёжность инфраструктуры важна, однако долг тоже требует обслуживания каждый год»."],
-      BYTE:["«Регулярная выручка — хорошо. Продления и расширение контракта — ещё лучше».","«Количество пользователей не равно количеству платящих лицензий».","«Новая функция должна решать задачу клиента и повышать удержание, иначе это дорогой эксперимент».","«Большой корпоративный контракт не обязательно выгоден после внедрения и поддержки».","«Покажите отток и стоимость привлечения, а не только презентацию продукта»."],
-      LOGI:["«Посылок стало больше. Теперь выясним, сколько стоит доставить каждую из них».","«Пустой обратный рейс — это расход, замаскированный под движение».","«Топливная надбавка защищает маржу только если её можно пересматривать по контракту».","«Сортировочный центр должен быть загружен не только в праздничный сезон».","«Большой клиент полезен, если маршрут плотный и цена покрывает последнюю милю»."],
-    }
-    const seed = (activeClient.id + activeCompany.ticker + questionIndex + text).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
-    let clientReaction = appliedDelta >= 7 ? strong[(seed + questionIndex) % strong.length] : appliedDelta <= -8 ? weak[(seed + questionIndex) % weak.length] : mixed[(seed + questionIndex) % mixed.length]
-    const companyReplies = tickerReplies[activeCompany.ticker] ?? []
-    if (companyReplies.length) {
-      clientReaction = companyReplies[questionIndex % companyReplies.length]
-      if (appliedDelta < 3) clientReaction = '«Пока это не снимает мои сомнения. Давайте вернёмся к проверяемым цифрам». ' + clientReaction
-    }
-    if (approach === 'discovery') clientReaction = '«Для меня главное — ' + activeClient.goal + '. Хорошо, что вы сначала уточнили задачу. Теперь покажите, как эта идея вписывается в мой горизонт и допустимый риск». '
+    let clientReaction = approach === 'discovery'
+      ? '«Для меня главное — ' + activeClient.goal + '. Хорошо, что вы сначала уточнили задачу. Теперь покажите, как эта идея вписывается в мой горизонт и допустимый риск».'
+      : dialogueEvaluation.reply
     if (reckless) clientReaction = '«Вы только что назвали риск гарантированным нулём. Для меня это не уверенность, а красный флаг. На этом рекомендацию прекращаем».'
-    if (clientTone.includes('занят') || clientTone.includes('прямолин')) clientReaction = clientReaction.replace('«', '«Коротко: ')
-    if (clientTone.includes('дотош') || clientTone.includes('аналит')) clientReaction += ' «И занесите допущение в расчёт, чтобы потом не делать вид, будто мы его не обсуждали».'
-    if (clientTone.includes('импульсив') || clientTone.includes('азарт')) clientReaction += ' «Не дайте мне увлечься красивой историей: напомните лимит риска».'
     setConversation((items) => [...items, { from: 'you', text }, ...(backgroundCaught ? [{ from: 'system' as const, text: 'Клиент заметил несоответствие виртуального фона: доверие −7. Для статусного клиента важна согласованность игрового интерьера и качества видеосвязи.' }] : []), { from: 'system' as const, text: 'Разбор ответа: доверие ' + (appliedDelta > 0 ? '+' : '') + appliedDelta + ' (' + trust + ' → ' + nextTrust + '); терпение −' + patienceCost + ' (' + patience + ' → ' + nextPatience + '). ' + (reckless ? 'Необоснованное обещание — критическая ошибка.' : evidence ? 'Ты затронул факты или риски — это помогает обосновать рекомендацию.' : 'В ответе мало проверяемых фактов: привяжи аргумент к цели клиента.') }, { from: 'client' as const, text: clientReaction }])
     playSound('murmur'); setFreeAnswer('')
     // A poor answer can end the call immediately; reckless guarantees are a deal-breaker.
@@ -1119,63 +1097,13 @@ export default function App() {
       return
     }
     if (questionIndex >= activeQuestions.length - 1) resolveCall(nextTrust, nextPatience)
-    else { setQuestionIndex((value) => value + 1); setTimeLeft(75); setLastPenaltySecond(75) }
+    else { const nextSeconds = Math.max(45, 90 - getNegotiationDifficulty(activeClient, ownedItems) * 5); setQuestionIndex((value) => value + 1); setTimeLeft(nextSeconds); setLastPenaltySecond(nextSeconds) }
   }
 
   function sendFreeAnswer() {
     const text = freeAnswer.trim()
     if (!text || callStatus !== 'active') return
-    const normalized = text.toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[^\p{L}\p{N}%?+.-]+/gu, ' ').trim()
-    const words = normalized.split(/\s+/).filter(Boolean)
-    const hasAny = (terms: string[]) => terms.some((term) => normalized.includes(term))
-    const questionTerms: Record<string, string[][]> = {
-      KOTL:[['рост','заказ','убыт','расход','денеж','прибыл','марж','контракт'],['контракт','подпис','отказ','срыв','сценар','подтверж','огранич','заказчик'],['марж','денеж','постав','метрик','критер','прибыл','убыт'],['сервис','ремонт','батар','обслужив','расход','стоимость'],['конкур','дешев','патент','себестоим','удерж','повторн']],
-      OGUR:[['прибыл','дистрибу','канал','рост','марж','полк','темп'],['сырь','упаков','себестоим','марж','поставщик','цен','спрос'],['доходн','дивид','горизонт','риск','гарант','прибыл'],['полк','регион','торгов','сеть','зависим','продаж'],['повторн','марж','промо','списан','реклам','продаж']],
-      BTRAN:[['марж','топлив','магазин','мойк','заряд','чек','прибыл'],['оптов','закуп','марж','цен','трафик','сценар','контракт'],['окупаем','долг','денеж','станци','свободн','недозагруз'],['кофе','магазин','марж','чек','повтор'],['электромоб','заряд','стоимость','подключен','окупаем','локац','трафик']],
-      VECT:[['пациент','консультац','повторн','привлечен','платящ','выруч'],['клиник','партнер','тариф','марж','комисси','цен'],['данн','безопас','регулир','лицензи','аудит','расход'],['пациент','повторн','удерж','маркетинг','когорт'],['партнер','концентрац','клиник','резерв']],
-      DUST:[['загруз','мощност','стойк','контракт','безубыточ'],['электроэнерг','тариф','марж','индексац','энергозатрат'],['сервер','обновлен','капитал','амортизац','долг'],['загруз','контракт','безубыточ','финансирован'],['индексац','энергия','стоимость','клиент']],
-      TAPK:[['платящ','конверси','подпис','сотрудник','активн'],['отток','когорт','использ','отмен','удерж'],['разработ','внедрен','контракт','марж','пилот'],['модул','функц','оплат','активн'],['пилот','тариф','продлен','срок']],
-      GROV:[['оборот','комисси','достав','возврат','марж','реклам'],['комисси','скид','продав','логист','марж'],['регион','страна','платеж','налог','возврат','логист'],['заказ','марж','субсид','скид','промо'],['продав','провер','возврат','спор','удерж']],
-      GRID:[['капитал','проект','тариф','подключен','потер'],['регулятор','тариф','денеж','долг','сценар'],['накопител','батар','цикл','деградац','окупаем'],['разрешен','задерж','проект','процент'],['батар','поставщик','стоимость','замен']],
-      BYTE:[['регулярн','продлен','отток','контракт','подпис','удерж'],['разработ','расход','денеж','модул','платящ'],['скид','внедрен','поддерж','марж','контракт'],['удерж','выруч','аккаунт','клиент'],['платящ','функц','заказ','подпис']],
-      LOGI:[['себестоим','посылк','маршрут','загруз','пробег'],['топлив','зарплат','тариф','индексац','клиент'],['мощност','центр','контракт','сезон','загруз'],['сезон','загруз','мощност','расход'],['маршрут','последн','километр','контракт','объем']],
-    }
-    const companySignals: Record<string, string[]> = {
-      KOTL:['контракт','заказ','робот','сервис','масштаб','денеж','убыт','поставк','марж'],
-      OGUR:['сырь','упаков','марж','дистрибу','полк','прибыл','повторн','конкур'],
-      BTRAN:['оптов','топлив','марж','трафик','заряд','станц','магазин','денеж','окупаем'],
-      VECT:['пациент','клиник','консультац','удерж','безопас','лицензи','повторн','медицин'],
-      DUST:['дата-центр','сервер','мощност','стойк','электроэнерг','загруз','обновлен','капитал'],
-      TAPK:['смен','табел','hr','подпис','сотрудник','отток','пилот','платящ'],
-      GROV:['маркетплейс','комисси','продав','заказ','достав','возврат','марж','покупател'],
-      GRID:['электросет','тариф','накопител','батар','энерг','капитальн','регулятор','подключен'],
-      BYTE:['подпис','облач','модул','разработ','продлен','отток','лицензи','платящ'],
-      LOGI:['посылк','маршрут','достав','топлив','курьер','сортировоч','загруз','обратн'],
-    }
-    const activeSignals = questionTerms[activeCompany.ticker]?.[questionIndex] ?? []
-    const questionHits = activeSignals.filter((term) => normalized.includes(term)).length
-    const riskHits = ['риск','убыт','расход','денежный поток','марж','провер','сценар','подтверж','огранич','долг','возврат','налог','конкурен','просад'].filter((term) => normalized.includes(term)).length
-    const evidenceHits = ['цифр','отчет','отчёт','данн','факт','провер','сравн','метрик','порог','критер','услов','если','план','лимит','срок','доля','прибыл','выруч','контракт','спрос','клиент'].filter((term) => normalized.includes(term)).length
-    const upsideHits = ['рост','выруч','прибыл','спрос','контракт','дивиденд','драйвер','масштаб','эффектив','повторн','рентабель','марж'].filter((term) => normalized.includes(term)).length
-    const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(normalized)
-    const reckless = !rejectsGuarantee && /гарантир|без риска|точно выраст|не может упасть|удвоим|сто процентов|100\s*%|верняк|беспроигрыш|не потеряете|всегда раст/.test(normalized)
-    const joke = /ахах|хаха|лол|рофл|шутк|мем|кот|тапоч|банан|огурц|ракета|на луну|единорог|магия|волшеб|вечн.*двигател|прибыл.*из воздуха|деньги сами|если бы|ага конечно/.test(normalized)
-    const negated = /не\s+(будет|станет|гарантир|обещ|знаю|понимаю|вижу)|никак|вряд ли|сомневаюсь|не факт|сарказм/.test(normalized)
-    let delta = 0
-    if (questionHits >= 2) delta += 4
-    else if (questionHits === 1) delta += 2
-    if (hasAny(companySignals[activeCompany.ticker] ?? [])) delta += 2
-    delta += Math.min(3, riskHits) + Math.min(3, evidenceHits) + (upsideHits ? 1 : 0)
-    if (words.length < 3) delta -= 2
-    if (text.length > 420) delta -= 1
-    if (reckless) delta = -15
-    else {
-      // A joke is not automatically a bad answer: score its underlying point as well as its tone.
-      if (joke && riskHits + evidenceHits + upsideHits + questionHits > 0) delta += 1
-      if (negated && (riskHits > 0 || evidenceHits > 0)) delta += 1
-      if (delta === 0) delta = joke ? -1 : -2
-    }
-    answerQuestion(text, Math.max(-15, Math.min(8, delta)))
+    answerQuestion(text, 0, 'freeform')
   }
 
   function buyRoomItem(itemId: string) {
