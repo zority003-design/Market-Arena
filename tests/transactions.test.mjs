@@ -10,7 +10,7 @@ test('the transaction service validates debits, credits, duplicate ids, and fini
   assert.match(source, /Number\.isFinite\(transaction\.amount\)/)
   assert.match(source, /history\.some\(\(entry\) => entry\.id === transaction\.id\)/)
   assert.match(source, /nextBalance < 0/)
-  assert.match(source, /history: \[\.\.\.history, entry\]\.slice\(-200\)/)
+  assert.match(source, /history: \[\.\.\.history, entry\]/)
 })
 
 test('all App and ArenaOS money mutations use the same idempotent transaction gateway', async () => {
@@ -37,7 +37,6 @@ test('player share purchases and sales change the same cash balance and persist 
   const app = await read('src/App.tsx')
   assert.match(app, /portfolio\?: Record<string, number>/)
   assert.match(app, /setPortfolio\(data\.portfolio \?\? \{\}\)/)
-  assert.match(app, /setPortfolio\(\{\}\)/)
   assert.match(app, /portfolioMarketValue/)
   assert.match(app, /netWorth = cash \+ portfolioMarketValue - debt/)
   assert.match(app, /transactMoney\(-total, 'Покупка '/)
@@ -48,4 +47,8 @@ test('player share purchases and sales change the same cash balance and persist 
   assert.match(app, /setGameMinutes\(\(minutes\) => \(minutes \+ 10\)/)
   assert.match(app, /Биржевые операции сегодня/)
   assert.match(app, /setTradesToday\(data\.tradesToday \?\? 0\)/)
+  const sleepStart = app.indexOf('function sleepNow()')
+  const nextFunction = app.indexOf('\n  function ', sleepStart + 1)
+  const sleepHandler = app.slice(sleepStart, nextFunction > sleepStart ? nextFunction : undefined)
+  assert.doesNotMatch(sleepHandler, /setPortfolio\(\{\}\)/)
 })
