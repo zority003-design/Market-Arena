@@ -106,52 +106,6 @@ const GEAR = [
   {id:'partner-desk',name:'Дополнительный рабочий стол',price:5800,desc:'Физически появляется в комнате и открывает найм первого сотрудника в квартире.',bonus:0,icon:'desk'}
 ]
 
-function GearIllustration({ type }: { type:string }) {
-  const common = { strokeLinecap:'round' as const, strokeLinejoin:'round' as const }
-  return <svg viewBox="0 0 160 120" role="img" aria-label={type==='desk'?'Иллюстрация рабочего стола':type==='mic'?'Иллюстрация гарнитуры':type==='camera'?'Иллюстрация веб-камеры':type==='light'?'Иллюстрация настольной лампы':'Иллюстрация рабочего фона'}>
-    <ellipse cx="80" cy="104" rx="54" ry="7" fill="#9bb5ca" opacity=".45"/>
-    {type==='desk' && <>
-      <rect x="58" y="18" width="45" height="31" rx="3" fill="#263e55" stroke="#122b40" strokeWidth="2"/>
-      <rect x="62" y="22" width="37" height="22" rx="1.5" fill="#85c9e8"/>
-      <path d="M66 37 L73 30 L79 34 L88 26 L96 34" fill="none" stroke="#e8f8ff" strokeWidth="2.5" {...common}/>
-      <rect x="76" y="49" width="9" height="7" fill="#60788c"/><rect x="68" y="55" width="25" height="4" rx="2" fill="#526a7c"/>
-      <path d="M24 66 L136 66 L124 78 L36 78 Z" fill="#b98d5c" stroke="#805c3a" strokeWidth="2"/>
-      <path d="M38 78 L38 99 M122 78 L122 99" stroke="#5d6873" strokeWidth="6" {...common}/>
-      <rect x="42" y="69" width="40" height="5" rx="2" fill="#e0b982"/>
-      <rect x="96" y="69" width="22" height="5" rx="2" fill="#5b7183"/>
-    </>}
-    {type==='mic' && <>
-      <path d="M42 68 V52 A38 38 0 0 1 118 52 V68" fill="none" stroke="#263d53" strokeWidth="11" {...common}/>
-      <path d="M43 52 A37 37 0 0 1 117 52" fill="none" stroke="#7f9eb4" strokeWidth="4" {...common}/>
-      <rect x="30" y="55" width="25" height="35" rx="8" fill="#24435b" stroke="#142f45" strokeWidth="2"/>
-      <rect x="105" y="55" width="25" height="35" rx="8" fill="#24435b" stroke="#142f45" strokeWidth="2"/>
-      <rect x="35" y="61" width="15" height="22" rx="5" fill="#72c5d5"/><rect x="110" y="61" width="15" height="22" rx="5" fill="#72c5d5"/>
-      <path d="M116 83 Q116 100 94 96" fill="none" stroke="#d2a75d" strokeWidth="4" {...common}/>
-      <circle cx="91" cy="96" r="5" fill="#31485d"/>
-    </>}
-    {type==='camera' && <>
-      <rect x="25" y="39" width="110" height="47" rx="10" fill="#314b62" stroke="#192f43" strokeWidth="3"/>
-      <rect x="35" y="45" width="90" height="7" rx="3" fill="#6e8ca2"/>
-      <circle cx="80" cy="63" r="19" fill="#182e42" stroke="#8bb6cf" strokeWidth="4"/>
-      <circle cx="80" cy="63" r="11" fill="#55a7d3"/><circle cx="76" cy="59" r="4" fill="#dff6ff"/>
-      <path d="M67 87 L62 98 L98 98 L93 87" fill="#607d91"/>
-    </>}
-    {type==='light' && <>
-      <path d="M79 96 L79 62 L102 36" stroke="#475d70" strokeWidth="7" {...common}/>
-      <path d="M82 95 L55 95" stroke="#475d70" strokeWidth="7" {...common}/>
-      <path d="M87 20 L122 32 L105 55 L75 43 Z" fill="#f3c969" stroke="#b48b36" strokeWidth="2" {...common}/>
-      <path d="M91 42 L100 65 M104 45 L109 65 M79 45 L90 65" stroke="#f4d98b" strokeWidth="2" opacity=".8" {...common}/>
-      <ellipse cx="81" cy="100" rx="26" ry="5" fill="#71879a"/>
-    </>}
-    {type==='background' && <>
-      <rect x="24" y="16" width="112" height="82" rx="5" fill="#81969b" stroke="#526a75" strokeWidth="3"/>
-      <rect x="32" y="24" width="96" height="66" rx="3" fill="#d9e8e9"/>
-      <path d="M32 70 Q55 55 76 70 T128 68 V90 H32 Z" fill="#b4d3d4"/>
-      <rect x="41" y="35" width="34" height="4" rx="2" fill="#91aab1"/><rect x="41" y="44" width="52" height="3" rx="1.5" fill="#a4bbc1"/>
-      <path d="M111 88 V66 M111 72 Q94 66 99 56 Q113 56 111 72 M111 77 Q128 70 126 61 Q112 61 111 77" stroke="#3f8265" strokeWidth="4" fill="none" {...common}/>
-    </>}
-  </svg>
-}
 
 const money = (n:number) => Math.round(n).toLocaleString('ru-RU') + ' ₽'
 
@@ -277,7 +231,7 @@ export default function ArenaOS(props: Props) {
   const catalogEquipment = getEquipmentEffects(props.ownedItems)
   const equipmentBonus = GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0) + (catalogEquipment.callQuality ?? 0)
   const currentHousing = HOUSING.find(home => home.id === props.housingId) ?? HOUSING[0]
-  const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client)
+  const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client) + (catalogEquipment.roomComfort ?? 0)
   const estimatedBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * 1.25)))
   const estimatedFirmCommission = Math.round(client.ticket * client.commissionRate)
   const businessTrustBonus = BUSINESS_UPGRADES.filter(upgrade => props.businessUpgrades.includes(upgrade.id)).reduce((sum, upgrade) => sum + upgrade.trustBonus, 0)
@@ -289,7 +243,8 @@ export default function ArenaOS(props: Props) {
   const missingCameraPenalty = props.ownedItems.includes('hd-camera') ? 0 : (client.tier >= 2 || client.statusSensitive ? 5 : 2)
   const missingBackgroundPenalty = (props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) ? 0 : (client.tier >= 2 || client.statusSensitive ? 3 : 1)
   const qualityPenalty = missingMicPenalty + missingCameraPenalty + missingBackgroundPenalty
-  const chance = Math.max(5,Math.min(78,Math.round(20 + trust*.43 + props.reputation*.09 + equipmentBonus*.7 + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 3 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.3)))
+  const analysisBonus = Math.min(4,Math.floor((catalogEquipment.marketAnalysis ?? 0)/8))
+  const chance = Math.max(5,Math.min(78,Math.round(20 + trust*.43 + props.reputation*.09 + equipmentBonus*.7 + analysisBonus + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 3 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.3)))
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-last-app',activeApp) } catch {} },[activeApp])
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-contacts',JSON.stringify(newContacts)) } catch {} },[newContacts])
   useEffect(()=>{
@@ -446,8 +401,9 @@ export default function ArenaOS(props: Props) {
   }
   const buyOutfit = (id:OutfitId,price:number) => {
     if(props.ownedOutfits.includes(id)) { props.setSelectedOutfit(id); setNotice('Образ изменён: его бонус зависит от уровня одежды и статуса клиента.'); return }
-    if(props.cash<price) { setNotice('Не хватает денег. Сначала заработай на переговорах.'); return }
-    props.setCash(v=>v-price); props.setOwnedOutfits(v=>[...v,id]); props.setSelectedOutfit(id); setNotice('Покупка разовая. Ежедневной аренды жилья в игре нет.')
+    const ok=props.onPurchase(id,price,OUTFITS.find(item=>item.id===id)?.name ?? id)
+    if(!ok) { setNotice('Не удалось купить комплект. Проверь баланс.'); return }
+    props.setOwnedOutfits(v=>[...v,id]); props.setSelectedOutfit(id); setNotice('Комплект куплен. Списание проведено через общий транзакционный сервис.')
   }
   const buyBusinessUpgrade = (id:string) => {
     const upgrade = BUSINESS_UPGRADES.find(item => item.id === id)
