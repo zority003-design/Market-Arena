@@ -265,3 +265,24 @@ test('market has exactly ten distinct fictional companies and each has a company
  assert.match(app,/const COMPANY_BANTER/)
  assert.match(app,/ВольтСеть/)
 })
+
+
+test('player video is an in-game camera view tied to the selected housing, never a physical webcam', async () => {
+  const app = await read('src/App.tsx')
+  const camera = await read('src/BrokerAvatar3D.tsx')
+  assert.doesNotMatch(app, /getUserMedia|real-webcam-feed/)
+  assert.match(app, /BrokerWebcamScene identity="player" outfit=\{outfit\} housingId=\{housingId\}/)
+  assert.match(app, /BrokerWebcamScene identity="player" outfit=\{selectedOutfit\} housingId=\{housingId\}/)
+  assert.match(camera, /export function BrokerWebcamScene/)
+  assert.match(camera, /housingId === 'office'/)
+  assert.match(camera, /housingId === 'premium-apartment'/)
+})
+
+test('housing test mode grants the test budget and bypasses progression in both listing and move action', async () => {
+  const app = await read('src/App.tsx')
+  assert.match(app, /Выдать тестовый бюджет \+1 000 000 ₽/)
+  assert.match(app, /setCash\(\(value\) => value \+ 1000000\)/)
+  assert.match(app, /setFirmCapital\(\(value\) => value \+ 2000000\)/)
+  assert.match(app, /const locked = !testModeEnabled &&/)
+  assert.match(app, /!testModeEnabled && \(day < home\.minDay \|\| reputation < home\.minReputation\)/)
+})
