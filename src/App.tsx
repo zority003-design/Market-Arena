@@ -504,6 +504,7 @@ export default function App() {
   const cashRef = useRef(cash)
   const transactionSequence = useRef(0)
   const [transactionHistory, setTransactionHistory] = useState<MoneyTransaction[]>(saved.transactionHistory ?? [])
+  const transactionHistoryRef = useRef<MoneyTransaction[]>(saved.transactionHistory ?? [])
   const [xp, setXp] = useState(saved.xp ?? 0)
   const careerLevel = getCareerLevel(xp)
   const [debt, setDebt] = useState(saved.debt ?? 0)
@@ -555,16 +556,18 @@ export default function App() {
   const [conversation, setConversation] = useState<{ from: 'client' | 'you' | 'system'; text: string }[]>([])
   const [lastResult, setLastResult] = useState('')
   const [toast, setToast] = useState('')
-  function transactMoney(amount: number, reason: string) {
+  function transactMoney(amount: number, reason: string, onceKey?: string) {
     transactionSequence.current += 1
-    const result = postMoneyTransaction(cashRef.current, transactionHistory, { id: careerSessionId + ':' + day + ':' + transactionSequence.current, day, amount, reason })
+    const result = postMoneyTransaction(cashRef.current, transactionHistoryRef.current, { id: careerSessionId + ':' + day + ':' + (onceKey ?? transactionSequence.current), day, amount, reason })
     if (!result.ok) return false
     cashRef.current = result.balance
     setCash(result.balance)
+    transactionHistoryRef.current = result.history
     setTransactionHistory(result.history)
     return true
   }
   useEffect(() => { cashRef.current = cash }, [cash])
+  useEffect(() => { transactionHistoryRef.current = transactionHistory }, [transactionHistory])
   const [selectedCompany, setSelectedCompany] = useState('KOTL')
   const [newsImpacts, setNewsImpacts] = useState<Record<string, number>>({})
   const [marketReviewed, setMarketReviewed] = useState(false)
@@ -798,6 +801,7 @@ export default function App() {
     cashRef.current = restoredCash
     setCash(restoredCash)
     setTransactionHistory(data.transactionHistory ?? [])
+    transactionHistoryRef.current = data.transactionHistory ?? []
     setXp(data.xp ?? 0)
     setDebt(data.debt ?? 0)
     setReputation(data.reputation ?? 42)
@@ -896,6 +900,7 @@ export default function App() {
     cashRef.current = STARTING_CASH + STARTING_FIRM_CAPITAL
     setCash(cashRef.current)
     setTransactionHistory([])
+    transactionHistoryRef.current = []
     transactionSequence.current = 0
     setXp(0)
     setDebt(0)
@@ -1043,7 +1048,7 @@ export default function App() {
     if (success) {
       playSound('deal')
       const payout = calculateDeal(activeClient, nextTrust, clientDealCounts[activeClient.id] ?? 0, clientInvested[activeClient.id] ?? 0, businessUpgrades.length)
-      transactMoney(payout.firmRevenue, 'Комиссия за сделку с ' + activeClient.name)
+      transactMoney(payout.firmRevenue, 'Комиссия за сделку с ' + activeClient.name, 'deal:' + activeClient.id)
       setReputation((value) => Math.min(100, value + (activeClient.tier >= 2 ? 5 : 4)))
       setDeals((value) => value + 1)
       setClientDealCounts((counts) => ({ ...counts, [activeClient.id]: (counts[activeClient.id] ?? 0) + 1 }))
@@ -1138,7 +1143,7 @@ export default function App() {
     if (!item || ownedItems.includes(itemId)) return
     if (day < item.minDay || careerLevel.level < (item.minLevel ?? 1)) { setToast('Предмет требует ' + item.minDay + '-го дня и уровня ' + (item.minLevel ?? 1) + '.'); return }
     if (cash < item.price) { setToast('Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽.'); return }
-    if (!transactMoney(-item.price, 'Покупка оборудования: ' + item.name)) return
+    if (!transactMoney(-item.price, 'Покупка оборудования: ' + item.name, 'room-item:' + item.id)) return
     setOwnedItems((items) => [...items, itemId])
     setToast('Куплено: ' + item.name + '. Предмет появился в комнате. Его бонус к первому впечатлению и качеству связи будет применяться автоматически.')
   }
@@ -1148,7 +1153,7 @@ export default function App() {
     if (!home || home.id === housingId) return
     if (!testModeEnabled && (day < home.minDay || reputation < home.minReputation)) { setToast('Пока недоступно: требуется день ' + home.minDay + ' и репутация ' + home.minReputation + '.'); return }
     if (cash < home.price) { setToast('Не хватает ' + (home.price - cash).toLocaleString('ru-RU') + ' ₽ на переезд и депозит.'); return }
-    if (!transactMoney(-home.price, 'Покупка жилья: ' + home.name)) return
+    if (!transactMoney(-home.price, 'Покупка жилья: ' + home.name, 'housing:' + home.id)) return
     setHousingId(home.id)
     setPanel('room')
     setToast('Переезд завершён: ' + home.name + '. Ты автоматически переместился в новое жильё.')
@@ -1179,8 +1184,8 @@ export default function App() {
     const success = dailySalesAmount >= targetAmount
     const reward = success ? 1000 + day * 250 : 0
     const penalty = success ? 0 : 750
-    if (success) { transactMoney(reward, 'Премия за выполнение плана смены'); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
-    else { setReputation((value) => Math.max(0, value - 3)); transactMoney(-Math.min(cashRef.current, penalty), 'Штраф за невыполненный план смены'); setToast('План не выполнен: репутация −3, общий капитал уменьшился на ' + penalty.toLocaleString('ru-RU') + ' ₽.') }
+    if (success) { transactMoney(reward, 'Премия за выполнение плана смены', 'shift-reward'); setReputation((value) => Math.min(100, value + 4)); setToast('План смены выполнен! Премия +' + reward.toLocaleString('ru-RU') + ' ₽, репутация +4.') }
+    else { setReputation((value) => Math.max(0, value - 3)); transactMoney(-Math.min(cashRef.current, penalty), 'Штраф за невыполненный план смены', 'shift-penalty'); setToast('План не выполнен: репутация −3, общий капитал уменьшился на ' + penalty.toLocaleString('ru-RU') + ' ₽.') }
     setShiftReport({ success, ticker: shiftTargetCompany.ticker, company: shiftTargetCompany.name, shares: dailySalesShares, targetShares, amount: dailySalesAmount, targetAmount, reward, penalty })
     playSound('notification')
     setDayEnded(true)
@@ -1215,8 +1220,8 @@ export default function App() {
       const personalHousingCost = housingId === 'office' ? 0 : housingDailyCost
       // All earnings and expenses now flow through the same player balance.
       const dailyNet = DAILY_SALARY + businessNetIncome + staffNetIncome - personalHousingCost - officeRent
-      if (dailyNet >= 0) transactMoney(dailyNet, 'Итог дня: оклад и чистый доход')
-      else transactMoney(-Math.min(cashRef.current, -dailyNet), 'Итог дня: расходы и аренда')
+      if (dailyNet >= 0) transactMoney(dailyNet, 'Итог дня: оклад и чистый доход', 'daily-settlement')
+      else transactMoney(-Math.min(cashRef.current, -dailyNet), 'Итог дня: расходы и аренда', 'daily-settlement')
       setGameMinutes(7 * 60)
       setDayEnded(false)
       setCanSleep(false)
@@ -1372,7 +1377,7 @@ export default function App() {
           <main className="wardrobe-screen">
             <div className="page-heading"><div><div className="eyebrow">ОТДЕЛЬНО ОТ КОМПЬЮТЕРА</div><h2>Гардероб и личные покупки</h2><p>Меняй одежду и покупай предметы для комнаты здесь. Биржа, звонки и рабочие приложения находятся на компьютере.</p></div><div className="market-status"><Wallet size={15} /> {cash.toLocaleString('ru-RU')} ₽</div></div>
             <section className="wardrobe-studio"><div className="wardrobe-character-stage"><span className="wardrobe-light" /><WardrobeAvatar3D outfit={displayedOutfit} /><span className="wardrobe-stage-label">2D-ПИКСЕЛЬНЫЙ ПРЕДПРОСМОТР</span></div><div className="wardrobe-studio-copy"><span className="eyebrow">ТВОЙ ПЕРСОНАЖ</span><h3>{OUTFITS.find((outfit) => outfit.id === selectedOutfit)?.name}</h3><p>Одежда меняется и в гардеробе, и в видеокадре звонка. Модель пока стилизованная — это не реалистичный человеческий скан.</p><div className="wardrobe-look-tags"><span>Текущий образ</span><span>{ownedOutfits.length} комплект(а)</span></div></div></section>
-            <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ОДЕЖДА</span><h3>Выбери комплект</h3></div><span>Деньги: {cash.toLocaleString('ru-RU')} ₽</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '') + (outfitDetailsId === outfit.id ? ' details-open' : '')} key={outfit.id}><button className="outfit-preview-button" onClick={() => { setPreviewOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('ui') }}><div className="outfit-swatch"><OutfitIllustration id={outfit.id} /></div><span className="outfit-preview-caption">{wearing ? 'Сейчас надет' : 'Примерить'}</span></button><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><div className="outfit-card-actions"><button className="outfit-details-button" onClick={() => setOutfitDetailsId(outfitDetailsId === outfit.id ? null : outfit.id)}>{outfitDetailsId === outfit.id ? 'Скрыть детали' : 'Что даёт?'}</button><button className="outfit-buy-button" disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); setPreviewOutfit(null); return } transactMoney(-outfit.price, 'Покупка одежды: ' + outfit.name); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); setPreviewOutfit(null); setOutfitDetailsId(outfit.id); playSound('deal') }}>{wearing ? 'Надет' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></div>{outfitDetailsId === outfit.id && <div className="outfit-detail-panel"><strong>Что даёт этот образ</strong><p>{outfit.id === 'intern' ? 'Бесплатный базовый комплект. Сохраняет деньги на оборудование и развитие.' : outfit.id === 'classic' ? 'Деловой комплект: +2 к начальному доверию при звонке, а с клиентами, чувствительными к статусу, ещё +1. Хорошая середина между ценой и впечатлением.' : 'Премиальный комплект: +5 к начальному доверию при звонке, а с клиентами, чувствительными к статусу, ещё +1. Это преимущество, а не гарантия сделки.'}</p></div>}</article> })}</div></section>
+            <section className="outfit-selector"><div className="outfit-selector-heading"><div><span className="eyebrow">ОДЕЖДА</span><h3>Выбери комплект</h3></div><span>Деньги: {cash.toLocaleString('ru-RU')} ₽</span></div><div className="outfit-grid">{OUTFITS.map((outfit) => { const owned = ownedOutfits.includes(outfit.id); const wearing = selectedOutfit === outfit.id; const canAfford = cash >= outfit.price; return <article className={'outfit-card outfit-' + outfit.id + (wearing ? ' wearing' : '') + (outfitDetailsId === outfit.id ? ' details-open' : '')} key={outfit.id}><button className="outfit-preview-button" onClick={() => { setPreviewOutfit(outfit.id); setOutfitDetailsId(outfit.id); playSound('ui') }}><div className="outfit-swatch"><OutfitIllustration id={outfit.id} /></div><span className="outfit-preview-caption">{wearing ? 'Сейчас надет' : 'Примерить'}</span></button><div className="outfit-card-copy"><strong>{outfit.name}</strong><p>{outfit.description}</p><small>{outfit.price === 0 ? 'Стартовый комплект' : outfit.price.toLocaleString('ru-RU') + ' ₽'}</small></div><div className="outfit-card-actions"><button className="outfit-details-button" onClick={() => setOutfitDetailsId(outfitDetailsId === outfit.id ? null : outfit.id)}>{outfitDetailsId === outfit.id ? 'Скрыть детали' : 'Что даёт?'}</button><button className="outfit-buy-button" disabled={wearing || (!owned && !canAfford)} onClick={() => { if (owned) { setSelectedOutfit(outfit.id); setPreviewOutfit(null); return } transactMoney(-outfit.price, 'Покупка одежды: ' + outfit.name, 'outfit:' + outfit.id); setOwnedOutfits((value) => [...value, outfit.id]); setSelectedOutfit(outfit.id); setPreviewOutfit(null); setOutfitDetailsId(outfit.id); playSound('deal') }}>{wearing ? 'Надет' : owned ? 'Надеть' : canAfford ? 'Купить' : 'Не хватает денег'}</button></div>{outfitDetailsId === outfit.id && <div className="outfit-detail-panel"><strong>Что даёт этот образ</strong><p>{outfit.id === 'intern' ? 'Бесплатный базовый комплект. Сохраняет деньги на оборудование и развитие.' : outfit.id === 'classic' ? 'Деловой комплект: +2 к начальному доверию при звонке, а с клиентами, чувствительными к статусу, ещё +1. Хорошая середина между ценой и впечатлением.' : 'Премиальный комплект: +5 к начальному доверию при звонке, а с клиентами, чувствительными к статусу, ещё +1. Это преимущество, а не гарантия сделки.'}</p></div>}</article> })}</div></section>
             <section className="outfit-selector wardrobe-store"><div className="outfit-selector-heading"><div><span className="eyebrow">ARENA SUPPLY · КАТАЛОГ</span><h3>Магазин и кастомизация</h3></div><span>Улучшай рабочее место, образ и качество связи</span></div><div className="shop-grid">{ROOM_ITEMS.map((item) => { const owned = ownedItems.includes(item.id); const locked = day < item.minDay || careerLevel.level < (item.minLevel ?? 1); const detailsOpen = roomItemDetailsId === item.id; return <article className={'shop-item' + (owned ? ' owned' : '') + (detailsOpen ? ' details-open' : '')} key={item.id}><div className="shop-item-icon-wrap shop-item-game-preview"><div className="shop-item-game-stage"><RoomItemIllustration id={item.id} /></div><span>{item.category === 'video' ? 'ЗВУК / КАМЕРА' : item.category === 'background' ? 'ОБСТАНОВКА' : item.category === 'work' ? 'ПРОИЗВОДИТЕЛЬНОСТЬ' : 'КОМФОРТ'}</span></div><div className="shop-item-meta"><span className="eyebrow">{item.category === 'video' ? 'ВИДЕОСВЯЗЬ' : item.category === 'background' ? 'ФОН' : item.category === 'work' ? 'РАБОТА' : 'КОМФОРТ'}</span><strong>{item.name}</strong><p>{item.description}</p><div className="shop-item-benefits">{item.videoQuality > 0 && <span className="shop-benefit-positive">Видео +{item.videoQuality}</span>}{item.firstImpression > 0 && <span className="shop-benefit-positive">Первое впечатление +{item.firstImpression}</span>}{item.id === 'second-monitor' && <span className="shop-benefit-neutral">Бонус к подготовке</span>}{item.id === 'used-chair' && <span className="shop-benefit-neutral">Комфорт на смене</span>}{item.id === 'chromakey-kit' && <span className="shop-benefit-risk">Риск подозрения +10</span>}</div><button className="shop-item-details-toggle" onClick={() => setRoomItemDetailsId(detailsOpen ? null : item.id)}>{detailsOpen ? 'Скрыть подробности' : 'Что даёт предмет?'}</button>{detailsOpen && <div className="shop-item-detail-panel"><strong>Эффект в игре</strong><p>{item.videoQuality > 0 ? 'Качество видеосвязи +' + item.videoQuality + '/8. ' : ''}{item.firstImpression > 0 ? 'Первое впечатление +' + item.firstImpression + '. ' : ''}{item.id === 'second-monitor' ? 'Помогает сравнивать данные, но не добавляет доверие автоматически.' : item.id === 'chromakey-kit' ? 'Открывает виртуальные фоны; при плохой маске клиент может заподозрить обман.' : item.id === 'used-chair' ? 'Даёт комфорт, без прямого бонуса к переговорам.' : 'Улучшает атмосферу или качество звонка, но не гарантирует сделку.'}</p><span>{owned ? 'Уже установлено' : locked ? 'Требуется день ' + item.minDay + ' · уровень ' + (item.minLevel ?? 1) : cash < item.price ? 'Не хватает ' + (item.price - cash).toLocaleString('ru-RU') + ' ₽' : 'Можно приобрести сейчас'}</span></div>}</div><div className="shop-item-footer"><strong>{item.price.toLocaleString('ru-RU')} ₽</strong><button disabled={owned || locked || cash < item.price} className={owned ? 'secondary-action' : 'primary-action'} onClick={() => buyRoomItem(item.id)}>{owned ? 'Куплено' : locked ? 'День ' + item.minDay + ' · ур. ' + (item.minLevel ?? 1) : cash < item.price ? 'Не хватает' : 'Купить'}</button></div></article> })}</div></section>
           </main>
         </div>
@@ -1485,7 +1490,7 @@ export default function App() {
                 <div className="housing-page">
                   <div className="page-heading"><div><div className="eyebrow">ОБРАЗ ЖИЗНИ · ЖИЛЬЁ</div><h2>Следующий адрес — твой выбор</h2><p>Больше приватности и статуса, но и постоянные расходы. Не переезжай, если после депозита не останется резерва.</p></div><div className="market-status"><House size={14} /> {currentHousing.name.toUpperCase()}</div></div>
                   <div className="current-home-banner"><div className="home-symbol"><House size={28} /></div><div><span className="eyebrow">ТЕКУЩЕЕ ЖИЛЬЁ</span><h3>{currentHousing.name}</h3><p>{currentHousing.description}</p></div><div className="home-cost"><small>ОПЛАТА</small><strong>Разовая покупка</strong></div></div>
-                  <div className="housing-test-tools"><div><strong>Тестирование недвижимости</strong><small>Открой все варианты жилья и получи игровой бюджет, не проходя карьеру заново.</small></div>{testModeEnabled ? <span className="housing-test-active">ТЕСТОВЫЙ РЕЖИМ ВКЛЮЧЁН</span> : <button className="secondary-action" onClick={() => { setTestModeEnabled(true); transactMoney(3000000, 'Тестовый бюджет'); setToast('Тестовый бюджет начислен: +3 000 000 ₽ на единый баланс.') }}>Выдать тестовый бюджет +3 000 000 ₽</button>}</div>
+                  <div className="housing-test-tools"><div><strong>Тестирование недвижимости</strong><small>Открой все варианты жилья и получи игровой бюджет, не проходя карьеру заново.</small></div>{testModeEnabled ? <span className="housing-test-active">ТЕСТОВЫЙ РЕЖИМ ВКЛЮЧЁН</span> : <button className="secondary-action" onClick={() => { setTestModeEnabled(true); transactMoney(3000000, 'Тестовый бюджет', 'test-budget'); setToast('Тестовый бюджет начислен: +3 000 000 ₽ на единый баланс.') }}>Выдать тестовый бюджет +3 000 000 ₽</button>}</div>
                   <div className="housing-list">{HOUSING.map((home, index) => { const current = home.id === housingId; const locked = !testModeEnabled && (day < home.minDay || reputation < home.minReputation); return <article className={current ? 'housing-option current' : 'housing-option'} key={home.id}><div className="housing-rank">0{index + 1}</div><div className="housing-option-main"><span className="eyebrow">УРОВЕНЬ ЖИЛЬЯ {index + 1}</span><h3>{home.name}</h3><p>{home.description}</p><div className="housing-effects"><span>Первое впечатление {home.firstImpression > 0 ? '+' : ''}{home.firstImpression}</span><span>Комфорт +{home.comfort}</span></div></div><div className="housing-option-buy"><strong>{home.price === 0 ? 'Стартовое' : home.price.toLocaleString('ru-RU') + ' ₽'}</strong><small>{home.dailyCost.toLocaleString('ru-RU')} ₽ / день</small><button disabled={current || locked || cash < home.price} className={current ? 'secondary-action' : 'primary-action'} onClick={() => moveToHousing(home.id)}>{current ? 'Текущее жильё' : locked ? 'Пока закрыто' : cash < home.price ? 'Нужно накопить' : 'Переехать'}</button></div></article> })}</div>
                   <div className="bottom-note"><Wallet size={16} /><span>Оклад за рабочий день — {DAILY_SALARY.toLocaleString('ru-RU')} ₽. Жильё покупается один раз; дальше выбирай, вкладывать деньги в комфорт или расширение фирмы.</span></div>
                 </div>
