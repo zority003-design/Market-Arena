@@ -37,6 +37,16 @@ function Limb({ start, end, radius, color }: { start: [number, number, number]; 
 
 export function BrokerModel({ identity, outfit, pose = 'standing', appearance }: { identity: string; outfit: string; pose?: Pose; appearance?: CharacterAppearance }) {
   const root = useRef<THREE.Group>(null)
+  const persistedStyle = useMemo(() => {
+    if (appearance || identity !== 'player') return appearance
+    try {
+      const slot = localStorage.getItem('market-arena-active-save-slot') || '1'
+      const equipped = JSON.parse(localStorage.getItem('market-arena-equipped-' + slot) || '[]')
+      const custom = JSON.parse(localStorage.getItem('market-arena-character-appearance-' + slot) || '{}')
+      return { ...getEquippedAppearance(Array.isArray(equipped) ? equipped : []), ...(custom && typeof custom === 'object' ? custom : {}) }
+    } catch { return undefined }
+  }, [appearance, identity])
+  const characterAppearance = appearance ?? persistedStyle
   const torso = useRef<THREE.Group>(null)
   const typingArms = useRef<THREE.Group>(null)
   const seed = useMemo(() => {
@@ -45,18 +55,18 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
     return hash >>> 0
   }, [identity])
   const palette = palettes[seed % palettes.length]
-  const hairStyle = appearance?.hairStyle ?? ((seed >>> 3) % 4)
+  const hairStyle = characterAppearance?.hairStyle ?? ((seed >>> 3) % 4)
   const formal = outfit === 'premium' || identity === 'team-lead' || identity === 'senior-broker' || identity === 'broker-specialist'
   const playerIntern = identity === 'player' && outfit === 'intern'
   const playerPremium = identity === 'player' && outfit === 'premium'
   const juniorStaff = identity === 'junior-broker'
   const casualJacket = playerIntern || juniorStaff
-  const jacket = identity === 'player' ? (appearance?.jacketColor ?? (outfit === 'intern' ? '#657b7d' : outfit === 'premium' ? '#17283f' : '#263f5b')) : juniorStaff ? '#63797c' : palette.suit
-  const trousers = identity === 'player' ? (appearance?.trousersColor ?? (playerIntern ? '#46565a' : playerPremium ? '#202a37' : '#293746')) : (juniorStaff ? '#394650' : '#263442')
+  const jacket = identity === 'player' ? (characterAppearance?.jacketColor ?? (outfit === 'intern' ? '#657b7d' : outfit === 'premium' ? '#17283f' : '#263f5b')) : juniorStaff ? '#63797c' : palette.suit
+  const trousers = identity === 'player' ? (characterAppearance?.trousersColor ?? (playerIntern ? '#46565a' : playerPremium ? '#202a37' : '#293746')) : (juniorStaff ? '#394650' : '#263442')
   const shirtColor = playerPremium ? '#fffdf4' : casualJacket ? '#e4e9e4' : palette.shirt
-  const skinColor = appearance?.skinTone ?? palette.skin
-  const skinLightColor = appearance?.skinToneLight ?? appearance?.skinTone ?? palette.skinLight
-  const hairColor = appearance?.hairColor ?? palette.hair
+  const skinColor = characterAppearance?.skinTone ?? palette.skin
+  const skinLightColor = characterAppearance?.skinToneLight ?? characterAppearance?.skinTone ?? palette.skinLight
+  const hairColor = characterAppearance?.hairColor ?? palette.hair
   const tieColor = identity === 'player' ? (playerIntern ? '#a7b2b0' : playerPremium ? '#d3ad5e' : '#a84f49') : palette.tie
   const seated = pose === 'seated'
 
@@ -80,8 +90,8 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
       <Limb start={[0.18, 1.12, 0]} end={[0.19, 0.72, 0.36]} radius={0.145} color={trousers}/>
       <Limb start={[-0.19, 0.72, 0.36]} end={[-0.19, 0.43, 0.39]} radius={0.105} color={trousers}/>
       <Limb start={[0.19, 0.72, 0.36]} end={[0.19, 0.43, 0.39]} radius={0.105} color={trousers}/>
-      <RoundedBox position={[-0.19, 0.34, 0.48]} args={[0.23, 0.14, 0.3]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={appearance?.shoeColor ?? '#20262c'} roughness={0.4}/></RoundedBox>
-      <RoundedBox position={[0.19, 0.34, 0.48]} args={[0.23, 0.14, 0.3]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={appearance?.shoeColor ?? '#20262c'} roughness={0.4}/></RoundedBox>
+      <RoundedBox position={[-0.19, 0.34, 0.48]} args={[0.23, 0.14, 0.3]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={characterAppearance?.shoeColor ?? '#20262c'} roughness={0.4}/></RoundedBox>
+      <RoundedBox position={[0.19, 0.34, 0.48]} args={[0.23, 0.14, 0.3]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color={characterAppearance?.shoeColor ?? '#20262c'} roughness={0.4}/></RoundedBox>
     </> : <>
       <RoundedBox position={[-0.19, 0.13, 0.06]} args={[0.25, 0.15, 0.42]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color="#20262c" roughness={0.4}/></RoundedBox>
       <RoundedBox position={[0.19, 0.13, 0.06]} args={[0.25, 0.15, 0.42]} radius={0.055} smoothness={4} castShadow><meshStandardMaterial color="#20262c" roughness={0.4}/></RoundedBox>
@@ -164,10 +174,10 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
       {hairStyle === 2 && <mesh position={[0,2.59,-0.12]} scale={[0.3,0.18,0.24]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={hairColor}/></mesh>}
       {hairStyle === 3 && <><mesh position={[-0.18,2.51,0.14]} rotation={[0,0,0.15]} scale={[0.1,0.16,0.09]}><sphereGeometry args={[1,18,12]}/><meshStandardMaterial color={hairColor}/></mesh><mesh position={[0.18,2.51,0.14]} rotation={[0,0,-0.15]} scale={[0.1,0.16,0.09]}><sphereGeometry args={[1,18,12]}/><meshStandardMaterial color={hairColor}/></mesh></>}
       {formal && <mesh position={[0.305,2.51,0.04]} scale={[0.055,0.1,0.07]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color={hairColor}/></mesh>}
-      {identity === 'player' && appearance?.belt && <group position={[0,1.16,0.19]}><mesh><boxGeometry args={[0.48,0.055,0.035]}/><meshStandardMaterial color="#4a3429" roughness={0.6}/></mesh><mesh position={[0,0,0.025]}><boxGeometry args={[0.07,0.045,0.012]}/><meshStandardMaterial color="#b49a63" metalness={0.65}/></mesh></group>}
-      {identity === 'player' && appearance?.watch && <group position={[0.49,seated?1.24:0.98,seated?0.42:0.18]}><mesh rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.055,0.055,0.035,24]}/><meshStandardMaterial color="#b59a62" metalness={0.78} roughness={0.25}/></mesh><mesh position={[0,0.022,0]}><circleGeometry args={[0.039,24]}/><meshStandardMaterial color="#d8e0dc" metalness={0.25}/></mesh></group>}
-      {identity === 'player' && appearance?.glasses && <group position={[0,2.405,0.285]}><mesh position={[-0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh position={[0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh><boxGeometry args={[0.075,0.012,0.012]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh></group>}
-      {identity === 'player' && appearance?.backpack && <group position={[0,1.47,-0.27]}><mesh scale={[0.28,0.42,0.13]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#344b50" roughness={0.86}/></mesh><mesh position={[0,0.05,-0.12]} scale={[0.2,0.16,0.025]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#526e69" roughness={0.8}/></mesh></group>}
+      {identity === 'player' && characterAppearance?.belt && <group position={[0,1.16,0.19]}><mesh><boxGeometry args={[0.48,0.055,0.035]}/><meshStandardMaterial color="#4a3429" roughness={0.6}/></mesh><mesh position={[0,0,0.025]}><boxGeometry args={[0.07,0.045,0.012]}/><meshStandardMaterial color="#b49a63" metalness={0.65}/></mesh></group>}
+      {identity === 'player' && characterAppearance?.watch && <group position={[0.49,seated?1.24:0.98,seated?0.42:0.18]}><mesh rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.055,0.055,0.035,24]}/><meshStandardMaterial color="#b59a62" metalness={0.78} roughness={0.25}/></mesh><mesh position={[0,0.022,0]}><circleGeometry args={[0.039,24]}/><meshStandardMaterial color="#d8e0dc" metalness={0.25}/></mesh></group>}
+      {identity === 'player' && characterAppearance?.glasses && <group position={[0,2.405,0.285]}><mesh position={[-0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh position={[0.112,0,0]}><torusGeometry args={[0.078,0.009,8,24]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh><mesh><boxGeometry args={[0.075,0.012,0.012]}/><meshStandardMaterial color="#38444a" metalness={0.7}/></mesh></group>}
+      {identity === 'player' && characterAppearance?.backpack && <group position={[0,1.47,-0.27]}><mesh scale={[0.28,0.42,0.13]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#344b50" roughness={0.86}/></mesh><mesh position={[0,0.05,-0.12]} scale={[0.2,0.16,0.025]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#526e69" roughness={0.8}/></mesh></group>}
       {(identity === 'senior-broker' || identity === 'team-lead') && <>
         <mesh position={[-0.112,2.405,0.274]}><torusGeometry args={[0.073,0.009,8,24]}/><meshStandardMaterial color="#53616a" metalness={0.65} roughness={0.28}/></mesh>
         <mesh position={[0.112,2.405,0.274]}><torusGeometry args={[0.073,0.009,8,24]}/><meshStandardMaterial color="#53616a" metalness={0.65} roughness={0.28}/></mesh>
