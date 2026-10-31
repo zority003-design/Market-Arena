@@ -289,6 +289,10 @@ test('housing test mode grants the test budget and bypasses progression in both 
   assert.match(app, /единый баланс/)
   assert.match(app, /const locked = !testModeEnabled &&/)
   assert.match(app, /!testModeEnabled && \(day < home\.minDay \|\| reputation < home\.minReputation\)/)
+  const arena = await read('src/ArenaOS.tsx')
+  assert.match(arena, /testModeEnabled: boolean; setTestModeEnabled/)
+  assert.match(arena, /Выдать \+3 000 000 ₽/)
+  assert.match(arena, /const locked=!props\.testModeEnabled/)
 })
 
 test('legacy personal and firm balances migrate into one cash field and new saves omit firmCapital', async () => {
