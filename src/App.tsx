@@ -16,7 +16,7 @@ import ArenaOS from './ArenaOS'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { evaluateFreeReply, getEquipmentOpening, getNegotiationDifficulty } from './game/dialogue'
 import { postMoneyTransaction, type MoneyTransaction } from './game/transactions'
-import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
+import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
 type Panel = 'room' | 'computer' | 'wardrobe' | 'city'
 type Tab = 'overview' | 'market' | 'news' | 'calls' | 'clients' | 'shop' | 'housing' | 'city'
@@ -500,7 +500,7 @@ export default function App() {
   const [masterVolume, setMasterVolume] = useState(() => { try { const value = localStorage.getItem('na-vse-kotirovki-volume'); return value === null ? 72 : Math.max(0, Math.min(100, Number(value) || 0)) } catch { return 72 } })
   const [panel, setPanel] = useState<Panel>('room')
   const [tab, setTab] = useState<Tab>('overview')
-  const [cash, setCash] = useState(saved.cash !== undefined ? saved.cash + (saved.firmCapital ?? 0) : STARTING_CASH + STARTING_FIRM_CAPITAL)
+  const [cash, setCash] = useState(saved.cash !== undefined ? saved.cash + (saved.firmCapital ?? 0) : STARTING_CASH)
   const cashRef = useRef(cash)
   const transactionSequence = useRef(0)
   const [transactionHistory, setTransactionHistory] = useState<MoneyTransaction[]>(saved.transactionHistory ?? [])
