@@ -946,7 +946,7 @@ export default function App() {
     setCareerSessionId((value) => value + 1)
     window.setTimeout(() => playSound('alarm'), 900)
     try { localStorage.removeItem(getSaveKey(activeSaveSlot)); if (activeSaveSlot === 1) localStorage.removeItem('na-vse-kotirovki-save-v1'); localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Local storage may be unavailable. */ }
-    cashRef.current = STARTING_CASH + STARTING_FIRM_CAPITAL
+    cashRef.current = STARTING_CASH
     setCash(cashRef.current)
     setTransactionHistory([])
     transactionHistoryRef.current = []
