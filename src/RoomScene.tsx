@@ -3,7 +3,6 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
 import { playSound } from './audio'
-import { CityWindowView } from './CityScene'
 import { BrokerModel } from './BrokerAvatar3D'
 
 type RoomTextureKind = 'wood' | 'fabric' | 'plaster'
@@ -68,7 +67,6 @@ type RoomSceneProps = {
   onCanSleepChange: (value: boolean) => void
   deskLampOn: boolean
   roomLightOn: boolean
-  curtainsOpen: boolean
 }
 
 function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, onSleepInteract, onCanSleepChange }: { active: boolean; onInteract: () => void; onExitCity: () => void; onCanExitCityChange: (value: boolean) => void; onCanInteractChange: (value: boolean) => void; onInteractObject: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe') => void; onNearbyObjectChange: (object: 'lamp' | 'light' | 'curtains' | 'wardrobe' | null) => void; introActive: boolean; onIntroComplete: () => void; onSleepInteract: () => void; onCanSleepChange: (value: boolean) => void }) {
@@ -218,6 +216,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
         (x > 1.52 && x < 3.62 && z > -0.66 && z < 2.58) ||
         (x > 0.91 && x < 1.58 && z > -0.52 && z < 0.02) ||
         (x > 2.48 && x < 3.88 && z > -3.92 && z < -3.22) ||
+        (x > -3.9 && x < -3.34 && z > 0.42 && z < 1.84) ||
         false
       const nextX = THREE.MathUtils.clamp(camera.position.x + stepX, -3.52, 3.52)
       if (!blocked(nextX, camera.position.z)) camera.position.x = nextX
@@ -232,7 +231,7 @@ function FirstPersonRig({ active, onInteract, onExitCity, onCanExitCityChange, o
     if (canUse !== interactable.current) { interactable.current = canUse; onCanInteractChange(canUse) }
     const objectDistances: Array<{ id: 'lamp' | 'light' | 'curtains' | 'wardrobe'; x: number; z: number; radius: number }> = [
       { id: 'lamp', x: -1.03, z: -2.67, radius: 1.12 }, { id: 'light', x: -3.35, z: 2.05, radius: 0.72 },
-      { id: 'curtains', x: -3.48, z: -1.12, radius: 1.02 }, { id: 'wardrobe', x: -3.03, z: -2.72, radius: 1.15 },
+      { id: 'wardrobe', x: -3.03, z: -2.72, radius: 1.15 },
     ]
     const foundObject = objectDistances.find((item) => Math.hypot(camera.position.x - item.x, camera.position.z - item.z) < item.radius)?.id ?? null
     if (foundObject !== nearbyObject.current) { nearbyObject.current = foundObject; onNearbyObjectChange(foundObject) }
@@ -306,7 +305,7 @@ function FloorBoards({ housingId }: { housingId: string }) {
 }
 
 
-function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn }: RoomSceneProps) {
   const screenRef = useRef<THREE.Mesh>(null!)
   const kittenArtTexture = useMemo(() => makeBossHippoArtTexture(), [])
   const glowRef = useRef<THREE.PointLight>(null!)
@@ -338,9 +337,9 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <fog attach="fog" args={['#101922', 8, 18]} />
       <ambientLight intensity={roomLightOn ? 0.62 : 0.2} />
       <hemisphereLight args={['#b8d7ed', '#25252a', roomLightOn ? 0.72 : 0.28]} />
-      {/* Daylight comes from the left-side window; avoid the oversized shadow beam that looked like a sun-ray cone inside the room. */}
+      {/* Soft ambient light keeps the solid-walled room readable without a fake window light source. */}
       <directionalLight position={[-5.2, 3.8, -0.4]} intensity={roomLightOn ? 0.72 : 0.12} color="#fff0d5" />
-      <pointLight position={[-3.35, 2.0, -0.25]} intensity={roomLightOn ? 1.15 : 0.12} distance={5.2} color="#ffe2bd" />
+
       <pointLight ref={glowRef} position={[0, 1.55, -2.12]} intensity={1.2} distance={2.8} color="#31d6a0" />
 
       {/* Room shell */}
@@ -359,11 +358,8 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[0, 0.91, -3.82]} size={[7.78, 0.045, 0.045]} color={panoramicWindow ? "#b8a16c" : "#c09a6a"} roughness={0.65} textureKind="wood" />
       <Box position={[0, 1.24, -3.82]} size={[7.78, 0.035, 0.045]} color={panoramicWindow ? "#b8a16c" : "#c09a6a"} roughness={0.65} textureKind="wood" />
       {[-3.72, -1.85, 0, 1.85, 3.72].map((x, i) => <Box key={'rear-wall-upper-trim-' + i} position={[x, 1.72, -3.865]} size={[0.045, 1.45, 0.045]} color={panoramicWindow ? "#c8b990" : "#8b765e"} roughness={0.9} textureKind="wood" />)}
-      {/* Left-side window opening, with a proper sill and dark metal frame. */}
-      <Box position={[-3.98, 1.62, panoramicWindow ? -3.45 : -3.15]} size={[0.18, 3.4, panoramicWindow ? 0.9 : 1.7]} color={backWallColor} textureKind="plaster" />
-      <Box position={[-3.98, 1.62, panoramicWindow ? 2.3 : 2.0]} size={[0.18, 3.4, panoramicWindow ? 3.4 : 4.0]} color={backWallColor} textureKind="plaster" />
-      <Box position={[-3.98, 2.91, -1.15]} size={[0.18, 0.82, panoramicWindow ? 3.5 : 2.3]} color={backWallColor} textureKind="plaster" />
-      <Box position={[-3.98, 0.48, -1.15]} size={[0.18, 0.96, panoramicWindow ? 3.5 : 2.3]} color={backWallColor} textureKind="plaster" />
+      {/* Solid left wall: the former window opening is fully sealed for every housing tier. */}
+      <Box position={[-3.98, 1.58, 0]} size={[0.28, 3.56, 8]} color={backWallColor} roughness={0.92} textureKind="plaster" />
       <Box position={[3.98, 1.62, 0]} size={[0.18, 3.4, 8]} color={backWallColor} textureKind="plaster" />
       {/* Opposite wall: the old scene was missing the entire +Z side, exposing the room like a cutaway. */}
       <Box position={[0, 1.58, 3.98]} size={[8, 3.56, 0.28]} color={backWallColor} roughness={0.92} textureKind="plaster" />
@@ -375,13 +371,11 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
 
       {/* Warm wood skirting, consistent around the room. */}
       <Box position={[0, 0.14, -3.86]} size={[7.76, 0.17, 0.09]} color="#624a38" roughness={0.74} textureKind="wood" />
-      {/* Split the window-wall trim around the opening so it cannot create a pale stripe across the glass. */}
-      <Box position={[-3.86, 0.14, -3.15]} size={[0.09, 0.17, 1.7]} color="#624a38" roughness={0.74} textureKind="wood" />
-      <Box position={[-3.86, 0.14, 2.0]} size={[0.09, 0.17, 4.0]} color="#624a38" roughness={0.74} textureKind="wood" />
+      {/* Continuous skirting along the newly solid left wall. */}
+      <Box position={[-3.86, 0.14, 0]} size={[0.09, 0.17, 7.76]} color="#624a38" roughness={0.74} textureKind="wood" />
       <Box position={[3.86, 0.14, 0]} size={[0.09, 0.17, 7.76]} color="#624a38" roughness={0.74} textureKind="wood" />
       <Box position={[0, 0.255, -3.86]} size={[7.76, 0.035, 0.085]} color="#a88963" roughness={0.58} textureKind="wood" />
-      <Box position={[-3.86, 0.255, -3.15]} size={[0.085, 0.035, 1.7]} color="#a88963" roughness={0.58} textureKind="wood" />
-      <Box position={[-3.86, 0.255, 2.0]} size={[0.085, 0.035, 4.0]} color="#a88963" roughness={0.58} textureKind="wood" />
+      <Box position={[-3.86, 0.255, 0]} size={[0.085, 0.035, 7.76]} color="#a88963" roughness={0.58} textureKind="wood" />
       <Box position={[3.86, 0.255, 0]} size={[0.085, 0.035, 7.76]} color="#a88963" roughness={0.58} textureKind="wood" />
 
       {/* One clean framed illustration; old chart meshes are removed completely. */}
@@ -410,21 +404,27 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
       <Box position={[0.15, 0.082, 0.52]} size={[2.18, 0.009, 1.88]} color="#9a8a70" roughness={1} />
       {[-0.72, -0.36, 0, 0.36, 0.72].map((offset) => <Box key={'rug-line-' + offset} position={[0.15 + offset, 0.089, 0.52]} size={[0.025, 0.006, 1.78]} color="#50685f" roughness={1} />)}
 
-      {/* Side-window city view: the skyline is now to the left of the desk, not behind the monitor. */}
-      <CityWindowView night={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60} wall="left" gameMinutes={gameMinutes} />
-      <Box position={[-3.79, 1.9, panoramicWindow ? -3.0 : -2.3]} size={[0.16, 1.9, 0.12]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
-      <Box position={[-3.79, 1.9, panoramicWindow ? -1.2 : 0.0]} size={[0.16, 1.9, 0.12]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
-      {panoramicWindow && <Box position={[-3.79, 1.9, 0.6]} size={[0.16, 1.9, 0.12]} color="#b8b6ad" roughness={0.38} metalness={0.18} />}
-      {panoramicWindow && <Box position={[-3.78, 1.9, -1.2]} size={[0.08, 1.78, 3.52]} color="#b5b5ae" roughness={0.28} metalness={0.32} transparent opacity={0.13} />}
-      <Box position={[-3.79, 2.82, -1.15]} size={[0.16, 0.12, panoramicWindow ? 3.62 : 2.45]} color={housingId === 'premium-apartment' ? "#b8b6ad" : "#293b43"} roughness={0.38} metalness={0.18} />
-      <Box position={[-3.79, 0.98, -1.15]} size={[0.18, 0.14, panoramicWindow ? 3.62 : 2.45]} color={housingId === 'premium-apartment' ? "#c4bca8" : "#7d6a56"} roughness={0.66} />
-      <Box position={[-3.82, 1.9, -1.15]} size={[0.014, 1.62, panoramicWindow ? 3.45 : 2.2]} color={gameMinutes >= 19 * 60 || gameMinutes < 6 * 60 ? "#182d42" : "#9ed9ec"} roughness={0.14} metalness={0.06} transparent opacity={0.055} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.62, 0.055]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.055, panoramicWindow ? 3.52 : 2.35]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 1.58, 0.045]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
-      <Box position={[-3.72, 1.9, -1.15]} size={[0.075, 0.045, panoramicWindow ? 3.5 : 2.32]} color={housingId === 'premium-apartment' ? "#d6d2c7" : "#9eb7bd"} roughness={0.42} metalness={0.22} />
-      {!panoramicWindow && <><Box position={[-3.7, 1.92, curtainsOpen ? -2.16 : -1.725]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" />
-      <Box position={[-3.7, 1.92, curtainsOpen ? -0.14 : -0.575]} size={[0.1, 1.42, curtainsOpen ? 0.24 : 1.15]} color="#c9b79a" roughness={0.96} textureKind="fabric" /></>}
+      {/* The former window is now a furnished plaster wall with a slim bookcase and storage console. */}
+      <Box position={[-3.79, 2.25, -1.1]} size={[0.22, 0.08, 1.72]} color="#604632" textureKind="wood" roughness={0.72} />
+      <Box position={[-3.82, 1.82, -1.1]} size={[0.12, 0.78, 0.08]} color="#4d3a2c" />
+      <Box position={[-3.82, 1.82, -0.34]} size={[0.12, 0.78, 0.08]} color="#4d3a2c" />
+      {[
+        { z: -1.68, h: 0.27, color: "#9a5748" },
+        { z: -1.53, h: 0.31, color: "#d0b879" },
+        { z: -1.38, h: 0.23, color: "#527b6b" },
+        { z: -1.23, h: 0.29, color: "#40586a" },
+      ].map((book) => <Box key={book.z} position={[-3.77, 2.31 + book.h / 2, book.z]} size={[0.14, book.h, 0.1]} color={book.color} roughness={0.9} />)}
+      <Box position={[-3.77, 2.43, -0.72]} size={[0.12, 0.38, 0.3]} color="#8c7354" />
+      <Box position={[-3.68, 0.46, 1.12]} size={[0.48, 0.82, 1.35]} color="#5d4636" textureKind="wood" roughness={0.7} />
+      <Box position={[-3.42, 0.46, 1.12]} size={[0.035, 0.68, 1.2]} color="#8d684b" textureKind="wood" />
+      <Box position={[-3.39, 0.48, 0.83]} size={[0.025, 0.42, 0.025]} color="#c5a06a" metalness={0.55} />
+      <Box position={[-3.39, 0.48, 1.41]} size={[0.025, 0.42, 0.025]} color="#c5a06a" metalness={0.55} />
+      <Box position={[-3.78, 1.18, 2.62]} size={[0.12, 0.07, 0.72]} color="#604632" textureKind="wood" />
+      <Cylinder position={[-3.72, 1.48, 2.62]} radius={0.14} height={0.48} color="#b7a88d" roughness={0.88} />
+      <mesh position={[-3.69, 1.78, 2.62]} castShadow>
+        <sphereGeometry args={[0.25, 12, 10]} />
+        <meshStandardMaterial color="#527b61" roughness={0.92} />
+      </mesh>
 
       {/* Small lived-in details: plant, books and framed personal photo. */}
       <Box position={[-3.72, 1.55, 2.05]} size={[0.035, 0.2, 0.16]} color="#c5c1b4" roughness={0.7} />
@@ -688,7 +688,7 @@ function Room({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange
   )
 }
 
-export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn, curtainsOpen }: RoomSceneProps) {
+export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange, onCanInteractChange, onInteractObject, onNearbyObjectChange, introActive, onIntroComplete, active, ownedItems, ownedEmployees, ownedBusinessAssets, businessUpgrades, housingId, gameMinutes, onSleepInteract, onCanSleepChange, deskLampOn, roomLightOn }: RoomSceneProps) {
   return (
     <div className="room-scene-root">
       <Canvas
@@ -703,9 +703,9 @@ export default function RoomScene({ onInteract, onExitCity, onCanExitCityChange,
           gl.toneMappingExposure = 1.12
         }}
       >
-        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} ownedEmployees={ownedEmployees} ownedBusinessAssets={ownedBusinessAssets} businessUpgrades={businessUpgrades} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} curtainsOpen={curtainsOpen} />
+        <Room onInteract={onInteract} onExitCity={onExitCity} onCanExitCityChange={onCanExitCityChange} onCanInteractChange={onCanInteractChange} onInteractObject={onInteractObject} onNearbyObjectChange={onNearbyObjectChange} introActive={introActive} onIntroComplete={onIntroComplete} active={active} ownedItems={ownedItems} ownedEmployees={ownedEmployees} ownedBusinessAssets={ownedBusinessAssets} businessUpgrades={businessUpgrades} housingId={housingId} gameMinutes={gameMinutes} onSleepInteract={onSleepInteract} onCanSleepChange={onCanSleepChange} deskLampOn={deskLampOn} roomLightOn={roomLightOn} />
       </Canvas>
-      {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> E — действие</div>}
+      {active && !introActive && <div className="room-keyboard-hint">WASD / ↑ ↓ ← → — движение <span>·</span> зажми ЛКМ и двигай мышью — обзор <span>·</span> подойди к мебели — появится карточка действия <span>·</span> E или клик — взаимодействовать</div>}
     </div>
   )
 }
