@@ -187,7 +187,7 @@ test('post-call results explain the unified commission, XP, reputation, referral
   const source = await read('src/ArenaOS.tsx')
   assert.match(source, /БОНУС БРОКЕРА · ЧАСТЬ КОМИССИИ/)
   assert.match(source, /ВСЯ КОМИССИЯ СДЕЛКИ/)
-  assert.match(source, /бонус брокера выше уже входит в неё/)
+  assert.match(source, /бонус брокера — часть этой комиссии/)
   assert.match(source, /КАПИТАЛ КЛИЕНТА/)
   assert.match(source, /XP нельзя потратить как деньги/)
   assert.match(source, /рекомендует тебя знакомым/)
