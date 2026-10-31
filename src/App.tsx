@@ -623,8 +623,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, transactionHistory, portfolio, newsImpacts, tradesToday, xp, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, portfolio, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, transactionHistory, portfolio, newsImpacts, tradesToday, xp, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, portfolio, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
+    try { const snapshot = JSON.stringify({ cash, transactionHistory, portfolio, newsImpacts, tradesToday, xp, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, transactionHistory, portfolio, newsImpacts, tradesToday, xp, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -883,9 +883,6 @@ export default function App() {
     setFreeAnswer('')
     setConversation([])
     setLastResult('')
-    setNewsImpacts({})
-    setTradesToday(0)
-    tradesTodayRef.current = 0
     setMarketReviewed(false)
     setNewsReviewed(false)
     setPanel('room')
