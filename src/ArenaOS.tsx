@@ -24,7 +24,7 @@ type SpeechRecognizerLike = {
 type AppId = 'home' | 'calls' | 'market' | 'clients' | 'wardrobe' | 'equipment' | 'tasks' | 'housing' | 'business'
 type Stock = { ticker: string; name: string; price: number; risk: 'Низкий' | 'Средний' | 'Высокий' | 'Очень высокий'; upside: string; downside: string; fit: string; financials: string; catalyst: string; redFlags: string; horizon: string }
 type Props = {
-  cash: number; setCash: Dispatch<SetStateAction<number>>
+  cash: number
   transactMoney: (amount: number, reason: string) => boolean
   masterVolume: number; setMasterVolume: Dispatch<SetStateAction<number>>
   soundEnabled: boolean; setSoundEnabled: Dispatch<SetStateAction<boolean>>
