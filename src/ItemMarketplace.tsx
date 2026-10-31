@@ -26,7 +26,7 @@ export default function ItemMarketplace({mode,cash,ownedItems,onBuy,saveSlot,out
   useEffect(()=>{onAppearanceChange?.(equipped)},[equipped,onAppearanceChange])
   useEffect(()=>{setCategory(mode==='equipment'?'equipment':'all')},[mode])
   const visible=useMemo(()=>ITEM_CATALOG.filter(item=>(mode==='equipment'?item.category==='equipment':item.category!=='equipment'&&item.slot!=='fullset')&&(category==='all'||item.category===category)&&(!query||[item.name,item.description,item.material].join(' ').toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))),[category,mode,query])
-  const current=ITEM_CATALOG.find(item=>item.id===selected)??visible[0]
+  const current=visible.find(item=>item.id===selected)??visible[0]
   const appearance=getEquippedAppearance(equipped)
   const social=evaluateSocialAppearance(equipped,'business')
   const equip=(id:string)=>setEquipped(old=>{const item=ITEM_CATALOG.find(entry=>entry.id===id);if(!item)return old;const same=old.includes(id);const without=old.filter(existing=>ITEM_CATALOG.find(entry=>entry.id===existing)?.slot!==item.slot);return same?without:[...without,id]})
