@@ -19,3 +19,8 @@ This branch introduces independently testable foundations for the rebuild. It is
 6. Run full browser playthroughs and validate old saves, responsive layout, TypeScript and production build.
 
 The new services are pure local modules and do not require an external AI provider.
+
+
+## Visual commerce slice
+
+See [VISUAL_COMMERCE_REBUILD.md](./VISUAL_COMMERCE_REBUILD.md) for the catalog, character customization, shop integration, explicit limitations and remaining work.
