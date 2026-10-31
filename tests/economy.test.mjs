@@ -15,9 +15,9 @@ const {
 } = economy
 
 test('career starts with a viable, known baseline', () => {
-  assert.equal(economy.STARTING_CASH, 6500)
-  assert.ok(economy.STARTING_CASH < BROKER_HIRES[0].price, 'a new career cannot hire staff immediately')
-  assert.equal(economy.STARTING_FIRM_CAPITAL, 25000)
+  assert.equal(economy.STARTING_CASH, 31500)
+  assert.ok(economy.STARTING_CASH >= BROKER_HIRES[0].price, 'the shared starting balance can fund one entry-level hire')
+  assert.equal(economy.STARTING_FIRM_CAPITAL, undefined, 'there is no second starting-capital pool')
   assert.equal(economy.STARTING_HOUSING_ID, 'studio')
   assert.equal(HOUSING.find(home => home.id === economy.STARTING_HOUSING_ID)?.id, 'studio')
   // New careers begin in a small private apartment; dailyCost remains legacy metadata and is not charged.
