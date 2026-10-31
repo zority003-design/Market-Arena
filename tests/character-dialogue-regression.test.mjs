@@ -297,3 +297,16 @@ test('legacy personal and firm balances migrate into one cash field and new save
   assert.match(saveEffect, /JSON\.stringify\(\{ cash, xp, debt/)
   assert.doesNotMatch(saveEffect, /firmCapital/)
 })
+
+
+test('client memory persists across saves and changes future dialogue evaluation', async () => {
+  const app = await read('src/App.tsx')
+  const dialogue = await read('src/game/dialogue.ts')
+  assert.match(app, /clientMemory\?: Record<string, string\[]>/)
+  assert.match(app, /useState<Record<string, string\[]>>\(saved\.clientMemory \?\? \{\}\)/)
+  assert.match(app, /setClientMemory\(\(memory\) =>/)
+  assert.match(app, /memory: clientMemory\[activeClient\.id\] \?\? \[\]/)
+  assert.match(app, /Клиент помнит прошлые разговоры/)
+  assert.match(dialogue, /memory\.includes\('overpromised'\)/)
+  assert.match(dialogue, /memory\.includes\('transparent'\)/)
+})
