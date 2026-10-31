@@ -187,12 +187,18 @@ export function BrokerWebcamScene({ identity = 'player', outfit = 'intern', hous
       {/* The room itself is visible behind the broker, not a flat portrait backdrop. */}
       <mesh position={[0, 1.8, -1.65]} receiveShadow><boxGeometry args={[5.4, 3.7, 0.16]} /><meshStandardMaterial color={wall} roughness={0.92} /></mesh>
       <mesh position={[0, -0.12, -0.1]} receiveShadow><boxGeometry args={[5.4, 0.16, 4.8]} /><meshStandardMaterial color={floor} roughness={0.88} /></mesh>
-      <mesh position={[-1.55, 1.95, -1.53]}><boxGeometry args={[1.55, 1.45, 0.04]} /><meshStandardMaterial color={office ? '#243c4b' : '#d9e9ee'} emissive={office ? '#0a1c27' : '#b8d7e4'} emissiveIntensity={0.25} /></mesh>
-      <mesh position={[-1.55, 1.95, -1.49]}><boxGeometry args={[1.38, 1.28, 0.035]} /><meshStandardMaterial color={premium ? '#93b5c8' : '#88b4c6'} emissive="#78b5d1" emissiveIntensity={0.28} /></mesh>
-      <mesh position={[-2.34, 1.95, -1.49]}><boxGeometry args={[0.08, 1.58, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
-      <mesh position={[-0.76, 1.95, -1.49]}><boxGeometry args={[0.08, 1.58, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
-      <mesh position={[-1.55, 2.68, -1.49]}><boxGeometry args={[1.65, 0.08, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
-      <mesh position={[-1.55, 1.22, -1.49]}><boxGeometry args={[1.65, 0.08, 0.09]} /><meshStandardMaterial color={desk} /></mesh>
+      {/* Solid wall and familiar room details: the in-game camera sees a furnished room, not a fake window backdrop. */}
+      <mesh position={[-1.55, 2.35, -1.53]}><boxGeometry args={[1.72, 0.09, 0.28]} /><meshStandardMaterial color={desk} roughness={0.78} /></mesh>
+      <mesh position={[-2.34, 2.0, -1.53]}><boxGeometry args={[0.09, 0.72, 0.18]} /><meshStandardMaterial color={desk} /></mesh>
+      <mesh position={[-0.76, 2.0, -1.53]}><boxGeometry args={[0.09, 0.72, 0.18]} /><meshStandardMaterial color={desk} /></mesh>
+      {[-2.12, -1.91, -1.7, -1.49].map((x, i) => <mesh key={'webcam-book-' + i} position={[x, 2.47 + (i % 2) * 0.035, -1.48]}><boxGeometry args={[0.13, 0.22 + (i % 2) * 0.07, 0.12]} /><meshStandardMaterial color={['#a65e4e','#d0b879','#527b6b','#40586a'][i]} roughness={0.9} /></mesh>)}
+      <mesh position={[1.55, 2.2, -1.53]}><boxGeometry args={[0.75, 0.62, 0.06]} /><meshStandardMaterial color={premium ? '#8e765b' : '#304957'} /></mesh>
+      <mesh position={[1.55, 2.2, -1.48]}><boxGeometry args={[0.61, 0.48, 0.025]} /><meshStandardMaterial color={premium ? '#e7d6b4' : '#b4c5c8'} /></mesh>
+      <mesh position={[1.55, 2.2, -1.45]}><boxGeometry args={[0.08, 0.12, 0.02]} /><meshStandardMaterial color="#4b7862" /></mesh>
+      <mesh position={[-2.65, 1.1, -1.3]}><boxGeometry args={[0.44, 0.52, 0.36]} /><meshStandardMaterial color={desk} roughness={0.86} /></mesh>
+      <mesh position={[-2.65, 1.39, -1.3]}><boxGeometry args={[0.5, 0.07, 0.42]} /><meshStandardMaterial color="#9a7656" roughness={0.8} /></mesh>
+      <mesh position={[-2.65, 1.77, -1.3]}><cylinderGeometry args={[0.12, 0.16, 0.26, 12]} /><meshStandardMaterial color="#8b684e" roughness={0.9} /></mesh>
+      <mesh position={[-2.65, 2.0, -1.3]}><sphereGeometry args={[0.22, 12, 10]} /><meshStandardMaterial color="#527b61" roughness={0.92} /></mesh>
       <mesh position={[1.55, 2.2, -1.53]}><boxGeometry args={[0.75, 0.62, 0.06]} /><meshStandardMaterial color={premium ? '#8e765b' : '#304957'} /></mesh>
       <mesh position={[1.55, 2.2, -1.48]}><boxGeometry args={[0.61, 0.48, 0.025]} /><meshStandardMaterial color={premium ? '#e7d6b4' : '#b4c5c8'} /></mesh>
       <mesh position={[1.55, 2.2, -1.45]}><boxGeometry args={[0.08, 0.12, 0.02]} /><meshStandardMaterial color="#4b7862" /></mesh>
