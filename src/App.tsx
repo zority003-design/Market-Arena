@@ -308,7 +308,7 @@ function readSave(slot = getActiveSaveSlot()) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; clientMemory?: Record<string, string[]>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -531,6 +531,7 @@ export default function App() {
   const [clientDealCounts, setClientDealCounts] = useState<Record<string, number>>(saved.clientDealCounts ?? {})
   const [clientInvested, setClientInvested] = useState<Record<string, number>>(saved.clientInvested ?? {})
   const [clientTrustScores, setClientTrustScores] = useState<Record<string, number>>(saved.clientTrustScores ?? {})
+  const [clientMemory, setClientMemory] = useState<Record<string, string[]>>(saved.clientMemory ?? {})
   const [dailyLeadIds, setDailyLeadIds] = useState<string[]>(saved.dailyLeadIds ?? getDailyLeadIds(day, reputation, saved.clientLastContactDay ?? {}, saved.clientDealCounts ?? {}, saved.clientInvested ?? {}))
   const [callClientId, setCallClientId] = useState(saved.callClientId ?? 'alex-vorontsov')
   const [callCompanyTicker, setCallCompanyTicker] = useState(saved.callCompanyTicker ?? '')
@@ -601,8 +602,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
+    try { const snapshot = JSON.stringify({ cash, xp, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, xp, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, clientMemory, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -796,6 +797,7 @@ export default function App() {
     setClientDealCounts(data.clientDealCounts ?? {})
     setClientInvested(data.clientInvested ?? {})
     setClientTrustScores(data.clientTrustScores ?? {})
+    setClientMemory(data.clientMemory ?? {})
     setCallsToday(data.callsToday ?? 0)
     setDailyLeadIds(data.dailyLeadIds ?? getDailyLeadIds(data.day ?? 1, data.reputation ?? 42, data.clientLastContactDay ?? {}, data.clientDealCounts ?? {}, data.clientInvested ?? {}))
     setCallClientId(data.callClientId ?? 'alex-vorontsov')
@@ -894,6 +896,7 @@ export default function App() {
     setClientDealCounts({})
     setClientInvested({})
     setClientTrustScores({})
+    setClientMemory({})
     setDailyLeadIds(getDailyLeadIds(1, 42, {}, {}, {}))
     setCallClientId('alex-vorontsov')
     setVideoBackground('real')
@@ -996,7 +999,7 @@ export default function App() {
     setLastPenaltySecond(negotiationSeconds)
     setFreeAnswer('')
     setLastResult('')
-    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, ...getEquipmentOpening(activeClient, ownedItems).map((text) => ({ from: 'client' as const, text })), { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : []), ...(reputationBonus > 0 ? [{ from: 'system' as const, text: 'Репутация прошлых сделок добавила +' + reputationBonus + ' к начальному доверию.' }] : []), ...(businessTrustBonus > 0 ? [{ from: 'system' as const, text: 'Бизнес-инструменты помогли подготовиться: +' + businessTrustBonus + ' к начальному доверию.' }] : [])])
+    setConversation([{ from: 'system', text: 'Поручение руководителя: акция «' + assignedCompany.name + '» (' + assignedCompany.sector + ', риск: ' + assignedCompany.risk.toLowerCase() + '). Тебе нужно найти подходящего покупателя, раскрыть риски и обосновать предложение.' }, { from: 'client', text: 'Здравствуйте. ' + activeClient.quote }, ...(clientMemory[activeClient.id]?.length ? [{ from: 'system' as const, text: 'Клиент помнит прошлые разговоры: ' + clientMemory[activeClient.id].map((fact) => fact === 'overpromised' ? 'раньше ты обещал слишком уверенный результат' : fact === 'transparent' ? 'ты открыто говорил о рисках' : fact === 'evidence' ? 'ты приводил проверяемые факты' : fact === 'admitted-error' ? 'ты признавал ошибку' : 'вы уже обсуждали условия') .join('; ') + '. Это влияет на доверие.' }] : []), ...getEquipmentOpening(activeClient, ownedItems).map((text) => ({ from: 'client' as const, text })), { from: 'client', text: COMPANY_BANTER[assignedCompany.ticker] ?? '«Я пришёл за цифрами, а не за магией. Хотя магию отчётности тоже видел»' }, ...(preparationBonus > 0 ? [{ from: 'system' as const, text: 'Подготовка перед звонком помогла: начальное доверие повышено на ' + preparationBonus + ' пунктов.' }] : []), ...(roomBonus !== 0 ? [{ from: 'system' as const, text: 'Первое впечатление от жилья и рабочего места: ' + (roomBonus > 0 ? '+' : '') + roomBonus + ' к доверию.' }] : []), ...(outfitBonus > 0 ? [{ from: 'system' as const, text: 'Деловой образ произвёл впечатление: +' + outfitBonus + ' к начальному доверию.' }] : []), ...(backgroundBonus !== 0 ? [{ from: 'system' as const, text: 'Выбранный фон изменил первое впечатление на ' + (backgroundBonus > 0 ? '+' : '') + backgroundBonus + ' к доверию.' }] : []), ...(relationshipBonus > 0 ? [{ from: 'system' as const, text: 'Клиент помнит прошлое сотрудничество: +' + relationshipBonus + ' к начальному доверию.' }] : []), ...(reputationBonus > 0 ? [{ from: 'system' as const, text: 'Репутация прошлых сделок добавила +' + reputationBonus + ' к начальному доверию.' }] : []), ...(businessTrustBonus > 0 ? [{ from: 'system' as const, text: 'Бизнес-инструменты помогли подготовиться: +' + businessTrustBonus + ' к начальному доверию.' }] : [])])
     setMarketReviewed(false)
     setNewsReviewed(false)
     setCityBonus(0)
@@ -1059,7 +1062,7 @@ export default function App() {
     const rejectsGuarantee = /не\s+(?:гарантир|обещ)|никаких гарантий|гарантий нет|не могу обещать/.test(lower)
     const reckless = !rejectsGuarantee && /гарантирую|гарантированно выраст|без риска|точно выраст|не может упасть|удво|100\s*%\s*(?:доход|прибыл)?/.test(lower)
     const backgroundCaught = videoEnabled && videoBackground === 'luxury' && activeClient.statusSensitive && getVideoQuality(ownedItems) < 4 && questionIndex === 0
-    const dialogueEvaluation = evaluateFreeReply(text, activeClient, { name: activeCompany.name, ticker: activeCompany.ticker, upside: activeCompany.advantages, downside: activeCompany.risks, catalyst: activeCompany.advantages, redFlags: activeCompany.risks }, questionIndex, ownedItems, { trust, patience })
+    const dialogueEvaluation = evaluateFreeReply(text, activeClient, { name: activeCompany.name, ticker: activeCompany.ticker, upside: activeCompany.advantages, downside: activeCompany.risks, catalyst: activeCompany.advantages, redFlags: activeCompany.risks }, questionIndex, ownedItems, { trust, patience, memory: clientMemory[activeClient.id] ?? [] })
     const evaluatedDelta = approach === 'freeform' ? dialogueEvaluation.delta : delta + (dialogueEvaluation.delta >= 8 ? 1 : dialogueEvaluation.delta <= -6 ? -2 : 0)
     const safeDelta = reckless ? -15 : evaluatedDelta
     const appliedDelta = Math.max(-15, Math.min(10, safeDelta - (backgroundCaught ? 7 : 0)))
@@ -1069,6 +1072,14 @@ export default function App() {
     setTrust(nextTrust); setPatience(nextPatience)
     setClientTrustScores((scores) => ({ ...scores, [activeClient.id]: Math.max(0, Math.min(100, (scores[activeClient.id] ?? activeClient.baseTrust) + appliedDelta)) }))
     const evidence = /риск|убыт|марж|денеж|контракт|возврат|сценар|подтверж|провер|если|огранич|критер|дивиденд|прибыл/.test(lower)
+    setClientMemory((memory) => {
+      const facts = new Set(memory[activeClient.id] ?? [])
+      if (reckless) facts.add('overpromised')
+      if (rejectsGuarantee || /риск|убыт|потер|просад|долг/.test(lower)) facts.add('transparent')
+      if (evidence) facts.add('evidence')
+      if (/извин|ошиб|неправ|поторопил/.test(lower)) facts.add('admitted-error')
+      return { ...memory, [activeClient.id]: [...facts].slice(-5) }
+    })
     let clientReaction = approach === 'discovery'
       ? '«Для меня главное — ' + activeClient.goal + '. Хорошо, что вы сначала уточнили задачу. Теперь покажите, как эта идея вписывается в мой горизонт и допустимый риск».'
       : dialogueEvaluation.reply
