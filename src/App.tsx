@@ -770,7 +770,7 @@ export default function App() {
       if (index < 0 || index >= displayedChoices.length) return
       event.preventDefault()
       const choice = displayedChoices[index]
-      if (choice) answerQuestion(choice.label, choice.delta)
+      if (choice) answerQuestion(choice.label, choice.delta, choice.kind)
     }
     window.addEventListener('keydown', handleNegotiationKeys)
     return () => window.removeEventListener('keydown', handleNegotiationKeys)
@@ -1628,7 +1628,7 @@ export default function App() {
                            {conversation.slice(-3).map((entry, index) => <div key={conversation.length - 3 + index} className={'negotiation-dialogue-line ' + entry.from}><span>{entry.from === 'you' ? 'ВЫ' : entry.from === 'system' ? 'ЗАМЕТКА' : activeClient.name.toUpperCase()}</span><p>{entry.text}</p></div>)}
                          </div>
                          <div className="negotiation-current-question"><div><span className="negotiation-section-label">ВОПРОС КЛИЕНТА · ЭТАП {Math.min(questionIndex + 1, activeQuestions.length)} ИЗ {activeQuestions.length}</span><strong>{activeQuestion?.title ?? 'Обсудите условия сделки'}</strong><p className="negotiation-tactic">{activeQuestion?.hint ?? 'Уточни потребности, проверь риски и не обещай гарантированную доходность.'}</p></div><span className={'negotiation-timer ' + (timeLeft <= 15 ? 'urgent' : timeLeft <= 30 ? 'warning' : '')} style={{ '--timer-progress': (Math.max(0, Math.min(75, timeLeft)) / 75 * 100) + '%' } as React.CSSProperties}><span className="negotiation-timer-value">{Math.ceil(timeLeft)}</span><small>СЕК</small></span></div>
-                        <div className="negotiation-answers"><div className="negotiation-answer-heading"><strong>Выбери подход к разговору</strong><small>4 разных подхода · клавиши 1–4</small></div>{displayedChoices.map((choice, choiceIndex) => <button key={choiceIndex} className="negotiation-answer" onClick={() => answerQuestion(choice.label, choice.delta)}><kbd>{choiceIndex + 1}</kbd><span><small>{choice.kind === "evidence" ? "ФАКТЫ" : choice.kind === "salesy" ? "РИСКОВАННАЯ ПРОДАЖА" : choice.kind === "balanced" ? "СБАЛАНСИРОВАННЫЙ ПЛАН" : "УТОЧНИТЬ ЦЕЛЬ"}</small>{choice.label}</span></button>)}</div>
+                        <div className="negotiation-answers"><div className="negotiation-answer-heading"><strong>Выбери подход к разговору</strong><small>4 разных подхода · клавиши 1–4</small></div>{displayedChoices.map((choice, choiceIndex) => <button key={choiceIndex} className={"negotiation-answer approach-" + choice.kind} onClick={() => answerQuestion(choice.label, choice.delta, choice.kind)}><kbd>{choiceIndex + 1}</kbd><span><small>{choice.kind === "evidence" ? "ФАКТЫ" : choice.kind === "salesy" ? "РИСКОВАННАЯ ПРОДАЖА" : choice.kind === "balanced" ? "СБАЛАНСИРОВАННЫЙ ПЛАН" : "УТОЧНИТЬ ЦЕЛЬ"}</small>{choice.label}</span></button>)}</div>
                         <div className="negotiation-call-controls"><span><i className="negotiation-live-dot"/> Соединение стабильно</span><button className="os-call-end" onClick={() => { setCallStatus('lost'); setLastResult('Ты завершил звонок. Клиент не успел принять решение.') }}><Phone size={14}/> Завершить звонок</button></div>
                       </div>
                       <aside className="negotiation-goals">
