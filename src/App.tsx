@@ -535,7 +535,6 @@ export default function App() {
   const [outfitDetailsId, setOutfitDetailsId] = useState<OutfitId | null>(null)
   const [roomItemDetailsId, setRoomItemDetailsId] = useState<string | null>(null)
   const finishIntro = useCallback(() => setIntroActive(false), [])
-  useEffect(() => { try { localStorage.setItem('na-vse-kotirovki-outfit-slot-' + activeSaveSlot, selectedOutfit); localStorage.setItem('na-vse-kotirovki-owned-outfits-slot-' + activeSaveSlot, JSON.stringify(ownedOutfits)); if (activeSaveSlot === 1) { localStorage.setItem('na-vse-kotirovki-outfit', selectedOutfit); localStorage.setItem('na-vse-kotirovki-owned-outfits', JSON.stringify(ownedOutfits)) } } catch { /* Outfit preferences are optional if storage is unavailable. */ } }, [selectedOutfit, ownedOutfits, activeSaveSlot])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [activeSaveSlot, setActiveSaveSlot] = useState(() => getActiveSaveSlot())
@@ -661,7 +660,7 @@ export default function App() {
   useEffect(() => {
     if (!careerStarted) return
     try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, shopProcessed, selectedOutfit, ownedOutfits, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName, shopProcessed])
+  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName, shopProcessed, selectedOutfit, ownedOutfits])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
