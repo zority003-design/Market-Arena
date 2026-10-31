@@ -71,7 +71,7 @@ export function getEquipmentOpening(client: ClientProfile, ownedItems: string[] 
   return lines.slice(0, client.tier >= 2 ? 2 : 1)
 }
 
-export type NegotiationContext = { trust?: number; patience?: number }
+export type NegotiationContext = { trust?: number; patience?: number; memory?: string[] }
 
 function simplifyForBeginner(reply: string, client: ClientProfile, text: string) {
   if (client.tier > 1) return reply
@@ -238,6 +238,13 @@ export function evaluateFreeReply(
 
   const trust = Math.max(0, Math.min(100, context.trust ?? client.baseTrust))
   const patience = Math.max(0, Math.min(100, context.patience ?? client.patience))
+  const memory = context.memory ?? []
+  if (memory.includes('overpromised') && !rejectsGuarantee && !promises) {
+    delta -= 4
+    reply = reply.replace(/^«/, '«Кстати, я помню прошлое обещание. Доверие придётся восстановить фактами. ')
+  }
+  if (memory.includes('transparent') && hasRisk) delta += 2
+  if (memory.includes('admitted-error') && !promises) delta += 1
   if (trust < 30 && !hasRisk) { delta -= 3; reply = reply.replace(/[»”]$/, '') + ' «После прошлых ответов я пока не готов верить на слово. Назовите риск и конкретный сигнал, по которому мы заметим, что он реализуется».»' }
   else if (trust >= 65 && hasRisk && hasPlan) delta += 2
   if (client.ticket >= 10000 || client.budget >= 50000) {
