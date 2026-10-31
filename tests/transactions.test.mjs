@@ -23,6 +23,8 @@ test('all App and ArenaOS money mutations use the same idempotent transaction ga
   assert.match(app, /transactMoney\(payout\.firmRevenue/)
   assert.match(app, /transactMoney\(-item\.price/)
   assert.match(app, /transactMoney\(-home\.price/)
+  assert.match(app, /onceKey\?\.startsWith\('career:'\) \? onceKey/)
+  assert.match(app, /career:test-budget/)
   assert.match(arena, /transactMoney: \(amount: number, reason: string, onceKey\?: string\) => boolean/)
   assert.match(arena, /props\.transactMoney\(firmCommission/)
   assert.match(arena, /props\.transactMoney\(-upgrade\.price/)
