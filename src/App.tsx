@@ -558,7 +558,7 @@ export default function App() {
   const [toast, setToast] = useState('')
   function transactMoney(amount: number, reason: string, onceKey?: string) {
     transactionSequence.current += 1
-    const result = postMoneyTransaction(cashRef.current, transactionHistoryRef.current, { id: careerSessionId + ':' + day + ':' + (onceKey ?? transactionSequence.current), day, amount, reason })
+    const result = postMoneyTransaction(cashRef.current, transactionHistoryRef.current, { id: onceKey ? day + ':' + onceKey : careerSessionId + ':' + day + ':' + Date.now() + ':' + transactionSequence.current, day, amount, reason })
     if (!result.ok) return false
     cashRef.current = result.balance
     setCash(result.balance)
