@@ -1,4 +1,5 @@
 import './ArenaOS.css'
+import ItemMarketplace from './ItemMarketplace'
 import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import {
   Activity, TrendingUp, Check, ChevronRight, Clock3, House, Laptop, Mic, Building2,
@@ -11,6 +12,7 @@ import BrokerAvatar3D, { BrokerWebcamScene } from './BrokerAvatar3D'
 import { playSound } from './audio'
 import { evaluateFreeReply, getEquipmentOpening, getNegotiationDifficulty } from './game/dialogue'
 import { clampWindowPosition } from './game/windowGeometry'
+import { evaluateSocialAppearance, getEquipmentEffects } from './game/item-catalog.mjs'
 
 type OutfitId = 'intern' | 'classic' | 'premium'
 type SpeechResultLike = { transcript: string }
@@ -41,6 +43,7 @@ type Props = {
   selectedOutfit: OutfitId; setSelectedOutfit: (v: OutfitId) => void
   ownedOutfits: OutfitId[]; setOwnedOutfits: Dispatch<SetStateAction<OutfitId[]>>
   ownedItems: string[]; setOwnedItems: Dispatch<SetStateAction<string[]>>
+  onPurchase: (id:string, price:number, description:string) => boolean
   clientTrustScores: Record<string, number>; setClientTrustScores: Dispatch<SetStateAction<Record<string, number>>>
   onClose: () => void
   onEndDay: () => void
@@ -103,6 +106,7 @@ const GEAR = [
   {id:'partner-desk',name:'Дополнительный рабочий стол',price:5800,desc:'Физически появляется в комнате и открывает найм первого сотрудника в квартире.',bonus:0,icon:'desk'}
 ]
 
+
 function GearIllustration({ type }: { type:string }) {
   const common = { strokeLinecap:'round' as const, strokeLinejoin:'round' as const }
   return <svg viewBox="0 0 160 120" role="img" aria-label={type==='desk'?'Иллюстрация рабочего стола':type==='mic'?'Иллюстрация гарнитуры':type==='camera'?'Иллюстрация веб-камеры':type==='light'?'Иллюстрация настольной лампы':'Иллюстрация рабочего фона'}>
@@ -149,6 +153,7 @@ function GearIllustration({ type }: { type:string }) {
     </>}
   </svg>
 }
+
 
 const money = (n:number) => Math.round(n).toLocaleString('ru-RU') + ' ₽'
 
@@ -265,24 +270,29 @@ export default function ArenaOS(props: Props) {
   const gameVolume = props.masterVolume
   const setGameVolume = (value: number) => props.setMasterVolume(value)
   const [notice,setNotice] = useState('')
+  const [equippedFashion,setEquippedFashion] = useState<string[]>(()=>{try{const value=JSON.parse(localStorage.getItem('market-arena-equipped-'+(props.saveSlot??1))||'[]');return Array.isArray(value)?value:[]}catch{return []}})
   const [query,setQuery] = useState('')
   const [lastChance,setLastChance] = useState(0)
   const [completed,setCompleted] = useState(0)
   const client = useMemo(() => (CLIENTS.find(c => c.id === clientId) ?? CLIENTS[0]) as ClientProfile,[clientId])
   const unlockedClients = useMemo(() => CLIENTS.filter(c => getClientEquipmentAccess(c, props.ownedItems).available && (newContacts.includes(c.id) || (props.day >= 3 && c.minDay <= props.day && c.minReputation <= props.reputation) || (props.businessUpgrades.includes('lead-network') && c.minDay <= props.day + 2 && c.minReputation <= props.reputation + 10) || (props.businessUpgrades.includes('client-crm') && c.minDay <= props.day + 3 && c.minReputation <= props.reputation + 15))),[props.day,props.reputation,newContacts,props.businessUpgrades,props.ownedItems])
-  const equipmentBonus = GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0)
+  const catalogEquipment = getEquipmentEffects(props.ownedItems)
+  const equipmentBonus = Math.max(GEAR.filter(g => props.ownedItems.includes(g.id)).reduce((n,g)=>n+g.bonus,0), catalogEquipment.callQuality ?? 0)
   const currentHousing = HOUSING.find(home => home.id === props.housingId) ?? HOUSING[0]
-  const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client)
+  const housingBonus = getFirstImpression(props.housingId, props.ownedItems, client) + (catalogEquipment.roomComfort ?? 0)
   const estimatedBonus = Math.min(getBusinessPayoutCap(props.businessUpgrades), Math.max(200, Math.round(client.ticket * client.bonusRate * 1.25)))
   const estimatedFirmCommission = Math.round(client.ticket * client.commissionRate)
   const businessTrustBonus = BUSINESS_UPGRADES.filter(upgrade => props.businessUpgrades.includes(upgrade.id)).reduce((sum, upgrade) => sum + upgrade.trustBonus, 0)
   const dailyCallLimit = (props.reputation >= 60 ? 4 : props.reputation >= 35 ? 3 : 2) + (props.businessUpgrades.includes('lead-network') ? 1 : 0) + (props.businessUpgrades.includes('client-crm') ? 1 : 0)
-  const outfitBonus = (OUTFITS.find(o=>o.id===props.selectedOutfit)?.bonus ?? 0) + (client.statusSensitive && props.selectedOutfit==='intern' ? -4 : 0)
-  const missingMicPenalty = (props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic')) ? 0 : (client.tier >= 2 ? 6 : 3)
+  const appearanceContext = client.statusSensitive ? 'formal' : 'business'
+  const appearanceImpact = evaluateSocialAppearance(equippedFashion, appearanceContext, client.temperament)
+  const outfitBonus = (OUTFITS.find(o=>o.id===props.selectedOutfit)?.bonus ?? 0) + (client.statusSensitive && props.selectedOutfit==='intern' ? -4 : 0) + appearanceImpact.score
+  const missingMicPenalty = (props.ownedItems.includes('headset') || props.ownedItems.includes('pro-mic') || props.ownedItems.includes('gear-headset-pro')) ? 0 : (client.tier >= 2 ? 6 : 3)
   const missingCameraPenalty = props.ownedItems.includes('hd-camera') ? 0 : (client.tier >= 2 || client.statusSensitive ? 5 : 2)
   const missingBackgroundPenalty = (props.ownedItems.includes('neutral-backdrop') || props.ownedItems.includes('chromakey-kit')) ? 0 : (client.tier >= 2 || client.statusSensitive ? 3 : 1)
   const qualityPenalty = missingMicPenalty + missingCameraPenalty + missingBackgroundPenalty
-  const chance = Math.max(5,Math.min(78,Math.round(20 + trust*.43 + props.reputation*.09 + equipmentBonus*.7 + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 3 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.3)))
+  const analysisBonus = Math.min(4,Math.floor((catalogEquipment.marketAnalysis ?? 0)/8))
+  const chance = Math.max(5,Math.min(78,Math.round(20 + trust*.43 + props.reputation*.09 + equipmentBonus*.7 + analysisBonus + outfitBonus - qualityPenalty + housingBonus + businessTrustBonus + (activeStock && activeStock.risk === 'Низкий' && client.statusSensitive ? 3 : 0) - Math.max(0,getClientTrustRequirement(client)-trust)*.3)))
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-last-app',activeApp) } catch {} },[activeApp])
   useEffect(()=>{ try { localStorage.setItem('arena-os-v2-contacts',JSON.stringify(newContacts)) } catch {} },[newContacts])
   useEffect(()=>{
@@ -439,8 +449,9 @@ export default function ArenaOS(props: Props) {
   }
   const buyOutfit = (id:OutfitId,price:number) => {
     if(props.ownedOutfits.includes(id)) { props.setSelectedOutfit(id); setNotice('Образ изменён: его бонус зависит от уровня одежды и статуса клиента.'); return }
-    if(props.cash<price) { setNotice('Не хватает денег. Сначала заработай на переговорах.'); return }
-    props.setCash(v=>v-price); props.setOwnedOutfits(v=>[...v,id]); props.setSelectedOutfit(id); setNotice('Покупка разовая. Ежедневной аренды жилья в игре нет.')
+    const ok=props.onPurchase(id,price,OUTFITS.find(item=>item.id===id)?.name ?? id)
+    if(!ok) { setNotice('Не удалось купить комплект. Проверь баланс.'); return }
+    props.setOwnedOutfits(v=>[...v,id]); props.setSelectedOutfit(id); setNotice('Комплект куплен. Списание проведено через общий транзакционный сервис.')
   }
   const buyBusinessUpgrade = (id:string) => {
     const upgrade = BUSINESS_UPGRADES.find(item => item.id === id)
@@ -484,10 +495,12 @@ export default function ArenaOS(props: Props) {
     props.setOwnedEmployees(value => [...value, id])
     setNotice('В команду принят сотрудник: ' + employee.name + '. Зарплата автоматически вычитается из его выручки; фирме начисляется только чистый остаток +' + money(employee.dailyRevenue - employee.dailySalary) + '.')
   }
-  const buyGear = (id:string,price:number) => {
-    if(props.ownedItems.includes(id)) { setNotice('Уже куплено.'); return }
-    if(props.cash<price) { setNotice('Не хватает денег.'); return }
-    props.setCash(v=>v-price); props.setOwnedItems(v=>[...v,id]); setNotice('Куплено навсегда. Ежедневной аренды жилья в игре нет.')
+  const buyCatalogItem = (id:string,price:number,name:string) => {
+    if(props.ownedItems.includes(id)) { setNotice('Предмет уже находится в инвентаре.'); return false }
+    const ok=props.onPurchase(id,price,name)
+    setNotice(ok?'Покупка проведена через общий денежный баланс. Предмет добавлен в инвентарь.':'Покупка не выполнена. Проверь баланс и условия.')
+    if(ok) playSound('ui')
+    return ok
   }
   const nav: {id:AppId;label:string;icon:typeof Laptop}[] = [
     {id:'home',label:'Мой профиль',icon:Laptop},{id:'calls',label:'Брокерская линия',icon:PhoneCall},{id:'market',label:'Биржа',icon:TrendingUp},{id:'business',label:'Развитие бизнеса',icon:Building2},
@@ -578,8 +591,8 @@ export default function ArenaOS(props: Props) {
             </div>}
           </section>}
           {activeApp==='clients' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">CRM · КЛИЕНТСКАЯ БАЗА</span><h1>Люди, а не кошельки</h1><p>У каждого клиента свои ожидания. Более высокий капитал не означает лёгкую сделку.</p></div><span className="arena-os-count">{unlockedClients.length} открыто / {CLIENTS.length}</span></div><div className="arena-os-all-clients">{CLIENTS.map(c=>{const open=newContacts.includes(c.id)||(c.minDay<=props.day&&c.minReputation<=props.reputation)||(props.businessUpgrades.includes('lead-network')&&c.minDay<=props.day+2&&c.minReputation<=props.reputation+10)||(props.businessUpgrades.includes('client-crm')&&c.minDay<=props.day+3&&c.minReputation<=props.reputation+15);return <article key={c.id} className={open?'':'locked'}><div className="arena-os-small-face"><ClientAvatar2D tier={c.tier} identity={c.id} mood="neutral"/></div><div><b>{open?c.name:'Закрытый контакт'}</b><small>{c.profession}</small><p>{open?c.goal:'Откроется на '+c.minDay+' дне при репутации '+c.minReputation+'.'}</p><span>{c.temperament} · {c.experience}</span></div><strong>{open?money(c.budget):<ShieldCheck size={17}/>}</strong><button disabled={!open} onClick={()=>{setClientId(c.id);setActiveApp('calls')}}>{open?'Выбрать':'Закрыт'}</button></article>})}</div></section>}
-          {activeApp==='wardrobe' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">ARENA STYLE</span><h1>Гардероб</h1><p>Покупаешь один раз. Образ меняет первое впечатление, но не заменяет компетентность.</p></div><span className="arena-os-count">Текущий образ: {OUTFITS.find(o=>o.id===props.selectedOutfit)?.name}</span></div><div className="arena-os-outfit-grid">{OUTFITS.map(o=><article key={o.id} className={props.selectedOutfit===o.id?'equipped':''}><div className="arena-os-outfit-preview"><BrokerAvatar3D identity="player" outfit={o.id}/></div><h3>{o.name}</h3><p>{o.desc}</p><div className="arena-os-item-foot"><b>{money(o.price)}</b><span>+{o.bonus} к первому впечатлению</span></div><button className={props.ownedOutfits.includes(o.id)?'arena-os-secondary':'arena-os-primary'} onClick={()=>buyOutfit(o.id,o.price)}>{props.selectedOutfit===o.id?'Надето':props.ownedOutfits.includes(o.id)?'Надеть': 'Купить один раз'}</button></article>)}</div></section>}
-          {activeApp==='equipment' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">РАБОЧЕЕ МЕСТО</span><h1>Оборудование</h1><p>Оборудование меняет качество связи и первое впечатление; дополнительный стол физически появляется в комнате и открывает найм.</p></div><span className="arena-os-count">Качество связи: {Math.max(0,100-qualityPenalty*4)}%</span></div><div className="arena-os-gear-grid">{GEAR.map(g=>{const owned=props.ownedItems.includes(g.id);return <article key={g.id} className={owned?'owned':''}><div className={'arena-os-gear-art gear-art-'+g.icon}><GearIllustration type={g.icon}/></div><div><h3>{g.name}</h3><p>{g.desc}</p><span>{g.icon==='desk'?'Отдельное рабочее место · открывает найм':'+'+g.bonus+' к качеству переговоров'}</span></div><button disabled={owned} onClick={()=>buyGear(g.id,g.price)}>{owned?<><Check size={15}/> Куплено</>:<>Купить · {money(g.price)}</>}</button></article>})}</div><div className="arena-os-note"><ShieldCheck size={18}/><p>Владение жильём не создаёт ежедневных расходов. Деньги уходят только на выбранные покупки; заработок зависит от сделок, а не от ожидания таймера аренды.</p></div></section>}
+          {activeApp==='wardrobe' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">ARENA STYLE</span><h1>Гардероб</h1><p>Покупаешь один раз. Образ меняет первое впечатление, но не заменяет компетентность.</p></div><span className="arena-os-count">Текущий образ: {OUTFITS.find(o=>o.id===props.selectedOutfit)?.name}</span></div><div className="arena-os-outfit-grid">{OUTFITS.map(o=><article key={o.id} className={props.selectedOutfit===o.id?'equipped':''}><div className="arena-os-outfit-preview"><BrokerAvatar3D identity="player" outfit={o.id}/></div><h3>{o.name}</h3><p>{o.desc}</p><div className="arena-os-item-foot"><b>{money(o.price)}</b><span>+{o.bonus} к первому впечатлению</span></div><button className={props.ownedOutfits.includes(o.id)?'arena-os-secondary':'arena-os-primary'} onClick={()=>buyOutfit(o.id,o.price)}>{props.selectedOutfit===o.id?'Надето':props.ownedOutfits.includes(o.id)?'Надеть': 'Купить один раз'}</button></article>)}</div><ItemMarketplace mode="wardrobe" cash={props.cash} ownedItems={props.ownedItems} onBuy={buyCatalogItem} saveSlot={props.saveSlot??1} outfit={props.selectedOutfit} day={props.day} reputation={props.reputation} onAppearanceChange={setEquippedFashion}/></section>}
+          {activeApp==='equipment' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">РАБОЧЕЕ МЕСТО</span><h1>Оборудование</h1><p>Оборудование меняет качество связи и первое впечатление; дополнительный стол физически появляется в комнате и открывает найм.</p></div><span className="arena-os-count">Качество связи: {Math.max(0,100-qualityPenalty*4)}%</span></div><ItemMarketplace mode="equipment" cash={props.cash} ownedItems={props.ownedItems} onBuy={buyCatalogItem} saveSlot={props.saveSlot??1} outfit={props.selectedOutfit} day={props.day} reputation={props.reputation}/><div className="arena-os-legacy-gear-strip" aria-label="Иллюстрации базового оборудования">{GEAR.map(g=><div key={g.id} className={'gear-art-'+g.icon}><GearIllustration type={g.icon}/><span>{g.name}</span></div>)}</div><div className="arena-os-note"><ShieldCheck size={18}/><p>Владение жильём не создаёт ежедневных расходов. Деньги уходят только на выбранные покупки; заработок зависит от сделок, а не от ожидания таймера аренды.</p></div></section>}
           {activeApp==='business' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">МАСШТАБИРОВАНИЕ · БРОКЕРСКИЙ БИЗНЕС</span><h1>От одиночки к брокерской фирме</h1><p>Вкладывай заработанное в источники лидов, аналитику и клиентский сервис. Улучшения открывают больше возможностей, но не превращают каждую сделку в джекпот.</p></div><span className="arena-os-count">Улучшено: {props.businessUpgrades.length}/{BUSINESS_UPGRADES.length}</span></div><div className="arena-os-business-summary"><div><small>КАПИТАЛ ФИРМЫ</small><b>{money(props.firmCapital)}</b><small>ЛИЧНЫЕ ДЕНЬГИ</small><b>{money(props.cash)}</b></div><div><small>ЗВОНКОВ СЕГОДНЯ</small><b>{props.callsToday}/{dailyCallLimit}</b></div><div><small>ПОТОЛОК БОНУСА</small><b>{money(getBusinessPayoutCap(props.businessUpgrades))}</b></div></div><div className="arena-os-staff-section"><div className="arena-os-page-heading"><div><span className="arena-os-kicker">МАСШТАБИРОВАНИЕ · НАЙМ</span><h2>{props.companyName.trim() || 'Твоя брокерская фирма'} · Команда</h2><p>Купи второй стол, найми первого брокера и получай чистый ежедневный доход. Зарплата автоматически вычитается из его выручки: в твой баланс поступает только остаток. В квартире доступно 1 место для сотрудника; покупка «Команды брокеров» открывает офис на 5 мест.</p></div><span className="arena-os-count">Сотрудники: {props.ownedEmployees.length}/{staffCapacity}</span></div><div className="arena-os-staff-summary"><div><small>ВЫРУЧКА СОТРУДНИКОВ / ДЕНЬ</small><b>{money(BROKER_HIRES.filter(e=>props.ownedEmployees.includes(e.id)).reduce((sum,e)=>sum+e.dailyRevenue,0))}</b></div><div><small>ЗАРПЛАТЫ / ДЕНЬ</small><b>{money(BROKER_HIRES.filter(e=>props.ownedEmployees.includes(e.id)).reduce((sum,e)=>sum+e.dailySalary,0))}</b></div><div><small>ЧИСТЫЙ ДОХОД / ДЕНЬ</small><b>+{money(currentStaffNetIncome)}</b></div></div><div className="arena-os-staff-grid">{BROKER_HIRES.map(employee=>{const owned=props.ownedEmployees.includes(employee.id);const officeOpen=props.ownedBusinessAssets.some(id=>['broker-team','city-agency','national-network'].includes(id));const full=props.ownedEmployees.length>=staffCapacity;const deskNeeded=!officeOpen&&!props.ownedItems.includes('partner-desk');const locked=props.day<employee.minDay||props.reputation<employee.minReputation;const affordable=props.firmCapital>=employee.price;return <article key={employee.id} className={owned?'owned':''}><div className="arena-os-staff-avatar"><BrokerAvatar3D identity={employee.id} outfit={employee.id==='junior-broker'?'intern':employee.id==='team-lead'?'premium':'classic'}/></div><div className="arena-os-staff-copy"><h3>{employee.name}</h3><p>{employee.description}</p><div className="arena-os-asset-finances"><span>Выручка <b>{money(employee.dailyRevenue)}/день</b></span><span>Зарплата <b>{money(employee.dailySalary)}/день</b></span><strong>Чистыми <b>+{money(employee.dailyRevenue-employee.dailySalary)}/день</b></strong></div><small>{owned?'Работает в команде':deskNeeded?'Сначала купи второй рабочий стол':full?'Нет свободных рабочих мест':locked?'Откроется с '+employee.minDay+' дня при репутации '+employee.minReputation:affordable?'Можно нанять':'Не хватает '+money(employee.price-props.firmCapital)}</small><button className={owned?'arena-os-secondary':'arena-os-primary'} disabled={owned||full||deskNeeded||locked||!affordable} onClick={()=>hireBroker(employee.id)}>{owned?'Нанят':deskNeeded?'Нужен второй стол':full?'Нужно больше места':locked?'Пока закрыт':affordable?'Нанять · '+money(employee.price):'Нужно накопить'}</button></div></article>})}</div></div><div className="arena-os-business-grid">{BUSINESS_UPGRADES.map((upgrade,index)=>{const owned=props.businessUpgrades.includes(upgrade.id);const locked=props.day<upgrade.minDay||props.reputation<upgrade.minReputation;const canAfford=props.firmCapital>=upgrade.price;return <article key={upgrade.id} className={'arena-os-business-card'+(owned?' owned':'')}><div className="arena-os-business-icon">{index===0?<Users/>:index===1?<Activity/>:index===2?<TrendingUp/>:<Building2/>}<span>ЭТАП 0{index+1}</span></div><div className="arena-os-business-copy"><h3>{upgrade.name}</h3><p>{upgrade.description}</p><div className="arena-os-business-effect"><Check size={14}/><span>{upgrade.effect}</span></div><div className="arena-os-business-cap">Предел бонуса за сделку <b>{money(upgrade.payoutCap)}</b></div><small>{owned?'Улучшение установлено':locked?'Откроется с '+upgrade.minDay+' дня при репутации '+upgrade.minReputation:canAfford?'Доступно для покупки':'Не хватает '+money(upgrade.price-props.firmCapital)}</small><button className={owned?'arena-os-secondary':'arena-os-primary'} disabled={owned||locked||!canAfford} onClick={()=>buyBusinessUpgrade(upgrade.id)}>{owned?'Установлено':locked?'Пока закрыто':canAfford?'Инвестировать · '+money(upgrade.price):'Нужно накопить'}</button></div></article>})}</div><div className="arena-os-note"><Building2 size={18}/><p>Улучшения помогают лично тебе закрывать сделки. Следующий уровень — покупать активы фирмы: они приносят регулярный доход, но требуют первоначальных вложений и ежедневных расходов.</p></div>
 <div className="arena-os-empire">
   <div className="arena-os-page-heading"><div><span className="arena-os-kicker">ГЛАВНАЯ ЦЕЛЬ · СТРОЙ СВОЮ ФИРМУ</span><h2>От рабочего стола до брокерской сети</h2><p>Покупай активы по порядку. Каждый новый уровень открывает более крупный постоянный денежный поток. Доход зачисляется в личный баланс в начале нового дня.</p></div><span className="arena-os-count">Активов: {props.ownedBusinessAssets.length}/{BUSINESS_ASSETS.length}</span></div>

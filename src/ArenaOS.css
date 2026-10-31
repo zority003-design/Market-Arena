@@ -1009,3 +1009,5 @@
   .arena-os-outfit-grid { grid-template-columns:minmax(0,1fr); }
   .arena-os-outfit-preview { height:230px; }
 }
+
+.arena-os-legacy-gear-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0;padding:12px;border:1px solid rgba(170,196,193,.12);border-radius:12px;background:rgba(19,35,42,.72)}.arena-os-legacy-gear-strip>div{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;color:#93aaa9;font-size:9px;text-align:center}.arena-os-legacy-gear-strip svg{width:100%;max-width:110px;height:auto}.arena-os-legacy-gear-strip span{line-height:1.3}@media(max-width:640px){.arena-os-legacy-gear-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -13,6 +13,9 @@ import BrokerAvatar3D, { BrokerWebcamScene } from './BrokerAvatar3D'
 import DailyMissionPanel from './DailyMissionPanel'
 import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
+import { createEconomy } from './game/economy-engine.mjs'
+import { purchaseCatalogItem } from './game/shop-engine.mjs'
+import { getEquipmentEffects } from './game/item-catalog.mjs'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -361,7 +364,7 @@ function readSave(slot = getActiveSaveSlot()) {
       raw = localStorage.getItem('na-vse-kotirovki-save-v1')
       if (raw) localStorage.setItem(key, raw)
     }
-    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string }
+    if (raw) return JSON.parse(raw) as { cash?: number; firmCapital?: number; debt?: number; reputation?: number; day?: number; deals?: number; housingId?: string; ownedItems?: string[]; selectedClientId?: string; videoBackground?: VideoBackground; clientLastContactDay?: Record<string, number>; clientDealCounts?: Record<string, number>; clientInvested?: Record<string, number>; clientTrustScores?: Record<string, number>; callClientId?: string; callCompanyTicker?: string; callsToday?: number; dailyLeadIds?: string[]; gameMinutes?: number; dayEnded?: boolean; dailySalesAmount?: number; dailySalesShares?: number; xp?: number; businessUpgrades?: string[]; ownedBusinessAssets?: string[]; ownedEmployees?: string[]; companyName?: string; savedAt?: string; shopProcessed?: string[]; selectedOutfit?: OutfitId; ownedOutfits?: OutfitId[] }
   } catch { /* Storage may be disabled; the game still works for this session. */ }
   return {}
 }
@@ -525,14 +528,13 @@ export default function App() {
   const [curtainsOpen, setCurtainsOpen] = useState(true)
   const [controlsVisible, setControlsVisible] = useState(false)
   const [nearbyRoomObject, setNearbyRoomObject] = useState<RoomObject | null>(null)
-  const [selectedOutfit, setSelectedOutfit] = useState<OutfitId>(() => { try { return (localStorage.getItem('na-vse-kotirovki-outfit') as OutfitId) || 'intern' } catch { return 'intern' } })
+  const [selectedOutfit, setSelectedOutfit] = useState<OutfitId>(() => { const slot = getActiveSaveSlot(); const legacy = slot === 1 ? localStorage.getItem('na-vse-kotirovki-outfit') : null; const value = saved.selectedOutfit ?? (slot === 1 ? legacy : null); return value === 'classic' || value === 'premium' ? value : 'intern' })
   const [previewOutfit, setPreviewOutfit] = useState<OutfitId | null>(null)
   const displayedOutfit = previewOutfit ?? selectedOutfit
-  const [ownedOutfits, setOwnedOutfits] = useState<OutfitId[]>(() => { try { const raw = JSON.parse(localStorage.getItem('na-vse-kotirovki-owned-outfits') || '["intern"]'); return Array.isArray(raw) ? Array.from(new Set<OutfitId>(['intern', ...raw.filter((id: string): id is OutfitId => id === 'classic' || id === 'premium' || id === 'intern')])) : ['intern'] } catch { return ['intern'] } })
+  const [ownedOutfits, setOwnedOutfits] = useState<OutfitId[]>(() => { try { const slot = getActiveSaveSlot(); const legacy = slot === 1 ? localStorage.getItem('na-vse-kotirovki-owned-outfits') : null; const raw = saved.ownedOutfits ?? (legacy ? JSON.parse(legacy) : ['intern']); return Array.isArray(raw) ? Array.from(new Set<OutfitId>(['intern', ...raw.filter((id: string): id is OutfitId => id === 'classic' || id === 'premium' || id === 'intern')])) : ['intern'] } catch { return ['intern'] } })
   const [outfitDetailsId, setOutfitDetailsId] = useState<OutfitId | null>(null)
   const [roomItemDetailsId, setRoomItemDetailsId] = useState<string | null>(null)
   const finishIntro = useCallback(() => setIntroActive(false), [])
-  useEffect(() => { try { localStorage.setItem('na-vse-kotirovki-outfit', selectedOutfit); localStorage.setItem('na-vse-kotirovki-owned-outfits', JSON.stringify(ownedOutfits)) } catch { /* Outfit preferences are optional if storage is unavailable. */ } }, [selectedOutfit, ownedOutfits])
   const [careerStarted, setCareerStarted] = useState(() => startNewCareerOnLoad || Object.keys(readSave()).length > 0)
   const [hasSavedGame, setHasSavedGame] = useState(() => Object.keys(readSave()).length > 0)
   const [activeSaveSlot, setActiveSaveSlot] = useState(() => getActiveSaveSlot())
@@ -580,6 +582,8 @@ export default function App() {
   const [ownedEmployees, setOwnedEmployees] = useState<string[]>(saved.ownedEmployees ?? [])
   const [companyName, setCompanyName] = useState(saved.companyName ?? '')
   const [ownedItems, setOwnedItems] = useState<string[]>(saved.ownedItems ?? [])
+  const [shopProcessed, setShopProcessed] = useState<string[]>(saved.shopProcessed ?? [])
+  const shopProcessedRef = useRef<string[]>(saved.shopProcessed ?? [])
   const [selectedClientId, setSelectedClientId] = useState(saved.selectedClientId ?? 'alex-vorontsov')
   const [clientLastContactDay, setClientLastContactDay] = useState<Record<string, number>>(saved.clientLastContactDay ?? {})
   const [clientDealCounts, setClientDealCounts] = useState<Record<string, number>>(saved.clientDealCounts ?? {})
@@ -616,7 +620,7 @@ export default function App() {
   const [cityBonus, setCityBonus] = useState(0)
 
   useEffect(() => {
-    if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career') } catch { /* Ignore unavailable storage. */ } }
+    if (startNewCareerOnLoad) { try { localStorage.removeItem('na-vse-kotirovki-start-new-career'); localStorage.removeItem('market-arena-equipped-' + activeSaveSlot); localStorage.removeItem('market-arena-character-appearance-' + activeSaveSlot) } catch { /* Ignore unavailable storage. */ } }
   }, [startNewCareerOnLoad])
 
   useEffect(() => {
@@ -655,8 +659,8 @@ export default function App() {
 
   useEffect(() => {
     if (!careerStarted) return
-    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
-  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName])
+    try { const snapshot = JSON.stringify({ cash, xp, firmCapital, debt, reputation, day, deals, housingId, businessUpgrades, ownedItems, shopProcessed, selectedOutfit, ownedOutfits, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, ownedBusinessAssets, ownedEmployees, companyName, savedAt: new Date().toISOString() }); localStorage.setItem(getSaveKey(), snapshot); if (getActiveSaveSlot() === 1) localStorage.setItem('na-vse-kotirovki-save-v1', snapshot) } catch { /* Ignore unavailable storage. */ }
+  }, [careerStarted, cash, xp, firmCapital, debt, reputation, day, deals, housingId, ownedItems, selectedClientId, videoBackground, clientLastContactDay, clientDealCounts, clientInvested, clientTrustScores, callClientId, callCompanyTicker, callsToday, dailyLeadIds, gameMinutes, dayEnded, dailySalesAmount, dailySalesShares, businessUpgrades, ownedBusinessAssets, ownedEmployees, companyName, shopProcessed, selectedOutfit, ownedOutfits])
 
   useEffect(() => {
     if (previousHousingId.current === housingId) return
@@ -846,6 +850,19 @@ export default function App() {
     setOwnedEmployees(data.ownedEmployees ?? [])
     setCompanyName(data.companyName ?? '')
     setOwnedItems(data.ownedItems ?? [])
+    let legacyOutfit: string | null = null
+    let legacyOwnedOutfits: string | null = null
+    try {
+      legacyOutfit = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-outfit') : localStorage.getItem('na-vse-kotirovki-outfit-slot-' + activeSaveSlot)
+      legacyOwnedOutfits = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-owned-outfits') : localStorage.getItem('na-vse-kotirovki-owned-outfits-slot-' + activeSaveSlot)
+    } catch { /* Keep the starter outfit when browser storage is unavailable. */ }
+    const loadedOutfit = data.selectedOutfit ?? legacyOutfit
+    setSelectedOutfit(loadedOutfit === 'classic' || loadedOutfit === 'premium' ? loadedOutfit : 'intern')
+    let loadedOwnedOutfits: unknown = data.ownedOutfits
+    if (!Array.isArray(loadedOwnedOutfits)) { try { loadedOwnedOutfits = legacyOwnedOutfits ? JSON.parse(legacyOwnedOutfits) : ['intern'] } catch { loadedOwnedOutfits = ['intern'] } }
+    setOwnedOutfits(Array.isArray(loadedOwnedOutfits) ? Array.from(new Set<OutfitId>(['intern', ...loadedOwnedOutfits.filter((id): id is OutfitId => id === 'classic' || id === 'premium' || id === 'intern')])) : ['intern'])
+    shopProcessedRef.current = data.shopProcessed ?? []
+    setShopProcessed(data.shopProcessed ?? [])
     setSelectedClientId(data.selectedClientId ?? 'alex-vorontsov')
     setClientLastContactDay(data.clientLastContactDay ?? {})
     setClientDealCounts(data.clientDealCounts ?? {})
@@ -943,6 +960,8 @@ export default function App() {
     setOwnedEmployees([])
     setCompanyName('')
     setOwnedItems([])
+    shopProcessedRef.current = []
+    setShopProcessed([])
     setSelectedOutfit('intern')
     setOwnedOutfits(['intern'])
     setSelectedClientId('alex-vorontsov')
@@ -1239,6 +1258,24 @@ export default function App() {
     setToast('Куплено: ' + item.name + '. Предмет появился в комнате. Его бонус к первому впечатлению и качеству связи будет применяться автоматически.')
   }
 
+  function handleCatalogPurchase(itemId: string, price: number, description: string) {
+    try {
+      const economy = createEconomy({ cash, processed: shopProcessedRef.current })
+      const result = purchaseCatalogItem(economy, ownedItems, itemId, 'shop:' + activeSaveSlot + ':' + itemId, { day, reputation })
+      if (result.item.price !== price) throw new Error('Цена предмета изменилась. Обнови магазин.')
+      setCash(result.economy.cash)
+      setOwnedItems(result.inventory)
+      shopProcessedRef.current = result.economy.processed
+      setShopProcessed(result.economy.processed)
+      setToast('Куплено: ' + description + '. Деньги списаны с общего личного баланса.')
+      playSound('ui')
+      return true
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : 'Не удалось завершить покупку.')
+      return false
+    }
+  }
+
   function moveToHousing(homeId: string) {
     const home = HOUSING.find((candidate) => candidate.id === homeId)
     if (!home || home.id === housingId) return
@@ -1312,7 +1349,8 @@ export default function App() {
       // Salary is personal income; office rent and business operations belong to firm capital.
       setCash((value) => Math.max(0, value + DAILY_SALARY - personalHousingCost))
       setFirmCapital((value) => Math.max(0, value + businessNetIncome + staffNetIncome - officeRent))
-      setGameMinutes(7 * 60)
+      const recovery = getEquipmentEffects(ownedItems).energyRecovery ?? 0
+      setGameMinutes(Math.max(6 * 60, 7 * 60 - recovery * 12))
       setDayEnded(false)
       setCanSleep(false)
       setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Квартира не требует ежедневной аренды. ' + (officeRent > 0 ? 'Аренда офиса: −' + officeRent.toLocaleString('ru-RU') + ' ₽ из капитала фирмы.' : ''))
@@ -1456,7 +1494,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => setPanel('room')} />}
+      {panel === 'wardrobe' && <ArenaOS initialApp="wardrobe" sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onPurchase={handleCatalogPurchase} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => setPanel('room')} />}
       {panel === 'wardrobe' && false && (
         <div className="computer-overlay wardrobe-overlay">
           <div className="computer-topbar os-topbar">
@@ -1473,7 +1511,7 @@ export default function App() {
         </div>
       )}
 
-      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
+      {panel === 'computer' && <ArenaOS sessionId={careerSessionId} saveSlot={activeSaveSlot} introCallReceived={introCallReceived} setIntroCallReceived={updateIntroCallReceived} housingId={housingId} setHousingId={setHousingId} cash={cash} setCash={setCash} firmCapital={firmCapital} setFirmCapital={setFirmCapital} masterVolume={masterVolume} setMasterVolume={setMasterVolume} soundEnabled={soundEnabled} setSoundEnabled={setSoundEnabled} reputation={reputation} setReputation={setReputation} xp={xp} setXp={setXp} day={day} gameMinutes={gameMinutes} selectedOutfit={selectedOutfit} setSelectedOutfit={setSelectedOutfit} ownedOutfits={ownedOutfits} setOwnedOutfits={setOwnedOutfits} ownedItems={ownedItems} setOwnedItems={setOwnedItems} onPurchase={handleCatalogPurchase} clientTrustScores={clientTrustScores} setClientTrustScores={setClientTrustScores} businessUpgrades={businessUpgrades} setBusinessUpgrades={setBusinessUpgrades} ownedBusinessAssets={ownedBusinessAssets} setOwnedBusinessAssets={setOwnedBusinessAssets} ownedEmployees={ownedEmployees} setOwnedEmployees={setOwnedEmployees} companyName={companyName} setCompanyName={setCompanyName} callsToday={callsToday} setCallsToday={setCallsToday} onEndDay={endDay} onClose={() => { setPanel('room'); setPauseOpen(false) }} />}
       {panel === 'computer' && false && (
         <div className="computer-overlay os-shell">
           <div className="computer-topbar os-topbar">
