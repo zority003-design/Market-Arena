@@ -13,14 +13,14 @@ type Props = {
 }
 const money=(n:number)=>n.toLocaleString('ru-RU')+' ₽'
 const RARITY_CLASS:Record<string,string>={common:'common',uncommon:'uncommon',rare:'rare',elite:'elite',exclusive:'exclusive'}
-export default function ItemMarketplace({mode,cash,ownedItems,onBuy,saveSlot,outfit}:Props){
+export default function ItemMarketplace({mode,cash,ownedItems,onBuy,saveSlot,outfit,onAppearanceChange}:Props){
   const [category,setCategory]=useState(mode==='equipment'?'equipment':'all')
   const [query,setQuery]=useState('')
   const [selected,setSelected]=useState<string|null>(null)
   const [equipped,setEquipped]=useState<string[]>(()=>{
     try { const value=JSON.parse(localStorage.getItem('market-arena-equipped-'+saveSlot)||'[]'); return Array.isArray(value)?value.filter((id:string)=>ITEM_CATALOG.some(item=>item.id===id)):[] } catch{return []}
   })
-  useEffect(()=>{try{localStorage.setItem('market-arena-equipped-'+saveSlot,JSON.stringify(equipped))}catch{}},[equipped,saveSlot])
+  useEffect(()=>{try{localStorage.setItem('market-arena-equipped-'+saveSlot,JSON.stringify(equipped))}catch{}},[equipped,saveSlot])\n  useEffect(()=>{onAppearanceChange?.(equipped)},[equipped,onAppearanceChange])
   useEffect(()=>{setCategory(mode==='equipment'?'equipment':'all')},[mode])
   const visible=useMemo(()=>ITEM_CATALOG.filter(item=>(mode==='equipment'?item.category==='equipment':item.category!=='equipment')&&(category==='all'||item.category===category)&&(!query||[item.name,item.description,item.material].join(' ').toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))),[category,mode,query])
   const current=ITEM_CATALOG.find(item=>item.id===selected)??visible[0]
