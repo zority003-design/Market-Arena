@@ -418,7 +418,7 @@ export default function ArenaOS(props: Props) {
         if (firstSuccessfulDeal) localStorage.setItem('arena-os-v2-first-deal-guide-seen-slot-' + (props.saveSlot ?? 1),'true')
       } catch { firstSuccessfulDeal = completed === 0 }
       setFirstDealGuide(firstSuccessfulDeal)
-      if (!props.transactMoney(firmCommission, 'Комиссия за сделку с ' + client.name)) { setNotice('Не удалось провести начисление. Попробуй ещё раз.'); return }
+      if (!props.transactMoney(firmCommission, 'Комиссия за сделку с ' + client.name, 'deal:' + client.id)) { setNotice('Не удалось провести начисление. Попробуй ещё раз.'); return }
       props.setReputation(v=>Math.min(100,v+2)); props.setXp(v=>v+45)
       setLastPayout(playerBonus); setLastFirmCommission(firmCommission); setLastClientTicket(client.ticket); setLastXpReward(45); setLastReputationReward(Math.min(2,100-props.reputation)); setLastContactName(client.name)
       const referralId = client.id==='alex-vorontsov'?'pavel-smirnov':client.id==='maria-sokolova'?'natalia-orlova':client.id==='pavel-smirnov'?'maksim-sobolev':'igor-melnikov'
@@ -453,7 +453,7 @@ export default function ArenaOS(props: Props) {
   const buyOutfit = (id:OutfitId,price:number) => {
     if(props.ownedOutfits.includes(id)) { props.setSelectedOutfit(id); setNotice('Образ изменён: его бонус зависит от уровня одежды и статуса клиента.'); return }
     if(props.cash<price) { setNotice('Не хватает денег. Сначала заработай на переговорах.'); return }
-    if (!props.transactMoney(-price, 'Покупка одежды: ' + outfit.name)) { setNotice('Недостаточно денег на общем балансе.'); return }
+    if (!props.transactMoney(-price, 'Покупка одежды: ' + outfit.name, 'outfit:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setOwnedOutfits(v=>[...v,id]); props.setSelectedOutfit(id); setNotice('Покупка разовая. Ежедневной аренды жилья в игре нет.')
   }
   const buyBusinessUpgrade = (id:string) => {
@@ -461,7 +461,7 @@ export default function ArenaOS(props: Props) {
     if (!upgrade || props.businessUpgrades.includes(id)) return
     if (props.day < upgrade.minDay || props.reputation < upgrade.minReputation) { setNotice('Требуется день ' + upgrade.minDay + ' и репутация ' + upgrade.minReputation + '.'); return }
     if (props.cash < upgrade.price) { setNotice('В капитале фирмы не хватает ' + money(upgrade.price - props.cash) + '.'); return }
-    if (!props.transactMoney(-upgrade.price, 'Бизнес-улучшение: ' + upgrade.name)) { setNotice('Недостаточно денег на общем балансе.'); return }
+    if (!props.transactMoney(-upgrade.price, 'Бизнес-улучшение: ' + upgrade.name, 'upgrade:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setBusinessUpgrades(value => [...value, id])
     setNotice('Бизнес улучшен: ' + upgrade.name + '. Изменения действуют со следующего звонка.')
   }
@@ -481,7 +481,7 @@ export default function ArenaOS(props: Props) {
       setNotice('В капитале фирмы не хватает ' + money(asset.price - props.cash) + '. Покупка спишет деньги с общего баланса.')
       return
     }
-    if (!props.transactMoney(-asset.price, 'Покупка бизнес-актива: ' + asset.name)) { setNotice('Недостаточно денег на общем балансе.'); return }
+    if (!props.transactMoney(-asset.price, 'Покупка бизнес-актива: ' + asset.name, 'business-asset:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setOwnedBusinessAssets(value => [...value, id])
     setNotice('Приобретено: ' + asset.name + '. Чистый доход ' + money(asset.dailyRevenue - asset.dailyCost) + ' начислится после следующего сна.')
   }
@@ -494,14 +494,14 @@ export default function ArenaOS(props: Props) {
     if (props.ownedEmployees.length >= capacity) { setNotice(officeOpen ? 'В этом офисе уже заняты все 5 рабочих мест.' : 'В квартире помещается только один дополнительный брокер. Купи офис, чтобы расширить команду до пяти сотрудников.'); return }
     if (props.day < employee.minDay || props.reputation < employee.minReputation) { setNotice('Для найма нужны день ' + employee.minDay + ' и репутация ' + employee.minReputation + '.'); return }
     if (props.cash < employee.price) { setNotice('В капитале фирмы не хватает ' + money(employee.price - props.cash) + ' на найм.'); return }
-    if (!props.transactMoney(-employee.price, 'Найм сотрудника: ' + employee.name)) { setNotice('Недостаточно денег на общем балансе.'); return }
+    if (!props.transactMoney(-employee.price, 'Найм сотрудника: ' + employee.name, 'employee:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setOwnedEmployees(value => [...value, id])
     setNotice('В команду принят сотрудник: ' + employee.name + '. Зарплата автоматически вычитается из его выручки; фирме начисляется только чистый остаток +' + money(employee.dailyRevenue - employee.dailySalary) + '.')
   }
   const buyGear = (id:string,price:number) => {
     if(props.ownedItems.includes(id)) { setNotice('Уже куплено.'); return }
     if(props.cash<price) { setNotice('Не хватает денег.'); return }
-    if (!props.transactMoney(-price, 'Покупка оборудования: ' + item.name)) { setNotice('Недостаточно денег на общем балансе.'); return }
+    if (!props.transactMoney(-price, 'Покупка оборудования: ' + item.name, 'room-item:' + id)) { setNotice('Недостаточно денег на общем балансе.'); return }
     props.setOwnedItems(v=>[...v,id]); setNotice('Куплено навсегда. Ежедневной аренды жилья в игре нет.')
   }
   const nav: {id:AppId;label:string;icon:typeof Laptop}[] = [
@@ -621,7 +621,7 @@ export default function ArenaOS(props: Props) {
   })}</div>
   <div className="arena-os-empire-goal"><span className="arena-os-kicker">ДОЛГОСРОЧНАЯ ЦЕЛЬ</span><h3>{props.ownedBusinessAssets.includes('national-network')?'Ты построил федеральную брокерскую сеть':'Следующая цель: '+(BUSINESS_ASSETS.find(a=>!props.ownedBusinessAssets.includes(a.id))?.name??'Федеральная сеть')}</h3><p>{props.ownedBusinessAssets.includes('national-network')?'Теперь заработок позволяет содержать большую фирму, улучшать жильё и собирать личное состояние.':'Сделки дают стартовый капитал. Активы создают регулярный доход. Этот доход помогает оплатить команду, жильё и следующий этап расширения — так ты перестаёшь зависеть только от собственных звонков.'}</p></div>
 </div></section>}
-          {activeApp==='housing' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">КАРЬЕРА · НОВЫЙ УРОВЕНЬ</span><h1>Жильё и рабочая среда</h1><p>Переезд мгновенно меняет локацию. Комфорт помогает сохранять терпение клиента, а первое впечатление влияет на доверие. Квартиры оплачиваются разово; офис арендуется за 1 200 ₽ за игровой день с единого баланса.</p></div><span className="arena-os-count">Сейчас: {currentHousing.name}</span></div><div className="arena-os-housing-grid">{HOUSING.map((home,index)=>{const current=home.id===props.housingId;const locked=props.day<home.minDay||props.reputation<home.minReputation;const canAfford=props.cash>=home.price;return <article key={home.id} className={'arena-os-housing-card'+(current?' current':'')}><div className={'arena-os-housing-art housing-art-'+home.id}><House size={30}/><span>УРОВЕНЬ {index+1}</span></div><div className="arena-os-housing-copy"><h3>{home.name}</h3><p>{home.description}</p><div className="arena-os-housing-stats"><span>Комфорт <b>+{home.comfort}</b></span><span>Первое впечатление <b>{home.firstImpression>0?'+':''}{home.firstImpression}</b></span></div><strong className="arena-os-housing-price">{home.price===0?'Стартовое жильё':money(home.price)}</strong><small>{current?'Ты уже здесь':locked?'Откроется на '+home.minDay+' дне при репутации '+home.minReputation+'.':canAfford?'Можно переехать сейчас':'Не хватает '+money(home.price-props.cash)}</small><button className={current?'arena-os-secondary':'arena-os-primary'} disabled={current||locked||!canAfford} onClick={()=>{if(current||locked||!canAfford)return;if(!props.transactMoney(-home.price,'Покупка жилья: '+home.name)){setNotice('Недостаточно денег на общем балансе.');return}props.setHousingId(home.id);setNotice('Переезд оформлен. Сейчас ты автоматически переместишься в новое жильё.')}}>{current?'Текущее жильё':locked?'Пока закрыто':canAfford?'Переехать':'Нужно накопить'}</button></div></article>})}</div><div className="arena-os-note"><House size={18}/><p>Текущее жильё: <b>{currentHousing.name}</b>. Его влияние на первое впечатление учитывается в переговорах. После закрытия ARENA OS увидишь соответствующий интерьер комнаты. Квартиры не создают ежедневных платежей. Офис — исключение: 1 200 ₽ аренды в конце игрового дня списывается с единого баланса. Учитывай это, прежде чем расширять команду.</p></div></section>}
+          {activeApp==='housing' && <section><div className="arena-os-page-heading"><div><span className="arena-os-kicker">КАРЬЕРА · НОВЫЙ УРОВЕНЬ</span><h1>Жильё и рабочая среда</h1><p>Переезд мгновенно меняет локацию. Комфорт помогает сохранять терпение клиента, а первое впечатление влияет на доверие. Квартиры оплачиваются разово; офис арендуется за 1 200 ₽ за игровой день с единого баланса.</p></div><span className="arena-os-count">Сейчас: {currentHousing.name}</span></div><div className="arena-os-housing-grid">{HOUSING.map((home,index)=>{const current=home.id===props.housingId;const locked=props.day<home.minDay||props.reputation<home.minReputation;const canAfford=props.cash>=home.price;return <article key={home.id} className={'arena-os-housing-card'+(current?' current':'')}><div className={'arena-os-housing-art housing-art-'+home.id}><House size={30}/><span>УРОВЕНЬ {index+1}</span></div><div className="arena-os-housing-copy"><h3>{home.name}</h3><p>{home.description}</p><div className="arena-os-housing-stats"><span>Комфорт <b>+{home.comfort}</b></span><span>Первое впечатление <b>{home.firstImpression>0?'+':''}{home.firstImpression}</b></span></div><strong className="arena-os-housing-price">{home.price===0?'Стартовое жильё':money(home.price)}</strong><small>{current?'Ты уже здесь':locked?'Откроется на '+home.minDay+' дне при репутации '+home.minReputation+'.':canAfford?'Можно переехать сейчас':'Не хватает '+money(home.price-props.cash)}</small><button className={current?'arena-os-secondary':'arena-os-primary'} disabled={current||locked||!canAfford} onClick={()=>{if(current||locked||!canAfford)return;if(!props.transactMoney(-home.price,'Покупка жилья: '+home.name,'housing:'+home.id)){setNotice('Недостаточно денег на общем балансе.');return}props.setHousingId(home.id);setNotice('Переезд оформлен. Сейчас ты автоматически переместишься в новое жильё.')}}>{current?'Текущее жильё':locked?'Пока закрыто':canAfford?'Переехать':'Нужно накопить'}</button></div></article>})}</div><div className="arena-os-note"><House size={18}/><p>Текущее жильё: <b>{currentHousing.name}</b>. Его влияние на первое впечатление учитывается в переговорах. После закрытия ARENA OS увидишь соответствующий интерьер комнаты. Квартиры не создают ежедневных платежей. Офис — исключение: 1 200 ₽ аренды в конце игрового дня списывается с единого баланса. Учитывай это, прежде чем расширять команду.</p></div></section>}
           {activeApp==='tasks' && <section>
             <div className="arena-os-page-heading"><div><span className="arena-os-kicker">ПЛАН КАРЬЕРЫ · ДЕНЬ {props.day}</span><h1>Что делать дальше</h1><p>Каждая задача объясняет цель, награду или пользу и следующий конкретный шаг. Не нужно угадывать, зачем тебе опыт или куда тратить заработанное.</p></div><span className="arena-os-count">{completed} сделок в этой сессии</span></div>
             <div className="arena-os-task-list">
