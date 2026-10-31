@@ -70,3 +70,28 @@
 .marketplace-customizer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 13px;padding:11px;border:1px solid rgba(170,196,193,.13);border-radius:12px;background:#13232a}.marketplace-customizer>div{display:flex;flex-direction:column;gap:6px;min-width:0}.marketplace-customizer label{font:8px 'DM Mono',monospace;letter-spacing:.1em;color:#83a09b}.marketplace-customizer select{width:100%;min-width:0;height:34px;padding:0 8px;border:1px solid rgba(170,196,193,.16);border-radius:7px;background:#1b3038;color:#e5eeeb;font:inherit;font-size:10px}@media(max-width:520px){.marketplace-customizer{grid-template-columns:1fr;gap:7px}}
 
 .marketplace-sort{height:39px;padding:0 10px;border:1px solid rgba(170,196,193,.16);border-radius:9px;background:#122129;color:#a9bfba;font-size:10px}
+
+
+/* Signature collection — stronger visual hierarchy and tactile item cards */
+.marketplace-drop{align-items:center;justify-content:space-between;gap:14px;margin:0 0 14px;padding:15px 17px;border:1px solid rgba(111,192,160,.22);border-radius:14px;background:radial-gradient(ellipse at 5% 0%,rgba(78,168,130,.2),transparent 48%),linear-gradient(110deg,#172f31,#14242d);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.marketplace-drop>div:first-child{display:flex;flex-direction:column;gap:4px}
+.marketplace-drop-kicker{font:8px 'DM Mono',monospace;letter-spacing:.16em;color:#80d4ae}
+.marketplace-drop strong{font-size:15px;letter-spacing:-.025em;color:#edf6f0}
+.marketplace-drop small{font-size:10px;color:#9ab3aa}
+.marketplace-drop-swatches{display:flex;gap:6px;flex:none}
+.marketplace-drop-swatches i{width:24px;height:34px;border:1px solid rgba(255,255,255,.25);border-radius:7px;background:#172b45;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.marketplace-drop-swatches i:nth-child(2){background:#b39a78}
+.marketplace-drop-swatches i:nth-child(3){background:#f0eadc}
+.marketplace-drop-swatches i:nth-child(4){background:#542b32}
+.marketplace-item{border-radius:15px;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.marketplace-item-art{height:112px;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--item-color) 66%,#42545a),#13252b 78%)}
+.marketplace-item-art span{width:60px;height:60px;border-radius:18px;box-shadow:0 8px 22px rgba(0,0,0,.2)}
+.marketplace-item-info{padding:13px}
+.marketplace-item-title b{font-size:12px;color:#edf4ef}
+.marketplace-item-info p{font-size:10px;line-height:1.55}
+.marketplace-item.selected{box-shadow:0 0 0 1px rgba(90,185,149,.26),0 12px 26px rgba(0,0,0,.2)}
+.marketplace-details{border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.14)}
+.marketplace-details h3{font-size:17px;letter-spacing:-.025em}
+.marketplace-customizer{background:linear-gradient(120deg,#172f32,#172630);border-color:rgba(111,192,160,.22)}
+.marketplace-customizer select:focus-visible,.marketplace-sort:focus-visible,.marketplace-search:focus-within{outline:2px solid rgba(93,211,164,.65);outline-offset:2px}
+@media(max-width:520px){.marketplace-drop{align-items:flex-start}.marketplace-drop-swatches i{width:17px;height:27px}}
