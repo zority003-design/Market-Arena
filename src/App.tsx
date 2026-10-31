@@ -1252,7 +1252,7 @@ export default function App() {
       setOwnedItems(result.inventory)
       setShopProcessed(result.economy.processed)
       setToast('Куплено: ' + description + '. Деньги списаны с общего личного баланса.')
-      playSound('purchase')
+      playSound('ui')
       return true
     } catch (error) {
       setToast(error instanceof Error ? error.message : 'Не удалось завершить покупку.')
