@@ -283,7 +283,7 @@ test('player video is an in-game camera view tied to the selected housing, never
 
 test('housing test mode grants the test budget and bypasses progression in both listing and move action', async () => {
   const app = await read('src/App.tsx')
-  assert.match(app, /Выдать тестовый бюджет \\+3 000 000 ₽/)
+  assert.match(app, /Выдать тестовый бюджет \+3 000 000 ₽/)
   assert.match(app, /setCash\(\(value\) => value \+ 3000000\)/)
   assert.match(app, /единый баланс/)
   assert.match(app, /const locked = !testModeEnabled &&/)
