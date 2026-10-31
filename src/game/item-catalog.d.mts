@@ -6,3 +6,4 @@ export const RARITY_LABELS: Record<string,string>;
 export function getItemById(id:string): CatalogItem|null;
 export function getEquippedAppearance(ids?:string[]): {jacketColor?:string;trousersColor?:string;shoeColor?:string;watch:boolean;glasses:boolean;backpack:boolean;belt:boolean;equippedIds:string[]};
 export function evaluateSocialAppearance(ids?:string[],context?:string,personality?:string): {score:number;fit:number;mismatch:number;notes:string};
+\nexport function getEquipmentEffects(ids?:string[]): Record<string,number>;\n
