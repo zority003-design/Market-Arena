@@ -2,8 +2,9 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { ContactShadows, RoundedBox } from '@react-three/drei'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import { getEquippedAppearance } from './game/item-catalog.mjs'
 
-type CharacterAppearance = { jacketColor?: string; trousersColor?: string; shoeColor?: string; watch?: boolean; glasses?: boolean; backpack?: boolean; belt?: boolean }
+type CharacterAppearance = { jacketColor?: string; trousersColor?: string; shoeColor?: string; watch?: boolean; glasses?: boolean; backpack?: boolean; belt?: boolean; skinTone?: string; skinToneLight?: string; hairColor?: string; hairStyle?: number }
 type BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string; pose?: Pose; appearance?: CharacterAppearance }
 type Pose = 'standing' | 'seated'
 
@@ -44,7 +45,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
     return hash >>> 0
   }, [identity])
   const palette = palettes[seed % palettes.length]
-  const hairStyle = (seed >>> 3) % 4
+  const hairStyle = appearance?.hairStyle ?? ((seed >>> 3) % 4)
   const formal = outfit === 'premium' || identity === 'team-lead' || identity === 'senior-broker' || identity === 'broker-specialist'
   const playerIntern = identity === 'player' && outfit === 'intern'
   const playerPremium = identity === 'player' && outfit === 'premium'
@@ -53,8 +54,9 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
   const jacket = identity === 'player' ? (appearance?.jacketColor ?? (outfit === 'intern' ? '#657b7d' : outfit === 'premium' ? '#17283f' : '#263f5b')) : juniorStaff ? '#63797c' : palette.suit
   const trousers = identity === 'player' ? (appearance?.trousersColor ?? (playerIntern ? '#46565a' : playerPremium ? '#202a37' : '#293746')) : (juniorStaff ? '#394650' : '#263442')
   const shirtColor = playerPremium ? '#fffdf4' : casualJacket ? '#e4e9e4' : palette.shirt
-  const skinColor = palette.skin
-  const hairColor = palette.hair
+  const skinColor = appearance?.skinTone ?? palette.skin
+  const skinLightColor = appearance?.skinToneLight ?? appearance?.skinTone ?? palette.skinLight
+  const hairColor = appearance?.hairColor ?? palette.hair
   const tieColor = identity === 'player' ? (playerIntern ? '#a7b2b0' : playerPremium ? '#d3ad5e' : '#a84f49') : palette.tie
   const seated = pose === 'seated'
 
@@ -136,17 +138,17 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
       <Limb start={seated ? [-0.42,1.45,0.29] : [-0.47,1.18,0.06]} end={seated ? [-0.42,1.22,0.47] : [-0.48,0.93,0.16]} radius={0.105} color={skinColor}/>
       <Limb start={seated ? [0.42,1.45,0.29] : [0.47,1.18,0.06]} end={seated ? [0.42,1.22,0.47] : [0.48,0.93,0.16]} radius={0.105} color={skinColor}/>
       </group>
-      <mesh position={seated ? [-0.42,1.17,0.48] : [-0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight} roughness={0.82}/></mesh>
-      <mesh position={seated ? [0.42,1.17,0.48] : [0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight} roughness={0.82}/></mesh>
+      <mesh position={seated ? [-0.42,1.17,0.48] : [-0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={skinLightColor} roughness={0.82}/></mesh>
+      <mesh position={seated ? [0.42,1.17,0.48] : [0.48,0.87,0.17]} scale={[0.095,0.12,0.08]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={skinLightColor} roughness={0.82}/></mesh>
       {/* Neck sinks into the collar and jaw to remove the old floating-head look. */}
       <mesh position={[0,2.02,0]}><cylinderGeometry args={[0.125,0.15,0.3,24]}/><meshStandardMaterial color={skinColor} roughness={0.82}/></mesh>
       <mesh position={[0,2.04,0.12]} scale={[0.15,0.12,0.12]}><sphereGeometry args={[1,20,16]}/><meshStandardMaterial color={skinColor}/></mesh>
       <mesh position={[0,2.36,0]} scale={[0.3,0.36,0.27]} castShadow><sphereGeometry args={[1,32,24]}/><meshStandardMaterial color={skinColor} roughness={0.8}/></mesh>
-      <mesh position={[0,2.2,0.16]} scale={[0.22,0.15,0.14]}><sphereGeometry args={[1,24,18]}/><meshStandardMaterial color={palette.skinLight} roughness={0.86}/></mesh>
+      <mesh position={[0,2.2,0.16]} scale={[0.22,0.15,0.14]}><sphereGeometry args={[1,24,18]}/><meshStandardMaterial color={skinLightColor} roughness={0.86}/></mesh>
       <mesh position={[-0.305,2.34,0]} scale={[0.065,0.105,0.06]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={skinColor}/></mesh>
       <mesh position={[0.305,2.34,0]} scale={[0.065,0.105,0.06]} castShadow><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={skinColor}/></mesh>
-      <mesh position={[-0.305,2.34,0.046]} scale={[0.027,0.052,0.02]}><sphereGeometry args={[1,14,10]}/><meshStandardMaterial color={palette.skinLight}/></mesh>
-      <mesh position={[0.305,2.34,0.046]} scale={[0.027,0.052,0.02]}><sphereGeometry args={[1,14,10]}/><meshStandardMaterial color={palette.skinLight}/></mesh>
+      <mesh position={[-0.305,2.34,0.046]} scale={[0.027,0.052,0.02]}><sphereGeometry args={[1,14,10]}/><meshStandardMaterial color={skinLightColor}/></mesh>
+      <mesh position={[0.305,2.34,0.046]} scale={[0.027,0.052,0.02]}><sphereGeometry args={[1,14,10]}/><meshStandardMaterial color={skinLightColor}/></mesh>
       {/* Facial features face forward (+Z); eyes, brows, nose and mouth remain legible in the camera preview. */}
       <mesh position={[-0.112,2.405,0.245]} scale={[0.068,0.044,0.022]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color="#fff7e9"/></mesh>
       <mesh position={[0.112,2.405,0.245]} scale={[0.068,0.044,0.022]}><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color="#fff7e9"/></mesh>
@@ -154,7 +156,7 @@ export function BrokerModel({ identity, outfit, pose = 'standing', appearance }:
       <mesh position={[0.121,2.405,0.267]} scale={[0.023,0.032,0.012]}><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color="#24303b"/></mesh>
       <mesh position={[-0.11,2.465,0.247]} rotation={[0,0,-0.13]}><boxGeometry args={[0.14,0.027,0.025]}/><meshStandardMaterial color={hairColor}/></mesh>
       <mesh position={[0.11,2.465,0.247]} rotation={[0,0,0.13]}><boxGeometry args={[0.14,0.027,0.025]}/><meshStandardMaterial color={hairColor}/></mesh>
-      <mesh position={[0,2.34,0.285]} scale={[0.052,0.064,0.046]}><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={palette.skinLight}/></mesh>
+      <mesh position={[0,2.34,0.285]} scale={[0.052,0.064,0.046]}><sphereGeometry args={[1,18,14]}/><meshStandardMaterial color={skinLightColor}/></mesh>
       <mesh position={[0,2.25,0.276]} scale={[0.07,0.018,0.014]}><sphereGeometry args={[1,18,10]}/><meshStandardMaterial color="#874e43" roughness={0.9}/></mesh>
       <mesh position={[0,2.58,-0.025]} scale={[0.305,0.19,0.29]} castShadow><sphereGeometry args={[1,28,18]}/><meshStandardMaterial color={hairColor} roughness={0.92}/></mesh>
       {hairStyle === 0 && <mesh position={[0.035,2.53,0.205]} rotation={[0.08,0,-0.2]} scale={[0.19,0.085,0.095]} castShadow><sphereGeometry args={[1,20,14]}/><meshStandardMaterial color={hairColor}/></mesh>}
@@ -218,13 +220,22 @@ export function BrokerWebcamScene({ identity = 'player', outfit = 'intern', hous
 }
 
 export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '', pose = 'standing', appearance }: BrokerAvatar3DProps) {
+  const persistedAppearance = useMemo(() => {
+    if (appearance || identity !== 'player') return appearance
+    try {
+      const slot = localStorage.getItem('market-arena-active-save-slot') || '1'
+      const equipped = JSON.parse(localStorage.getItem('market-arena-equipped-' + slot) || '[]')
+      const custom = JSON.parse(localStorage.getItem('market-arena-character-appearance-' + slot) || '{}')
+      return { ...getEquippedAppearance(Array.isArray(equipped) ? equipped : []), ...(custom && typeof custom === 'object' ? custom : {}) }
+    } catch { return undefined }
+  }, [appearance, identity])
   return <div className={`broker-avatar-3d ${compact ? 'compact' : ''} ${className}`}>
     <Canvas camera={{ position: [0, compact ? 2.05 : 1.8, compact ? 3.65 : 5.9], fov: compact ? 29 : 34, near: 0.1, far: 30 }} onCreated={({ camera }) => camera.lookAt(0, compact ? 1.48 : 1.28, 0)} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
       <ambientLight intensity={1.25} />
       <hemisphereLight args={['#dbeeff', '#596170', 1.2]} />
       <directionalLight position={[-3, 5, 4]} intensity={2.4} castShadow />
       <directionalLight position={[3, 2, -2]} intensity={0.9} color="#9fc7ff" />
-      <BrokerModel identity={identity} outfit={outfit} pose={pose} appearance={appearance} />
+      <BrokerModel identity={identity} outfit={outfit} pose={pose} appearance={persistedAppearance} />
       <ContactShadows position={[0, 0.01, 0]} opacity={0.3} scale={1.7} blur={2.1} far={2.8} />
     </Canvas>
   </div>
