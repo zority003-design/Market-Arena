@@ -11,6 +11,7 @@ test('the transaction service validates debits, credits, duplicate ids, and fini
   assert.match(source, /history\.some\(\(entry\) => entry\.id === transaction\.id\)/)
   assert.match(source, /nextBalance < 0/)
   assert.match(source, /history: \[\.\.\.history, entry\]/)
+  assert.doesNotMatch(source, /slice\(-200\)/)
 })
 
 test('all App and ArenaOS money mutations use the same idempotent transaction gateway', async () => {
