@@ -3299,3 +3299,23 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .negotiation-dialogue-line.system p { white-space:pre-wrap; overflow-wrap:anywhere; }
 @media(max-width:900px) { .negotiation-stock-picker { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:560px) { .negotiation-stock-picker { grid-template-columns:repeat(2,minmax(0,1fr)); } .negotiation-stock-option { padding:9px 8px; } }
+
+
+.housing-test-tools { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 14px 0 18px; padding: 14px 16px; border: 1px dashed rgba(228, 188, 119, .35); border-radius: 9px; background: rgba(228, 188, 119, .045); }
+.housing-test-tools > div { display: flex; flex-direction: column; gap: 5px; }
+.housing-test-tools strong { color: #e8d4ad; font-size: 11px; }
+.housing-test-tools small { color: #9aa9aa; font-size: 10px; line-height: 1.5; }
+.housing-test-active { color: #71d6ad; font: 9px 'DM Mono', monospace; letter-spacing: .08em; }
+
+
+/* Dialogue choices are distinct conversational approaches, not four interchangeable buttons. */
+.negotiation-answer.approach-evidence, .answer-option.approach-evidence { border-left: 3px solid #55b99a; }
+.negotiation-answer.approach-salesy, .answer-option.approach-salesy { border-left: 3px solid #d87979; }
+.negotiation-answer.approach-balanced, .answer-option.approach-balanced { border-left: 3px solid #d5b06c; }
+.negotiation-answer.approach-discovery, .answer-option.approach-discovery { border-left: 3px solid #83a9d9; }
+.negotiation-answer > span { display:flex; flex-direction:column; gap:4px; }
+.negotiation-answer > span small, .answer-option-copy > small { color:#91a9a5; font:8px 'DM Mono',monospace; letter-spacing:.09em; }
+.answer-option-copy { display:flex; flex-direction:column; gap:4px; }
+.answer-option-copy > small { text-transform:uppercase; }
+.negotiation-answer.approach-salesy > span small { color:#df9292; }
+.negotiation-answer.approach-discovery > span small { color:#9bbce5; }
