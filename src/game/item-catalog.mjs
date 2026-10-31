@@ -17,7 +17,6 @@ export const ITEM_CATALOG = [
   {id:'gear-headset-pro',name:'Гарнитура Studio',category:'equipment',slot:'audio',price:6800,rarity:'uncommon',material:'Закрытые драйверы, шумоподавление',description:'Снижает штраф качества связи на переговорах.',tags:['calls'],effect:{callQuality:8},color:'#394b59'},
   {id:'gear-ergonomic-chair',name:'Эргономичное кресло',category:'equipment',slot:'room',price:9400,rarity:'uncommon',material:'Сетка и алюминий',description:'Улучшает комфорт рабочего места и восстановление энергии.',tags:['comfort'],effect:{energyRecovery:5},color:'#4b5a60'},
   {id:'gear-desk-lamp',name:'Архитектурная лампа',category:'equipment',slot:'room',price:2800,rarity:'common',material:'Алюминий, LED',description:'Делает рабочую зону уютнее и улучшает визуальную атмосферу комнаты.',tags:['comfort'],effect:{roomComfort:2},color:'#b59a6d'},
-];
   {id:'classic',name:'Деловой костюм',category:'clothing',slot:'fullset',price:4500,rarity:'uncommon',material:'Шерстяная смесь',description:'Базовый деловой комплект для официальных переговоров.',tags:['business','formal'],effect:{professional:4},color:'#344c58'},
   {id:'premium',name:'Партнёрский образ',category:'clothing',slot:'fullset',price:12500,rarity:'elite',material:'Итальянская шерсть, шёлк',description:'Премиальный комплект для встреч высокого уровня.',tags:['business','formal','status'],effect:{professional:6,status:4},color:'#17283f'},
   {id:'headset',name:'Гарнитура с микрофоном',category:'equipment',slot:'audio',price:4500,rarity:'common',material:'Закрытые акустические чаши',description:'Улучшает качество переговорной связи и снимает базовый штраф за звук.',tags:['calls'],effect:{callQuality:5},color:'#3b4d58'},
@@ -25,6 +24,7 @@ export const ITEM_CATALOG = [
   {id:'neutral-backdrop',name:'Нейтральный фон',category:'equipment',slot:'room',price:8000,rarity:'uncommon',material:'Акустический текстиль',description:'Создаёт аккуратный фон для видеопереговоров.',tags:['calls','comfort'],effect:{callQuality:3,roomComfort:1},color:'#8b9992'},
   {id:'desk-lamp',name:'Настольная лампа',category:'equipment',slot:'room',price:1200,rarity:'common',material:'Алюминий, LED',description:'Улучшает освещение рабочей зоны и атмосферу комнаты.',tags:['comfort'],effect:{roomComfort:2},color:'#b59a6d'},
   {id:'partner-desk',name:'Дополнительный рабочий стол',category:'equipment',slot:'desk',price:5800,rarity:'uncommon',material:'Массив и сталь',description:'Физически открывает второе рабочее место и найм первого сотрудника в квартире.',tags:['workspace'],effect:{workspaceCapacity:1},color:'#796b58'},
+];
 export const ITEM_CATEGORIES = [
   {id:'all',label:'Все предметы'},{id:'clothing',label:'Одежда'},{id:'accessory',label:'Аксессуары'},{id:'equipment',label:'Оборудование'}
 ];
