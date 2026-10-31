@@ -49,3 +49,13 @@ test('exclusive accessories respect day and reputation unlock gates',()=>{
   assert.equal(unlocked.economy.cash,12000);
   assert.equal(unlocked.item.rarity,'exclusive');
 });
+
+test('equipped shirt changes shirt material without recoloring the jacket',()=>{
+  const appearance=getEquippedAppearance(['style-oxford-shirt']);
+  assert.equal(appearance.shirtColor,'#d8e2e2');
+  assert.equal(appearance.jacketColor,undefined);
+});
+test('equipped shoes change the visible shoe material on the character',()=>{
+  const appearance=getEquippedAppearance(['style-sneakers']);
+  assert.equal(appearance.shoeColor,'#e7e4dc');
+});
