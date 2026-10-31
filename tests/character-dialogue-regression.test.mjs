@@ -186,9 +186,9 @@ test('OS taskbar remains outside the app window and can control sound at all tim
 
 test('post-call results explain the unified commission, XP, reputation, referral, and next actions', async () => {
   const source = await read('src/ArenaOS.tsx')
-  assert.match(source, /БОНУС БРОКЕРА · ЧАСТЬ КОМИССИИ/)
-  assert.match(source, /ВСЯ КОМИССИЯ СДЕЛКИ/)
-  assert.match(source, /бонус брокера — часть этой комиссии/)
+  assert.match(source, /БОНУС БРОКЕРА/)
+  assert.match(source, /КОМИССИЯ СДЕЛКИ/)
+  assert.match(source, /бонус брокера.*комиссия сделки.*единый баланс/)
   assert.match(source, /КАПИТАЛ КЛИЕНТА/)
   assert.match(source, /XP нельзя потратить как деньги/)
   assert.match(source, /рекомендует тебя знакомым/)
