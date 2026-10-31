@@ -174,7 +174,7 @@ test('premium prospects require better call equipment while starter clients rema
   assert.equal(getClientEquipmentAccess(mid, []).available, false)
   assert.match(getClientEquipmentAccess(mid, []).reason, /гарнитура|микрофон/i)
   assert.equal(getClientEquipmentAccess(mid, ['headset']).available, false)
-  assert.match(getClientEquipmentAccess(mid, ['headset']).reason, /HD-веб-камера/i)
+  assert.match(getClientEquipmentAccess(mid, ['headset']).reason, /HD-камера рабочего места/i)
   assert.equal(getClientEquipmentAccess(mid, ['headset', 'hd-camera']).available, true)
   assert.equal(getClientEquipmentAccess(executive, ['headset', 'hd-camera']).available, false)
   assert.equal(getClientEquipmentAccess(executive, ['headset', 'hd-camera', 'neutral-backdrop']).available, true)
