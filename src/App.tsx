@@ -851,10 +851,14 @@ export default function App() {
     setOwnedEmployees(data.ownedEmployees ?? [])
     setCompanyName(data.companyName ?? '')
     setOwnedItems(data.ownedItems ?? [])
-    const legacyOutfit = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-outfit') : localStorage.getItem('na-vse-kotirovki-outfit-slot-' + activeSaveSlot)
+    let legacyOutfit: string | null = null
+    let legacyOwnedOutfits: string | null = null
+    try {
+      legacyOutfit = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-outfit') : localStorage.getItem('na-vse-kotirovki-outfit-slot-' + activeSaveSlot)
+      legacyOwnedOutfits = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-owned-outfits') : localStorage.getItem('na-vse-kotirovki-owned-outfits-slot-' + activeSaveSlot)
+    } catch { /* Keep the starter outfit when browser storage is unavailable. */ }
     const loadedOutfit = data.selectedOutfit ?? legacyOutfit
     setSelectedOutfit(loadedOutfit === 'classic' || loadedOutfit === 'premium' ? loadedOutfit : 'intern')
-    const legacyOwnedOutfits = activeSaveSlot === 1 ? localStorage.getItem('na-vse-kotirovki-owned-outfits') : localStorage.getItem('na-vse-kotirovki-owned-outfits-slot-' + activeSaveSlot)
     let loadedOwnedOutfits: unknown = data.ownedOutfits
     if (!Array.isArray(loadedOwnedOutfits)) { try { loadedOwnedOutfits = legacyOwnedOutfits ? JSON.parse(legacyOwnedOutfits) : ['intern'] } catch { loadedOwnedOutfits = ['intern'] } }
     setOwnedOutfits(Array.isArray(loadedOwnedOutfits) ? Array.from(new Set<OutfitId>(['intern', ...loadedOwnedOutfits.filter((id): id is OutfitId => id === 'classic' || id === 'premium' || id === 'intern')])) : ['intern'])
