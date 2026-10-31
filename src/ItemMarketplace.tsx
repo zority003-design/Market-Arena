@@ -39,7 +39,7 @@ export default function ItemMarketplace({mode,cash,ownedItems,onBuy,saveSlot,out
   return <div className="marketplace-shell">
     <section className="marketplace-stage">
       <div className="marketplace-stage-top"><span>CHARACTER STUDIO · LIVE PREVIEW</span><span><span className="marketplace-live-dot"/> 3D SCENE</span></div>
-      <div className="marketplace-avatar"><BrokerAvatar3D identity="player" outfit={outfit} appearance={appearance}/></div>
+      <div className="marketplace-avatar"><BrokerAvatar3D identity="player" outfit={outfit} appearance={appearance} interactive/></div>
       <div className="marketplace-stage-bottom"><div><small>ТЕКУЩИЙ ОБРАЗ</small><strong>{outfit==='premium'?'Executive':outfit==='classic'?'Business casual':'Junior'}</strong></div><div className="marketplace-stage-controls"><span><RotateCcw size={13}/> Модель можно осматривать в 3D</span></div></div>
       <div className="marketplace-social"><Sparkles size={15}/><span><b>Контекстный стиль</b><small>{social.notes} · эффект {social.score>=0?'+':''}{social.score}</small></span></div>
     </section>
