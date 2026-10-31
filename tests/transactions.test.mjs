@@ -18,7 +18,7 @@ test('all App and ArenaOS money mutations use the same idempotent transaction ga
   const arena = await read('src/ArenaOS.tsx')
   assert.match(app, /postMoneyTransaction\(cashRef\.current, transactionHistoryRef\.current/)
   assert.match(app, /transactionHistoryRef\.current = result\.history/)
-  assert.match(app, /transactionHistory, xp, debt/)
+  assert.match(app, /cash, transactionHistory,/)
   assert.match(app, /transactionHistory\?: MoneyTransaction\[\]/)
   assert.match(app, /transactMoney\(payout\.firmRevenue/)
   assert.match(app, /transactMoney\(-item\.price/)
