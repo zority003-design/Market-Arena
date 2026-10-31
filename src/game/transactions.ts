@@ -32,5 +32,5 @@ export function postMoneyTransaction(
     return { ok: false, balance, history, error: 'insufficient-funds' }
   }
   const entry: MoneyTransaction = { ...transaction, balanceAfter: nextBalance }
-  return { ok: true, balance: nextBalance, history: [...history, entry].slice(-200) }
+  return { ok: true, balance: nextBalance, history: [...history, entry] }
 }
