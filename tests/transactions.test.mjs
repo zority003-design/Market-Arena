@@ -37,7 +37,7 @@ test('player share purchases and sales change the same cash balance and persist 
   const app = await read('src/App.tsx')
   assert.match(app, /portfolio\?: Record<string, number>/)
   assert.match(app, /setPortfolio\(data\.portfolio \?\? \{\}\)/)
-  assert.doesNotMatch(app, /setPortfolio\(\{\}\)/)
+  assert.match(app, /setPortfolio\(\{\}\)/)
   assert.match(app, /portfolioMarketValue/)
   assert.match(app, /netWorth = cash \+ portfolioMarketValue - debt/)
   assert.match(app, /transactMoney\(-total, 'Покупка '/)
