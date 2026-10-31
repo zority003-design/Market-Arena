@@ -41,3 +41,11 @@ test('social appearance is context-sensitive and equipment exposes functional ef
   assert.equal(effects.marketAnalysis,8);
   assert.equal(effects.callQuality,8);
 });
+
+test('exclusive accessories respect day and reputation unlock gates',()=>{
+  const poor= createEconomy({cash:40000});
+  assert.throws(()=>purchaseCatalogItem(poor,[],'style-heritage-watch','early-watch',{day:4,reputation:20}),/условия/);
+  const unlocked=purchaseCatalogItem(poor,[],'style-heritage-watch','late-watch',{day:20,reputation:75});
+  assert.equal(unlocked.economy.cash,12000);
+  assert.equal(unlocked.item.rarity,'exclusive');
+});
