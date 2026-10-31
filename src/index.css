@@ -3306,7 +3306,6 @@ button, .side-link, .answer-option, .primary-action, .secondary-action { max-wid
 .housing-test-tools strong { color: #e8d4ad; font-size: 11px; }
 .housing-test-tools small { color: #9aa9aa; font-size: 10px; line-height: 1.5; }
 .housing-test-active { color: #71d6ad; font: 9px 'DM Mono', monospace; letter-spacing: .08em; }
-@media (max-width: 700px) { .housing-test-tools { align-items: flex-start; flex-direction: column; } .real-webcam-feed { min-height: 118px; } }
 
 
 /* Dialogue choices are distinct conversational approaches, not four interchangeable buttons. */
