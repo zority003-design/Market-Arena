@@ -38,7 +38,9 @@ test('debt is a liability, not another wallet; repayment uses common cash', () =
 test('legacy saves merge personal and firm cash and preserve progress fields', () => {
   const migrated = migrateEconomySave({ cash: 6500, firmCapital: 25000, day: 4, ownedItems: ['headset'] });
   assert.equal(migrated.economy.cash, 31500);
-  assert.equal(migrated.day, 4);\n  assert.equal(Object.hasOwn(migrated, 'cash'), false);\n  assert.equal(Object.hasOwn(migrated, 'firmCapital'), false);
+  assert.equal(migrated.day, 4);
+  assert.equal(Object.hasOwn(migrated, 'cash'), false);
+  assert.equal(Object.hasOwn(migrated, 'firmCapital'), false);
   assert.deepEqual(migrated.ownedItems, ['headset']);
 });
 test('dialogue changes relationship and remembers promises/events', () => {
