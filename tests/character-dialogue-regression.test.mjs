@@ -156,7 +156,7 @@ test('displayed stock risk labels match the suitability catalog', async () => {
   const arena = await read('src/ArenaOS.tsx')
   const economy = await read('src/game/economy.ts')
   assert.match(arena, /risk: 'Низкий' \| 'Средний' \| 'Высокий' \| 'Очень высокий'/)
-  assert.match(arena, /ticker:\"TAPK\", name:\"Не Моя Смена\", price:64, risk:\"Высокий\"/)
+  assert.match(arena, /ticker:\"TAPK\", name:\"СменаФлоу\", price:64, risk:\"Высокий\"/)
   assert.match(economy, /OGUR:\{label:'Прибыль и повторные покупки',color:'#16a34a',description:'Производитель напитков; важны маржа, упаковка и дистрибуция.',risk:'Низкий'\}/)
 })
 
