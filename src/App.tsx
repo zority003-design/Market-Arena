@@ -15,6 +15,7 @@ import PixelAvatar from './PixelAvatar'
 import ArenaOS from './ArenaOS'
 import { createEconomy } from './game/economy-engine.mjs'
 import { purchaseCatalogItem } from './game/shop-engine.mjs'
+import { getEquipmentEffects } from './game/item-catalog.mjs'
 import { configureAudio, playSound, stopSpeech } from './audio'
 import { calculateDeal, BUSINESS_UPGRADES, CLIENTS, DAILY_SALARY, getBusinessDailyNetIncome, getStaffDailyNetIncome, getAvailableClients, getBackgroundModifier, getDailyLeadIds, getFirstImpression, getVideoQuality, getOutfitModifier, getClientStockFit, getClientTrustRequirement, STOCK_PROFILES, HOUSING, ROOM_ITEMS, STARTING_CASH, STARTING_FIRM_CAPITAL, STARTING_HOUSING_ID, type VideoBackground } from './game/economy'
 
@@ -1338,7 +1339,8 @@ export default function App() {
       // Salary is personal income; office rent and business operations belong to firm capital.
       setCash((value) => Math.max(0, value + DAILY_SALARY - personalHousingCost))
       setFirmCapital((value) => Math.max(0, value + businessNetIncome + staffNetIncome - officeRent))
-      setGameMinutes(7 * 60)
+      const recovery = getEquipmentEffects(ownedItems).energyRecovery ?? 0
+      setGameMinutes(Math.max(6 * 60, 7 * 60 - recovery * 12))
       setDayEnded(false)
       setCanSleep(false)
       setToast('Доброе утро! День ' + nextDay + '. Личный оклад +' + DAILY_SALARY.toLocaleString('ru-RU') + ' ₽; чистый доход фирмы +' + (businessNetIncome + staffNetIncome).toLocaleString('ru-RU') + ' ₽ (активы: ' + businessNetIncome.toLocaleString('ru-RU') + ' ₽, команда: ' + staffNetIncome.toLocaleString('ru-RU') + ' ₽). Квартира не требует ежедневной аренды. ' + (officeRent > 0 ? 'Аренда офиса: −' + officeRent.toLocaleString('ru-RU') + ' ₽ из капитала фирмы.' : ''))
