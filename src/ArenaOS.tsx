@@ -97,7 +97,7 @@ const OUTFITS: {id:OutfitId;name:string;price:number;desc:string;bonus:number}[]
 ]
 const GEAR = [
   {id:'headset',name:'Гарнитура с микрофоном',price:4500,desc:'Звук станет чётче: меньше просьб повторить цифры и больше доверия на старте.',bonus:5,icon:'mic'},
-  {id:'hd-camera',name:'HD-веб-камера',price:7500,desc:'Чёткая картинка для клиентов, которые не доверяют брокеру в размытии 144p.',bonus:5,icon:'camera'},
+  {id:'hd-camera',name:'HD-камера рабочего места',price:7500,desc:'Делает внутриигровой кадр персонажа чётче; физическая камера компьютера не используется.',bonus:5,icon:'camera'},
   {id:'neutral-backdrop',name:'Нейтральный фон',price:8000,desc:'Аккуратный фон повышает первое впечатление без фальшивого пентхауса.',bonus:3,icon:'background'},
   {id:'desk-lamp',name:'Настольная лампа',price:1200,desc:'Свет делает лицо заметнее и улучшает качество видеосвязи.',bonus:2,icon:'light'},
   {id:'partner-desk',name:'Дополнительный рабочий стол',price:5800,desc:'Физически появляется в комнате и открывает найм первого сотрудника в квартире.',bonus:0,icon:'desk'}
@@ -105,7 +105,7 @@ const GEAR = [
 
 function GearIllustration({ type }: { type:string }) {
   const common = { strokeLinecap:'round' as const, strokeLinejoin:'round' as const }
-  return <svg viewBox="0 0 160 120" role="img" aria-label={type==='desk'?'Иллюстрация рабочего стола':type==='mic'?'Иллюстрация гарнитуры':type==='camera'?'Иллюстрация веб-камеры':type==='light'?'Иллюстрация настольной лампы':'Иллюстрация рабочего фона'}>
+  return <svg viewBox="0 0 160 120" role="img" aria-label={type==='desk'?'Иллюстрация рабочего стола':type==='mic'?'Иллюстрация гарнитуры':type==='camera'?'Иллюстрация игровой камеры':type==='light'?'Иллюстрация настольной лампы':'Иллюстрация рабочего фона'}>
     <ellipse cx="80" cy="104" rx="54" ry="7" fill="#9bb5ca" opacity=".45"/>
     {type==='desk' && <>
       <rect x="58" y="18" width="45" height="31" rx="3" fill="#263e55" stroke="#122b40" strokeWidth="2"/>
