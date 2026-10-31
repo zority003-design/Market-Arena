@@ -1267,8 +1267,7 @@ export default function App() {
       setDailySalesShares(0)
       setTradesToday(0)
       tradesTodayRef.current = 0
-      // Share ownership is a long-term asset: never clear the portfolio at the start of a new day.
-      setNewsImpacts({})
+      // Share ownership and confirmed news impacts persist across days.
       setShiftReport(null)
       setCityVisitedToday([])
       setCityBonus(0)
