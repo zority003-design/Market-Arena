@@ -36,29 +36,32 @@ test('every listed stock has its own negotiation scenario and follow-up question
 })
 
 
-test('free-text scoring and company replies cover jokes and all listed stocks', async () => {
+test('free-text scoring uses the personalized dialogue engine and company-specific memory', async () => {
   const source = await read('src/App.tsx')
+  const dialogue = await read('src/game/dialogue.ts')
   const answerHandler = source.slice(source.indexOf('function answerQuestion'), source.indexOf('function sendFreeAnswer'))
   const freeText = source.slice(source.indexOf('function sendFreeAnswer'), source.indexOf('function buyRoomItem'))
-  assert.match(answerHandler, /const tickerReplies: Record<string, string\[\]> = \{/)
-  assert.match(answerHandler, /if \(companyReplies\.length\)/)
-  assert.match(answerHandler, /companyReplies\[questionIndex % companyReplies\.length\]/)
-  assert.doesNotMatch(answerHandler, /companyReplies\[\(questionIndex \+ seed\)/)
-  assert.match(freeText, /const joke =/)
-  assert.match(freeText, /A joke is not automatically a bad answer/)
-  assert.match(answerHandler, /rejectsGuarantee/)
+  assert.match(source, /evaluateFreeReply/)
+  assert.match(answerHandler, /evaluateFreeReply\(text, activeClient/)
+  assert.match(answerHandler, /approach === 'freeform'/)
+  assert.match(freeText, /answerQuestion\(text, 0, 'freeform'\)/)
+  assert.match(dialogue, /const companyAsides/)
+  for (const ticker of ['vect','dust','tapk','grov','grid','byte','logi']) assert.match(dialogue, new RegExp(ticker + ': \\['))
+  assert.match(dialogue, /Repeated turns ask a new, client-relevant question/)
 })
 
 
-test('honest rejection of guaranteed returns is not scored as a reckless promise', async () => {
+test('honest rejection of guaranteed returns is scored by the shared dialogue engine', async () => {
   const source = await read('src/App.tsx')
+  const dialogue = await read('src/game/dialogue.ts')
   const answerHandler = source.slice(source.indexOf('function answerQuestion'), source.indexOf('function sendFreeAnswer'))
   const freeText = source.slice(source.indexOf('function sendFreeAnswer'), source.indexOf('function buyRoomItem'))
-  assert.ok(answerHandler.includes('const rejectsGuarantee = /не\\s+'))
+  assert.match(answerHandler, /const rejectsGuarantee =/)
   assert.match(answerHandler, /const reckless = !rejectsGuarantee/)
-  assert.match(freeText, /const rejectsGuarantee =/)
-  assert.match(freeText, /const reckless = !rejectsGuarantee/)
-  assert.match(answerHandler, /const safeDelta = reckless \? -15 : delta/)
+  assert.match(answerHandler, /const safeDelta = reckless \? -15 : evaluatedDelta/)
+  assert.match(dialogue, /const rejectsGuarantee =/)
+  assert.match(dialogue, /if \(promises\)/)
+  assert.match(freeText, /answerQuestion\(text, 0, 'freeform'\)/)
 })
 
 test('business and employee income is credited to firm capital, not the broker wallet', async () => {
@@ -252,9 +255,13 @@ test('market has exactly ten distinct fictional companies and each has a company
  const block = arena.slice(arena.indexOf('const STOCKS: Stock[] = ['), arena.indexOf('const STOCK_DOSSIERS'))
  assert.equal((block.match(/ticker:/g)||[]).length,10)
  for (const ticker of tickers) assert.match(block,new RegExp("ticker:\\\""+ticker+"\\\""))
- assert.match(block,/Неловко Вышло/)
- assert.match(block,/Понедельник Labs/)
- assert.match(block,/Переоценка/)
+ assert.match(block,/name:\\"МедПульс\\"/)
+ assert.match(block,/name:\\"Атлас Дата\\"/)
+ assert.match(block,/name:\\"СменаФлоу\\"/)
+ assert.match(block,/name:\\"МаркетКруг\\"/)
+ assert.match(block,/name:\\"ВольтСеть\\"/)
+ assert.match(block,/name:\\"КодКлауд\\"/)
+ assert.match(block,/name:\\"ГрузЛайн\\"/)
  assert.match(app,/const COMPANY_BANTER/)
- assert.match(app,/Комитет по Комфорту/)
+ assert.match(app,/ВольтСеть/)
 })
