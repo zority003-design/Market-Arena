@@ -1,11 +1,11 @@
 import { Canvas, useFrame } from '@react-three/fiber'
-import { ContactShadows, RoundedBox } from '@react-three/drei'
+import { ContactShadows, RoundedBox, OrbitControls } from '@react-three/drei'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { getEquippedAppearance } from './game/item-catalog.mjs'
 
 type CharacterAppearance = { jacketColor?: string; trousersColor?: string; shoeColor?: string; watch?: boolean; glasses?: boolean; backpack?: boolean; belt?: boolean; skinTone?: string; skinToneLight?: string; hairColor?: string; hairStyle?: number }
-type BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string; pose?: Pose; appearance?: CharacterAppearance }
+type BrokerAvatar3DProps = { identity: string; outfit?: string; compact?: boolean; className?: string; pose?: Pose; appearance?: CharacterAppearance; interactive?: boolean }
 type Pose = 'standing' | 'seated'
 
 const palettes = [
@@ -229,7 +229,7 @@ export function BrokerWebcamScene({ identity = 'player', outfit = 'intern', hous
   </div>
 }
 
-export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '', pose = 'standing', appearance }: BrokerAvatar3DProps) {
+export default function BrokerAvatar3D({ identity, outfit = 'classic', compact = false, className = '', pose = 'standing', appearance, interactive = false }: BrokerAvatar3DProps) {
   const persistedAppearance = useMemo(() => {
     if (appearance || identity !== 'player') return appearance
     try {
@@ -247,6 +247,7 @@ export default function BrokerAvatar3D({ identity, outfit = 'classic', compact =
       <directionalLight position={[3, 2, -2]} intensity={0.9} color="#9fc7ff" />
       <BrokerModel identity={identity} outfit={outfit} pose={pose} appearance={persistedAppearance} />
       <ContactShadows position={[0, 0.01, 0]} opacity={0.3} scale={1.7} blur={2.1} far={2.8} />
+      {interactive && <OrbitControls enablePan={false} enableZoom minDistance={3.2} maxDistance={8} maxPolarAngle={Math.PI / 1.85} target={[0, 1.28, 0]} />}
     </Canvas>
   </div>
 }
