@@ -1229,7 +1229,9 @@ export default function App() {
       const economy = createEconomy({ cash, processed: shopProcessedRef.current })
       const result = purchaseCatalogItem(economy, ownedItems, itemId, 'shop:' + activeSaveSlot + ':' + itemId, { day, reputation })
       if (result.item.price !== price) throw new Error('Цена предмета изменилась. Обнови магазин.')
-      setCash(result.economy.cash)
+      if (!transactMoney(-result.item.price, 'Покупка в магазине: ' + description, 'shop:' + activeSaveSlot + ':' + itemId)) {
+        throw new Error('Недостаточно средств или покупка уже обработана.')
+      }
       setOwnedItems(result.inventory)
       shopProcessedRef.current = result.economy.processed
       setShopProcessed(result.economy.processed)
